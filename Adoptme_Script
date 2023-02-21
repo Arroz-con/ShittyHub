@@ -1,0 +1,722 @@
+-- Game ID: 920587237
+if game.PlaceId == 920587237 then
+	repeat task.wait() until game:IsLoaded()
+end
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+local Bypass = require(game.ReplicatedStorage:WaitForChild("Fsys")).load
+local inventory = Bypass("InventoryDB")
+local Workspace = game:GetService("Workspace")
+
+local getupvalue = getupvalue or debug.getupvalue
+local getconstant = getconstant or debug.getconstant
+
+local getconstants = getconstants or debug.getconstants
+local getgc = getgc or get_gc_objects or debug.getgc
+local getreg = getreg or getregistry or debug.getregistry
+local get_thread_context = get_thread_context or getthreadcontext or getidentity or syn.get_thread_identity
+local get_thread_identity = get_thread_context
+local set_thread_context = set_thread_context or setthreadcontext or setidentity or syn.set_thread_identity
+local set_thread_identity = set_thread_context
+
+
+local pets_legendary = {}
+local pets_ultrarare = {}
+local pets_rare = {}
+local pets_uncommon = {}
+local pets_common = {}
+local pets_eggs = {}
+
+local Stores = {
+    "CoffeeShop",
+    "Supermarket",
+    "PizzaShop",
+    "ToyShop",
+    "Obbies",
+    "Neighborhood",
+    "CampingShop",
+    "AutoShop",
+    "Nursery",
+    "Cave",
+    "IceCream",
+    "PotionShop",
+    "SkyCastle",
+    "Hospital",
+    "HatShop",
+    "PetShop",
+    "School",
+    "BabyShop",
+    "HotSpringHouse",
+    "SafetyHub",
+    "DebugInterior",
+    "VIP",
+    "Salon",
+    "SpleefMinigame",
+    "SimonSaysMinigame",
+    "WinterCastle"
+}
+
+local Baths = {
+    "StylishShower",
+    "CheapBathtub",
+    "ModernShower",
+    "Bathtub",
+    "GingerbreadShower",
+    "HotTub"
+}
+
+local FreeFoods = {
+    "ham_vip",
+    "water_vip",
+    "chocolate_milk_vip",
+    "popcorn_vip",
+    "marshmallow_on_a_stick",
+    "healing_apple",
+    "teachers_apple",
+}
+
+local Beds = {
+    "FancyPetBed",
+    "ModernPetBed",
+    "CircularPetBed",
+    "RectangularPetBed",
+    "NormalCrib",
+    "BasicCrib",
+    "RoyalCrib",
+    "PoshCrib",
+}
+local Tasks = {
+    "hungry",
+    "sleepy",
+    "thirsty",
+    "bored",
+    "dirty",
+    "camping",
+    "sick",
+    "school",
+    "hot_spring",
+    "salon",
+    "pizza_party"
+}
+
+local Egg = {
+    "japan_2022_egg",
+    "cracked_egg",
+    "regular_pet_egg",
+    "royal_egg",
+    "retired_egg"
+}
+
+local gifts = {
+    "smallgift",
+    "biggift",
+    "massivegift",
+    "legend_hat_2022_simple_chest",
+    "legend_hat_2022_regal_chest"
+}
+
+local Location = nil
+for i, v in pairs(getgc(true)) do
+    if type(v) == "function" then
+        if getfenv(v).script == ReplicatedStorage.ClientModules.Core.InteriorsM.InteriorsM then
+            if table.find(getconstants(v), "LocationAPI/SetLocation") then
+                Location = v
+                break
+            end
+        end
+    end
+end
+local function SetLocation(A, B, C)
+    set_thread_identity(2)
+    local O = get_thread_identity()
+    Location(A, B, C)
+    set_thread_identity(O)
+end
+function Home()
+    if Workspace.HouseInteriors.blueprint:FindFirstChildWhichIsA("Model") then
+        return Workspace.HouseInteriors.blueprint:FindFirstChildWhichIsA("Model").Name
+    else
+        return false
+    end
+end
+function PersonHome()
+    if Workspace.HouseInteriors.blueprint:FindFirstChildWhichIsA("Model") then
+        return Workspace.HouseInteriors.blueprint:FindFirstChildWhichIsA("Model").Name
+    else
+        return false
+    end
+end 
+function Store()
+    if Workspace.Interiors:FindFirstChildWhichIsA("Model") then
+        if
+            (Workspace.Interiors:FindFirstChildWhichIsA("Model").Name ~= "MainMap") and
+                (Workspace.Interiors:FindFirstChildWhichIsA("Model").Name ~= "Neighborhood")
+         then
+            return Workspace.Interiors:FindFirstChildWhichIsA("Model").Name
+        else
+            return false
+        end
+    else
+        return false
+    end
+end
+
+function MainMap()
+    if Workspace.Interiors:FindFirstChildWhichIsA("Model") then
+        if Workspace.Interiors:FindFirstChildWhichIsA("Model").Name == "MainMap" then
+            return Workspace.Interiors:FindFirstChildWhichIsA("Model").Name
+        else
+            return false
+        end
+    else
+        return false
+    end
+end
+
+function Neighborhood()
+    if Workspace.Interiors:FindFirstChildWhichIsA("Model") then
+        if Workspace.Interiors:FindFirstChildWhichIsA("Model").Name == "Neighborhood" then
+            return Workspace.Interiors:FindFirstChildWhichIsA("Model").Name
+        else
+            return false
+        end
+    else
+        return false
+    end
+end
+
+function GoToStore(Name)
+    if Store() == Name then
+        return true
+    end
+    SetLocation(Name, "MainDoor", {})
+    while Store() ~= Name do
+        wait()
+    end
+    if Home() then
+        return true
+    end
+    return false
+end
+
+function GoToHome()
+    SetLocation("housing", "MainDoor", {["house_owner"] = Player})
+    while not Home() do
+        wait()
+    end
+    if Home() then
+        return true
+    end
+    return false
+end
+
+function GoToNeighborhood()
+    SetLocation("Neighborhood", "MainDoor", {})
+    while not Neighborhood() do
+        wait()
+    end
+    if Neighborhood() then
+        return true
+    end
+    return false
+end
+
+function GoToMainMap()
+    SetLocation("MainMap", "Neighborhood/MainDoor", {})
+    while not MainMap() do
+        wait()
+    end
+    if MainMap() then
+        return true
+    end
+    return false
+end
+
+function GoToPersonsHouse(Name)
+    SetLocation("housing","MainDoor",{["house_owner"] = Players[Name]})
+    while not PersonHome() do
+        wait()
+    end 
+    if PersonHome() then
+        return true 
+    end 
+    return false
+end 
+function Bed(Name)
+    GoToHome()
+    for i, v in pairs(Workspace.HouseInteriors.furniture:GetChildren()) do
+        if v:FindFirstChildWhichIsA("Model") and (table.find(Beds, v:FindFirstChildWhichIsA("Model").Name)) then
+            return v.Name
+        end
+    end
+end
+function Cash()
+    for i, v in pairs(Workspace.HouseInteriors.furniture:GetChildren()) do
+        if v:FindFirstChildWhichIsA("Model") and (table.find(RetardedBullShit, v:FindFirstChildWhichIsA("Model").Name)) then
+            return v.Name
+        end
+    end
+end
+
+function Showers(Name)
+    GoToHome()
+    for i, v in pairs(Workspace.HouseInteriors.furniture:GetChildren()) do
+        if v:FindFirstChildWhichIsA("Model") and (table.find(Baths, v:FindFirstChildWhichIsA("Model").Name)) then
+            return v.Name
+        end
+    end
+end
+
+
+getgenv().auto_accept_trade = true
+getgenv().auto_trade_all_pets = true
+getgenv().auto_trade_fullgrown_neon_and_mega = true
+getgenv().auto_trade_custom = true
+getgenv().auto_trade_semi_auto = true
+getgenv().auto_trade_lowtier_pets = true
+
+
+for i, v in pairs(getupvalue(require(ReplicatedStorage.Fsys).load("RouterClient").init, 4)) do
+    v.Name = i
+end
+
+for i,v in pairs(getconnections(Player.Idled)) do
+    v:Disable()
+end
+
+for u, pets in pairs(inventory.pets) do
+    if pets.rarity == "legendary" and not pets.is_egg then
+        table.insert(pets_legendary, u)
+    elseif pets.rarity == "ultra_rare" and not pets.is_egg then
+        table.insert(pets_ultrarare, u)
+    elseif pets.rarity == "rare" and not pets.is_egg then
+        table.insert(pets_rare, u)
+    elseif pets.rarity == "uncommon" and not pets.is_egg then
+        table.insert(pets_uncommon, u)
+    elseif pets.rarity == "common" and not pets.is_egg then
+        table.insert(pets_common, u)
+    elseif pets.is_egg then
+        table.insert(pets_eggs, u)
+    end
+end
+
+local Pets_commonto_ultrarare = {}
+for i, pettable in pairs({pets_common, pets_uncommon, pets_rare, pets_ultrarare}) do
+    for j, petlist in pairs(pettable) do
+        table.insert(Pets_commonto_ultrarare, petlist)
+    end
+end
+
+
+-- for i, petId in ipairs(pets_eggs) do
+--     print(i, petId)
+-- end
+
+
+function autoAcceptTrade()
+    task.spawn(function()
+        while task.wait(0.5) do
+            if not auto_accept_trade then break end
+            pcall(function()
+                for i, v in pairs(Player.PlayerGui.DialogApp:GetDescendants()) do
+                    if v.Name == "TextLabel" then
+                        if  v.Text == "Accept" or v.Text == "Okay" or v.Text == "Next" or v.Text == "I understand" then
+                            firesignal(v.Parent.Parent.MouseButton1Click)
+                        end
+                    end
+                end
+                ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
+                ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
+                for i,v in pairs(getconnections(Player.PlayerGui.DialogApp.Dialog.NormalDialog.Buttons.ButtonTemplate)) do
+                    v.Function()
+                    v:Fire()
+                end
+            end)
+        end
+    end)
+end
+
+function autoTradeAllPets()
+    task.spawn(function()
+        while task.wait(0.5) do
+            if not getgenv().auto_trade_all_pets then break end
+            pcall(function()
+                if not Player.PlayerGui.TradeApp.Frame.Visible then
+                    ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(selectedPlayer)
+                else
+                end
+                for i, v in pairs(Player.PlayerGui.DialogApp:GetDescendants()) do
+                    if v.Name == "TextLabel" then
+                        if  v.Text == "Accept" or v.Text == "Okay" or v.Text == "Next" or v.Text == "I understand" then
+                            firesignal(v.Parent.Parent.MouseButton1Click)
+                        end
+                    end
+                end 
+            end)
+        end
+    end)
+
+    task.spawn(function()
+        local petCounter = 0
+        while task.wait(0.5) do
+            if not getgenv().auto_trade_all_pets then break end
+            pcall(function()
+                for i, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+                    ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
+                    petCounter = petCounter + 1
+                    if petCounter >= 9 then
+                        break
+                    end
+                end
+                ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
+                ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
+                petCounter = 0
+            end)
+        end
+    end)
+end
+
+function autoTradeFullgrownNeonandMega()
+    task.spawn(function()
+        while task.wait(0.5) do
+            if not getgenv().auto_trade_fullgrown_neon_and_mega then break end
+            pcall(function()
+                if not Player.PlayerGui.TradeApp.Frame.Visible then
+                    ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(selectedPlayer)
+                else
+                end
+                for i, v in pairs(Player.PlayerGui.DialogApp:GetDescendants()) do
+                    if v.Name == "TextLabel" then
+                        if  v.Text == "Accept" or v.Text == "Okay" or v.Text == "Next" or v.Text == "I understand" then
+                            firesignal(v.Parent.Parent.MouseButton1Click)
+                        end
+                    end
+                end 
+            end)
+        end
+    end)
+
+    task.spawn(function()
+        local petCounter = 0
+        while task.wait(0.5) do
+            if not getgenv().auto_trade_fullgrown_neon_and_mega then break end
+            pcall(function()
+                for i, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+                    if pet.properties.age == 6 and pet.properties.neon or pet.properties.mega_neon then
+                        ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
+                        petCounter = petCounter + 1
+                        if petCounter >= 9 then
+                            break 
+                        end
+                    end
+                end
+                ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
+                ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
+                petCounter = 0
+            end)
+        end
+    end)
+end
+
+
+function autoTradeLowTierPets()
+    task.spawn(function()
+        while task.wait(0.5) do
+            if not getgenv().auto_trade_lowtier_pets then break end
+            pcall(function()
+                if not Player.PlayerGui.TradeApp.Frame.Visible then
+                    ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(selectedPlayer)
+                else
+                end
+                for i, v in pairs(Player.PlayerGui.DialogApp:GetDescendants()) do
+                    if v.Name == "TextLabel" then
+                        if  v.Text == "Accept" or v.Text == "Okay" or v.Text == "Next" or v.Text == "I understand" then
+                            firesignal(v.Parent.Parent.MouseButton1Click)
+                        end
+                    end
+                end 
+            end)
+        end
+    end)
+
+    task.spawn(function()
+        local petCounter = 0
+        while task.wait(0.5) do
+            if not getgenv().auto_trade_lowtier_pets then break end
+            pcall(function()
+                for q, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+                    for w, petsDB_lowtierpets in pairs(Pets_commonto_ultrarare) do
+                        if pet.id == petsDB_lowtierpets and pet.properties.age <=4 and not pet.properties.neon and not pet.properties.mega_neon then
+                            print(w,petsDB_lowtierpets)
+                            ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
+                            petCounter = petCounter + 1
+                            if petCounter >= 9 then
+                                break
+                            end
+                        end
+                    end
+                end
+                ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
+                ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
+                petCounter = 0
+            end)
+        end
+    end)
+end
+
+
+function autoTradeCustom()
+    task.spawn(function()
+        while task.wait(0.5) do
+            if not getgenv().auto_trade_custom then break end
+            pcall(function()
+                if not Player.PlayerGui.TradeApp.Frame.Visible then
+                    ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(selectedPlayer)
+                else
+                end
+                for i, v in pairs(Player.PlayerGui.DialogApp:GetDescendants()) do
+                    if v.Name == "TextLabel" then
+                        if  v.Text == "Accept" or v.Text == "Okay" or v.Text == "Next" or v.Text == "I understand" then
+                            firesignal(v.Parent.Parent.MouseButton1Click)
+                        end
+                    end
+                end 
+            end)
+        end
+    end)
+
+    task.spawn(function()
+        local petCounter = 0
+        while task.wait(0.5) do
+            if not getgenv().auto_trade_custom then break end
+            pcall(function()
+                for i, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+                    if pet.id == selectedPet then
+                        ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
+                        petCounter = petCounter + 1
+                        if petCounter >= 9 then
+                            break 
+                        end
+                    end
+                end
+                ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
+                ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
+                petCounter = 0
+            end)
+        end
+    end)
+end
+
+
+function autoTradeSemiAuto()
+    task.spawn(function()
+        while task.wait(0.5) do
+            if not getgenv().auto_trade_semi_auto then break end
+            pcall(function()
+                if not Player.PlayerGui.TradeApp.Frame.Visible then
+                    ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(selectedPlayer)
+                else
+                end
+                for i, v in pairs(Player.PlayerGui.DialogApp:GetDescendants()) do
+                    if v.Name == "TextLabel" then
+                        if  v.Text == "Accept" or v.Text == "Okay" or v.Text == "Next" or v.Text == "I understand" then
+                            firesignal(v.Parent.Parent.MouseButton1Click)
+                        end
+                    end
+                end 
+            end)
+        end
+    end)
+
+    task.spawn(function()
+        local petCounter = 0
+        while task.wait(0.5) do
+            if not getgenv().auto_trade_semi_auto then break end
+            pcall(function()
+                for i, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+                    if pet.id then
+            --          ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
+                        petCounter = petCounter + 1 
+                        if petCounter >= 50 then
+                            break 
+                        end
+                    end
+                end
+        --      ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
+                ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
+                petCounter = 0
+            end)
+        end
+    end)
+end
+
+----------- Functions ------------------
+
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Window = OrionLib:MakeWindow({Name = "Adopt me", HidePremium = false, SaveConfig = true, ConfigFolder = "Bakane_Adoptme", IntroText = "Hello World"})
+
+local Auto = Window:MakeTab({
+	Name = "Auto Trade",
+	Icon = "rbxassetid://259820115",
+	PremiumOnly = false
+})
+
+Auto:AddSection({
+    Name = "only enable Auto Accept trade on alt getting the items"
+})
+
+Auto:AddToggle({
+	Name = "Auto Accept Trade ",
+	Callback = function(value)
+		getgenv().auto_accept_trade = value
+        autoAcceptTrade()
+  	end    
+})
+
+Auto:AddToggle({
+	Name = "Semi-Auto Trade (manually choose items)",
+	Callback = function(value)
+		getgenv().auto_trade_semi_auto = value
+        autoTradeSemiAuto()
+  	end
+})
+
+-- Auto:AddSection({
+--     Name = "Type in Username who you want to auto trade with"
+-- })
+
+-- Auto:AddTextbox({
+-- 	Name = "Enter Username",
+-- 	TextDisappear = false,
+-- 	Callback = function(playername)
+-- 		for i,v in pairs(Players:GetPlayers()) do
+--             if v.Name == playername then
+--                 SetPlayername = v
+--                 print(v)
+--             end 
+--         end 
+-- 	end	  
+-- })
+
+
+local playerDropdown = Auto:AddDropdown({
+    Name = "Select a player",
+    Callback = function(selectedPlayer_input)
+        selectedPlayer = Players[selectedPlayer_input]
+    end
+})
+
+Auto:AddButton({
+    Name = "Refresh Players",
+    Callback = function()
+        local playerOptions = {}
+        for i, p in pairs(game.Players:GetPlayers()) do
+            if p ~= Player then
+                table.insert(playerOptions, p.Name)
+            end
+        end
+        playerDropdown:Refresh(playerOptions, true)
+    end
+})
+
+Auto:AddSection({
+    Name = "vvv Only turn 1 of them on at a time vvv"
+})
+
+Auto:AddToggle({
+	Name = "Auto Trade All Pets",
+	Callback = function(value)
+		getgenv().auto_trade_all_pets = value
+        autoTradeAllPets()
+  	end    
+})
+
+Auto:AddToggle({
+	Name = "Auto Trade Fullgrown Neons and Megas",
+	Callback = function(value)
+		getgenv().auto_trade_fullgrown_neon_and_mega = value
+        autoTradeFullgrownNeonandMega()
+  	end    
+})
+
+Auto:AddToggle({
+	Name = "Auto Trade common to ultra-rare and newborn to teen ",
+	Callback = function(value)
+		getgenv().auto_trade_lowtier_pets = value
+        autoTradeLowTierPets()
+  	end    
+})
+
+Auto:AddSection({
+    Name = "Send Custom Pet, sends ALL ages of selected pet"
+})
+
+local PetsDropdown = Auto:AddDropdown({
+    Name = "Select a Pet",
+    Callback = function(selectedPet_input)
+        selectedPet = selectedPet_input
+    end
+})
+
+Auto:AddButton({
+    Name = "Refresh Pet List",
+    Callback = function()
+        local petOptions = {}
+        local petTable = {}
+        local addedNames = {}
+        for i, p in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+            if p and not addedNames[p.id] then
+                if not petTable[p.id] then
+                    petTable[p.id] = {}
+                end
+                table.insert(petTable[p.id], p.id)
+                addedNames[p.id] = true
+            end
+        end
+        for name, ids in pairs(petTable) do
+            table.insert(petOptions, name)
+        end
+        PetsDropdown:Refresh(petOptions, true)
+    end
+})
+
+
+-- Auto:AddButton({
+--     Name = "Refresh Pet List",
+--     Callback = function()
+--         local petOptions = {}
+--         for i, p in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+--             if p then
+--                 table.insert(petOptions, p.id)
+--             end
+--         end
+--         PetsDropdown:Refresh(petOptions, true)
+--     end
+-- })
+
+
+Auto:AddToggle({
+	Name = "Auto Trade Custom Pet",
+	Callback = function(value)
+		getgenv().auto_trade_custom = value
+        autoTradeCustom()
+  	end    
+})
+
+local Misc = Window:MakeTab({
+	Name = "Misc",
+	Icon = "rbxassetid://259820115",
+	PremiumOnly = false
+})
+
+Misc:AddButton({
+	Name = "Destroy GUI",
+	Callback = function()
+        OrionLib:Destroy()
+  	end
+})
+
+-- make list refresh 1 time after script runs
