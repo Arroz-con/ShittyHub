@@ -147,7 +147,7 @@ function autoTradeAllPets()
                 for i, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
                     ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
                     petCounter = petCounter + 1
-                    if petCounter >= 9 then
+                    if petCounter >= 18 then
                         break
                     end
                 end
@@ -188,7 +188,7 @@ function autoTradeFullgrownNeonandMega()
                     if pet.properties.age == 6 and pet.properties.neon or pet.properties.mega_neon then
                         ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
                         petCounter = petCounter + 1
-                        if petCounter >= 9 then
+                        if petCounter >= 18 then
                             break 
                         end
                     end
@@ -233,7 +233,7 @@ function autoTradeLowTierPets()
                             print(w,petsDB_lowtierpets)
                             ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
                             petCounter = petCounter + 1
-                            if petCounter >= 9 then
+                            if petCounter >= 18 then
                                 break
                             end
                         end
@@ -277,7 +277,7 @@ function autoTradeCustom()
                     if pet.id == selectedPet then
                         ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
                         petCounter = petCounter + 1
-                        if petCounter >= 9 then
+                        if petCounter >= 18 then
                             break 
                         end
                     end
@@ -320,7 +320,7 @@ function autoTradeSemiAuto()
                     if pet.id then
             --          ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
                         petCounter = petCounter + 1 
-                        if petCounter >= 50 then
+                        if petCounter >= 18 then
                             break 
                         end
                     end
