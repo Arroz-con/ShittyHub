@@ -166,7 +166,7 @@ function autoTradeLegendary()
 						if v == pet.id then
 							ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
 							petCounter = petCounter + 1
-							if petCounter >= 9 then
+							if petCounter >= 18 then
 								break 
 							end
 						end
@@ -205,7 +205,7 @@ function autoTradeFullgrownNeonandMega()
 					if pet.properties.age == 6 and pet.properties.neon or pet.properties.mega_neon then
 						ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
 						petCounter = petCounter + 1
-						if petCounter >= 9 then
+						if petCounter >= 18 then
 							break 
 						end
 					end
@@ -242,7 +242,7 @@ function autoTradeLowTierPets()
 						if pet.id == petsDB_lowtierpets and pet.properties.age <=4 and not pet.properties.neon and not pet.properties.mega_neon then
 							ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
 							petCounter = petCounter + 1
-							if petCounter >= 9 then
+							if petCounter >= 18 then
 								break
 							end
 						end
@@ -279,7 +279,7 @@ function autoTradeCustom()
 					if pet.id == selectedPet then
 						ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
 						petCounter = petCounter + 1
-						if petCounter >= 9 then
+						if petCounter >= 18 then
 							break 
 						end
 					end
@@ -317,7 +317,7 @@ function autoTradeSemiAuto()
 					if pet.id then
 			--          ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
 						petCounter = petCounter + 1 
-						if petCounter >= 50 then
+						if petCounter >= 18 then
 							break 
 						end
 					end
@@ -353,7 +353,7 @@ function autoTradeCustomGifts()
 					if gift.id == selectedGift then
 					  ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(gift.unique)
 						petCounter = petCounter + 1 
-						if petCounter >= 9 then
+						if petCounter >= 18 then
 							break 
 						end
 					end
