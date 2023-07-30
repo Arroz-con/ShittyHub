@@ -27,6 +27,8 @@ if game.PlaceId == 920587237 then
 	local ClaimRemote = Bypass("RouterClient").get("QuestAPI/ClaimQuest")
 	local RerollRemote = Bypass("RouterClient").get("QuestAPI/RerollQuest")
 
+    getgenv().ENABLE_AUTO_FARM
+
     Player.PlayerGui:WaitForChild("NewsApp")
 	Player.PlayerGui:WaitForChild("DialogApp")
 
