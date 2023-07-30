@@ -2326,7 +2326,6 @@ if game.PlaceId == 920587237 then
             FarmToggle:Set(true)
         else
             FarmToggle:Set(false)
-            buyPiano()
         end
     end
 end
