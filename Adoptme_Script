@@ -2322,7 +2322,7 @@ if game.PlaceId == 920587237 then
     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/SetDoorLocked"):InvokeServer(true)
 
     if SETTINGS.ENABLE_AUTO_FARM then
-        if piano then
+        if Piano then
             FarmToggle:Set(true)
         else
             FarmToggle:Set(false)
