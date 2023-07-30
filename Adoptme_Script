@@ -693,20 +693,22 @@ if game.PlaceId == 920587237 then
         end  
     end
 
-    local function getPet_toFarm()
+    local function priorityPet()
         local Petage = 5
         local isNeon = true
         local found_pet = false
-        if selectedPettoFarm == nil then
+        if SETTINGS.HATCH_EGG_PRIORITY == false then
             return false
         else
             while found_pet == false do
                 task.wait()
                 for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
-                    if v.id == selectedPettoFarm and v.id ~= "practice_dog" and v.properties.age == Petage and v.properties.neon == isNeon then
-                        ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, {["use_sound_delay"] = true})
-                        PetCurrentlyFarming = v.unique
-                        return true
+                    for _, v2 in ipairs(SETTINGS.HATCH_EGG_PRIORITY_NAMES) do
+                        if v.id == v2 and v.id ~= "practice_dog" and v.properties.age == Petage and v.properties.neon == isNeon then
+                            ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, {["use_sound_delay"] = true})
+                            PetCurrentlyFarming = v.unique
+                            return true
+                        end
                     end
                 end
                 if found_pet == false then
@@ -723,10 +725,11 @@ if game.PlaceId == 920587237 then
         end
     end
 
+
     
 
     local function getPet()
-        if getPet_toFarm() then return end
+        if priorityPet() then return end
         if getLegendary() then return end
         if getUltraRare() then return end
         if getRare() then return end
@@ -1678,13 +1681,13 @@ if game.PlaceId == 920587237 then
         end    
     })
 
-    local PetsDropdownFarm = Farm:AddDropdown({
-        Name = "Select a Pet to Farm",
-        Callback = function(selectedPet_input2)
-            selectedPettoFarm = selectedPet_input2
-            getPet_toFarm()
-        end
-    })
+    -- local PetsDropdownFarm = Farm:AddDropdown({
+    --     Name = "Select a Pet to Farm",
+    --     Callback = function(selectedPet_input2)
+    --         selectedPettoFarm = selectedPet_input2
+    --         getPet_toFarm()
+    --     end
+    -- })
 
 
     Farm:AddButton({
