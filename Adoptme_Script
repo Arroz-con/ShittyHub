@@ -722,6 +722,8 @@ if game.PlaceId == 920587237 then
         end
     end
 
+    
+
     local function getPet()
         if getPet_toFarm() then return end
         if getLegendary() then return end
@@ -2318,9 +2320,12 @@ if game.PlaceId == 920587237 then
 
     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/SetDoorLocked"):InvokeServer(true)
 
-    if Piano then    
-        FarmToggle:Set(true)
-    else
-        FarmToggle:Set(false)
+    if ENABLE_AUTO_FARM then
+        if piano then
+            FarmToggle:Set(true)
+        else
+            FarmToggle:Set(false)
+            buyPiano()
+        end
     end
 end
