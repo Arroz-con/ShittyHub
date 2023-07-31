@@ -27,6 +27,7 @@ if game.PlaceId == 920587237 then
 	local ClaimRemote = Bypass("RouterClient").get("QuestAPI/ClaimQuest")
 	local RerollRemote = Bypass("RouterClient").get("QuestAPI/RerollQuest")
 
+
     Player.PlayerGui:WaitForChild("NewsApp")
 	Player.PlayerGui:WaitForChild("DialogApp")
 
@@ -1053,8 +1054,6 @@ if game.PlaceId == 920587237 then
 
         if SETTINGS.HATCH_EGG_PRIORITY == false then return end
         for _, v in ipairs(SETTINGS.HATCH_EGG_PRIORITY_NAMES) do
-            print(v, PetNameID)
-            print(PetCurrentlyFarming, PetUniqueID)
             if v == PetNameID then
                 if PetUniqueID == PetCurrentlyFarming then
                     return
