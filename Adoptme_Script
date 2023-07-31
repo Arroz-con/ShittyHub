@@ -693,48 +693,159 @@ if game.PlaceId == 920587237 then
         end  
     end
 
-    local function priorityPet()
+    local function priorityEgg()
         local Petage = 5
         local isNeon = true
         local found_pet = false
-        if SETTINGS.HATCH_EGG_PRIORITY == false then
-            return false
-        else
-            while found_pet == false do
-                task.wait()
-                for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
-                    for _, v2 in ipairs(SETTINGS.HATCH_EGG_PRIORITY_NAMES) do
-                        if v.id == v2 and v.id ~= "practice_dog" and v.properties.age == Petage and v.properties.neon == isNeon then
-                            ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, {["use_sound_delay"] = true})
-                            PetCurrentlyFarming = v.unique
-                            return true
-                        end
+        while found_pet == false do
+            task.wait()
+            for _, v in ipairs(SETTINGS.HATCH_EGG_PRIORITY_NAMES) do
+                for i,v2 in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+                    if v == v2.id and v2.id ~= "practice_dog" and v2.properties.age == Petage and v2.properties.neon == isNeon then
+                        ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v2.unique, {["use_sound_delay"] = true})
+                        PetCurrentlyFarming = v2.unique
+                        return true
                     end
                 end
-                if found_pet == false then
-                    Petage = Petage - 1
-                    if Petage == 0 and isNeon == true then
-                        Petage = 5
-                        isNeon = nil
-                    elseif Petage == 0 and isNeon == nil then
-                        --getLegendary() -- the selected pet is finished so stop searching
-                        return false
-                    end
+            end
+            if found_pet == false then
+                Petage = Petage - 1
+                if Petage == 0 and isNeon == true then
+                    Petage = 5
+                    isNeon = nil
+                elseif Petage == 0 and isNeon == nil then
+                    --getLegendary() -- the selected pet is finished so stop searching
+                    return false
                 end
             end
         end
     end
 
+    local function priorityPet()
+        local Petage = 5
+        local isNeon = true
+        local found_pet = false
+        while found_pet == false do
+            task.wait()
+            for _, v in ipairs(SETTINGS.PET_ONLY_PRIORITY_NAMES) do
+                for i,v2 in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+                    if v == v2.id and v2.id ~= "practice_dog" and v2.properties.age == Petage and v2.properties.neon == isNeon then
+                        ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v2.unique, {["use_sound_delay"] = true})
+                        PetCurrentlyFarming = v2.unique
+                        return true
+                    end
+                end
+            end
+            if found_pet == false then
+                Petage = Petage - 1
+                if Petage == 0 and isNeon == true then
+                    Petage = 5
+                    isNeon = nil
+                elseif Petage == 0 and isNeon == nil then
+                    --getLegendary() -- the selected pet is finished so stop searching
+                    return false
+                end
+            end
+        end
+        
+    end
 
-    
+    local function getNeonPet()
+        local Petage = 5
+        local isNeon = true
+        local found_pet = false
+        while found_pet == false do
+            task.wait()
+            for i, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+                if v.id ~= "practice_dog" and v.properties.age == Petage and v.properties.neon == isNeon then
+                    ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, {["use_sound_delay"] = true})
+                    PetCurrentlyFarming = v.unique
+                    return true
+                end
+            end
+            if found_pet == false then
+                Petage = Petage - 1
+                if Petage == 0 and isNeon == true then
+                    return false
+                end
+            end
+        end
+    end
+
+    local petsToAgeTable = {}
+
+    local function getRandomPet()
+        local randomLowTierTable = {}
+        local nameCountTable = {}
+        local has4PetsTable = {}
+
+        for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+            if v.properties.age <= 5 and not v.properties.neon and not v.properties.mega_neon then
+                table.insert(randomLowTierTable, v.id)
+            end
+        end
+
+        for _, v in pairs(randomLowTierTable) do
+            local name = v
+            nameCountTable[name] = (nameCountTable[name] or 0) + 1
+        end
+
+        for name, count in pairs(nameCountTable) do
+            if tonumber(count) >= 4 then
+                table.insert(has4PetsTable, name)
+            end
+        end
+
+        local petCounter = 0
+        for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+            if v.id == has4PetsTable[1] and v.properties.age <= 5 and not v.properties.neon and not v.properties.mega_neon then
+                table.insert(petsToAgeTable, v.unique)
+                petCounter += 1
+                if petCounter == 4 then
+                    petCounter = 0
+                    return true
+                end
+            end
+        end
+        return false
+    end
 
     local function getPet()
-        if priorityPet() then return end
+        if SETTINGS.HATCH_EGG_PRIORITY then
+            if priorityEgg() then return end
+        end
+
+        if SETTINGS.PET_ONLY_PRIORITY then
+            if priorityPet() then return end
+        end
+
+        if SETTINGS.PET_NEON_PRIORITY then
+            if getNeonPet() then return end
+        end
+
         if getLegendary() then return end
+        print("no legendary")
+        if #petsToAgeTable >= 1 then
+            ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(petsToAgeTable[1], {["use_sound_delay"] = true})
+            PetCurrentlyFarming = petsToAgeTable[1]
+            table.remove(petsToAgeTable, 1)
+            return
+        elseif #petsToAgeTable == 0 or nil then
+            if not getRandomPet() then --[[end and go to next if statement]] end
+            ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(petsToAgeTable[1], {["use_sound_delay"] = true})
+            PetCurrentlyFarming = petsToAgeTable[1]
+            table.remove(petsToAgeTable, 1)
+            if #petsToAgeTable ~= 0 or nil then
+                return
+            end
+        end
+
+        print("trying to get pet")
         if getUltraRare() then return end
         if getRare() then return end
         if getUnCommon() then return end
         if getCommon() then return end
+
         -- if GetGiftPet() then
         --     task.wait(1)
         --     if getLegendary() then return end
@@ -744,7 +855,7 @@ if game.PlaceId == 920587237 then
         --     if getCommon() then return end
         -- end
         --if getEgg() then return end
-        if buyPet() then return end
+        -- if buyPet() then return end
     end
 
 --// Makes pets neon
@@ -936,20 +1047,15 @@ if game.PlaceId == 920587237 then
 
     ------------------------------- Auto Farming ------------------------
 
-    
 
     local function CheckifEgg()
         local PetNameID = Bypass("ClientData").get("pet_char_wrapper")["pet_id"]
-        if selectedPettoFarm == nil then return end
-        if selectedPettoFarm == PetNameID then
-            return
-        end
-        for _, p in pairs(pets_eggs) do
-            if selectedPettoFarm == p then
-                if PetNameID ~= selectedPettoFarm then
-                    getPet()
-                    return
-                end
+        if SETTINGS.HATCH_EGG_PRIORITY == false then return end
+        for _, v in ipairs(SETTINGS.HATCH_EGG_PRIORITY_NAMES) do
+            print(v, PetNameID)
+            if v ~= PetNameID then
+                getPet()
+                return
             end
         end
     end
@@ -1041,7 +1147,8 @@ if game.PlaceId == 920587237 then
             if not PetAilmentRemovedDebound then
                 PetAilmentRemovedDebound = true
                 CompletePetAilments()
-                ReEquipPet()
+                --task.wait(2)
+                --ReEquipPet()
                 task.wait(2) -- gives it time to finish equipping pet
                 SwitchOutFullyGrown()
                 PetAilmentRemovedDebound = false
@@ -1049,14 +1156,16 @@ if game.PlaceId == 920587237 then
         end)
         
         --// Code below runs once when auto farm is enabled
-        MakeNeon()
-        MakeMegaNeon()
+        if SETTINGS.PET_AUTO_FUSION then
+            MakeNeon()
+            MakeMegaNeon()
+        end
         getPet()
         task.wait(2)
         CompleteBabyAilments()
         CompletePetAilments()
         task.wait(2)
-        setfpscap(10)
+        setfpscap(5)
     
         
         --// For text that popups on bottom ui
@@ -1068,8 +1177,10 @@ if game.PlaceId == 920587237 then
                     if Player.PlayerGui.HintApp.TextLabel.Text:find("aged up!") then
                         if not DebounceHintApp then
                             DebounceHintApp = true
-                            MakeNeon()
-                            MakeMegaNeon()
+                            if SETTINGS.PET_AUTO_FUSION then
+                                MakeNeon()
+                                MakeMegaNeon()
+                            end
                             task.wait(2) -- gives it time for pet to fully equipped
                             SwitchOutFullyGrown()
                             task.wait(2) -- Dont remove. makes it so that it doesnt get called many times
@@ -1658,9 +1769,73 @@ if game.PlaceId == 920587237 then
         end)
     end
 
+    local function checkInventory()
+        if not game.Players[SETTINGS.TRADE_COLLECTOR_NAME] then
+            print("left")
+            return false, "false"
+        end
 
+        for _, gift in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.gifts) do
+            if gift.id == "rgb_reward_box" then
+                return true, "gifts"  
+            end
+        end
 
+        for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+            if (pet.properties.age == 6 or pet.properties.neon) or pet.properties.mega_neon then
+                return true, "pets"
+            end
+        end
 
+    end
+
+    local function tradeCollector(namePassOn)
+        task.spawn(function()
+            while SETTINGS.ENABLE_TRADE_COLLECTOR and SETTINGS.TRADE_COLLECTOR_NAME do
+                local tabBoolean, tabName = checkInventory()
+                print(tabBoolean)
+                if not tabBoolean then return end
+                print("trading")
+                pcall(function()
+                    repeat
+                        if not Player.PlayerGui.TradeApp.Frame.Visible then
+                            ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(Players[namePassOn])
+                        end
+
+                        ClickTradeWindowPopUps()
+                        task.wait(1)
+                    until Player.PlayerGui.TradeApp.Frame.Visible
+                    
+                    
+                    local petCounter = 0   
+                    for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory[tabName]) do
+                        if pet.id == "rgb_reward_box" or (pet.properties.age == 6 or pet.properties.neon) or pet.properties.mega_neon then
+                            ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
+                            petCounter = petCounter + 1
+                            if petCounter >= 18 then
+                                break 
+                            end
+                        end
+                    end
+                    ClickTradeWindowPopUps()
+                    ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
+                    task.wait()
+                    ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
+                    petCounter = 0
+                end)
+
+                task.wait(1)
+            end
+        end)
+    end
+
+    game.Players.ChildAdded:Connect(function(name)
+        if tostring(name) == SETTINGS.TRADE_COLLECTOR_NAME then
+            print("waiting")
+            task.wait(math.random(20, 40))
+            tradeCollector(tostring(name))
+        end
+    end)
 
     -----------          UI  Functions           ------------------
 
@@ -1808,7 +1983,7 @@ if game.PlaceId == 920587237 then
         Name = "only enable Auto Accept trade on alt getting the items"
     })
 
-    Auto:AddToggle({
+    local AutoTradeToggle = Auto:AddToggle({
         Name = "Auto Accept Trade ",
         Callback = function(value)
             getgenv().auto_accept_trade = value
@@ -2331,4 +2506,5 @@ if game.PlaceId == 920587237 then
             FarmToggle:Set(false)
         end
     end
+
 end
