@@ -26,7 +26,7 @@ if game.PlaceId == 920587237 then
 	local Bypass = require(game.ReplicatedStorage:WaitForChild("Fsys")).load
 	local ClaimRemote = Bypass("RouterClient").get("QuestAPI/ClaimQuest")
 	local RerollRemote = Bypass("RouterClient").get("QuestAPI/RerollQuest")
-
+    
 
     Player.PlayerGui:WaitForChild("NewsApp")
 	Player.PlayerGui:WaitForChild("DialogApp")
