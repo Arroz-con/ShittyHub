@@ -1,3 +1,4 @@
+```
 getgenv().SETTINGS = {
     ENABLE_AUTO_FARM = true,
     SET_FPS = 2,
@@ -15,3 +16,4 @@ getgenv().SETTINGS = {
 }
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Adoptme_Script"))()
+```
