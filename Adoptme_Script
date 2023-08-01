@@ -26,7 +26,8 @@ if game.PlaceId == 920587237 then
 	local Bypass = require(game.ReplicatedStorage:WaitForChild("Fsys")).load
 	local ClaimRemote = Bypass("RouterClient").get("QuestAPI/ClaimQuest")
 	local RerollRemote = Bypass("RouterClient").get("QuestAPI/RerollQuest")
-    
+
+
     Player.PlayerGui:WaitForChild("NewsApp")
 	Player.PlayerGui:WaitForChild("DialogApp")
 
@@ -498,9 +499,9 @@ if game.PlaceId == 920587237 then
 
     --local Pet_Farming
     local PetCurrentlyFarming
-    local Egg2Buy = "danger_2023_egg"
+    local Egg2Buy = SETTINGS.PET_TO_BUY
     local Gift2Buy = "summerfest_2023_hermit_crab_box"
-    local Pet2Buy = "ugc_refresh_2023_ostrich" -- ugc_refresh_2023_warthog   ugc_refresh_2023_ostrich
+    local Pet2Buy = SETTINGS.PET_TO_BUY -- ugc_refresh_2023_warthog   ugc_refresh_2023_ostrich
 
     local function buyPet()
         local BuyPet = ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", Pet2Buy, {})
@@ -510,7 +511,7 @@ if game.PlaceId == 920587237 then
 
     local function getEgg()   
         for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
-            if v.id == Egg2Buy and v.id ~= "practice_dog" then
+            if v.id == Egg2Buy and v.id ~= "practice_dog" and v.properties.age ~= 6 and not v.properties.mega_neon then
                 ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, {["use_sound_delay"] = true})
                 PetCurrentlyFarming = v.unique
                 return true
@@ -823,7 +824,7 @@ if game.PlaceId == 920587237 then
         end
 
         if getLegendary() then return end
-        print("no legendary")
+    
         if #petsToAgeTable >= 1 then
             ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(petsToAgeTable[1], {["use_sound_delay"] = true})
             PetCurrentlyFarming = petsToAgeTable[1]
@@ -839,7 +840,7 @@ if game.PlaceId == 920587237 then
             end
         end
 
-        print("trying to get pet")
+  
         if getUltraRare() then return end
         if getRare() then return end
         if getUnCommon() then return end
@@ -853,7 +854,8 @@ if game.PlaceId == 920587237 then
         --     if getUnCommon() then return end
         --     if getCommon() then return end
         -- end
-        --if getEgg() then return end
+
+        if getEgg() then return end
         -- if buyPet() then return end
     end
 
@@ -1867,28 +1869,28 @@ if game.PlaceId == 920587237 then
     -- })
 
 
-    Farm:AddButton({
-        Name = "Refresh Pet List, wont show full-grown",
-        Callback = function()
-            local petOptions = {}
-            local petTable = {}
-            local addedNames = {}
-            for _, p in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
-                if p and p.properties.age ~= 6 and not addedNames[p.id] then
-                    if not petTable[p.id] then
-                        petTable[p.id] = {}
-                    end
-                    table.insert(petTable[p.id], p.id)
-                    addedNames[p.id] = true
-                end
-            end
-            for name, ids in pairs(petTable) do
-                table.insert(petOptions, name)
-                table.sort(petOptions)
-            end
-            PetsDropdownFarm:Refresh(petOptions, true)
-        end
-    })
+    -- Farm:AddButton({
+    --     Name = "Refresh Pet List, wont show full-grown",
+    --     Callback = function()
+    --         local petOptions = {}
+    --         local petTable = {}
+    --         local addedNames = {}
+    --         for _, p in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+    --             if p and p.properties.age ~= 6 and not addedNames[p.id] then
+    --                 if not petTable[p.id] then
+    --                     petTable[p.id] = {}
+    --                 end
+    --                 table.insert(petTable[p.id], p.id)
+    --                 addedNames[p.id] = true
+    --             end
+    --         end
+    --         for name, ids in pairs(petTable) do
+    --             table.insert(petOptions, name)
+    --             table.sort(petOptions)
+    --         end
+    --         PetsDropdownFarm:Refresh(petOptions, true)
+    --     end
+    -- })
 
     Farm:AddSection({
         Name = "1 Click = ALL Neon/Mega"
@@ -2160,87 +2162,7 @@ if game.PlaceId == 920587237 then
         Callback = function(value)
             howmany = value
         end  
-    })
-
-    Buy:AddButton({
-        Name = "Hermit Crab Box",
-        Callback = function()
-            for i = 1, howmany do
-                ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("gifts", "summerfest_2023_hermit_crab_box", {})
-                task.wait(.1)
-            end
-        end
-    })
-
-    Buy:AddButton({
-        Name = "Crabby Cruiser Car",
-        Callback = function()
-            for i = 1, howmany do
-                ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("toys", "summerfest_2023_crabby_cruiser", {})
-                task.wait(.1)
-            end
-        end
-    })
-
-    Buy:AddButton({
-        Name = "BeachGoer Car",
-        Callback = function()
-            for i = 1, howmany do
-                ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("toys", "summerfest_2023_beach_buggy", {}) --transport:summerfest_2023_beach_buggy
-                task.wait(.1)
-            end
-        end
-    })
-
-    Buy:AddButton({
-        Name = "Leviathan",
-        Callback = function()
-            for i = 1, howmany do
-                ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "summerfest_2023_leviathan", {})
-                task.wait(.1)
-            end
-        end
-    })
-
-    Buy:AddButton({
-        Name = "Lobster",
-        Callback = function()
-            for i = 1, howmany do
-                ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "summerfest_2023_lobster", {})
-                task.wait(.1)
-            end
-        end
-    })
-
-    Buy:AddButton({
-        Name = "Shark Puppy",
-        Callback = function()
-            for i = 1, howmany do
-                ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "summerfest_2023_shark_doggo", {})
-                task.wait(.1)
-            end
-        end
-    })
-
-    Buy:AddButton({
-        Name = "Many Mackerel",
-        Callback = function()
-            for i = 1, howmany do
-                ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "summerfest_2023_mackerel_shoal", {})
-                task.wait(.1)
-            end
-        end
-    })
-
-    Buy:AddButton({
-        Name = "Flying Fish",
-        Callback = function()
-            for i = 1, howmany do
-                ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "summerfest_2023_flying_fish", {})
-                task.wait(.1)
-            end
-        end
-    })
+    }) 
 
     Buy:AddButton({
         Name = "Danger egg",
@@ -2321,141 +2243,142 @@ if game.PlaceId == 920587237 then
 
     --// Sell to player //--
 
-    local Sell = Window:MakeTab({
-        Name = "Sell",
-        Icon = "rbxassetid://259820115",
-        PremiumOnly = false
-    })
+    -- local Sell = Window:MakeTab({
+    --     Name = "Sell",
+    --     Icon = "rbxassetid://259820115",
+    --     PremiumOnly = false
+    -- })
 
-    local playerDropdown = Sell:AddDropdown({
-        Name = "Select a player",
-        Callback = function(selectedPlayer_input)
-            selectedPlayer = Players[selectedPlayer_input]
-        end
-    })
+    -- local playerDropdown = Sell:AddDropdown({
+    --     Name = "Select a player",
+    --     Callback = function(selectedPlayer_input)
+    --         selectedPlayer = Players[selectedPlayer_input]
+    --     end
+    -- })
 
-    Sell:AddButton({
-        Name = "Refresh Players",
-        Callback = function()
-            local playerOptions = {}
-            for i, p in pairs(game.Players:GetPlayers()) do
-                if p ~= Player then
-                    table.insert(playerOptions, p.Name)
-                    table.sort(playerOptions)
-                end
-            end
-            playerDropdown:Refresh(playerOptions, true)
-        end
-    })
-
-
-    local PetsDropdown = Sell:AddDropdown({
-        Name = "Select a Pet",
-        Callback = function(selectedPet_input)
-            selectedPet = selectedPet_input
-        end
-    })
-
-    Sell:AddButton({
-        Name = "Refresh Pet List",
-        Callback = function()
-            local petOptions = {}
-            local petTable = {}
-            local addedNames = {}
-            for i, p in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
-                if p and not addedNames[p.id] then
-                    if not petTable[p.id] then
-                        petTable[p.id] = {}
-                    end
-                    table.insert(petTable[p.id], p.id)
-                    addedNames[p.id] = true
-                end
-            end
-            for name, ids in pairs(petTable) do
-                table.insert(petOptions, name)
-                table.sort(petOptions)
-            end
-            PetsDropdown:Refresh(petOptions, true)
-        end
-    })
+    -- Sell:AddButton({
+    --     Name = "Refresh Players",
+    --     Callback = function()
+    --         local playerOptions = {}
+    --         for i, p in pairs(game.Players:GetPlayers()) do
+    --             if p ~= Player then
+    --                 table.insert(playerOptions, p.Name)
+    --                 table.sort(playerOptions)
+    --             end
+    --         end
+    --         playerDropdown:Refresh(playerOptions, true)
+    --     end
+    -- })
 
 
-    Sell:AddToggle({
-        Name = "Auto Trade Custom Pet",
-        Callback = function(value)
-            getgenv().auto_trade_custom = value
-            autoTradeCustom()
-        end    
-    })
+    -- local PetsDropdown = Sell:AddDropdown({
+    --     Name = "Select a Pet",
+    --     Callback = function(selectedPet_input)
+    --         selectedPet = selectedPet_input
+    --     end
+    -- })
+
+    -- Sell:AddButton({
+    --     Name = "Refresh Pet List",
+    --     Callback = function()
+    --         local petOptions = {}
+    --         local petTable = {}
+    --         local addedNames = {}
+    --         for i, p in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+    --             if p and not addedNames[p.id] then
+    --                 if not petTable[p.id] then
+    --                     petTable[p.id] = {}
+    --                 end
+    --                 table.insert(petTable[p.id], p.id)
+    --                 addedNames[p.id] = true
+    --             end
+    --         end
+    --         for name, ids in pairs(petTable) do
+    --             table.insert(petOptions, name)
+    --             table.sort(petOptions)
+    --         end
+    --         PetsDropdown:Refresh(petOptions, true)
+    --     end
+    -- })
+
+
+    -- Sell:AddToggle({
+    --     Name = "Auto Trade Custom Pet",
+    --     Callback = function(value)
+    --         getgenv().auto_trade_custom = value
+    --         autoTradeCustom()
+    --     end    
+    -- })
 
     --//Auto trade Gifts
 
-    local SellGifts = Window:MakeTab({
-        Name = "Sell Gifts",
-        Icon = "rbxassetid://259820115",
-        PremiumOnly = false
-    })
+    -- local SellGifts = Window:MakeTab({
+    --     Name = "Sell Gifts",
+    --     Icon = "rbxassetid://259820115",
+    --     PremiumOnly = false
+    -- })
 
-    local playerDropdown = SellGifts:AddDropdown({
-        Name = "Select a player",
-        Callback = function(selectedPlayer_input)
-            selectedPlayer = Players[selectedPlayer_input]
-        end
-    })
+    -- local playerDropdown = SellGifts:AddDropdown({
+    --     Name = "Select a player",
+    --     Callback = function(selectedPlayer_input)
+    --         selectedPlayer = Players[selectedPlayer_input]
+    --     end
+    -- })
 
-    SellGifts:AddButton({
-        Name = "Refresh Players",
-        Callback = function()
-            local playerOptions = {}
-            for i, p in pairs(game.Players:GetPlayers()) do
-                if p ~= Player then
-                    table.insert(playerOptions, p.Name)
-                    table.sort(playerOptions)
-                end
-            end
-            playerDropdown:Refresh(playerOptions, true)
-        end
-    })
-
-
-    local PetsDropdown = SellGifts:AddDropdown({
-        Name = "Select a Gift",
-        Callback = function(selectedGift_input)
-            selectedGift = selectedGift_input
-        end
-    })
-
-    SellGifts:AddButton({
-        Name = "Refresh Gift List",
-        Callback = function()
-            local petOptions = {}
-            local petTable = {}
-            local addedNames = {}
-            for i, p in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.gifts) do
-                if p and not addedNames[p.id] then
-                    if not petTable[p.id] then
-                        petTable[p.id] = {}
-                    end
-                    table.insert(petTable[p.id], p.id)
-                    addedNames[p.id] = true
-                end
-            end
-            for name, ids in pairs(petTable) do
-                table.insert(petOptions, name)
-                table.sort(petOptions)
-            end
-            PetsDropdown:Refresh(petOptions, true)
-        end
-    })
+    -- SellGifts:AddButton({
+    --     Name = "Refresh Players",
+    --     Callback = function()
+    --         local playerOptions = {}
+    --         for i, p in pairs(game.Players:GetPlayers()) do
+    --             if p ~= Player then
+    --                 table.insert(playerOptions, p.Name)
+    --                 table.sort(playerOptions)
+    --             end
+    --         end
+    --         playerDropdown:Refresh(playerOptions, true)
+    --     end
+    -- })
 
 
-    SellGifts:AddToggle({
-        Name = "Auto Trade Custom Gift",
-        Callback = function(value)
-            getgenv().auto_trade_custom_gifts = value
-            autoTradeCustomGifts()
-        end    
-    })
+    -- local PetsDropdown = SellGifts:AddDropdown({
+    --     Name = "Select a Gift",
+    --     Callback = function(selectedGift_input)
+    --         selectedGift = selectedGift_input
+    --     end
+    -- })
+
+    -- SellGifts:AddButton({
+    --     Name = "Refresh Gift List",
+    --     Callback = function()
+    --         local petOptions = {}
+    --         local petTable = {}
+    --         local addedNames = {}
+    --         for i, p in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.gifts) do
+    --             if p and not addedNames[p.id] then
+    --                 if not petTable[p.id] then
+    --                     petTable[p.id] = {}
+    --                 end
+    --                 table.insert(petTable[p.id], p.id)
+    --                 addedNames[p.id] = true
+    --             end
+    --         end
+    --         for name, ids in pairs(petTable) do
+    --             table.insert(petOptions, name)
+    --             table.sort(petOptions)
+    --         end
+    --         PetsDropdown:Refresh(petOptions, true)
+    --     end
+    -- })
+
+
+    -- SellGifts:AddToggle({
+    --     Name = "Auto Trade Custom Gift",
+    --     Callback = function(value)
+    --         getgenv().auto_trade_custom_gifts = value
+    --         autoTradeCustomGifts()
+    --     end    
+    -- })
+
     --// things needed when joining game for the first time
 
     local NewAlt = Window:MakeTab({
