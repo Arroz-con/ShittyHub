@@ -1071,7 +1071,6 @@ if game.PlaceId == 920587237 then
         if Player.Character.Humanoid:GetState() == Enum.HumanoidStateType.Freefall then
             repeat 
             task.wait()
-            print("waiting")
             until Player.Character.Humanoid:GetState() == Enum.HumanoidStateType.Landed
             Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
         end
