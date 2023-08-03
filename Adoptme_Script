@@ -2478,6 +2478,7 @@ if game.PlaceId == 920587237 then
 
     if SETTINGS.ENABLE_AUTO_FARM then
         if Piano then
+            task.wait(math.random(1, 20))
             FarmToggle:Set(true)
         else
             FarmToggle:Set(false)
