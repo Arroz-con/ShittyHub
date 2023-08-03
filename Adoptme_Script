@@ -1821,7 +1821,7 @@ if game.PlaceId == 920587237 then
         end
 
         for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
-            if (pet.properties.age == 6 or pet.properties.neon) or pet.properties.mega_neon then
+            if pet.properties.age == 6 or pet.properties.mega_neon then
                 return true, "pets"
             end
         end
