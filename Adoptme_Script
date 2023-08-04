@@ -693,30 +693,20 @@ if game.PlaceId == 920587237 then
     end
 
     local function priorityEgg()
-        local Petage = 5
-        local isNeon = true
         local found_pet = false
         while found_pet == false do
             task.wait()
             for _, v in ipairs(SETTINGS.HATCH_EGG_PRIORITY_NAMES) do
                 for i,v2 in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
-                    if v == v2.id and v2.id ~= "practice_dog" and v2.properties.age == Petage and v2.properties.neon == isNeon then
+                    if v == v2.id and v2.id ~= "practice_dog" then
                         ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v2.unique, {["use_sound_delay"] = true})
                         PetCurrentlyFarming = v2.unique
                         return true
                     end
                 end
             end
-            if found_pet == false then
-                Petage = Petage - 1
-                if Petage == 0 and isNeon == true then
-                    Petage = 5
-                    isNeon = nil
-                elseif Petage == 0 and isNeon == nil then
-                    --getLegendary() -- the selected pet is finished so stop searching
-                    return false
-                end
-            end
+
+            return false
         end
     end
 
@@ -726,8 +716,8 @@ if game.PlaceId == 920587237 then
         local found_pet = false
         while found_pet == false do
             task.wait()
-            for _, v in ipairs(SETTINGS.PET_ONLY_PRIORITY_NAMES) do
-                for i,v2 in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+            for i, v in ipairs(SETTINGS.PET_ONLY_PRIORITY_NAMES) do
+                for i2,v2 in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
                     if v == v2.id and v2.id ~= "practice_dog" and v2.properties.age == Petage and v2.properties.neon == isNeon then
                         ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v2.unique, {["use_sound_delay"] = true})
                         PetCurrentlyFarming = v2.unique
@@ -812,6 +802,10 @@ if game.PlaceId == 920587237 then
     local function getPet()
         if SETTINGS.HATCH_EGG_PRIORITY then
             if priorityEgg() then return end
+            for i = 1, 1 do
+                ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", SETTINGS.HATCH_EGG_PRIORITY_NAMES[1], {})
+                return
+            end
         end
 
         if SETTINGS.PET_ONLY_PRIORITY then
@@ -1035,7 +1029,7 @@ if game.PlaceId == 920587237 then
         Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
         SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
         game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
-        Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.Campsite.MarshmallowChair.VintageChair.Union.CFrame + Vector3.new(8, 10, 6)
+        Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.Campsite.MarshmallowChair.VintageChair.Union.CFrame + Vector3.new(math.random(1, 10), 10, math.random(1, 10))
         Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
     
         if Player.Character.Humanoid:GetState() == Enum.HumanoidStateType.Freefall then
@@ -1053,7 +1047,7 @@ if game.PlaceId == 920587237 then
     local function TeleportCampSite()
         Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
         game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
-        Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.Campsite.MarshmallowChair.VintageChair.Union.CFrame + Vector3.new(8, 10, 6)
+        Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.Campsite.MarshmallowChair.VintageChair.Union.CFrame + Vector3.new(math.random(1, 10), 10, math.random(1, 10))
 
         if Player.Character.Humanoid:GetState() == Enum.HumanoidStateType.Freefall then
             repeat 
@@ -1066,7 +1060,7 @@ if game.PlaceId == 920587237 then
     local function TeleportPoolParty()
         Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
         game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
-        Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.PoolArea.PoolOrigin.CFrame + Vector3.new(0, 10, 0)
+        Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.PoolArea.PoolOrigin.CFrame + Vector3.new(math.random(1, 10), 10, math.random(1, 10))
         
         if Player.Character.Humanoid:GetState() == Enum.HumanoidStateType.Freefall then
             repeat 
@@ -1078,19 +1072,14 @@ if game.PlaceId == 920587237 then
 
     ------------------------------- Auto Farming ------------------------
 
-
     local function CheckifEgg()
         local PetNameID = Bypass("ClientData").get("pet_char_wrapper")["pet_id"]
         local PetUniqueID = Bypass("ClientData").get("pet_char_wrapper")["pet_unique"]
+        local PetAge = Bypass("ClientData").get("pet_char_wrapper")["pet_progression"]["age"]
 
-        if SETTINGS.HATCH_EGG_PRIORITY == false then return end
-        for _, v in ipairs(SETTINGS.HATCH_EGG_PRIORITY_NAMES) do
-            if v == PetNameID then
-                if PetUniqueID == PetCurrentlyFarming then
-                    return
-                end
-            end
-        end
+        if PetUniqueID == PetCurrentlyFarming then return end
+        if PetAge ~= 1 then return end
+
         getPet()
     end
 
@@ -1106,7 +1095,6 @@ if game.PlaceId == 920587237 then
                 return
             elseif PetAge == 1 then
                 CheckifEgg()
-                return
             end
         end)
     end
@@ -1175,8 +1163,8 @@ if game.PlaceId == 920587237 then
         game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildAdded:Connect(function()
             removeHandHeldItem()
             SwitchOutFullyGrown()
+            task.wait(2) -- wait for pet to equip
             CompleteBabyAilments()
-            task.wait(1) -- wait for pet to equip
             CompletePetAilments()
             task.wait()
         end)
