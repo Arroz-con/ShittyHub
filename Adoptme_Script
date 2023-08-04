@@ -318,9 +318,23 @@ if game.PlaceId == 920587237 then
     end
 
     local function buyPiano()
-        local pianoCFrame = CFrame.new(Vector3.new(13.7001953125, 0, -20.699951171875), Vector3.new(-8.742277657347586e-08, -0, -1))
-        game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/BuyFurniture"):InvokeServer("piano", pianoCFrame)
+        local args = {
+            [1] = {
+                [1] = {
+                    ["kind"] = "piano",
+                    ["properties"] = {
+                        ["cframe"] = CFrame.new(Vector3.new(13.7001953125, 0, -20.699951171875), Vector3.new(-8.742277657347586e-08, -0, -1))
+                    }
+                }
+            }
+        }
+        
+        game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/BuyFurnitures"):InvokeServer(unpack(args))
+        
+        -- local pianoCFrame = CFrame.new(Vector3.new(13.7001953125, 0, -20.699951171875), Vector3.new(-8.742277657347586e-08, -0, -1))
+        -- game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/BuyFurniture"):InvokeServer("piano", pianoCFrame)
     end
+
 
 
     getgenv().auto_accept_trade = true
