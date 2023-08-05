@@ -1043,45 +1043,22 @@ if game.PlaceId == 920587237 then
         Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
         SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
         game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
-        Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.Campsite.MarshmallowChair.VintageChair.Union.CFrame + Vector3.new(math.random(1, 10), 10, math.random(1, 10))
+        Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.Campsite.MarshmallowChair.VintageChair.Union.CFrame + Vector3.new(math.random(1, 20), 10, math.random(1, 20))
         Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
-    
-        if Player.Character.Humanoid:GetState() == Enum.HumanoidStateType.Freefall then
-            repeat 
-            task.wait()
-            until Player.Character.Humanoid:GetState() == Enum.HumanoidStateType.Landed
-            Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
-        end
-        
-        -- Player.Character.PrimaryPart.Anchored = false
-        -- Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+        Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
         task.wait(2)
     end
 
     local function TeleportCampSite()
-        Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
         game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
-        Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.Campsite.MarshmallowChair.VintageChair.Union.CFrame + Vector3.new(math.random(1, 10), 10, math.random(1, 10))
-
-        if Player.Character.Humanoid:GetState() == Enum.HumanoidStateType.Freefall then
-            repeat 
-            task.wait()
-            until Player.Character.Humanoid:GetState() == Enum.HumanoidStateType.Landed
-            Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
-        end
+        Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.Campsite.MarshmallowChair.VintageChair.Union.CFrame + Vector3.new(math.random(1, 20), 10, math.random(1, 20))
+        Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
     end
     
     local function TeleportPoolParty()
-        Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
         game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
-        Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.PoolArea.PoolOrigin.CFrame + Vector3.new(math.random(1, 10), 10, math.random(1, 10))
-        
-        if Player.Character.Humanoid:GetState() == Enum.HumanoidStateType.Freefall then
-            repeat 
-            task.wait()
-            until Player.Character.Humanoid:GetState() == Enum.HumanoidStateType.Landed
-            Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
-        end
+        Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.PoolArea.PoolOrigin.CFrame + Vector3.new(math.random(1, 20), 10, math.random(1, 20))
+        Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
     end
 
     ------------------------------- Auto Farming ------------------------
