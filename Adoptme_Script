@@ -1175,7 +1175,7 @@ if game.PlaceId == 920587237 then
                 task.wait(2) -- wait for pet to equip
                 CompleteBabyAilments()
                 CompletePetAilments()
-                task.wait()
+                task.wait(10)
                 PetAilmentAddedDebound = false
             end
         end)
