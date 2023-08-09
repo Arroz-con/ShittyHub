@@ -998,7 +998,7 @@ if game.PlaceId == 920587237 then
     end
 
     local function ReEquipPet()
-        if Bypass("ClientData").get("pet_char_wrapper") == nil then
+        if Bypass("ClientData").get("pet_char_wrapper") == nil or false then
             getPet()
             return
         end
@@ -1075,19 +1075,17 @@ if game.PlaceId == 920587237 then
     end
 
     local function SwitchOutFullyGrown()
-        pcall(function()
-            if Bypass("ClientData").get("pet_char_wrapper") == nil then
-                getPet()
-                return
-            end
-            local PetAge = Bypass("ClientData").get("pet_char_wrapper")["pet_progression"]["age"]
-            if PetAge == 6 then
-                getPet()
-                return
-            elseif PetAge == 1 then
-                CheckifEgg()
-            end
-        end)
+        if Bypass("ClientData").get("pet_char_wrapper") == nil or false then
+            getPet()
+            return
+        end
+        local PetAge = Bypass("ClientData").get("pet_char_wrapper")["pet_progression"]["age"]
+        if PetAge == 6 then
+            getPet()
+            return
+        elseif PetAge == 1 then
+            CheckifEgg()
+        end 
     end
 
     local teleportDebounce = false
@@ -1130,22 +1128,28 @@ if game.PlaceId == 920587237 then
                     DayNightAilments(Shower)    
                 
                 elseif v["id"] == "pool_party" then
-                    if not teleportDebounce then
-                        teleportDebounce = true  
-                        TeleportPoolParty()
-                        ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {["use_sound_delay"] = true})
-                        task.wait(30)
-                        teleportDebounce = false
-                    end
+                    TeleportPoolParty()
+                    task.wait(2)
+                    ReEquipPet()
+                    -- if not teleportDebounce then
+                    --     teleportDebounce = true  
+                    --     TeleportPoolParty()
+                    --     ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {["use_sound_delay"] = true})
+                    --     task.wait(120)
+                    --     teleportDebounce = false
+                    -- end
                     
                 elseif v["id"] == "camping" then
-                    if not teleportDebounce then
-                        teleportDebounce = true  
-                        TeleportCampSite()
-                        ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {["use_sound_delay"] = true})
-                        task.wait(30)
-                        teleportDebounce = false
-                    end
+                    TeleportCampSite()
+                    task.wait(2)
+                    ReEquipPet()
+                    -- if not teleportDebounce then
+                    --     teleportDebounce = true  
+                    --     TeleportCampSite()
+                    --     ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {["use_sound_delay"] = true})
+                    --     task.wait(120)
+                    --     teleportDebounce = false
+                    -- end
                 end
             end
         end
