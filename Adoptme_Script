@@ -1165,14 +1165,19 @@ if game.PlaceId == 920587237 then
             end)
         end
 
-    
+        local PetAilmentAddedDebound = false
+
         game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildAdded:Connect(function()
-            removeHandHeldItem()
-            SwitchOutFullyGrown()
-            task.wait(2) -- wait for pet to equip
-            CompleteBabyAilments()
-            CompletePetAilments()
-            task.wait()
+            if not PetAilmentAddedDebound then
+                PetAilmentAddedDebound = true
+                removeHandHeldItem()
+                SwitchOutFullyGrown()
+                task.wait(2) -- wait for pet to equip
+                CompleteBabyAilments()
+                CompletePetAilments()
+                task.wait()
+                PetAilmentAddedDebound = false
+            end
         end)
         
         local PetAilmentRemovedDebound = false
