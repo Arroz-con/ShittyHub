@@ -1090,7 +1090,7 @@ if game.PlaceId == 920587237 then
         end)
     end
 
-    local canFarm = false
+    local teleportDebounce = false
 
     local function autoFarm()
         if not getgenv().auto_farm then return end
@@ -1130,11 +1130,22 @@ if game.PlaceId == 920587237 then
                     DayNightAilments(Shower)    
                 
                 elseif v["id"] == "pool_party" then
-                    TeleportPoolParty() 
-
+                    if not teleportDebounce then
+                        teleportDebounce = true  
+                        TeleportPoolParty()
+                        ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {["use_sound_delay"] = true})
+                        task.wait(30)
+                        teleportDebounce = false
+                    end
+                    
                 elseif v["id"] == "camping" then
-                    TeleportCampSite()
-    
+                    if not teleportDebounce then
+                        teleportDebounce = true  
+                        TeleportCampSite()
+                        ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {["use_sound_delay"] = true})
+                        task.wait(30)
+                        teleportDebounce = false
+                    end
                 end
             end
         end
@@ -1166,10 +1177,8 @@ if game.PlaceId == 920587237 then
             if not PetAilmentRemovedDebound then
                 PetAilmentRemovedDebound = true
                 CompletePetAilments()
-                --task.wait(2)
-                --ReEquipPet()
-                task.wait(2) -- gives it time to finish equipping pet
                 SwitchOutFullyGrown()
+                task.wait(10) -- gives it time to finish equipping pet
                 PetAilmentRemovedDebound = false
             end
         end)
@@ -1199,10 +1208,10 @@ if game.PlaceId == 920587237 then
                             if SETTINGS.PET_AUTO_FUSION then
                                 MakeNeon()
                                 MakeMegaNeon()
+                                task.wait(2) -- gives it time for pet to fully equipped
                             end
-                            task.wait(2) -- gives it time for pet to fully equipped
                             SwitchOutFullyGrown()
-                            task.wait(2) -- Dont remove. makes it so that it doesnt get called many times
+                            task.wait(10) -- Dont remove. makes it so that it doesnt get called many times
                             DebounceHintApp = false
                         end
                     end
