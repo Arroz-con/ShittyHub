@@ -1002,7 +1002,7 @@ if game.PlaceId == 920587237 then
             getPet()
             return
         end
-        local Mag = (Player.Character.HumanoidRootPart.Position - Bypass("ClientData").get("pet_char_wrapper").char.HumanoidRootPart.Position).Magnitude
+        local Mag = (Player.Character.HumanoidRootPart.Position - Bypass("ClientData").get("pet_char_wrapper").char:FindFirstChild("HumanoidRootPart").Position).Magnitude
         if Mag then
             if Mag >= 10 then
                 ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {["use_sound_delay"] = true})
@@ -1088,7 +1088,17 @@ if game.PlaceId == 920587237 then
         end 
     end
 
-    local teleportDebounce = false
+    local function isProgression(taskPassOn)
+        if Player.PlayerGui:FindFirstChild("pet_progression") then
+            Player.PlayerGui.pet_progression:FindFirstChild("SurfaceGui")
+            Player.PlayerGui.pet_progression.SurfaceGui:FindFirstChild("PetProgression")
+            Player.PlayerGui.pet_progression.SurfaceGui.PetProgression:FindFirstChild("TextLabel")
+            if Player.PlayerGui.pet_progression.SurfaceGui.PetProgression.TextLabel.Text == taskPassOn then
+                return true
+            end
+        end
+        return false
+    end
 
     local function autoFarm()
         if not getgenv().auto_farm then return end
@@ -1099,57 +1109,45 @@ if game.PlaceId == 920587237 then
             for _, v in pairs(Bypass("ClientData").get("pet_char_wrapper")["ailments_monitor"]["ailments"]) do
                 if v["id"] == "hungry" then
                     FoodAilments("icecream")
-
+                    return
                 elseif v["id"] == "thirsty" then
                     FoodAilments("water")
-
+                    return
                 elseif v["id"] == "sick" then
                     Bypass("RouterClient").get("MonitorAPI/HealWithDoctor"):FireServer()
-
+                    return
                 elseif v["id"] == "salon" then
-                
+                    if isProgression("Salon") then return end
                     ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("Salon")
-                    
+                    return
                 elseif v["id"] == "pizza_party" then
-                
+                    if isProgression("Pizza Party") then return end
                     ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("PizzaShop")
-                    
+                    return
                 elseif v["id"] == "school" then
-
+                    if isProgression("School") then return end
                     ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("School")
-                    
+                    return
                 elseif v["id"] == "bored" then
+                    if isProgression("Bored") then return end
                     DayNightAilments(Piano)
-
+                    return
                 elseif v["id"] == "sleepy" then
+                    if isProgression("Sleepy") then return end
                     DayNightAilments(Bed)
-
+                    return
                 elseif v["id"] == "dirty" then
+                    if isProgression("Dirty") then return end
                     DayNightAilments(Shower)    
-                
+                    return
                 elseif v["id"] == "pool_party" then
+                    if isProgression("Pool Party") then return end
                     TeleportPoolParty()
-                    task.wait(2)
-                    ReEquipPet()
-                    -- if not teleportDebounce then
-                    --     teleportDebounce = true  
-                    --     TeleportPoolParty()
-                    --     ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {["use_sound_delay"] = true})
-                    --     task.wait(120)
-                    --     teleportDebounce = false
-                    -- end
-                    
+                    return
                 elseif v["id"] == "camping" then
+                    if isProgression("Camping") then return end
                     TeleportCampSite()
-                    task.wait(2)
-                    ReEquipPet()
-                    -- if not teleportDebounce then
-                    --     teleportDebounce = true  
-                    --     TeleportCampSite()
-                    --     ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {["use_sound_delay"] = true})
-                    --     task.wait(120)
-                    --     teleportDebounce = false
-                    -- end
+                    return
                 end
             end
         end
@@ -1165,31 +1163,17 @@ if game.PlaceId == 920587237 then
             end)
         end
 
-        local PetAilmentAddedDebound = false
-
         game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildAdded:Connect(function()
-            if not PetAilmentAddedDebound then
-                PetAilmentAddedDebound = true
-                removeHandHeldItem()
-                SwitchOutFullyGrown()
-                task.wait(2) -- wait for pet to equip
-                CompleteBabyAilments()
-                CompletePetAilments()
-                task.wait(10)
-                PetAilmentAddedDebound = false
-            end
+            removeHandHeldItem()
+            SwitchOutFullyGrown()
+            task.wait() -- wait for pet to equip
+            CompleteBabyAilments()
+            CompletePetAilments()
         end)
-        
-        local PetAilmentRemovedDebound = false
 
         game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildRemoved:Connect(function(PetAilmentRemoved)
-            if not PetAilmentRemovedDebound then
-                PetAilmentRemovedDebound = true
-                CompletePetAilments()
-                SwitchOutFullyGrown()
-                task.wait(10) -- gives it time to finish equipping pet
-                PetAilmentRemovedDebound = false
-            end
+            SwitchOutFullyGrown()
+            CompletePetAilments()
         end)
         
         --// Code below runs once when auto farm is enabled
@@ -1206,27 +1190,27 @@ if game.PlaceId == 920587237 then
     
         
         --// For text that popups on bottom ui
-        local DebounceHintApp = false
-        Player.PlayerGui.HintApp:GetPropertyChangedSignal("Enabled"):Connect(function()
-            if Player.PlayerGui.HintApp.Enabled then
-                Player.PlayerGui.HintApp:WaitForChild("TextLabel")
-                Player.PlayerGui.HintApp.TextLabel:GetPropertyChangedSignal("Text"):Connect(function(Message)
-                    if Player.PlayerGui.HintApp.TextLabel.Text:find("aged up!") then
-                        if not DebounceHintApp then
-                            DebounceHintApp = true
-                            if SETTINGS.PET_AUTO_FUSION then
-                                MakeNeon()
-                                MakeMegaNeon()
-                                task.wait(2) -- gives it time for pet to fully equipped
-                            end
-                            SwitchOutFullyGrown()
-                            task.wait(10) -- Dont remove. makes it so that it doesnt get called many times
-                            DebounceHintApp = false
-                        end
-                    end
-                end) 
-            end
-        end)
+        -- local DebounceHintApp = false
+        -- Player.PlayerGui.HintApp:GetPropertyChangedSignal("Enabled"):Connect(function()
+        --     if Player.PlayerGui.HintApp.Enabled then
+        --         Player.PlayerGui.HintApp:WaitForChild("TextLabel")
+        --         Player.PlayerGui.HintApp.TextLabel:GetPropertyChangedSignal("Text"):Connect(function(Message)
+        --             if Player.PlayerGui.HintApp.TextLabel.Text:find("aged up!") then
+        --                 if not DebounceHintApp then
+        --                     DebounceHintApp = true
+        --                     if SETTINGS.PET_AUTO_FUSION then
+        --                         MakeNeon()
+        --                         MakeMegaNeon()
+        --                         task.wait(2) -- gives it time for pet to fully equipped
+        --                     end
+        --                     SwitchOutFullyGrown()
+        --                     task.wait(10) -- Dont remove. makes it so that it doesnt get called many times
+        --                     DebounceHintApp = false
+        --                 end
+        --             end
+        --         end) 
+        --     end
+        -- end)
 
 
         --game.Players.LocalPlayer.PlayerGui.MinigameInGameApp.ExitButton
