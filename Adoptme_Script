@@ -362,9 +362,9 @@ if game.PlaceId == 920587237 then
     end)
 
 
-    for _,v in pairs(getconnections(Player.Idled)) do
-        v:Disable()
-    end
+    -- for _,v in pairs(getconnections(Player.Idled)) do
+    --     v:Disable()
+    -- end
 
 
     local SetLocationTP
@@ -1061,6 +1061,12 @@ if game.PlaceId == 920587237 then
         Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
     end
 
+    local function TeleportPlayGround()
+        game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
+        Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Park.Ground:FindFirstChildWhichIsA("Part").CFrame + Vector3.new(math.random(1, 20), 10, math.random(-20, -1))
+        Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+    end
+
     ------------------------------- Auto Farming ------------------------
 
     local function CheckifEgg()
@@ -1100,6 +1106,7 @@ if game.PlaceId == 920587237 then
         return false
     end
 
+    
     local function autoFarm()
         if not getgenv().auto_farm then return end
         TeleportMainMap()
@@ -1109,70 +1116,77 @@ if game.PlaceId == 920587237 then
             for _, v in pairs(Bypass("ClientData").get("pet_char_wrapper")["ailments_monitor"]["ailments"]) do
                 if v["id"] == "hungry" then
                     FoodAilments("icecream")
-                    return
                 elseif v["id"] == "thirsty" then
                     FoodAilments("water")
-                    return
                 elseif v["id"] == "sick" then
-                    Bypass("RouterClient").get("MonitorAPI/HealWithDoctor"):FireServer()
-                    return
+                    if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
+                        Bypass("RouterClient").get("MonitorAPI/HealWithDoctor"):FireServer()
+                        return
+                    end
                 elseif v["id"] == "salon" then
-                    if isProgression("Salon") then return end
-                    ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("Salon")
-                    return
+                    if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
+                        ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("Salon")
+                        return
+                    end
                 elseif v["id"] == "pizza_party" then
-                    if isProgression("Pizza Party") then return end
-                    ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("PizzaShop")
-                    return
+                    if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
+                        ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("PizzaShop")
+                        return 
+                    end
                 elseif v["id"] == "school" then
-                    if isProgression("School") then return end
-                    ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("School")
-                    return
+                    if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
+                        ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("School")
+                        return 
+                    end
                 elseif v["id"] == "bored" then
-                    if isProgression("Bored") then return end
-                    DayNightAilments(Piano)
-                    return
+                    if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
+                        TeleportPlayGround()
+                        return 
+                    end
                 elseif v["id"] == "sleepy" then
-                    if isProgression("Sleepy") then return end
-                    DayNightAilments(Bed)
-                    return
+                    if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
+                        DayNightAilments(Bed)
+                        return
+                    end
                 elseif v["id"] == "dirty" then
-                    if isProgression("Dirty") then return end
-                    DayNightAilments(Shower)    
-                    return
+                    if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
+                        DayNightAilments(Shower)   
+                        return
+                    end
                 elseif v["id"] == "pool_party" then
-                    if isProgression("Pool Party") then return end
-                    TeleportPoolParty()
-                    return
+                    if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
+                        TeleportPoolParty()
+                        return
+                    end
                 elseif v["id"] == "camping" then
-                    if isProgression("Camping") then return end
-                    TeleportCampSite()
-                    return
+                    if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
+                        TeleportCampSite()
+                        return
+                    end
                 end
             end
         end
 
         local function CompleteBabyAilments()
             if #Bypass("ClientData").get("char_wrapper")["ailments_monitor"]["ailments"] == 0 then return end
-            pcall(function()
-                for _, m in pairs(Bypass("ClientData").get("char_wrapper")["ailments_monitor"]["ailments"]) do
-                    if m["id"] == m["id"] then
-                        Bypass("RouterClient").get("MonitorAPI/AddRate"):InvokeServer(m["id"], 100)
-                    end
+            for _, m in pairs(Bypass("ClientData").get("char_wrapper")["ailments_monitor"]["ailments"]) do
+                if m["id"] == m["id"] then
+                    Bypass("RouterClient").get("MonitorAPI/AddRate"):InvokeServer(m["id"], 100)
                 end
-            end)
+            end
         end
 
         game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildAdded:Connect(function()
             removeHandHeldItem()
             SwitchOutFullyGrown()
-            task.wait() -- wait for pet to equip
             CompleteBabyAilments()
             CompletePetAilments()
         end)
 
         game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildRemoved:Connect(function(PetAilmentRemoved)
+            task.wait(1)
             SwitchOutFullyGrown()
+            task.wait(1)
             CompletePetAilments()
         end)
         
