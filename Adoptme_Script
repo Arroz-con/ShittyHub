@@ -1061,9 +1061,9 @@ if game.PlaceId == 920587237 then
         Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
     end
 
+    -- game:GetService("Workspace").StaticMap.Park.Roundabout.SeatsSpinModel.Visual:GetChildren()[18]
     local function TeleportPlayGround()
-        game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
-        Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Park.Ground:FindFirstChildWhichIsA("Part").CFrame + Vector3.new(math.random(1, 20), 10, math.random(-20, -1))
+        Player.Character.PrimaryPart.CFrame = game:GetService("Workspace").StaticMap.Park.Roundabout.SeatsSpinModel.Visual:FindFirstChildWhichIsA("Part").CFrame + Vector3.new(math.random(1, 20), 10, math.random(-20, -1))
         Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
     end
 
