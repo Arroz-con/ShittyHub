@@ -33,13 +33,13 @@ if game.PlaceId == 920587237 then
     UserGameSettings.GraphicsQualityLevel = 1
     UserGameSettings.MasterVolume = 0
 
-	ChatConnection = Player.PlayerGui.Chat.Frame.ChatChannelParentFrame["Frame_MessageLogDisplay"].Scroller.DescendantAdded:Connect(function(ChatChild)
-		if ChatChild.Name == "TextButton" then
-			task.wait(1)
-			firesignal(Player.PlayerGui.TopbarApp.TopBarContainer.ChatVisible.MouseButton1Click)
-			ChatConnection:Disconnect()
-		end
-	end)
+	-- ChatConnection = Player.PlayerGui.Chat.Frame.ChatChannelParentFrame["Frame_MessageLogDisplay"].Scroller.DescendantAdded:Connect(function(ChatChild)
+	-- 	if ChatChild.Name == "TextButton" then
+	-- 		task.wait(1)
+	-- 		firesignal(Player.PlayerGui.TopbarApp.TopBarContainer.ChatVisible.MouseButton1Click)
+	-- 		ChatConnection:Disconnect()
+	-- 	end
+	-- end)
     
 	NewsAppConnection = Player.PlayerGui.NewsApp:GetPropertyChangedSignal("Enabled"):Connect(function()
 		if Player.PlayerGui.NewsApp.Enabled then
