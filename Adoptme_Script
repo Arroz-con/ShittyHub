@@ -33,6 +33,18 @@ if game.PlaceId == 920587237 then
     UserGameSettings.GraphicsQualityLevel = 1
     UserGameSettings.MasterVolume = 0
 
+    local function FireButton(PassOn)
+        task.wait() -- gives it time for button
+		if not Player.PlayerGui.DialogApp.Dialog.NormalDialog.Buttons.ButtonTemplate then return end
+		for i, v in pairs(Player.PlayerGui.DialogApp.Dialog.NormalDialog.Buttons:GetDescendants()) do
+			if v.Name == "TextLabel" then
+				if v.Text == PassOn then
+					firesignal(v.Parent.Parent.MouseButton1Click)
+					break
+				end
+			end
+		end
+	end
 	-- ChatConnection = Player.PlayerGui.Chat.Frame.ChatChannelParentFrame["Frame_MessageLogDisplay"].Scroller.DescendantAdded:Connect(function(ChatChild)
 	-- 	if ChatChild.Name == "TextButton" then
 	-- 		task.wait(1)
@@ -53,6 +65,12 @@ if game.PlaceId == 920587237 then
         task.wait()
         firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
     end
+
+    if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
+		if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:find("ban") then
+			FireButton("Okay")
+		end
+	end
 
 	DialogConnection = Player.PlayerGui.DialogApp:GetPropertyChangedSignal("Enabled"):Connect(function()
 		if Player.PlayerGui.DialogApp.Enabled then
