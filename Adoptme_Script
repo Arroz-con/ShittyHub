@@ -2189,23 +2189,33 @@ if game.PlaceId == 920587237 then
         Callback = function(value)
             howmany = value
         end  
-    }) 
+    })
 
     Buy:AddButton({
-        Name = "Bird of paradise",
+        Name = "Birthday Butterfly 2023",
         Callback = function()
             for i = 1, howmany do
-                ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "jungle_2023_bird_of_paradise", {})
+                ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "birthday_2023_birthday_butterfly", {})
                 task.wait(.1)
             end
         end
     })
 
     Buy:AddButton({
-        Name = "Fossa",
+        Name = "Cassowary",
         Callback = function()
             for i = 1, howmany do
-                ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "jungle_2023_fossa", {})
+                ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "jungle_2023_cassowary", {})
+                task.wait(.1)
+            end
+        end
+    })
+
+    Buy:AddButton({
+        Name = "Angel Fish",
+        Callback = function()
+            for i = 1, howmany do
+                ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "jungle_2023_angelfish", {})
                 task.wait(.1)
             end
         end
