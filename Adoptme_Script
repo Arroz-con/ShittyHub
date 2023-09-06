@@ -53,6 +53,7 @@ if game.PlaceId == 920587237 then
 	-- 	end
 	-- end)
     
+    --// Main Adopt me Screen (Play! Button)
 	NewsAppConnection = Player.PlayerGui.NewsApp:GetPropertyChangedSignal("Enabled"):Connect(function()
 		if Player.PlayerGui.NewsApp.Enabled then
 			task.wait()
@@ -61,17 +62,21 @@ if game.PlaceId == 920587237 then
 		end
 	end)
 
+    --// Main Adopt me Screen (Play! Button) just incase propertychangedsignal didnt work
     if Player.PlayerGui.NewsApp.Enabled then
         task.wait()
         firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
+        NewsAppConnection:Disconnect()
     end
 
+    --// Clicks okay on ban message
     if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
 		if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:find("ban") then
 			FireButton("Okay")
 		end
 	end
 
+    --// Clicks on Baby Role. then clicks on no thanks for robux screen
 	DialogConnection = Player.PlayerGui.DialogApp:GetPropertyChangedSignal("Enabled"):Connect(function()
 		if Player.PlayerGui.DialogApp.Enabled then
 			repeat task.wait() until not Player.PlayerGui.NewsApp.Enabled
@@ -91,9 +96,40 @@ if game.PlaceId == 920587237 then
 		end
 	end)
 
-    if Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
-        firesignal(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby.MouseButton1Click)
+    if Player.PlayerGui.DialogApp.Enabled then
+        Player.PlayerGui.DialogApp.Enabled = false
+        task.wait(1)
+        Player.PlayerGui.DialogApp.Enabled = true
     end
+
+    repeat task.wait() until Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Visible
+
+    for i, v in pairs(Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Buttons:GetDescendants()) do
+        if v.Name == "TextLabel" then
+            if  v.Text == "No Thanks" then
+                firesignal(v.Parent.Parent.MouseButton1Click)
+                DailyBoolean = false
+                DialogConnection:Disconnect()
+            end
+        end
+    end
+
+    -- if Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
+    --     firesignal(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby.MouseButton1Click)
+    --     task.wait()
+    -- end
+
+    -- if Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Visible then
+    --     for i, v in pairs(Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Buttons:GetDescendants()) do
+    --         if v.Name == "TextLabel" then
+    --             if  v.Text == "No Thanks" then
+    --                 firesignal(v.Parent.Parent.MouseButton1Click)
+    --                 DailyBoolean = false
+    --                 DialogConnection:Disconnect()
+    --             end
+    --         end
+    --     end
+    -- end
 
     local function GrabDailyReward()
         local Daily = Bypass("ClientData").get("daily_login_manager")
@@ -117,7 +153,7 @@ if game.PlaceId == 920587237 then
     end
 	
 	DailyClaimConnection = Player.PlayerGui.DailyLoginApp:GetPropertyChangedSignal("Enabled"):Connect(function()
-        repeat task.wait() until not DailyBoolean
+        repeat task.wait() until Player.PlayerGui.DailyLoginApp.Enabled
         if Player.PlayerGui.DailyLoginApp.Enabled then
             task.wait()
             if Player.PlayerGui.DailyLoginApp.Frame.Visible then
@@ -140,6 +176,12 @@ if game.PlaceId == 920587237 then
             end
         end
     end)
+
+    if Player.PlayerGui.DailyLoginApp.Enabled then
+        Player.PlayerGui.DailyLoginApp.Enabled = false
+        task.wait(1)
+        Player.PlayerGui.DailyLoginApp.Enabled = true
+    end
 
 	local Char = Player.Character or Player.CharacterAdded:Wait()
 	CharConn = Char.ChildAdded:Connect(function(HRPChild)
@@ -2210,30 +2252,10 @@ if game.PlaceId == 920587237 then
     })
 
     Buy:AddButton({
-        Name = "Birthday Butterfly 2023",
+        Name = "urban_2023_egg",
         Callback = function()
             for i = 1, howmany do
-                ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "birthday_2023_birthday_butterfly", {})
-                task.wait(.1)
-            end
-        end
-    })
-
-    Buy:AddButton({
-        Name = "Cassowary",
-        Callback = function()
-            for i = 1, howmany do
-                ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "jungle_2023_cassowary", {})
-                task.wait(.1)
-            end
-        end
-    })
-
-    Buy:AddButton({
-        Name = "Angel Fish",
-        Callback = function()
-            for i = 1, howmany do
-                ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "jungle_2023_angelfish", {})
+                ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "urban_2023_egg", {})
                 task.wait(.1)
             end
         end
