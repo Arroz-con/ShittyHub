@@ -7,6 +7,8 @@ if game.PlaceId == 920587237 then
     local UserGameSettings = UserSettings():GetService("UserGameSettings")
 	local NewsAppConnection
 	local DialogConnection
+    local RoleChooserDialogConnection
+    local banMessageConnection
 	local DailyClaimConnection
 	local ChatConnection
 	local CharConn
@@ -45,6 +47,7 @@ if game.PlaceId == 920587237 then
 			end
 		end
 	end
+
 	-- ChatConnection = Player.PlayerGui.Chat.Frame.ChatChannelParentFrame["Frame_MessageLogDisplay"].Scroller.DescendantAdded:Connect(function(ChatChild)
 	-- 	if ChatChild.Name == "TextButton" then
 	-- 		task.wait(1)
@@ -62,74 +65,62 @@ if game.PlaceId == 920587237 then
 		end
 	end)
 
-    --// Main Adopt me Screen (Play! Button) just incase propertychangedsignal didnt work
     if Player.PlayerGui.NewsApp.Enabled then
         task.wait()
         firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
         NewsAppConnection:Disconnect()
     end
 
-    --// Clicks okay on ban message
-    if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
-		if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:find("ban") then
-			FireButton("Okay")
-		end
-	end
-
-    --// Clicks on Baby Role. then clicks on no thanks for robux screen
-	DialogConnection = Player.PlayerGui.DialogApp:GetPropertyChangedSignal("Enabled"):Connect(function()
-		if Player.PlayerGui.DialogApp.Enabled then
-			repeat task.wait() until not Player.PlayerGui.NewsApp.Enabled
-			if Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
-				firesignal(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby.MouseButton1Click)
-			elseif Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Visible then
-				for i, v in pairs(Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Buttons:GetDescendants()) do
-					if v.Name == "TextLabel" then
-						if  v.Text == "No Thanks" then
-							firesignal(v.Parent.Parent.MouseButton1Click)
-							DailyBoolean = false
-							DialogConnection:Disconnect()
-						end
-					end
+    banMessageConnection = Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal("Visible"):Connect(function()
+		if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
+			Player.PlayerGui.DialogApp.Dialog.NormalDialog:WaitForChild("Info")
+			Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info:WaitForChild("TextLabel")
+			Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
+				if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("ban") then
+					FireButton("Okay")
+                    banMessageConnection:Disconnect()
 				end
-			end
+			end)
 		end
 	end)
 
-    if Player.PlayerGui.DialogApp.Enabled then
-        Player.PlayerGui.DialogApp.Enabled = false
-        task.wait(1)
-        Player.PlayerGui.DialogApp.Enabled = true
-    end
+	if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
+		if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("ban") then
+			FireButton("Okay")
+            banMessageConnection:Disconnect()
+		end
+	end
 
-    repeat task.wait() until Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Visible
+    --// Clicks on baby button
+    RoleChooserDialogConnection = Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog:GetPropertyChangedSignal("Visible"):Connect(function()
+        task.wait()
+		if Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
+			firesignal(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby.MouseButton1Click)
+            print("clicked")
+            RoleChooserDialogConnection:Disconnect()
+		end
+	end)
 
-    for i, v in pairs(Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Buttons:GetDescendants()) do
-        if v.Name == "TextLabel" then
-            if  v.Text == "No Thanks" then
-                firesignal(v.Parent.Parent.MouseButton1Click)
-                DailyBoolean = false
-                DialogConnection:Disconnect()
-            end
-        end
-    end
+	if Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
+		firesignal(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby.MouseButton1Click)
+        RoleChooserDialogConnection:Disconnect()
+	end
 
-    -- if Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
-    --     firesignal(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby.MouseButton1Click)
-    --     task.wait()
-    -- end
-
-    -- if Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Visible then
-    --     for i, v in pairs(Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Buttons:GetDescendants()) do
-    --         if v.Name == "TextLabel" then
-    --             if  v.Text == "No Thanks" then
-    --                 firesignal(v.Parent.Parent.MouseButton1Click)
-    --                 DailyBoolean = false
-    --                 DialogConnection:Disconnect()
-    --             end
-    --         end
-    --     end
-    -- end
+    --// Clicks no robux product button
+    RobuxProductDialogConnection = Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog:GetPropertyChangedSignal("Visible"):Connect(function()
+        task.wait()
+		if Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Visible then
+			for i, v in pairs(Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Buttons:GetDescendants()) do
+                if v.Name == "TextLabel" then
+                    if  v.Text == "No Thanks" then
+                        firesignal(v.Parent.Parent.MouseButton1Click)
+                        DailyBoolean = false
+                        RobuxProductDialogConnection:Disconnect()
+                    end
+                end
+            end     			
+		end
+	end)
 
     local function GrabDailyReward()
         local Daily = Bypass("ClientData").get("daily_login_manager")
@@ -177,11 +168,11 @@ if game.PlaceId == 920587237 then
         end
     end)
 
-    if Player.PlayerGui.DailyLoginApp.Enabled then
-        Player.PlayerGui.DailyLoginApp.Enabled = false
-        task.wait(1)
-        Player.PlayerGui.DailyLoginApp.Enabled = true
-    end
+    -- if Player.PlayerGui.DailyLoginApp.Enabled then
+    --     Player.PlayerGui.DailyLoginApp.Enabled = false
+    --     task.wait(1)
+    --     Player.PlayerGui.DailyLoginApp.Enabled = true
+    -- end
 
 	local Char = Player.Character or Player.CharacterAdded:Wait()
 	CharConn = Char.ChildAdded:Connect(function(HRPChild)
@@ -1106,6 +1097,7 @@ if game.PlaceId == 920587237 then
         Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.Campsite.MarshmallowChair.VintageChair.Union.CFrame + Vector3.new(math.random(1, 20), 10, math.random(1, 20))
         Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
         Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+        Player.Character.Humanoid.WalkSpeed = 0
         task.wait(2)
     end
 
@@ -1113,18 +1105,21 @@ if game.PlaceId == 920587237 then
         game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
         Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.Campsite.MarshmallowChair.VintageChair.Union.CFrame + Vector3.new(math.random(1, 20), 10, math.random(1, 20))
         Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+        Player.Character.Humanoid.WalkSpeed = 0
     end
     
     local function TeleportPoolParty()
         game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
         Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.PoolArea.PoolOrigin.CFrame + Vector3.new(math.random(1, 20), 10, math.random(1, 20))
         Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+        Player.Character.Humanoid.WalkSpeed = 0
     end
 
     -- game:GetService("Workspace").StaticMap.Park.Roundabout.SeatsSpinModel.Visual:GetChildren()[18]
     local function TeleportPlayGround()
         Player.Character.PrimaryPart.CFrame = game:GetService("Workspace").StaticMap.Park.Roundabout.SeatsSpinModel.Visual:FindFirstChildWhichIsA("Part").CFrame + Vector3.new(math.random(1, 20), 10, math.random(-20, -1))
         Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+        Player.Character.Humanoid.WalkSpeed = 0
     end
 
     ------------------------------- Auto Farming ------------------------
