@@ -537,11 +537,11 @@ if game.PlaceId == 920587237 then
     end
 
     --// completes the starter tutorial
-    local function CompleteStartertut()
-        Bypass("Tutorial").cancel_tutorial()
-        ReplicatedStorage.API["TutorialAPI/EquipTutorialEgg"]:FireServer()
-        ReplicatedStorage.API["TutorialAPI/AddTutorialQuest"]:FireServer()
-        ReplicatedStorage.API["TutorialAPI/AddHungryAilmentToTutorialEgg"]:FireServer()
+    local function completeStarterTutorial()
+        Bypass("LegacyTutorial").cancel_tutorial()
+        ReplicatedStorage.API["LegacyTutorialAPI/EquipTutorialEgg"]:FireServer()
+        ReplicatedStorage.API["LegacyTutorialAPI/AddTutorialQuest"]:FireServer()
+        ReplicatedStorage.API["LegacyTutorialAPI/AddHungryAilmentToTutorialEgg"]:FireServer()
         local function feedStartEgg(SandwichPassOn)
             local Foodid2
             for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.food) do
@@ -555,7 +555,7 @@ if game.PlaceId == 920587237 then
             task.wait(1)
             ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(Foodid2)
         end
-
+    
         feedStartEgg("sandwich-default")
         Bypass("RouterClient").get("TeamAPI/ChooseTeam"):InvokeServer("Babies", true)
     end
@@ -2482,7 +2482,7 @@ if game.PlaceId == 920587237 then
     NewAlt:AddButton({
         Name = "Complete Starter Tutorial",
         Callback = function()
-            CompleteStartertut()
+            completeStarterTutorial()
         end
     })
 
