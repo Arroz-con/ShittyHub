@@ -2247,6 +2247,26 @@ if game.PlaceId == 920587237 then
     })
 
     Buy:AddButton({
+        Name = "chipmunk",
+        Callback = function()
+            for i = 1, howmany do
+                ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "chiprac_2023_chipmunk", {})
+                task.wait(.1)
+            end
+        end
+    })
+
+    Buy:AddButton({
+        Name = "raccoon",
+        Callback = function()
+            for i = 1, howmany do
+                ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "chiprac_2023_raccoon", {})
+                task.wait(.1)
+            end
+        end
+    })
+
+    Buy:AddButton({
         Name = "urban_2023_egg",
         Callback = function()
             for i = 1, howmany do
