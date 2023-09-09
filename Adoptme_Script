@@ -336,7 +336,7 @@ if game.PlaceId == 920587237 then
     local Remote = Bypass("RouterClient").get("HousingAPI/ActivateFurniture")
     local UserInputService = game:GetService("UserInputService")
     local VirtualUser = game:GetService("VirtualUser")
-
+    
     local TradeButtons = Player.PlayerGui.DialogApp.Dialog.NormalDialog.Buttons
     local CheckMarkNF = Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.PartnerOffer.Accepted
     local CheckMarkCF = Player.PlayerGui.TradeApp.Frame.ConfirmationFrame.PartnerOffer.Accepted
@@ -1101,6 +1101,19 @@ if game.PlaceId == 920587237 then
         task.wait(2)
     end
 
+    --game:GetService("Workspace").Interiors.FireDimension.Doors.WarpDoor.WorkingParts.TouchToEnter
+
+    local function TeleportFireDimension()
+        Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
+        SetLocationFunc("FireDimension", "MainDoor", {})
+        game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
+        Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Doors.WarpDoor.WorkingParts.TouchToEnter.CFrame + Vector3.new(math.random(1, 10), 10, math.random(1, 10))
+        Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
+        Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+        Player.Character.Humanoid.WalkSpeed = 0
+        task.wait(2)
+    end
+
     local function TeleportCampSite()
         game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
         Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.Campsite.MarshmallowChair.VintageChair.Union.CFrame + Vector3.new(math.random(1, 20), 10, math.random(1, 20))
@@ -1115,7 +1128,6 @@ if game.PlaceId == 920587237 then
         Player.Character.Humanoid.WalkSpeed = 0
     end
 
-    -- game:GetService("Workspace").StaticMap.Park.Roundabout.SeatsSpinModel.Visual:GetChildren()[18]
     local function TeleportPlayGround()
         Player.Character.PrimaryPart.CFrame = game:GetService("Workspace").StaticMap.Park.Roundabout.SeatsSpinModel.Visual:FindFirstChildWhichIsA("Part").CFrame + Vector3.new(math.random(1, 20), 10, math.random(-20, -1))
         Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
@@ -1161,13 +1173,58 @@ if game.PlaceId == 920587237 then
         return false
     end
 
+    local isRunning = true
+    local NameID = "lures_2023_campfire_cookies_liveops"
+
+
+    local function getIngredients(ingredient)
+        for i = 1, 11 do
+            ReplicatedStorage.API:FindFirstChild("FireDimensionAPI/PickFruit"):InvokeServer(string.lower(ingredient), i)
+            task.wait(.1)
+        end
+    end
+    
+
+    local function opensCookie()
+        for i, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Players.LocalPlayer.Name].inventory.food) do
+            if v["id"] == NameID then
+                game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("LootBoxAPI/ExchangeItemForReward"):InvokeServer(v["id"], v["unique"])
+                return true
+            end
+        end
+        return false
+    end
+
+
+    
+    local function FireDimensionFarm()
+        task.spawn(function()
+            getIngredients("Berry")
+            getIngredients("Mango")
+            getIngredients("Pear")
+
+            ReplicatedStorage.API:FindFirstChild("FireDimensionAPI/CookRecipe"):InvokeServer("daily_recipe")
+            task.wait(1)
+
+            opensCookie()
+            task.wait(1)
+
+            ReplicatedStorage.API:FindFirstChild("FireDimensionAPI/CookRecipe"):InvokeServer("super_recipe")
+            task.wait(1)
+        end)
+    end
+    
+
     
     local function autoFarm()
         if not getgenv().auto_farm then return end
         TeleportMainMap()
         local function CompletePetAilments()
             if Bypass("ClientData").get("pet_char_wrapper") == nil then return end
-            if #Bypass("ClientData").get("pet_char_wrapper")["ailments_monitor"]["ailments"] == 0 then return end
+            if #Bypass("ClientData").get("pet_char_wrapper")["ailments_monitor"]["ailments"] == 0 then
+                FireDimensionFarm()
+                return 
+            end
             for _, v in pairs(Bypass("ClientData").get("pet_char_wrapper")["ailments_monitor"]["ailments"]) do
                 if v["id"] == "hungry" then
                     FoodAilments("icecream")
