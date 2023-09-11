@@ -878,20 +878,20 @@ local function getPet()
 
     if getLegendary() then return end
 
-    if #petsToAgeTable >= 1 then
-        ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(petsToAgeTable[1], {["use_sound_delay"] = true})
-        PetCurrentlyFarming = petsToAgeTable[1]
-        table.remove(petsToAgeTable, 1)
-        return
-    elseif #petsToAgeTable == 0 or nil then
-        if not getRandomPet() then --[[end and go to next if statement]] end
-        ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(petsToAgeTable[1], {["use_sound_delay"] = true})
-        PetCurrentlyFarming = petsToAgeTable[1]
-        table.remove(petsToAgeTable, 1)
-        if #petsToAgeTable ~= 0 or nil then
-            return
-        end
-    end
+    -- if #petsToAgeTable >= 1 then
+    --     ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(petsToAgeTable[1], {["use_sound_delay"] = true})
+    --     PetCurrentlyFarming = petsToAgeTable[1]
+    --     table.remove(petsToAgeTable, 1)
+    --     return
+    -- elseif #petsToAgeTable == 0 or nil then
+    --     if not getRandomPet() then --[[end and go to next if statement]] end
+    --     ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(petsToAgeTable[1], {["use_sound_delay"] = true})
+    --     PetCurrentlyFarming = petsToAgeTable[1]
+    --     table.remove(petsToAgeTable, 1)
+    --     if #petsToAgeTable ~= 0 or nil then
+    --         return
+    --     end
+    -- end
 
 
     if getUltraRare() then return end
