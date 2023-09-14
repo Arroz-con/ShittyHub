@@ -335,6 +335,7 @@ local VirtualUser = game:GetService("VirtualUser")
 local TradeButtons = Player.PlayerGui.DialogApp.Dialog.NormalDialog.Buttons
 local CheckMarkNF = Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.PartnerOffer.Accepted
 local CheckMarkCF = Player.PlayerGui.TradeApp.Frame.ConfirmationFrame.PartnerOffer.Accepted
+local baitId
 
 local getupvalue = getupvalue or debug.getupvalue
 local getconstant = getconstant or debug.getconstant
@@ -614,6 +615,10 @@ local function collectLureLoot()
     
     game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/ActivateFurniture"):InvokeServer(unpack(args))
     
+end
+
+local function subToHouse()
+    game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/SubscribeToHouse"):FireServer(Player)   
 end
 
 
@@ -1155,6 +1160,7 @@ local function TeleportMainMap()
     Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
     Player.Character.Humanoid.WalkSpeed = 0
     task.wait(2)
+    subToHouse()
 end
 
 --game:GetService("Workspace").Interiors.FireDimension.Doors.WarpDoor.WorkingParts.TouchToEnter
@@ -1281,10 +1287,8 @@ local function autoFarm()
         for _, v in pairs(Bypass("ClientData").get("pet_char_wrapper")["ailments_monitor"]["ailments"]) do
             if v["id"] == "hungry" then
                 FoodAilments("icecream")
-            
             elseif v["id"] == "thirsty" then
-                FoodAilments("water")
-             
+                FoodAilments("water") 
             elseif v["id"] == "sick" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
                     Bypass("RouterClient").get("MonitorAPI/HealWithDoctor"):FireServer()
@@ -1328,6 +1332,9 @@ local function autoFarm()
             elseif v["id"] == "camping" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
                     TeleportCampSite()
+
+                    baitId = findBait("lures_2023_flame_swirl_pie") or "lures_2023_campfire_cookies"
+                    placeBait(baitId)
                     return
                 end
             end
@@ -2267,7 +2274,7 @@ task.wait(1)
 findFurniture()
 
 -- "lures_2023_campfire_cookies"  "lures_2023_flame_swirl_pie"
-local baitId = findBait("lures_2023_flame_swirl_pie")
+baitId = findBait("lures_2023_flame_swirl_pie")
 
 if baitId == nil then
     baitId = findBait("lures_2023_campfire_cookies")
