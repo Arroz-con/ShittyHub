@@ -2270,7 +2270,7 @@ if baitId == nil then
     baitId = findBait("lures_2023_campfire_cookies")
 end
 
-task.wait(1)
+print(baitId)
 -- will place bait but it will also collect pet
 placeBait(baitId)
 
