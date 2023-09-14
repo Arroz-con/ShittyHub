@@ -1335,6 +1335,8 @@ local function autoFarm()
 
                     baitId = findBait("lures_2023_flame_swirl_pie") or "lures_2023_campfire_cookies"
                     placeBait(baitId)
+                    task.wait(1)
+                    placeBait(baitId)
                     return
                 end
             end
@@ -2282,6 +2284,8 @@ end
 
 task.wait(1)
 -- will place bait but it will also collect pet
+placeBait(baitId)
+task.wait(1)
 placeBait(baitId)
 
 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/SetDoorLocked"):InvokeServer(true)
