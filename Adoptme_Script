@@ -1168,45 +1168,45 @@ local function isProgression(taskPassOn)
     return false
 end
 
-local isRunning = true
-local NameID = "lures_2023_campfire_cookies_liveops"
+-- local isRunning = true
+-- local NameID = "lures_2023_campfire_cookies_liveops"
 
 
-local function getIngredients(ingredient)
-    for i = 1, 11 do
-        ReplicatedStorage.API:FindFirstChild("FireDimensionAPI/PickFruit"):InvokeServer(string.lower(ingredient), i)
-        task.wait(.1)
-    end
-end
+-- local function getIngredients(ingredient)
+--     for i = 1, 11 do
+--         ReplicatedStorage.API:FindFirstChild("FireDimensionAPI/PickFruit"):InvokeServer(string.lower(ingredient), i)
+--         task.wait(.1)
+--     end
+-- end
 
 
-local function opensCookie()
-    for i, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Players.LocalPlayer.Name].inventory.food) do
-        if v["id"] == NameID then
-            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("LootBoxAPI/ExchangeItemForReward"):InvokeServer(v["id"], v["unique"])
-            return true
-        end
-    end
-    return false
-end
+-- local function opensCookie()
+--     for i, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Players.LocalPlayer.Name].inventory.food) do
+--         if v["id"] == NameID then
+--             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("LootBoxAPI/ExchangeItemForReward"):InvokeServer(v["id"], v["unique"])
+--             return true
+--         end
+--     end
+--     return false
+-- end
 
 
-local function FireDimensionFarm()
-    task.spawn(function()
-        getIngredients("Berry")
-        getIngredients("Mango")
-        getIngredients("Pear")
+-- local function FireDimensionFarm()
+--     task.spawn(function()
+--         getIngredients("Berry")
+--         getIngredients("Mango")
+--         getIngredients("Pear")
 
-        ReplicatedStorage.API:FindFirstChild("FireDimensionAPI/CookRecipe"):InvokeServer("daily_recipe")
-        task.wait(1)
+--         ReplicatedStorage.API:FindFirstChild("FireDimensionAPI/CookRecipe"):InvokeServer("daily_recipe")
+--         task.wait(1)
 
-        opensCookie()
-        task.wait(1)
+--         opensCookie()
+--         task.wait(1)
 
-        ReplicatedStorage.API:FindFirstChild("FireDimensionAPI/CookRecipe"):InvokeServer("super_recipe")
-        task.wait(1)
-    end)
-end
+--         ReplicatedStorage.API:FindFirstChild("FireDimensionAPI/CookRecipe"):InvokeServer("super_recipe")
+--         task.wait(1)
+--     end)
+-- end
 
 
 local function autoFarm()
@@ -1220,7 +1220,6 @@ local function autoFarm()
         for _, v in pairs(Bypass("ClientData").get("pet_char_wrapper")["ailments_monitor"]["ailments"]) do
             if v["id"] == "hungry" then
                 FoodAilments("icecream")
-                FireDimensionFarm()
             elseif v["id"] == "thirsty" then
                 FoodAilments("water")
             elseif v["id"] == "sick" then
@@ -1266,7 +1265,6 @@ local function autoFarm()
             elseif v["id"] == "camping" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
                     TeleportCampSite()
-                    FireDimensionFarm()
                     return
                 end
             end
