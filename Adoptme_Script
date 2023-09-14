@@ -351,19 +351,21 @@ local Shower
 local Piano
 local normalLure
 
-for _, v in pairs(game:GetService("Workspace").HouseInteriors.furniture:GetDescendants()) do
-    if v.Name == "BasicCrib" then
-        Bed = v.Parent.Name:match("%a+-%d+")
+local function findFurniture()
+    for _, v in pairs(game:GetService("Workspace").HouseInteriors.furniture:GetDescendants()) do
+        if v.Name == "BasicCrib" then
+            Bed = v.Parent.Name:match("%a+-%d+")
 
-    elseif v.Name == "StylishShower" then
-        Shower = v.Parent.Name:match("%a+-%d+")
+        elseif v.Name == "StylishShower" then
+            Shower = v.Parent.Name:match("%a+-%d+")
 
-    elseif v.Name == "Piano" then
-        Piano = v.Parent.Name:match("%a+-%d+")
+        elseif v.Name == "Piano" then
+            Piano = v.Parent.Name:match("%a+-%d+")
 
-    elseif v.Name == "Lures2023NormalLure" then
-        normalLure = v.Parent.Name:match("%a+-%d+")
+        elseif v.Name == "Lures2023NormalLure" then
+            normalLure = v.Parent.Name:match("%a+-%d+")
 
+        end
     end
 end
 
@@ -2261,7 +2263,7 @@ ClipBoard:AddButton({
 
 buyLure()
 
-task.wait(3)
+findFurniture()
 
 -- "lures_2023_campfire_cookies"  "lures_2023_flame_swirl_pie"
 local baitId = findBait("lures_2023_flame_swirl_pie")
@@ -2270,7 +2272,7 @@ if baitId == nil then
     baitId = findBait("lures_2023_campfire_cookies")
 end
 
-print(baitId)
+
 -- will place bait but it will also collect pet
 placeBait(baitId)
 
