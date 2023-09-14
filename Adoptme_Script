@@ -1281,8 +1281,10 @@ local function autoFarm()
         for _, v in pairs(Bypass("ClientData").get("pet_char_wrapper")["ailments_monitor"]["ailments"]) do
             if v["id"] == "hungry" then
                 FoodAilments("icecream")
+                placeBait(baitId)
             elseif v["id"] == "thirsty" then
                 FoodAilments("water")
+                placeBait(baitId)
             elseif v["id"] == "sick" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
                     Bypass("RouterClient").get("MonitorAPI/HealWithDoctor"):FireServer()
@@ -1326,7 +1328,7 @@ local function autoFarm()
             elseif v["id"] == "camping" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
                     TeleportCampSite()
-                    collectLureLoot()
+                    placeBait(baitId)
                     return
                 end
             end
@@ -2274,7 +2276,7 @@ end
 
 task.wait(1)
 -- will place bait but it will also collect pet
-placeBait(baitId)
+--placeBait(baitId)
 
 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/SetDoorLocked"):InvokeServer(true)
 
