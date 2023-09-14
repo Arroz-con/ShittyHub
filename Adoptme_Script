@@ -2262,7 +2262,7 @@ ClipBoard:AddButton({
 })
 
 buyLure()
-
+task.wait(2)
 findFurniture()
 
 -- "lures_2023_campfire_cookies"  "lures_2023_flame_swirl_pie"
