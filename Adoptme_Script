@@ -1191,7 +1191,6 @@ local function opensCookie()
 end
 
 
-
 local function FireDimensionFarm()
     task.spawn(function()
         getIngredients("Berry")
@@ -1216,12 +1215,12 @@ local function autoFarm()
     local function CompletePetAilments()
         if Bypass("ClientData").get("pet_char_wrapper") == nil then return end
         if #Bypass("ClientData").get("pet_char_wrapper")["ailments_monitor"]["ailments"] == 0 then
-            FireDimensionFarm()
             return 
         end
         for _, v in pairs(Bypass("ClientData").get("pet_char_wrapper")["ailments_monitor"]["ailments"]) do
             if v["id"] == "hungry" then
                 FoodAilments("icecream")
+                FireDimensionFarm()
             elseif v["id"] == "thirsty" then
                 FoodAilments("water")
             elseif v["id"] == "sick" then
@@ -1267,6 +1266,7 @@ local function autoFarm()
             elseif v["id"] == "camping" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
                     TeleportCampSite()
+                    FireDimensionFarm()
                     return
                 end
             end
@@ -1977,6 +1977,7 @@ Auto:AddToggle({
     end    
 })
 
+
 Auto:AddToggle({
     Name = "Auto Trade FullGrown, luminous Neons and Megas",
     Callback = function(value)
@@ -1994,6 +1995,7 @@ Auto:AddToggle({
     end    
 })
 
+
 Auto:AddToggle({
     Name = "Auto Trade Common to Ultra-rare and Newborn to Teen ",
     Callback = function(value)
@@ -2002,9 +2004,11 @@ Auto:AddToggle({
     end    
 })
 
+
 Auto:AddSection({
     Name = "Send Custom Pet, sends ALL ages of selected pet"
 })
+
 
 local PetsDropdown = Auto:AddDropdown({
     Name = "Select a Pet",
@@ -2012,6 +2016,7 @@ local PetsDropdown = Auto:AddDropdown({
         selectedPet = selectedPet_input
     end
 })
+
 
 Auto:AddButton({
     Name = "Refresh Pet List",
@@ -2052,6 +2057,7 @@ local Buy = Window:MakeTab({
     PremiumOnly = false
 })
 
+
 Buy:AddTextbox({
     Name = "Enter How many to buy",
     TextDisappear = false,
@@ -2059,6 +2065,7 @@ Buy:AddTextbox({
         howmany = value
     end  
 })
+
 
 Buy:AddButton({
     Name = "chipmunk",
@@ -2070,6 +2077,7 @@ Buy:AddButton({
     end
 })
 
+
 Buy:AddButton({
     Name = "raccoon",
     Callback = function()
@@ -2079,6 +2087,7 @@ Buy:AddButton({
         end
     end
 })
+
 
 Buy:AddButton({
     Name = "urban_2023_egg",
@@ -2090,6 +2099,7 @@ Buy:AddButton({
     end
 })
 
+
 Buy:AddButton({
     Name = "Danger egg",
     Callback = function()
@@ -2099,6 +2109,7 @@ Buy:AddButton({
         end
     end
 })
+
 
 Buy:AddButton({
     Name = "Mythic egg",
@@ -2110,6 +2121,7 @@ Buy:AddButton({
     end
 })
 
+
 Buy:AddButton({
     Name = "Woodland Egg",
     Callback = function()
@@ -2119,6 +2131,7 @@ Buy:AddButton({
         end
     end
 })
+
 
 Buy:AddButton({
     Name = "Japan Egg",
@@ -2149,12 +2162,14 @@ local NewAlt = Window:MakeTab({
     PremiumOnly = false
 })
 
+
 NewAlt:AddButton({
     Name = "Complete Starter Tutorial",
     Callback = function()
         completeStarterTutorial()
     end
 })
+
 
 NewAlt:AddButton({
     Name = "Get Trade License",
@@ -2163,12 +2178,14 @@ NewAlt:AddButton({
     end
 })
 
+
 NewAlt:AddButton({
     Name = "Buy Piano",
     Callback = function()
         buyPiano()
     end
 })
+
 
 local ClipBoard = Window:MakeTab({
     Name = "ClipBoard",
@@ -2184,7 +2201,9 @@ ClipBoard:AddButton({
     end
 })
 
+
 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/SetDoorLocked"):InvokeServer(true)
+
 
 if SETTINGS.ENABLE_AUTO_FARM then
     if Piano then
