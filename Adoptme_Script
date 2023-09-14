@@ -349,6 +349,7 @@ local set_thread_identity = set_thread_context
 local Bed
 local Shower
 local Piano
+local normalLure
 
 for _, v in pairs(game:GetService("Workspace").HouseInteriors.furniture:GetDescendants()) do
     if v.Name == "BasicCrib" then
@@ -359,6 +360,9 @@ for _, v in pairs(game:GetService("Workspace").HouseInteriors.furniture:GetDesce
 
     elseif v.Name == "Piano" then
         Piano = v.Parent.Name:match("%a+-%d+")
+
+    elseif v.Name == "Lures2023NormalLure" then
+        normalLure = v.Parent.Name:match("%a+-%d+")
 
     end
 end
@@ -553,6 +557,61 @@ local function completeStarterTutorial()
 
     feedStartEgg("sandwich-default")
     Bypass("RouterClient").get("TeamAPI/ChooseTeam"):InvokeServer("Babies", true)
+end
+
+-- buy the lure bait and place it
+local function buyLure()
+    local args = {
+        [1] = {
+            [1] = {
+                ["properties"] = {
+                    ["cframe"] = CFrame.new(14, 0, -14) * CFrame.Angles(-0, 8.742277657347586e-08, 3.82137093032941e-15)
+                },
+                ["kind"] = "lures_2023_normal_lure"
+            }
+        }
+    }
+
+    game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/BuyFurnitures"):InvokeServer(unpack(args))
+end
+
+-- give cookie bait to lure
+local function placeBait(baitIdPasson)
+    local args = {
+        [1] = game:GetService("Players").LocalPlayer,
+        [2] = normalLure,
+        [3] = "UseBlock",
+        [4] = {
+            ["bait_unique"] = baitIdPasson
+        },
+        [5] = game:GetService("Players").LocalPlayer.Character
+    }
+
+    game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/ActivateFurniture"):InvokeServer(unpack(args))
+end
+
+local function findBait(baitPassOn)
+    local bait
+    for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.food) do
+        if v.id == baitPassOn then
+            bait = v.unique
+            return bait
+        end
+    end  
+end
+
+--collect lure loot
+local function collectLureLoot()
+    local args = {
+        [1] = game:GetService("Players").LocalPlayer,
+        [2] = normalLure,
+        [3] = "UseBlock",
+        [4] = false,
+        [5] = game:GetService("Players").LocalPlayer.Character
+    }
+    
+    game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/ActivateFurniture"):InvokeServer(unpack(args))
+    
 end
 
 
@@ -1265,6 +1324,7 @@ local function autoFarm()
             elseif v["id"] == "camping" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
                     TeleportCampSite()
+                    collectLureLoot()
                     return
                 end
             end
@@ -2199,6 +2259,19 @@ ClipBoard:AddButton({
     end
 })
 
+buyLure()
+
+task.wait(1)
+
+-- "lures_2023_campfire_cookies"  "lures_2023_flame_swirl_pie"
+local baitId = findBait("lures_2023_flame_swirl_pie")
+
+if baitId == nil then
+    baitId = findBait("lures_2023_campfire_cookies")
+end
+
+-- will place bait but it will also collect pet
+placeBait(baitId)
 
 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/SetDoorLocked"):InvokeServer(true)
 
