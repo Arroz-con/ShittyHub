@@ -2261,7 +2261,7 @@ ClipBoard:AddButton({
 
 buyLure()
 
-task.wait(1)
+task.wait(3)
 
 -- "lures_2023_campfire_cookies"  "lures_2023_flame_swirl_pie"
 local baitId = findBait("lures_2023_flame_swirl_pie")
