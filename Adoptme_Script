@@ -1335,8 +1335,6 @@ local function autoFarm()
 
                     baitId = findBait("lures_2023_flame_swirl_pie") or "lures_2023_campfire_cookies"
                     placeBait(baitId)
-                    task.wait(1)
-                    placeBait(baitId)
                     return
                 end
             end
@@ -2132,6 +2130,9 @@ Buy:AddTextbox({
     Name = "Enter How many to buy",
     TextDisappear = false,
     Callback = function(value)
+        if value == nil then
+            value = 1
+        end
         howmany = value
     end  
 })
@@ -2169,60 +2170,6 @@ Buy:AddButton({
     end
 })
 
-
-Buy:AddButton({
-    Name = "Danger egg",
-    Callback = function()
-        for i = 1, howmany do
-            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "danger_2023_egg", {})
-            task.wait(.1)
-        end
-    end
-})
-
-
-Buy:AddButton({
-    Name = "Mythic egg",
-    Callback = function()
-        for i = 1, howmany do
-            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "mythic_egg", {})
-            task.wait(.1)
-        end
-    end
-})
-
-
-Buy:AddButton({
-    Name = "Woodland Egg",
-    Callback = function()
-        for i = 1, howmany do
-            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "woodland_2022_woodland_egg", {})
-            task.wait(.1)
-        end
-    end
-})
-
-
-Buy:AddButton({
-    Name = "Japan Egg",
-    Callback = function()
-        for i = 1, howmany do
-            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "japan_2022_egg", {})
-            task.wait(.1)
-        end
-    end
-})
-
-
-Buy:AddButton({
-    Name = "Southeast Asia Egg",
-    Callback = function()
-        for i = 1, howmany do
-            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "seasia_2023_egg", {})
-            task.wait(.1)
-        end
-    end
-})
 
 --// things needed when joining game for the first time
 
@@ -2284,8 +2231,6 @@ end
 
 task.wait(1)
 -- will place bait but it will also collect pet
-placeBait(baitId)
-task.wait(1)
 placeBait(baitId)
 
 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/SetDoorLocked"):InvokeServer(true)
