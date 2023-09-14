@@ -2262,7 +2262,7 @@ ClipBoard:AddButton({
 })
 
 buyLure()
-task.wait(2)
+task.wait(1)
 findFurniture()
 
 -- "lures_2023_campfire_cookies"  "lures_2023_flame_swirl_pie"
@@ -2272,7 +2272,7 @@ if baitId == nil then
     baitId = findBait("lures_2023_campfire_cookies")
 end
 
-
+task.wait(1)
 -- will place bait but it will also collect pet
 placeBait(baitId)
 
