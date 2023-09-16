@@ -1805,6 +1805,12 @@ local function checkInventory()
         end
     end
 
+    for _, toy in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.toys) do
+        if toy.id == "paint_2023_colored_hair_spray_sealer" then
+            return true, "toys"  
+        end
+    end
+
     for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
         if pet.properties.age == 6 or pet.properties.mega_neon then
             return true, "pets"
@@ -1830,7 +1836,7 @@ local function tradeCollector(namePassOn)
                 
                 local petCounter = 0   
                 for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory[tabName]) do
-                    if pet.id == "rgb_reward_box" or pet.properties.age == 6 or pet.properties.mega_neon then
+                    if pet.id == "rgb_reward_box" or pet.id == "paint_2023_colored_hair_spray_sealer" or pet.properties.age == 6 or pet.properties.mega_neon then
                         ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
                         petCounter = petCounter + 1
                         if petCounter >= 18 then
@@ -2223,10 +2229,13 @@ task.wait(1)
 findFurniture()
 
 -- "lures_2023_campfire_cookies"  "lures_2023_flame_swirl_pie"
-baitId = findBait("lures_2023_flame_swirl_pie")
+baitId = findBait("lures_2023_overcooked_tart")
 
 if baitId == nil then
-    baitId = findBait("lures_2023_campfire_cookies")
+    baitId = findBait("lures_2023_flame_swirl_pie")
+    if baitId == nil then
+        baitId = findBait("lures_2023_campfire_cookies")
+    end
 end
 
 task.wait(1)
