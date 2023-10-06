@@ -1381,7 +1381,7 @@ local function autoFarm()
             Player.PlayerGui.MinigameInGameApp.Body.Middle:WaitForChild("Container")
             Player.PlayerGui.MinigameInGameApp.Body.Middle.Container:WaitForChild("TitleLabel")
             if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("TILE SKIP") then
-                task.wait(1)
+                task.wait(5)
                 doHalloweenTitle()
             elseif Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("CRABBY GRABBY") then
 
@@ -1455,8 +1455,9 @@ local function autoFarm()
             Player.PlayerGui.MinigameRewardsApp.Body.Button:WaitForChild("Face")
             Player.PlayerGui.MinigameRewardsApp.Body.Button.Face:WaitForChild("TextLabel")
             if Player.PlayerGui.MinigameRewardsApp.Body.Button.Face.TextLabel.Text:match("NICE!") then
+                task.wait(2)
                 RemoveGameOverButton()
-                task.wait(1)
+                task.wait(2)
                 TeleportMainMap()
             end
         end
