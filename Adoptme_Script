@@ -1364,6 +1364,103 @@ local function autoFarm()
         CompletePetAilments()
     end)
 
+    local function doHalloweenTitle()
+        local args = {
+            [1] = "TileSkipMinigameJoinZone",
+            [2] = "reached_goal"
+        }
+        
+        game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))        
+    end
+
+    --// Fires when inside the minigame
+    Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(function()
+        if Player.PlayerGui.MinigameInGameApp.Enabled then
+            Player.PlayerGui.MinigameInGameApp:WaitForChild("Body")
+            Player.PlayerGui.MinigameInGameApp.Body:WaitForChild("Middle")
+            Player.PlayerGui.MinigameInGameApp.Body.Middle:WaitForChild("Container")
+            Player.PlayerGui.MinigameInGameApp.Body.Middle.Container:WaitForChild("TitleLabel")
+            if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("TILE SKIP") then
+                task.wait(1)
+                doHalloweenTitle()
+            elseif Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("CRABBY GRABBY") then
+
+            end
+        end 
+    end)
+    
+    
+    Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(NormalDialogChild)
+        if NormalDialogChild.Name == "NormalDialog" then
+            NormalDialogChild:GetPropertyChangedSignal("Visible"):Connect(function()
+                if NormalDialogChild.Visible then
+                    NormalDialogChild:WaitForChild("Info")
+                    NormalDialogChild.Info:WaitForChild("TextLabel")
+                    NormalDialogChild.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
+                        if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Tile Skip is starting soon!") then
+                            FireButton("Yes")
+                            
+                        elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Crabby Grabby is starting soon!") then
+                            FireButton("Yes")
+
+                        end
+                    end)
+                end
+            end)
+        end
+    end)
+    
+    Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal("Visible"):Connect(function()
+        if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
+            Player.PlayerGui.DialogApp.Dialog.NormalDialog:WaitForChild("Info")
+            Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info:WaitForChild("TextLabel")
+            Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
+                if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Tile Skip is starting soon!") then
+                    FireButton("Yes")
+                   
+                elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Crabby Grabby is starting soon!") then
+                    FireButton("Yes")
+                end
+            end)
+        end
+    end)
+    
+    if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
+        if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Tile Skip is starting soon!") then
+            FireButton("Yes")
+            
+        elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Crabby Grabby is starting soon!") then
+            FireButton("Yes")
+           
+        end
+    end
+    
+
+    local function RemoveGameOverButton()
+        Player.PlayerGui.MinigameRewardsApp.Body.Button:WaitForChild("Face")
+        for i, v in pairs(Player.PlayerGui.MinigameRewardsApp.Body.Button:GetDescendants()) do
+            if v.Name == "TextLabel" then
+                if v.Text == "NICE!" then
+                    firesignal(v.Parent.Parent.MouseButton1Click)
+                    break
+                end
+            end
+        end
+    end
+    
+    
+    Player.PlayerGui.MinigameRewardsApp.Body:GetPropertyChangedSignal("Visible"):Connect(function()
+        if Player.PlayerGui.MinigameRewardsApp.Body.Visible then
+            Player.PlayerGui.MinigameRewardsApp.Body:WaitForChild("Button")
+            Player.PlayerGui.MinigameRewardsApp.Body.Button:WaitForChild("Face")
+            Player.PlayerGui.MinigameRewardsApp.Body.Button.Face:WaitForChild("TextLabel")
+            if Player.PlayerGui.MinigameRewardsApp.Body.Button.Face.TextLabel.Text:match("NICE!") then
+                RemoveGameOverButton()
+                TeleportMainMap()
+            end
+        end
+    end)
+
     --// Code below runs once when auto farm is enabled
     if SETTINGS.PET_AUTO_FUSION then
         MakeNeon()
@@ -1376,6 +1473,8 @@ local function autoFarm()
     CompletePetAilments()
     task.wait(2)
     setfpscap(SETTINGS.SET_FPS)
+
+    
 end
 
     
