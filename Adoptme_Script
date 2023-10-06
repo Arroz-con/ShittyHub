@@ -1425,15 +1425,15 @@ local function autoFarm()
         end
     end)
     
-    if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
-        if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Tile Skip is starting soon!") then
-            FireButton("Yes")
+    -- if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
+    --     if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Tile Skip is starting soon!") then
+    --         FireButton("Yes")
             
-        elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Crabby Grabby is starting soon!") then
-            FireButton("Yes")
+    --     elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Crabby Grabby is starting soon!") then
+    --         FireButton("Yes")
            
-        end
-    end
+    --     end
+    -- end
     
 
     local function RemoveGameOverButton()
@@ -1456,6 +1456,7 @@ local function autoFarm()
             Player.PlayerGui.MinigameRewardsApp.Body.Button.Face:WaitForChild("TextLabel")
             if Player.PlayerGui.MinigameRewardsApp.Body.Button.Face.TextLabel.Text:match("NICE!") then
                 RemoveGameOverButton()
+                task.wait(1)
                 TeleportMainMap()
             end
         end
