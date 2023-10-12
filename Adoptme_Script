@@ -1077,6 +1077,16 @@ local function MakeMegaNeon()
 end
 
 
+local function agePotion(FoodPassOn)
+    for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.food) do
+        if v.id == FoodPassOn then
+            ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(v.unique)
+            return
+        end
+    end
+end
+
+
 local function FoodAilments(FoodPassOn) --FoodPassOn means "icecream" for this example
     local FoodCounter = 0
     for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.food) do
@@ -1287,6 +1297,8 @@ local function autoFarm()
         for _, v in pairs(Bypass("ClientData").get("pet_char_wrapper")["ailments_monitor"]["ailments"]) do
             if v["id"] == "hungry" then
                 FoodAilments("icecream")
+                task.wait(2)
+                agePotion("pet_age_potion")
             elseif v["id"] == "thirsty" then
                 FoodAilments("water") 
             elseif v["id"] == "sick" then
@@ -1373,6 +1385,19 @@ local function autoFarm()
         game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))        
     end
 
+    local function doChickatriceSays()
+        local args = {
+            [1] = "chickatrice_minigame",
+            [2] = true,
+            [3] = {
+                ["completed_game"] = true
+            }
+        }
+        
+        game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/AttemptJoin"):FireServer(unpack(args))
+        
+    end
+
     --// Fires when inside the minigame
     Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(function()
         if Player.PlayerGui.MinigameInGameApp.Enabled then
@@ -1383,8 +1408,9 @@ local function autoFarm()
             if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("TILE SKIP") then
                 task.wait(5)
                 doHalloweenTitle()
-            elseif Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("CRABBY GRABBY") then
-
+            elseif Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("CHICKATRICE SAYS") then
+                task.wait(10)
+                doChickatriceSays()
             end
         end 
     end)
@@ -1400,7 +1426,7 @@ local function autoFarm()
                         if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Tile Skip is starting soon!") then
                             FireButton("Yes")
                             
-                        elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Crabby Grabby is starting soon!") then
+                        elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Chickatrice Says!") then
                             FireButton("Yes")
 
                         end
@@ -1418,7 +1444,7 @@ local function autoFarm()
                 if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Tile Skip is starting soon!") then
                     FireButton("Yes")
                    
-                elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Crabby Grabby is starting soon!") then
+                elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Chickatrice Says!") then
                     FireButton("Yes")
                 end
             end)
