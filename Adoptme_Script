@@ -1384,18 +1384,12 @@ local function autoFarm()
         
         game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))        
     end
-
+    
     local function doChickatriceSays()
-        local args = {
-            [1] = "chickatrice_minigame",
-            [2] = true,
-            [3] = {
-                ["completed_game"] = true
-            }
-        }
-        
-        game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/AttemptJoin"):FireServer(unpack(args))
-        
+        local humanoidRootPart = game.Players.LocalPlayer.Character.HumanoidRootPart
+        if humanoidRootPart then
+            humanoidRootPart.Anchored = true
+        end
     end
 
     --// Fires when inside the minigame
@@ -1409,7 +1403,7 @@ local function autoFarm()
                 task.wait(5)
                 doHalloweenTitle()
             elseif Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("CHICKATRICE SAYS") then
-                task.wait(10)
+                task.wait()
                 doChickatriceSays()
             end
         end 
@@ -2310,6 +2304,39 @@ Buy:AddButton({
     Callback = function()
         for i = 1, (howmany or 1) do
             ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", pet4, {})
+            task.wait(.1)
+        end
+    end
+})
+
+local pet5 = "halloween_2023_cuteacabra"
+Buy:AddButton({
+    Name = tostring(inventoryDB.pets[pet5].name.." - "..inventoryDB.pets[pet5].cost.." - "..(inventoryDB.pets[pet5].currency_id or "bucks")),
+    Callback = function()
+        for i = 1, (howmany or 1) do
+            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", pet5, {})
+            task.wait(.1)
+        end
+    end
+})
+
+local pet6 = "halloween_2023_ghost_dog"
+Buy:AddButton({
+    Name = tostring(inventoryDB.pets[pet6].name.." - "..inventoryDB.pets[pet6].cost.." - "..(inventoryDB.pets[pet6].currency_id or "bucks")),
+    Callback = function()
+        for i = 1, (howmany or 1) do
+            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", pet6, {})
+            task.wait(.1)
+        end
+    end
+})
+
+local pet7 = "halloween_2023_dire_stag"
+Buy:AddButton({
+    Name = tostring(inventoryDB.pets[pet7].name.." - "..inventoryDB.pets[pet7].cost.." - "..(inventoryDB.pets[pet7].currency_id or "bucks")),
+    Callback = function()
+        for i = 1, (howmany or 1) do
+            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", pet7, {})
             task.wait(.1)
         end
     end
