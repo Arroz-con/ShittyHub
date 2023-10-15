@@ -97,7 +97,6 @@ RoleChooserDialogConnection = Player.PlayerGui.DialogApp.Dialog.RoleChooserDialo
     task.wait()
     if Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
         firesignal(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby.MouseButton1Click)
-        print("clicked")
         RoleChooserDialogConnection:Disconnect()
     end
 end)
