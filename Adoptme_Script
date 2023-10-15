@@ -1476,10 +1476,8 @@ local function autoFarm()
             Player.PlayerGui.MinigameRewardsApp.Body.Button:WaitForChild("Face")
             Player.PlayerGui.MinigameRewardsApp.Body.Button.Face:WaitForChild("TextLabel")
             if Player.PlayerGui.MinigameRewardsApp.Body.Button.Face.TextLabel.Text:match("NICE!") then
-                task.wait(2)
+                Player.Character.HumanoidRootPart.Anchored = false
                 RemoveGameOverButton()
-                Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
-                task.wait(2)
                 TeleportMainMap()
             end
         end
