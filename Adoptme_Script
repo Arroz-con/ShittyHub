@@ -1345,7 +1345,7 @@ local function autoFarm()
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
                     TeleportCampSite()
 
-                    baitId = findBait("lures_2023_flame_swirl_pie") or "lures_2023_campfire_cookies"
+                    baitId = findBait("lures_2023_campfire_cookies")
                     placeBait(baitId)
                     return
                 end
@@ -1386,10 +1386,11 @@ local function autoFarm()
     end
     
     local function doChickatriceSays()
-        local humanoidRootPart = game.Players.LocalPlayer.Character.HumanoidRootPart
-        if humanoidRootPart then
-            humanoidRootPart.Anchored = true
-        end
+        Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
+        -- local humanoidRootPart = game.Players.LocalPlayer.Character.HumanoidRootPart
+        -- if humanoidRootPart then
+        --     humanoidRootPart.Anchored = true
+        -- end
     end
 
     --// Fires when inside the minigame
@@ -1477,6 +1478,7 @@ local function autoFarm()
             if Player.PlayerGui.MinigameRewardsApp.Body.Button.Face.TextLabel.Text:match("NICE!") then
                 task.wait(2)
                 RemoveGameOverButton()
+                Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
                 task.wait(2)
                 TeleportMainMap()
             end
@@ -1547,7 +1549,16 @@ end
 -- end)
 
 local function ClickTradeWindowPopUps()
-    for i, v in pairs(Player.PlayerGui.DialogApp.Dialog.NormalDialog.Buttons:GetDescendants()) do
+    for _, v in pairs(Player.PlayerGui.DialogApp.Dialog.NormalDialog.Buttons:GetDescendants()) do
+        if v.Name == "TextLabel" then
+            if v.Text == "Accept" or v.Text == "Okay" or v.Text == "Next" or v.Text == "I understand" then
+                firesignal(v.Parent.Parent.MouseButton1Click)
+                return
+            end
+        end
+    end
+
+    for _, v in pairs(Player.PlayerGui.DialogApp.Dialog.HeaderDialog.Buttons:GetDescendants()) do
         if v.Name == "TextLabel" then
             if v.Text == "Accept" or v.Text == "Okay" or v.Text == "Next" or v.Text == "I understand" then
                 firesignal(v.Parent.Parent.MouseButton1Click)
@@ -1920,23 +1931,31 @@ local function checkInventory()
         return false, "false"
     end
 
-    for _, gift in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.gifts) do
-        if gift.id == "rgb_reward_box" then
-            return true, "gifts"  
-        end
-    end
+    -- for _, gift in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.gifts) do
+    --     if gift.id == "rgb_reward_box" then
+    --         return true, "gifts"  
+    --     end
+    -- end
 
-    for _, toy in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.toys) do
-        if toy.id == "paint_2023_colored_hair_spray_sealer" then
-            return true, "toys"  
-        end
-    end
+    -- for _, toy in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.toys) do
+    --     if toy.id == "paint_2023_colored_hair_spray_sealer" then
+    --         return true, "toys"  
+    --     end
+    -- end
+
+    -- for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+    --     if pet.properties.age == 6 or pet.properties.mega_neon then
+    --         return true, "pets"
+    --     end
+    -- end
 
     for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
-        if pet.properties.age == 6 or pet.properties.mega_neon then
+        if pet.id ~= "practice_dog" and pet.properties.age == SETTINGS.TRADE_PET_SETTINGS.AGE and pet.properties.neon == SETTINGS.TRADE_PET_SETTINGS.NEON then
             return true, "pets"
         end
     end
+
+    return false, "false"
 end
 
 local function tradeCollector(namePassOn)
@@ -1953,14 +1972,24 @@ local function tradeCollector(namePassOn)
                     ClickTradeWindowPopUps()
                     task.wait(1)
                 until Player.PlayerGui.TradeApp.Frame.Visible
+                ClickTradeWindowPopUps()
                 
-                
+                -- local petCounter = 0   
+                -- for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory[tabName]) do
+                --     if pet.id == "rgb_reward_box" or pet.id == "paint_2023_colored_hair_spray_sealer" or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon then
+                --         ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
+                --         petCounter = petCounter + 1
+                --         if petCounter >= 18 then
+                --             break 
+                --         end
+                --     end
+                -- end
                 local petCounter = 0   
                 for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory[tabName]) do
-                    if pet.id == "rgb_reward_box" or pet.id == "paint_2023_colored_hair_spray_sealer" or (pet.properties.age == 6 and pet.properties.neon) or pet.properties.mega_neon then
+                    if pet.id ~= "practice_dog" and not pet.properties.neon and pet.properties.age ~= 6 then
                         ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
                         petCounter = petCounter + 1
-                        if petCounter >= 18 then
+                        if petCounter >= 19 then
                             break 
                         end
                     end
@@ -1983,6 +2012,7 @@ game.Players.ChildAdded:Connect(function(name)
         tradeCollector(tostring(name))
     end
 end)
+
 
 -----------          UI  Functions           ------------------
 
@@ -2419,3 +2449,11 @@ if SETTINGS.ENABLE_AUTO_FARM then
         FarmToggle:Set(false)
     end
 end
+
+-- for _, player in Players:GetPlayers() do
+--     if game.Players.LocalPlayer.Name == SETTINGS.TRADE_COLLECTOR_NAME then return end
+
+--     if player.Name == SETTINGS.TRADE_COLLECTOR_NAME then
+--         tradeCollector(tostring(player.Name))
+--     end
+-- end
