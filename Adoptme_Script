@@ -1502,27 +1502,27 @@ end
     
 -- For text that popups on bottom ui
 
--- local DebounceHintApp = false
--- Player.PlayerGui.HintApp:GetPropertyChangedSignal("Enabled"):Connect(function()
---     if Player.PlayerGui.HintApp.Enabled then
---         Player.PlayerGui.HintApp:WaitForChild("TextLabel")
---         Player.PlayerGui.HintApp.TextLabel:GetPropertyChangedSignal("Text"):Connect(function(Message)
---             if Player.PlayerGui.HintApp.TextLabel.Text:find("aged up!") then
---                 if not DebounceHintApp then
---                     DebounceHintApp = true
---                     if SETTINGS.PET_AUTO_FUSION then
---                         MakeNeon()
---                         MakeMegaNeon()
---                         task.wait(2) -- gives it time for pet to fully equipped
---                     end
---                     SwitchOutFullyGrown()
---                     task.wait(10) -- Dont remove. makes it so that it doesnt get called many times
---                     DebounceHintApp = false
---                 end
---             end
---         end) 
---     end
--- end)
+local DebounceHintApp = false
+Player.PlayerGui.HintApp:GetPropertyChangedSignal("Enabled"):Connect(function()
+    if Player.PlayerGui.HintApp.Enabled then
+        Player.PlayerGui.HintApp:WaitForChild("TextLabel")
+        Player.PlayerGui.HintApp.TextLabel:GetPropertyChangedSignal("Text"):Connect(function(Message)
+            if Player.PlayerGui.HintApp.TextLabel.Text:find("aged up!") then
+                if not DebounceHintApp then
+                    DebounceHintApp = true
+                    if SETTINGS.PET_AUTO_FUSION then
+                        MakeNeon()
+                        MakeMegaNeon()
+                        task.wait(2) -- gives it time for pet to fully equipped
+                    end
+                    SwitchOutFullyGrown()
+                    task.wait(5) -- Dont remove. makes it so that it doesnt get called many times
+                    DebounceHintApp = false
+                end
+            end
+        end) 
+    end
+end)
 
 
 ---------------------------------------- Auto Trader --------------------------------
