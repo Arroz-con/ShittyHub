@@ -1164,8 +1164,8 @@ end
 local function TeleportMainMap()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
     SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
-    game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
-    Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.Campsite.MarshmallowChair.VintageChair.Union.CFrame + Vector3.new(math.random(1, 20), 10, math.random(1, 20))
+    game.Workspace.Interiors:WaitForChild("MainMap/Default")
+    Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:FindFirstChild("MainMap/Default").Static.Campsite.MarshmallowChair.VintageChair.Union.CFrame + Vector3.new(math.random(1, 20), 10, math.random(1, 20))
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
     Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
     Player.Character.Humanoid.WalkSpeed = 0
