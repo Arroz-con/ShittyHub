@@ -1929,26 +1929,21 @@ local function checkInventory()
         return false, "false"
     end
 
-    -- for _, gift in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.gifts) do
-    --     if gift.id == "rgb_reward_box" then
-    --         return true, "gifts"  
-    --     end
-    -- end
+    for _, gift in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.gifts) do
+        if gift.id == "rgb_reward_box" then
+            return true, "gifts"  
+        end
+    end
 
-    -- for _, toy in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.toys) do
-    --     if toy.id == "paint_2023_colored_hair_spray_sealer" then
-    --         return true, "toys"  
-    --     end
-    -- end
-
-    -- for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
-    --     if pet.properties.age == 6 or pet.properties.mega_neon then
-    --         return true, "pets"
-    --     end
-    -- end
+    for _, toy in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.toys) do
+        if toy.id == "paint_2023_colored_hair_spray_sealer" then
+            return true, "toys"  
+        end
+    end
 
     for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
-        if pet.id ~= "practice_dog" and pet.properties.age == SETTINGS.TRADE_PET_SETTINGS.AGE and pet.properties.neon == SETTINGS.TRADE_PET_SETTINGS.NEON then
+        if pet.id == "practice_dog" then continue end
+        if pet.id == "lures_2023_blazing_lion" or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon then
             return true, "pets"
         end
     end
@@ -1972,19 +1967,10 @@ local function tradeCollector(namePassOn)
                 until Player.PlayerGui.TradeApp.Frame.Visible
                 ClickTradeWindowPopUps()
                 
-                -- local petCounter = 0   
-                -- for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory[tabName]) do
-                --     if pet.id == "rgb_reward_box" or pet.id == "paint_2023_colored_hair_spray_sealer" or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon then
-                --         ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
-                --         petCounter = petCounter + 1
-                --         if petCounter >= 18 then
-                --             break 
-                --         end
-                --     end
-                -- end
                 local petCounter = 0   
                 for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory[tabName]) do
-                    if pet.id ~= "practice_dog" and not pet.properties.neon and pet.properties.age ~= 6 then
+                    if pet.id == "practice_dog" then continue end
+                    if pet.id == "rgb_reward_box" or pet.id == "paint_2023_colored_hair_spray_sealer" or pet.id == "lures_2023_blazing_lion" or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon then
                         ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
                         petCounter = petCounter + 1
                         if petCounter >= 19 then
@@ -1992,6 +1978,18 @@ local function tradeCollector(namePassOn)
                         end
                     end
                 end
+
+                -- local petCounter = 0   
+                -- for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory[tabName]) do
+                --     if pet.id ~= "practice_dog" and not pet.properties.neon and pet.properties.age ~= 6 then
+                --         ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
+                --         petCounter = petCounter + 1
+                --         if petCounter >= 19 then
+                --             break 
+                --         end
+                --     end
+                -- end
+
                 ClickTradeWindowPopUps()
                 ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
                 task.wait()
