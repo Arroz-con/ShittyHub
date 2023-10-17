@@ -348,7 +348,7 @@ local set_thread_identity = set_thread_context
 
 local Bed
 local Shower
-local Piano
+--local Piano
 local normalLure
 
 local function findFurniture()
@@ -356,11 +356,11 @@ local function findFurniture()
         if v.Name == "BasicCrib" then
             Bed = v.Parent.Name:match("%a+-%d+")
 
-        elseif v.Name == "StylishShower" then
+        elseif v.Name == "StylishShower" or v.Name == "ModernShower" then
             Shower = v.Parent.Name:match("%a+-%d+")
 
-        elseif v.Name == "Piano" then
-            Piano = v.Parent.Name:match("%a+-%d+")
+        -- elseif v.Name == "Piano" then
+        --     Piano = v.Parent.Name:match("%a+-%d+")
 
         elseif v.Name == "Lures2023NormalLure" then
             normalLure = v.Parent.Name:match("%a+-%d+")
@@ -369,11 +369,11 @@ local function findFurniture()
     end
 end
 
-local function buyPiano()
+local function buyCrib()
     local args = {
         [1] = {
             [1] = {
-                ["kind"] = "piano",
+                ["kind"] = "basiccrib",
                 ["properties"] = {
                     ["cframe"] = CFrame.new(Vector3.new(13.7001953125, 0, -20.699951171875), Vector3.new(-8.742277657347586e-08, -0, -1))
                 }
@@ -381,11 +381,24 @@ local function buyPiano()
         }
     }
     
-    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/BuyFurnitures"):InvokeServer(unpack(args))
-    
-    -- local pianoCFrame = CFrame.new(Vector3.new(13.7001953125, 0, -20.699951171875), Vector3.new(-8.742277657347586e-08, -0, -1))
-    -- game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/BuyFurniture"):InvokeServer("piano", pianoCFrame)
+    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/BuyFurnitures"):InvokeServer(unpack(args))   
 end
+
+-- local function buyPiano()
+--     local args = {
+--         [1] = {
+--             [1] = {
+--                 ["kind"] = "piano",
+--                 ["properties"] = {
+--                     ["cframe"] = CFrame.new(Vector3.new(13.7001953125, 0, -20.699951171875), Vector3.new(-8.742277657347586e-08, -0, -1))
+--                 }
+--             }
+--         }
+--     }
+    
+--     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/BuyFurnitures"):InvokeServer(unpack(args))
+    
+-- end
 
 
 
@@ -540,6 +553,7 @@ end
 --// completes the starter tutorial
 local function completeStarterTutorial()
     Bypass("LegacyTutorial").cancel_tutorial()
+    Bypass("TutorialClient").cancel()
     ReplicatedStorage.API["LegacyTutorialAPI/EquipTutorialEgg"]:FireServer()
     ReplicatedStorage.API["LegacyTutorialAPI/AddTutorialQuest"]:FireServer()
     ReplicatedStorage.API["LegacyTutorialAPI/AddHungryAilmentToTutorialEgg"]:FireServer()
@@ -1368,11 +1382,23 @@ local function autoFarm()
         CompletePetAilments()
     end)
 
-    game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildRemoved:Connect(function(PetAilmentRemoved)
+    game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildRemoved:Connect(function()
         task.wait(1)
         SwitchOutFullyGrown()
         task.wait(1)
         CompletePetAilments()
+    end)
+
+    -- For text that popups on bottom ui
+    Player.PlayerGui.HintApp.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
+        if Player.PlayerGui.HintApp.TextLabel.Text:match("aged up!") then
+            if SETTINGS.PET_AUTO_FUSION then
+                MakeNeon()
+                MakeMegaNeon()
+                task.wait(2) -- gives it time for pet to fully equipped
+            end
+            SwitchOutFullyGrown()
+        end
     end)
 
     local function doHalloweenTitle()
@@ -1498,30 +1524,6 @@ local function autoFarm()
     
 end
 
-    
--- For text that popups on bottom ui
-
-local DebounceHintApp = false
-Player.PlayerGui.HintApp:GetPropertyChangedSignal("Enabled"):Connect(function()
-    if Player.PlayerGui.HintApp.Enabled then
-        Player.PlayerGui.HintApp:WaitForChild("TextLabel")
-        Player.PlayerGui.HintApp.TextLabel:GetPropertyChangedSignal("Text"):Connect(function(Message)
-            if Player.PlayerGui.HintApp.TextLabel.Text:find("aged up!") then
-                if not DebounceHintApp then
-                    DebounceHintApp = true
-                    if SETTINGS.PET_AUTO_FUSION then
-                        MakeNeon()
-                        MakeMegaNeon()
-                        task.wait(2) -- gives it time for pet to fully equipped
-                    end
-                    SwitchOutFullyGrown()
-                    task.wait(5) -- Dont remove. makes it so that it doesnt get called many times
-                    DebounceHintApp = false
-                end
-            end
-        end) 
-    end
-end)
 
 
 ---------------------------------------- Auto Trader --------------------------------
@@ -1952,7 +1954,7 @@ end
 
 local function tradeCollector(namePassOn)
     task.spawn(function()
-        while SETTINGS.ENABLE_TRADE_COLLECTOR and SETTINGS.TRADE_COLLECTOR_NAME do
+        while SETTINGS.ENABLE_TRADE_COLLECTOR and SETTINGS.TRADE_COLLECTOR_NAME and Players[namePassOn] do
             local tabBoolean, tabName = checkInventory()
             if not tabBoolean then return end
             pcall(function()
@@ -2001,10 +2003,16 @@ local function tradeCollector(namePassOn)
     end)
 end
 
-game.Players.ChildAdded:Connect(function(name)
-    if tostring(name) == SETTINGS.TRADE_COLLECTOR_NAME then
-        task.wait(math.random(30, 40))
-        tradeCollector(tostring(name))
+
+game.Players.PlayerAdded:Connect(function(player: Player)
+    if tostring(player.Name) == SETTINGS.TRADE_COLLECTOR_NAME then
+        player.CharacterAdded:Connect(function(character: Model)
+            local humanoidRootPart = character:WaitForChild("HumanoidRootPart", 60)
+            if not humanoidRootPart then return end
+            if tostring(player.Name) ~= SETTINGS.TRADE_COLLECTOR_NAME then return end --extra check just in case
+
+            tradeCollector(tostring(player.Name))
+        end)
     end
 end)
 
@@ -2394,9 +2402,9 @@ NewAlt:AddButton({
 
 
 NewAlt:AddButton({
-    Name = "Buy Piano",
+    Name = "Buy Basic Crib",
     Callback = function()
-        buyPiano()
+        buyCrib()
     end
 })
 
@@ -2432,23 +2440,17 @@ end
 task.wait(1)
 -- will place bait but it will also collect pet
 placeBait(baitId)
+task.wait(1)
+placeBait(baitId)
 
 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/SetDoorLocked"):InvokeServer(true)
 
 
 if SETTINGS.ENABLE_AUTO_FARM then
-    if Piano then
-        task.wait(math.random(1, 20))
+    if Bed then
+        task.wait(math.random(1, 5))
         FarmToggle:Set(true)
     else
         FarmToggle:Set(false)
     end
 end
-
--- for _, player in Players:GetPlayers() do
---     if game.Players.LocalPlayer.Name == SETTINGS.TRADE_COLLECTOR_NAME then return end
-
---     if player.Name == SETTINGS.TRADE_COLLECTOR_NAME then
---         tradeCollector(tostring(player.Name))
---     end
--- end
