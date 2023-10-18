@@ -1175,6 +1175,7 @@ local function ExitHome()
 end
 
 local function TeleportMainMap()
+    Bypass("CollisionsClient").set_collidable(false)
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
     SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
     game.Workspace.Interiors:WaitForChild("MainMap/Default")
@@ -1398,6 +1399,13 @@ local function autoFarm()
                 task.wait(2) -- gives it time for pet to fully equipped
             end
             SwitchOutFullyGrown()
+
+        elseif Player.PlayerGui.HintApp.TextLabel.Text:match("You have left the queue") then
+            if workspace.Interiors:FindFirstChild("TileSkipMinigameLobby") then
+                Player.Character.PrimaryPart.CFrame = workspace.Interiors.TileSkipMinigameLobby.JoinZone.Collider.CFrame + Vector3.new(0,-15,0)
+            else
+                Player.Character.PrimaryPart.CFrame = workspace.Interiors.ChickatriceMinigame.Minigame.JoinZone.Collider.CFrame + Vector3.new(0,-14,0)
+            end
         end
     end)
 
@@ -1493,8 +1501,8 @@ local function autoFarm()
             end
         end
     end
-    
-    
+
+
     Player.PlayerGui.MinigameRewardsApp.Body:GetPropertyChangedSignal("Visible"):Connect(function()
         if Player.PlayerGui.MinigameRewardsApp.Body.Visible then
             Player.PlayerGui.MinigameRewardsApp.Body:WaitForChild("Button")
