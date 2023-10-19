@@ -1922,7 +1922,7 @@ local function autoTradeCustomGifts()
                         if petCounter >= 19 then
                             break 
                         end
-                        task.wait()
+                        task.wait(.1)
                     end
                 end
                 ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
@@ -1940,32 +1940,53 @@ local function checkInventory()
         return false, "false"
     end
 
+    local giftTable = {
+        "rgb_reward_box",
+        "halloween_2023_scarecrow_box",
+        "halloween_2022_wolf_box",
+        "summerfest_2023_hermit_crab_box",
+        "winter_2021_walrus_box",
+        "winter_2022_pony_box",
+        "lny_2023_moon_bear_box",
+        "springfest_2023_duckling_box",
+    }
+
+    local toyTable = {
+        "paint_2023_colored_hair_spray_sealer",
+    }
+
+    local petTable = {
+        "lures_2023_blazing_lion",
+    }
+
     for _, gift in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.gifts) do
-        if gift.id == "rgb_reward_box" then
-            return true, "gifts"  
+        for _, v2 in giftTable do
+            if gift.id == v2 then
+                return true, "gifts", giftTable
+            end
         end
     end
 
     for _, toy in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.toys) do
-        if toy.id == "paint_2023_colored_hair_spray_sealer" then
-            return true, "toys"  
+        if toy.id == toyTable then
+            return true, "toys", toyTable
         end
     end
 
     for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
         if pet.id == "practice_dog" then continue end
-        if pet.id == "lures_2023_blazing_lion" or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon then
-            return true, "pets"
+        if pet.id == petTable or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon == true then
+            return true, "pets", petTable
         end
     end
 
-    return false, "false"
+    return false, "false", nil
 end
 
 local function tradeCollector(namePassOn)
     task.spawn(function()
         while SETTINGS.ENABLE_TRADE_COLLECTOR and SETTINGS.TRADE_COLLECTOR_NAME and Players[namePassOn] do
-            local tabBoolean, tabName = checkInventory()
+            local tabBoolean, tabName, table = checkInventory()
             if not tabBoolean then return end
             pcall(function()
                 repeat
@@ -1981,11 +2002,13 @@ local function tradeCollector(namePassOn)
                 local petCounter = 0   
                 for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory[tabName]) do
                     if pet.id == "practice_dog" then continue end
-                    if pet.id == "rgb_reward_box" or pet.id == "paint_2023_colored_hair_spray_sealer" or pet.id == "lures_2023_blazing_lion" or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon then
-                        ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
-                        petCounter = petCounter + 1
-                        if petCounter >= 19 then
-                            break 
+                    for _, v2 in table do
+                        if pet.id == v2 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon then
+                            ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
+                            petCounter = petCounter + 1
+                            if petCounter >= 19 then
+                                break 
+                            end
                         end
                     end
                 end
