@@ -1404,8 +1404,13 @@ local function autoFarm()
         elseif Player.PlayerGui.HintApp.TextLabel.Text:match("You have left the queue") then
             if workspace.Interiors:FindFirstChild("TileSkipMinigameLobby") then
                 Player.Character.PrimaryPart.CFrame = workspace.Interiors.TileSkipMinigameLobby.JoinZone.Collider.CFrame + Vector3.new(0,-15,0)
-            else
+            
+            elseif workspace.Interiors:FindFirstChild("ChickatriceMinigame") then
                 Player.Character.PrimaryPart.CFrame = workspace.Interiors.ChickatriceMinigame.Minigame.JoinZone.Collider.CFrame + Vector3.new(0,-14,0)
+            
+            elseif workspace.Interiors:FindFirstChild("DodgeMinigameLobby") then
+                Player.Character.PrimaryPart.CFrame = workspace.Interiors.DodgeMinigameLobby.Minigame.JoinZone.Collider.CFrame + Vector3.new(0,-14,0)
+
             end
         end
     end)
@@ -1440,6 +1445,8 @@ local function autoFarm()
             elseif Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("CHICKATRICE SAYS") then
                 task.wait()
                 doChickatriceSays()
+            elseif Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("SPOOKY SHUFFLE") then
+                task.wait()
             end
         end 
     end)
@@ -1458,6 +1465,9 @@ local function autoFarm()
                         elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Chickatrice Says!") then
                             FireButton("Yes")
 
+                        elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Spooky Shuffle") then
+                            FireButton("Yes")
+
                         end
                     end)
                 end
@@ -1474,6 +1484,9 @@ local function autoFarm()
                     FireButton("Yes")
                    
                 elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Chickatrice Says!") then
+                    FireButton("Yes")
+
+                elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Spooky Shuffle") then
                     FireButton("Yes")
                 end
             end)
