@@ -335,6 +335,7 @@ local TradeButtons = Player.PlayerGui.DialogApp.Dialog.NormalDialog.Buttons
 local CheckMarkNF = Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.PartnerOffer.Accepted
 local CheckMarkCF = Player.PlayerGui.TradeApp.Frame.ConfirmationFrame.PartnerOffer.Accepted
 local baitId
+local selectedPlayer
 
 local getupvalue = getupvalue or debug.getupvalue
 local getconstant = getconstant or debug.getconstant
@@ -1898,7 +1899,7 @@ end
 
 local function autoTradeCustomGifts()
     task.spawn(function()
-        while task.wait(0.5) do
+        while task.wait(1) do
             if not getgenv().auto_trade_custom_gifts then return end
             pcall(function()
                 if not Player.PlayerGui.TradeApp.Frame.Visible then
@@ -1918,14 +1919,15 @@ local function autoTradeCustomGifts()
                     if gift.id == selectedGift then
                         ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(gift.unique)
                         petCounter = petCounter + 1 
-                        if petCounter >= 18 then
+                        if petCounter >= 19 then
                             break 
                         end
+                        task.wait(.1)
                     end
                 end
-                ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
+                --ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
                 task.wait(1)
-                ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
+                --ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
                 petCounter = 0
             end)
         end
@@ -2013,6 +2015,7 @@ end
 
 
 game.Players.PlayerAdded:Connect(function(player: Player)
+    if Players.LocalPlayer == SETTINGS.TRADE_COLLECTOR_NAME then return end
     if tostring(player.Name) == SETTINGS.TRADE_COLLECTOR_NAME then
         player.CharacterAdded:Connect(function(character: Model)
             local humanoidRootPart = character:WaitForChild("HumanoidRootPart", 60)
@@ -2127,7 +2130,7 @@ Auto:AddSection({
     Name = "only enable Auto Accept trade on alt getting the items"
 })
 
-local AutoTradeToggle = Auto:AddToggle({
+Auto:AddToggle({
     Name = "Auto Accept Trade ",
     Callback = function(value)
         getgenv().auto_accept_trade = value
@@ -2146,8 +2149,8 @@ Auto:AddToggle({
 
 local playerDropdown = Auto:AddDropdown({
     Name = "Select a player",
-    Callback = function(selectedPlayer_input)
-        selectedPlayer = Players[selectedPlayer_input]
+    Callback = function(value)
+        selectedPlayer = Players[value]
     end
 })
 
@@ -2285,6 +2288,52 @@ Auto:AddToggle({
         autoTradeCustom()
     end    
 })
+
+Auto:AddSection({
+    Name = "Send Gifts"
+})
+
+
+local PetsDropdown2 = Auto:AddDropdown({
+    Name = "Select gift",
+    Callback = function(value)
+        selectedGift = value
+    end
+})
+
+
+Auto:AddButton({
+    Name = "Refresh Gift List",
+    Callback = function()
+        local petOptions = {}
+        local petTable = {}
+        local addedNames = {}
+        for i, p in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.gifts) do
+            if p and not addedNames[p.id] then
+                if not petTable[p.id] then
+                    petTable[p.id] = {}
+                end
+                table.insert(petTable[p.id], p.id)
+                addedNames[p.id] = true
+            end
+        end
+        for name, ids in pairs(petTable) do
+            table.insert(petOptions, name)
+            table.sort(petOptions)
+        end
+        PetsDropdown2:Refresh(petOptions, true)
+    end
+})
+
+
+Auto:AddToggle({
+    Name = "Auto Trade Custom Pet",
+    Callback = function(value)
+        getgenv().auto_trade_custom_gifts = value
+        autoTradeCustomGifts()
+    end    
+})
+
 --// Buying Tabs //--
 
 local Buy = Window:MakeTab({
@@ -2300,6 +2349,18 @@ Buy:AddTextbox({
     Callback = function(value)
         howmany = value
     end  
+})
+
+
+local gift1 = "halloween_2023_scarecrow_box"
+Buy:AddButton({
+    Name = tostring(inventoryDB.gifts[gift1].name.." - "..inventoryDB.gifts[gift1].cost.." - "..inventoryDB.gifts[gift1].currency_id),
+    Callback = function()
+        for i = 1, (howmany or 1) do
+            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("gifts", gift1, {})
+            task.wait(.1)
+        end
+    end
 })
 
 
@@ -2430,6 +2491,9 @@ ClipBoard:AddButton({
         clipBoardInventory()
     end
 })
+
+
+
 
 buyLure()
 task.wait(1)
