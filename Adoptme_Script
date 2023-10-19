@@ -1922,12 +1922,12 @@ local function autoTradeCustomGifts()
                         if petCounter >= 19 then
                             break 
                         end
-                        task.wait(.1)
+                        task.wait()
                     end
                 end
-                --ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
+                ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
                 task.wait(1)
-                --ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
+                ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
                 petCounter = 0
             end)
         end
