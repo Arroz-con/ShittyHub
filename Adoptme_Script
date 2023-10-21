@@ -686,8 +686,8 @@ end
 -- end
 
 
-local function getCommon()
-    local PetageCounter = 5
+local function getCommon(number)
+    local PetageCounter = number or 5
     local isNeon = true
     local petFound = false
     while petFound == false do
@@ -704,7 +704,7 @@ local function getCommon()
         if petFound == false then
             PetageCounter = PetageCounter - 1
             if PetageCounter == 0 and isNeon == true then
-                PetageCounter = 5
+                PetageCounter = number or 5
                 isNeon = nil
 
             elseif PetageCounter == 0 and isNeon == nil then
@@ -714,8 +714,8 @@ local function getCommon()
     end
 end
 
-local function getUnCommon()
-    local PetageCounter = 5
+local function getUnCommon(number)
+    local PetageCounter = number or 5
     local isNeon = true
     local petFound = false
     while petFound == false do
@@ -732,7 +732,7 @@ local function getUnCommon()
         if petFound == false then
             PetageCounter = PetageCounter - 1
             if PetageCounter == 0 and isNeon == true then
-                PetageCounter = 5
+                PetageCounter = number or 5
                 isNeon = nil
 
             elseif PetageCounter == 0 and isNeon == nil then
@@ -743,8 +743,8 @@ local function getUnCommon()
     end
 end
 
-local function getRare()
-    local PetageCounter = 5
+local function getRare(number)
+    local PetageCounter = number or 5
     local isNeon = true
     local petFound = false
     while petFound == false do
@@ -761,7 +761,7 @@ local function getRare()
         if petFound == false then
             PetageCounter = PetageCounter - 1
             if PetageCounter == 0 and isNeon == true then
-                PetageCounter = 5
+                PetageCounter = number or 5
                 isNeon = nil
 
             elseif PetageCounter == 0 and isNeon == nil then
@@ -773,8 +773,8 @@ local function getRare()
 end
 
 
-local function getUltraRare()
-    local PetageCounter = 5
+local function getUltraRare(number)
+    local PetageCounter = number or 5
     local isNeon = true
     local petFound = false
     while petFound == false do
@@ -791,7 +791,7 @@ local function getUltraRare()
         if petFound == false then
             PetageCounter = PetageCounter - 1
             if PetageCounter == 0 and isNeon == true then
-                PetageCounter = 5
+                PetageCounter = number or 5
                 isNeon = nil
 
             elseif PetageCounter == 0 and isNeon == nil then
@@ -803,8 +803,8 @@ local function getUltraRare()
 end
 
 
-local function getLegendary()
-    local PetageCounter = 5
+local function getLegendary(number)
+    local PetageCounter = number or 5
     local isNeon = true
     local FoundLegendaryPet = false
     while FoundLegendaryPet == false do
@@ -821,7 +821,7 @@ local function getLegendary()
         if FoundLegendaryPet == false then
             PetageCounter = PetageCounter - 1
             if PetageCounter == 0 and isNeon == true then
-                PetageCounter = 5
+                PetageCounter = number or 5
                 isNeon = nil
 
             elseif PetageCounter == 0 and isNeon == nil then
@@ -940,6 +940,15 @@ local function getRandomPet()
 end
 
 local function getPet()
+    if SETTINGS.FOCUS_FARM_AGE_POTION then
+        if getCommon(6) then return end
+        if getLegendary(6) then return end
+        if getUltraRare(6) then return end
+        if getRare(6) then return end
+        if getUnCommon(6) then return end
+        if getCommon(6) then return end
+    end
+
     if SETTINGS.HATCH_EGG_PRIORITY then
         if priorityEgg() then return end
         for i = 1, 1 do
@@ -1313,7 +1322,9 @@ local function autoFarm()
             if v["id"] == "hungry" then
                 FoodAilments("icecream")
                 task.wait(2)
-                agePotion("pet_age_potion")
+                if not SETTINGS.FOCUS_FARM_AGE_POTION then
+                    agePotion("pet_age_potion")
+                end
             elseif v["id"] == "thirsty" then
                 FoodAilments("water") 
             elseif v["id"] == "sick" then
@@ -1379,14 +1390,18 @@ local function autoFarm()
 
     game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildAdded:Connect(function()
         removeHandHeldItem()
-        SwitchOutFullyGrown()
+        if not SETTINGS.FOCUS_FARM_AGE_POTION then
+            SwitchOutFullyGrown()
+        end
         CompleteBabyAilments()
         CompletePetAilments()
     end)
 
     game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildRemoved:Connect(function()
         task.wait(1)
-        SwitchOutFullyGrown()
+        if not SETTINGS.FOCUS_FARM_AGE_POTION then
+            SwitchOutFullyGrown()
+        end
         task.wait(1)
         CompletePetAilments()
     end)
@@ -1399,7 +1414,10 @@ local function autoFarm()
                 MakeMegaNeon()
                 task.wait(2) -- gives it time for pet to fully equipped
             end
-            SwitchOutFullyGrown()
+
+            if not SETTINGS.FOCUS_FARM_AGE_POTION then
+                SwitchOutFullyGrown()
+            end
 
         elseif Player.PlayerGui.HintApp.TextLabel.Text:match("You have left the queue") then
             if workspace.Interiors:FindFirstChild("TileSkipMinigameLobby") then
@@ -1572,7 +1590,7 @@ end
 local function ClickTradeWindowPopUps()
     for _, v in pairs(Player.PlayerGui.DialogApp.Dialog.NormalDialog.Buttons:GetDescendants()) do
         if v.Name == "TextLabel" then
-            if v.Text == "Accept" or v.Text == "Okay" or v.Text == "Next" or v.Text == "I understand" then
+            if v.Text == "Accept" or v.Text == "Okay" or v.Text == "Next" or v.Text == "I understand" or v.Text == "No" then
                 firesignal(v.Parent.Parent.MouseButton1Click)
                 return
             end
@@ -1953,43 +1971,24 @@ local function checkInventory()
         return false, "false"
     end
 
-    local giftTable = {
-        "rgb_reward_box",
-        "halloween_2023_scarecrow_box",
-        "halloween_2022_wolf_box",
-        "summerfest_2023_hermit_crab_box",
-        "winter_2021_walrus_box",
-        "winter_2022_pony_box",
-        "lny_2023_moon_bear_box",
-        "springfest_2023_duckling_box",
-    }
-
-    local toyTable = {
-        "paint_2023_colored_hair_spray_sealer",
-    }
-
-    local petTable = {
-        "lures_2023_blazing_lion",
-    }
-
     for _, gift in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.gifts) do
-        for _, v2 in giftTable do
+        for _, v2 in SETTINGS.TRADE_LIST.GIFTS_TABLE do
             if gift.id == v2 then
-                return true, "gifts", giftTable
+                return true, "gifts", SETTINGS.TRADE_LIST.GIFTS_TABLE
             end
         end
     end
 
     for _, toy in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.toys) do
-        if toy.id == toyTable then
-            return true, "toys", toyTable
+        if toy.id == SETTINGS.TRADE_LIST.TOYS_TABLE then
+            return true, "toys", SETTINGS.TRADE_LIST.TOYS_TABLE
         end
     end
 
     for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
         if pet.id == "practice_dog" then continue end
-        if pet.id == petTable or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon == true then
-            return true, "pets", petTable
+        if pet.id == SETTINGS.TRADE_LIST.PETS_TABLE or pet.properties.age == 6 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon == true then
+            return true, "pets", SETTINGS.TRADE_LIST.PETS_TABLE
         end
     end
 
@@ -2016,7 +2015,7 @@ local function tradeCollector(namePassOn)
                 for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory[tabName]) do
                     if pet.id == "practice_dog" then continue end
                     for _, v2 in table do
-                        if pet.id == v2 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon then
+                        if pet.id == v2 or pet.properties.age == 6 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon == true then
                             ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
                             petCounter = petCounter + 1
                             if petCounter >= 19 then
