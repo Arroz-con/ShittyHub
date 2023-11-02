@@ -2400,55 +2400,10 @@ Buy:AddTextbox({
     end  
 })
 
-
-local gift1 = "halloween_2023_scarecrow_box"
+-- farm_2023_canada_goose   farm_2023_sheepdog
+local pet2 = "farm_2023_sheepdog"
 Buy:AddButton({
-    Name = tostring(inventoryDB.gifts[gift1].name.." - "..inventoryDB.gifts[gift1].cost.." - "..inventoryDB.gifts[gift1].currency_id),
-    Callback = function()
-        for i = 1, (howmany or 1) do
-            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("gifts", gift1, {})
-            task.wait(.1)
-        end
-    end
-})
-
-local pet1 = "halloween_2023_nightmare_owl"
-Buy:AddButton({
-    Name = tostring(inventoryDB.pets[pet1].name.." - "..inventoryDB.pets[pet1].cost.." - "..inventoryDB.pets[pet1].currency_id),
-    Callback = function()
-        for i = 1, (howmany or 1) do
-            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", pet1, {})
-            task.wait(.1)
-        end
-    end
-})
-
-local pet8 = "halloween_2023_scarecrow"
-Buy:AddButton({
-    Name = tostring(inventoryDB.pets[pet8].name.." - "..inventoryDB.pets[pet8].cost.." - "..inventoryDB.pets[pet8].currency_id),
-    Callback = function()
-        for i = 1, (howmany or 1) do
-            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", pet8, {})
-            task.wait(.1)
-        end
-    end
-})
-
-local pet9 = "halloween_2023_slime"
-Buy:AddButton({
-    Name = tostring(inventoryDB.pets[pet9].name.." - "..inventoryDB.pets[pet9].cost.." - "..inventoryDB.pets[pet9].currency_id),
-    Callback = function()
-        for i = 1, (howmany or 1) do
-            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", pet9, {})
-            task.wait(.1)
-        end
-    end
-})
-
-
-local pet2 = "halloween_2023_undead_elk"
-Buy:AddButton({
-    Name = tostring(inventoryDB.pets[pet2].name.." - "..inventoryDB.pets[pet2].cost.." - "..inventoryDB.pets[pet2].currency_id),
+    Name = tostring(inventoryDB.pets[pet2].name.." - "..inventoryDB.pets[pet2].cost.." - "..(inventoryDB.pets[pet2].currency_id or "bucks")),
     Callback = function()
         for i = 1, (howmany or 1) do
             ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", pet2, {})
@@ -2458,61 +2413,28 @@ Buy:AddButton({
 })
 
 
-local pet3 = "halloween_2023_ghost"
+local pet1 = "farm_2023_canada_goose"
 Buy:AddButton({
-    Name = tostring(inventoryDB.pets[pet3].name.." - "..inventoryDB.pets[pet3].cost.." - "..inventoryDB.pets[pet3].currency_id),
+    Name = tostring(inventoryDB.pets[pet1].name.." - "..inventoryDB.pets[pet1].cost.." - "..(inventoryDB.pets[pet1].currency_id or "bucks")),
     Callback = function()
         for i = 1, (howmany or 1) do
-            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", pet3, {})
+            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", pet1, {})
             task.wait(.1)
         end
     end
 })
 
-
-local pet4 = "urban_2023_egg"
+local egg1 = "urban_2023_egg"
 Buy:AddButton({
-    Name = tostring(inventoryDB.pets[pet4].name.." - "..inventoryDB.pets[pet4].cost.." - "..(inventoryDB.pets[pet4].currency_id or "bucks")),
+    Name = tostring(inventoryDB.pets[egg1].name.." - "..inventoryDB.pets[egg1].cost.." - "..(inventoryDB.pets[egg1].currency_id or "bucks")),
     Callback = function()
         for i = 1, (howmany or 1) do
-            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", pet4, {})
+            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", egg1, {})
             task.wait(.1)
         end
     end
 })
 
-local pet5 = "halloween_2023_cuteacabra"
-Buy:AddButton({
-    Name = tostring(inventoryDB.pets[pet5].name.." - "..inventoryDB.pets[pet5].cost.." - "..(inventoryDB.pets[pet5].currency_id or "bucks")),
-    Callback = function()
-        for i = 1, (howmany or 1) do
-            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", pet5, {})
-            task.wait(.1)
-        end
-    end
-})
-
-local pet6 = "halloween_2023_ghost_dog"
-Buy:AddButton({
-    Name = tostring(inventoryDB.pets[pet6].name.." - "..inventoryDB.pets[pet6].cost.." - "..(inventoryDB.pets[pet6].currency_id or "bucks")),
-    Callback = function()
-        for i = 1, (howmany or 1) do
-            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", pet6, {})
-            task.wait(.1)
-        end
-    end
-})
-
-local pet7 = "halloween_2023_dire_stag"
-Buy:AddButton({
-    Name = tostring(inventoryDB.pets[pet7].name.." - "..inventoryDB.pets[pet7].cost.." - "..(inventoryDB.pets[pet7].currency_id or "bucks")),
-    Callback = function()
-        for i = 1, (howmany or 1) do
-            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", pet7, {})
-            task.wait(.1)
-        end
-    end
-})
 
 
 --// things needed when joining game for the first time
