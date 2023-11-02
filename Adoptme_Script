@@ -1817,38 +1817,27 @@ local function autoTradeAllNeons()
 end
 
 
--- for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
---     for _, petsDB_lowtierpets in pairs(Pets_commonto_ultrarare) do
---         if pet.id == petsDB_lowtierpets and pet.properties.age <=4 and not pet.properties.neon and not pet.properties.mega_neon then
---             ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
---             petCounter = petCounter + 1
---             if petCounter >= 18 then
---                 break
---             end
---         end
---     end
--- end
-
-
 local function autoTradeLowTierPets()
     task.spawn(function()
         while task.wait(0.5) do
             if not getgenv().auto_trade_lowtier_pets then return end
             pcall(function()
-                repeat
-                    if not Player.PlayerGui.TradeApp.Frame.Visible then
-                        ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(selectedPlayer)
-                    end
-
-                    ClickTradeWindowPopUps()
-                    task.wait(1)
-                until Player.PlayerGui.TradeApp.Frame.Visible
+                if not Player.PlayerGui.TradeApp.Frame.Visible then
+                    ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(selectedPlayer)
+                end
                 ClickTradeWindowPopUps()
-                
-                local petCounter = 0   
+            end)
+        end
+    end)
+
+    task.spawn(function()
+        local petCounter = 0
+        while task.wait(0.5) do
+            if not getgenv().auto_trade_lowtier_pets then return end
+            pcall(function()
                 for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
                     for _, petsDB_lowtierpets in pairs(Pets_commonto_ultrarare) do
-                        if pet.id == petsDB_lowtierpets and pet.properties.age <=5 and not pet.properties.neon and not pet.properties.mega_neon then
+                        if pet.id == petsDB_lowtierpets and pet.properties.age <=4 and not pet.properties.neon and not pet.properties.mega_neon then
                             ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
                             petCounter = petCounter + 1
                             if petCounter >= 18 then
@@ -1857,10 +1846,7 @@ local function autoTradeLowTierPets()
                         end
                     end
                 end
-
-                ClickTradeWindowPopUps()
                 ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
-                task.wait()
                 ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
                 petCounter = 0
             end)
@@ -2285,7 +2271,7 @@ Auto:AddToggle({
 
 
 Auto:AddToggle({
-    Name = "Auto Trade Common to Ultra-rare and Newborn to Post-Teen ",
+    Name = "Auto Trade Common to Ultra-rare and Newborn to Teen ",
     Callback = function(value)
         getgenv().auto_trade_lowtier_pets = value
         autoTradeLowTierPets()
@@ -2412,34 +2398,13 @@ Buy:AddButton({
     end
 })
 
+
 local pet1 = "halloween_2023_nightmare_owl"
 Buy:AddButton({
     Name = tostring(inventoryDB.pets[pet1].name.." - "..inventoryDB.pets[pet1].cost.." - "..inventoryDB.pets[pet1].currency_id),
     Callback = function()
         for i = 1, (howmany or 1) do
             ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", pet1, {})
-            task.wait(.1)
-        end
-    end
-})
-
-local pet8 = "halloween_2023_scarecrow_scarecrow"
-Buy:AddButton({
-    Name = tostring(inventoryDB.pets[pet8].name.." - "..inventoryDB.pets[pet8].cost.." - "..inventoryDB.pets[pet8].currency_id),
-    Callback = function()
-        for i = 1, (howmany or 1) do
-            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", pet8, {})
-            task.wait(.1)
-        end
-    end
-})
-
-local pet9 = "halloween_2023_scarecrow_slime"
-Buy:AddButton({
-    Name = tostring(inventoryDB.pets[pet9].name.." - "..inventoryDB.pets[pet9].cost.." - "..inventoryDB.pets[pet9].currency_id),
-    Callback = function()
-        for i = 1, (howmany or 1) do
-            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", pet9, {})
             task.wait(.1)
         end
     end
