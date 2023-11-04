@@ -1653,6 +1653,7 @@ local function autoTradeAllInventory(TabPassOn)
         local petCounter = 0
         
         for _, items in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory[TabPassOn]) do
+            if items.id == "practice_dog" then continue end
             ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(items.unique)
             petCounter = petCounter + 1
             task.wait()
@@ -2229,11 +2230,11 @@ Auto:AddToggle({
         while task.wait(1) do
             if not getgenv().auto_trade_all_inventory then break end
             autoTradeAllInventory("pets")
-            autoTradeAllInventory("pet_accessories") -- pet wear and wings
-            autoTradeAllInventory("strollers")
-            autoTradeAllInventory("food")
-            autoTradeAllInventory("transport") -- vehicle
-            autoTradeAllInventory("toys")
+            --autoTradeAllInventory("pet_accessories") -- pet wear and wings
+            --autoTradeAllInventory("strollers")
+            --autoTradeAllInventory("food")
+            --autoTradeAllInventory("transport") -- vehicle
+            --autoTradeAllInventory("toys")
             autoTradeAllInventory("gifts")
             ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
             ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
