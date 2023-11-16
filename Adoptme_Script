@@ -66,11 +66,18 @@ NewsAppConnection = Player.PlayerGui.NewsApp:GetPropertyChangedSignal("Enabled")
     end
 end)
 
-if Player.PlayerGui.NewsApp.Enabled then
-    task.wait()
-    firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
-    NewsAppConnection:Disconnect()
+for _, v in Player.PlayerGui:GetDescendants() do
+    if v.Name == "PlayButton" then
+        firesignal(v.MouseButton1Click)
+        NewsAppConnection:Disconnect()
+    end
 end
+
+-- if Player.PlayerGui.NewsApp.Enabled then
+--     task.wait()
+--     firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
+--     NewsAppConnection:Disconnect()
+-- end
 
 banMessageConnection = Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal("Visible"):Connect(function()
     if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
