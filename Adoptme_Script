@@ -2402,8 +2402,7 @@ Buy:AddTextbox({
 })
 
 -- farm_2023_canada_goose   farm_2023_sheepdog
-
-local pet2 = "winter_2023_beluga_whale"
+local pet2 = "winter_2023_christmas_pudding_pup"
 Buy:AddButton({
     Name = tostring(inventoryDB.pets[pet2].name.." - "..inventoryDB.pets[pet2].cost.." - "..(inventoryDB.pets[pet2].currency_id or "bucks")),
     Callback = function()
@@ -2414,8 +2413,7 @@ Buy:AddButton({
     end
 })
 
-
-local pet1 = "winter_2023_christmas_pudding_pup"
+local pet1 = "winter_2023_beluga_whale"
 Buy:AddButton({
     Name = tostring(inventoryDB.pets[pet1].name.." - "..inventoryDB.pets[pet1].cost.." - "..(inventoryDB.pets[pet1].currency_id or "bucks")),
     Callback = function()
