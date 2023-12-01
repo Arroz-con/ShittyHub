@@ -2402,7 +2402,11 @@ Buy:AddTextbox({
 })
 
 -- farm_2023_canada_goose   farm_2023_sheepdog
+<<<<<<< HEAD
 local pet2 = "winter_2023_christmas_pudding_pup"
+=======
+local pet2 = "farm_2023_rooster"
+>>>>>>> parent of d678417 (Update Adoptme_Script)
 Buy:AddButton({
     Name = tostring(inventoryDB.pets[pet2].name.." - "..inventoryDB.pets[pet2].cost.." - "..(inventoryDB.pets[pet2].currency_id or "bucks")),
     Callback = function()
@@ -2413,7 +2417,12 @@ Buy:AddButton({
     end
 })
 
+<<<<<<< HEAD
 local pet1 = "winter_2023_beluga_whale"
+=======
+
+local pet1 = "farm_2023_longhorn_cow"
+>>>>>>> parent of d678417 (Update Adoptme_Script)
 Buy:AddButton({
     Name = tostring(inventoryDB.pets[pet1].name.." - "..inventoryDB.pets[pet1].cost.." - "..(inventoryDB.pets[pet1].currency_id or "bucks")),
     Callback = function()
