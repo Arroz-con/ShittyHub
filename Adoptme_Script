@@ -2403,16 +2403,16 @@ Buy:AddTextbox({
 
 -- farm_2023_canada_goose   farm_2023_sheepdog
 
-local pet2 = "winter_2023_christmas_pudding_pup"
-Buy:AddButton({
-    Name = tostring(inventoryDB.pets[pet2].name.." - "..inventoryDB.pets[pet2].cost.." - "..(inventoryDB.pets[pet2].currency_id or "bucks")),
-    Callback = function()
-        for i = 1, (howmany or 1) do
-            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", pet2, {})
-            task.wait(.1)
-        end
-    end
-})
+-- local pet2 = "winter_2023_christmas_pudding_pup"
+-- Buy:AddButton({
+--     Name = tostring(inventoryDB.pets[pet2].name.." - "..inventoryDB.pets[pet2].cost.." - "..(inventoryDB.pets[pet2].currency_id or "bucks")),
+--     Callback = function()
+--         for i = 1, (howmany or 1) do
+--             ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", pet2, {})
+--             task.wait(.1)
+--         end
+--     end
+-- })
 
 
 local pet1 = "winter_2023_beluga_whale"
