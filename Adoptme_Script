@@ -1217,7 +1217,9 @@ local function TeleportWinterShop()
 end
 
 local function TeleportPetRescue()
+    Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
     Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:FindFirstChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).PetRescue.JoinZone.Collider.CFrame + Vector3.new(0, 5, 0)
+    Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
     Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
     Player.Character.Humanoid.WalkSpeed = 0
 end
