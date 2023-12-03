@@ -4,6 +4,7 @@ end
 
 if game.PlaceId ~= 920587237 then return end
 local Player = game.Players.LocalPlayer
+local VI = game:GetService("VirtualInputManager")
 local UserGameSettings = UserSettings():GetService("UserGameSettings")
 local NewsAppConnection
 local DialogConnection
@@ -30,7 +31,7 @@ local Bypass = require(game.ReplicatedStorage:WaitForChild("Fsys")).load
 local ClaimRemote = Bypass("RouterClient").get("QuestAPI/ClaimQuest")
 local RerollRemote = Bypass("RouterClient").get("QuestAPI/RerollQuest")
 
-Player.PlayerGui:WaitForChild("NewsApp", 60)
+Player.PlayerGui:WaitForChild("NewsApp")
 Player.PlayerGui:WaitForChild("DialogApp")
 
 UserGameSettings.GraphicsQualityLevel = 1
@@ -61,14 +62,20 @@ end
 NewsAppConnection = Player.PlayerGui.NewsApp:GetPropertyChangedSignal("Enabled"):Connect(function()
     if Player.PlayerGui.NewsApp.Enabled then
         task.wait()
-        firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
+        for i, v in getconnections(Player.PlayerGui.NewsApp:FindFirstChild("PlayButton", true).MouseButton1Click) do
+            v:Fire()
+        end
+        -- firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
         NewsAppConnection:Disconnect()
     end
 end)
 
 if Player.PlayerGui.NewsApp.Enabled then
     task.wait()
-    firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
+    for i, v in getconnections(Player.PlayerGui.NewsApp:FindFirstChild("PlayButton", true).MouseButton1Click) do
+        v:Fire()
+    end
+    -- firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
     NewsAppConnection:Disconnect()
 end
 
@@ -1197,18 +1204,35 @@ local function TeleportMainMap()
     subToHouse()
 end
 
---game:GetService("Workspace").Interiors.FireDimension.Doors.WarpDoor.WorkingParts.TouchToEnter
-
-local function TeleportFireDimension()
+local function TeleportWinterShop()
+    Bypass("CollisionsClient").set_collidable(false)
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
-    SetLocationFunc("FireDimension", "MainDoor", {})
+    SetLocationFunc("Winter2023Shop", "MainDoor2", {})
     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
-    Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Doors.WarpDoor.WorkingParts.TouchToEnter.CFrame + Vector3.new(math.random(1, 10), 10, math.random(1, 10))
+    Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:FindFirstChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Event.BuyCurrency.PrimaryPart.CFrame + Vector3.new(10, 5, 10)
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
     Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
     Player.Character.Humanoid.WalkSpeed = 0
     task.wait(2)
 end
+
+local function TeleportPetRescue()
+    Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:FindFirstChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).PetRescue.JoinZone.Collider.CFrame + Vector3.new(0, 5, 0)
+    Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+    Player.Character.Humanoid.WalkSpeed = 0
+end
+
+--game:GetService("Workspace").Interiors.FireDimension.Doors.WarpDoor.WorkingParts.TouchToEnter
+-- local function TeleportFireDimension()
+--     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
+--     SetLocationFunc("FireDimension", "MainDoor", {})
+--     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
+--     Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Doors.WarpDoor.WorkingParts.TouchToEnter.CFrame + Vector3.new(math.random(1, 10), 10, math.random(1, 10))
+--     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
+--     Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+--     Player.Character.Humanoid.WalkSpeed = 0
+--     task.wait(2)
+-- end
 
 local function TeleportCampSite()
     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
@@ -1229,6 +1253,7 @@ local function TeleportPlayGround()
     Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
     Player.Character.Humanoid.WalkSpeed = 0
 end
+
 
 ------------------------------- Auto Farming ------------------------
 
@@ -1310,12 +1335,29 @@ end
 -- end
 
 
+
+local function getGingerbread()
+    local GingerbreadMarkers = ReplicatedStorage.Resources.IceSkating.GingerbreadMarkers
+    for _, v in GingerbreadMarkers:GetChildren() do
+        if v:IsA("BasePart") then
+            Bypass("RouterClient").get("WinterEventAPI/PickUpGingerbread"):InvokeServer(v.Name)
+            task.wait()
+        end
+    end
+    task.wait()
+    Bypass("RouterClient").get("WinterEventAPI/RedeemPendingGingerbread"):FireServer()
+end
+
+
+
 local function autoFarm()
     if not getgenv().auto_farm then return end
     TeleportMainMap()
     local function CompletePetAilments()
+        if isCollecting then return end
         if Bypass("ClientData").get("pet_char_wrapper") == nil then return end
         if #Bypass("ClientData").get("pet_char_wrapper")["ailments_monitor"]["ailments"] == 0 then
+            getGingerbread()
             return 
         end
         for _, v in pairs(Bypass("ClientData").get("pet_char_wrapper")["ailments_monitor"]["ailments"]) do
@@ -1433,43 +1475,32 @@ local function autoFarm()
         end
     end)
 
-    local function doHalloweenTitle()
-        local args = {
-            [1] = "TileSkipMinigameJoinZone",
-            [2] = "reached_goal"
-        }
-        
-        game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))        
-    end
-    
-    local function doChickatriceSays()
-        Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
-        -- local humanoidRootPart = game.Players.LocalPlayer.Character.HumanoidRootPart
-        -- if humanoidRootPart then
-        --     humanoidRootPart.Anchored = true
-        -- end
-    end
 
     --// Fires when inside the minigame
     Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(function()
         if Player.PlayerGui.MinigameInGameApp.Enabled then
             Player.PlayerGui.MinigameInGameApp:WaitForChild("Body")
-            Player.PlayerGui.MinigameInGameApp.Body:WaitForChild("Middle")
-            Player.PlayerGui.MinigameInGameApp.Body.Middle:WaitForChild("Container")
-            Player.PlayerGui.MinigameInGameApp.Body.Middle.Container:WaitForChild("TitleLabel")
-            if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("TILE SKIP") then
-                task.wait(5)
-                doHalloweenTitle()
+            Player.PlayerGui.MinigameInGameApp.Body:WaitForChild("Left")
+            Player.PlayerGui.MinigameInGameApp.Body.Left:WaitForChild("Container")
+            Player.PlayerGui.MinigameInGameApp.Body.Left.Container:WaitForChild("ValueLabel")
+            if not Player.PlayerGui.MinigameInGameApp.Body.Left.Container.ValueLabel.Text:match("GAME OVER") then
+                repeat
+                    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("WinterEventAPI/PetRescueTryUsePickaxe"):InvokeServer()
+                    task.wait(.5)
+                until Player.PlayerGui.MinigameInGameApp.Body.Left.Container.ValueLabel.Text:match("GAME OVER")
+                task.wait(20)
+                TeleportMainMap()
+
             elseif Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("CHICKATRICE SAYS") then
                 task.wait()
-                doChickatriceSays()
+                
             elseif Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("SPOOKY SHUFFLE") then
                 task.wait()
             end
         end 
     end)
     
-    
+    -- fires when it ask you if you want to join minigame
     Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(NormalDialogChild)
         if NormalDialogChild.Name == "NormalDialog" then
             NormalDialogChild:GetPropertyChangedSignal("Visible"):Connect(function()
@@ -1477,9 +1508,11 @@ local function autoFarm()
                     NormalDialogChild:WaitForChild("Info")
                     NormalDialogChild.Info:WaitForChild("TextLabel")
                     NormalDialogChild.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
-                        if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Tile Skip is starting soon!") then
+                        if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Pet Rescue is starting soon!") then
                             FireButton("Yes")
-                            
+                            TeleportWinterShop()
+                            TeleportPetRescue()
+                            -- Bypass("RouterClient").get("MinigameAPI/AttemptJoin"):FireServer("pet_rescue", true)
                         elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Chickatrice Says!") then
                             FireButton("Yes")
 
@@ -1493,14 +1526,17 @@ local function autoFarm()
         end
     end)
     
+
     Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal("Visible"):Connect(function()
         if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
             Player.PlayerGui.DialogApp.Dialog.NormalDialog:WaitForChild("Info")
             Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info:WaitForChild("TextLabel")
             Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
-                if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Tile Skip is starting soon!") then
+                if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Pet Rescue is starting soon!") then
                     FireButton("Yes")
-                   
+                    TeleportWinterShop()
+                    task.wait(2)
+                    TeleportPetRescue()
                 elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Chickatrice Says!") then
                     FireButton("Yes")
 
@@ -1542,11 +1578,13 @@ local function autoFarm()
             Player.PlayerGui.MinigameRewardsApp.Body.Button.Face:WaitForChild("TextLabel")
             if Player.PlayerGui.MinigameRewardsApp.Body.Button.Face.TextLabel.Text:match("NICE!") then
                 Player.Character.HumanoidRootPart.Anchored = false
-                RemoveGameOverButton()
-                TeleportMainMap()
+                -- RemoveGameOverButton()
+                Player.PlayerGui.MinigameRewardsApp.Body.Visible = false
+                -- TeleportMainMap()
             end
         end
     end)
+
 
     --// Code below runs once when auto farm is enabled
     if SETTINGS.PET_AUTO_FUSION then
@@ -1559,9 +1597,13 @@ local function autoFarm()
     CompleteBabyAilments()
     CompletePetAilments()
     task.wait(2)
-    setfpscap(SETTINGS.SET_FPS)
-
+    for i=1, 31 do
+        game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("WinterEventAPI/AdventCalendarTryTakeReward"):InvokeServer(i)
+        task.wait(.1)
+    end
     
+    --setfpscap(SETTINGS.SET_FPS)
+
 end
 
 
@@ -2401,8 +2443,6 @@ Buy:AddTextbox({
     end  
 })
 
--- farm_2023_canada_goose   farm_2023_sheepdog
-
 -- local pet2 = "winter_2023_christmas_pudding_pup"
 -- Buy:AddButton({
 --     Name = tostring(inventoryDB.pets[pet2].name.." - "..inventoryDB.pets[pet2].cost.." - "..(inventoryDB.pets[pet2].currency_id or "bucks")),
@@ -2413,7 +2453,6 @@ Buy:AddTextbox({
 --         end
 --     end
 -- })
-
 
 -- local pet1 = "winter_2023_beluga_whale"
 -- Buy:AddButton({
