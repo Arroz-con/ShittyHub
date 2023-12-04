@@ -1464,8 +1464,8 @@ local function autoFarm()
             end
 
         elseif Player.PlayerGui.HintApp.TextLabel.Text:match("You have left the queue") then
-            if workspace.Interiors:FindFirstChild("TileSkipMinigameLobby") then
-                Player.Character.PrimaryPart.CFrame = workspace.Interiors.TileSkipMinigameLobby.JoinZone.Collider.CFrame + Vector3.new(0,-15,0)
+            if workspace.Interiors:FindFirstChild("Winter2023Shop") then
+                Player.Character.PrimaryPart.CFrame = workspace.Interiors.Winter2023Shop.PetRescue.JoinZone.Collider.CFrame + Vector3.new(0,0,0)
             
             elseif workspace.Interiors:FindFirstChild("ChickatriceMinigame") then
                 Player.Character.PrimaryPart.CFrame = workspace.Interiors.ChickatriceMinigame.Minigame.JoinZone.Collider.CFrame + Vector3.new(0,-14,0)
