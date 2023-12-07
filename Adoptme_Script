@@ -2454,27 +2454,77 @@ Buy:AddTextbox({
     end  
 })
 
--- local pet2 = "winter_2023_christmas_pudding_pup"
--- Buy:AddButton({
---     Name = tostring(inventoryDB.pets[pet2].name.." - "..inventoryDB.pets[pet2].cost.." - "..(inventoryDB.pets[pet2].currency_id or "bucks")),
---     Callback = function()
---         for i = 1, (howmany or 1) do
---             ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", pet2, {})
---             task.wait(.1)
---         end
---     end
--- })
+Buy:AddButton({
+    Name = "winter_2023_fleur_de_ice",
+    Callback = function()
+        for i = 1, (howmany or 1) do
+            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "winter_2023_fleur_de_ice", {})
+            task.wait(.1)
+        end
+    end
+})
 
--- local pet1 = "winter_2023_beluga_whale"
--- Buy:AddButton({
---     Name = tostring(inventoryDB.pets[pet1].name.." - "..inventoryDB.pets[pet1].cost.." - "..(inventoryDB.pets[pet1].currency_id or "bucks")),
---     Callback = function()
---         for i = 1, (howmany or 1) do
---             ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", pet1, {})
---             task.wait(.1)
---         end
---     end
--- })
+Buy:AddButton({
+    Name = "eggnog_dog",
+    Callback = function()
+        for i = 1, (howmany or 1) do
+            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "winter_2023_eggnog_dog", {})
+            task.wait(.1)
+        end
+    end
+})
+
+Buy:AddButton({
+    Name = "peppermint_penguin",
+    Callback = function()
+        for i = 1, (howmany or 1) do
+            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "winter_2023_peppermint_penguin", {})
+            task.wait(.1)
+        end
+    end
+})
+
+Buy:AddButton({
+    Name = "christmas_pudding_pup",
+    Callback = function()
+        for i = 1, (howmany or 1) do
+            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "winter_2023_christmas_pudding_pup", {})
+            task.wait(.1)
+        end
+    end
+})
+
+Buy:AddButton({
+    Name = "nutcracker_squirrel",
+    Callback = function()
+        for i = 1, (howmany or 1) do
+            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "winter_2023_nutcracker_squirrel", {})
+            task.wait(.1)
+        end
+    end
+})
+
+
+Buy:AddButton({
+    Name = "gingerbread_mouse",
+    Callback = function()
+        for i = 1, (howmany or 1) do
+            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "winter_2023_gingerbread_mouse", {})
+            task.wait(.1)
+        end
+    end
+})
+
+Buy:AddButton({
+    Name = "Beluga Whale",
+    Callback = function()
+        for i = 1, (howmany or 1) do
+            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "winter_2023_beluga_whale", {})
+            task.wait(.1)
+        end
+    end
+})
+
 
 local egg1 = "urban_2023_egg"
 Buy:AddButton({
