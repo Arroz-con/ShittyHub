@@ -37,18 +37,6 @@ Player.PlayerGui:WaitForChild("DialogApp")
 UserGameSettings.GraphicsQualityLevel = 1
 UserGameSettings.MasterVolume = 0
 
-local function FireButton(PassOn)
-    task.wait() -- gives it time for button
-    if not Player.PlayerGui.DialogApp.Dialog.NormalDialog.Buttons.ButtonTemplate then return end
-    for i, v in pairs(Player.PlayerGui.DialogApp.Dialog.NormalDialog.Buttons:GetDescendants()) do
-        if v.Name == "TextLabel" then
-            if v.Text == PassOn then
-                firesignal(v.Parent.Parent.MouseButton1Click)
-                break
-            end
-        end
-    end
-end
 
 local function clickGuiButton(button)
     task.wait()
@@ -56,6 +44,20 @@ local function clickGuiButton(button)
     task.wait()
     VI:SendMouseButtonEvent(button.AbsolutePosition.X + 60, button.AbsolutePosition.Y + 50, 0, false, game, 1)
     task.wait()
+end
+
+local function FireButton(PassOn)
+    task.wait() -- gives it time for button
+    if not Player.PlayerGui.DialogApp.Dialog.NormalDialog.Buttons.ButtonTemplate then return end
+    for i, v in pairs(Player.PlayerGui.DialogApp.Dialog.NormalDialog.Buttons:GetDescendants()) do
+        if v.Name == "TextLabel" then
+            if v.Text == PassOn then
+                clickGuiButton(v.Parent.Parent)
+                -- firesignal(v.Parent.Parent.MouseButton1Click)
+                break
+            end
+        end
+    end
 end
 
 -- ChatConnection = Player.PlayerGui.Chat.Frame.ChatChannelParentFrame["Frame_MessageLogDisplay"].Scroller.DescendantAdded:Connect(function(ChatChild)
@@ -190,20 +192,7 @@ CharConn = Char.ChildAdded:Connect(function(HRPChild)
     end
 end)
 
---//This code block below is to close the RGB gift pop-up messages
-local function FireButton(PassOn)
-    task.wait() -- gives it time for button
-    if not Player.PlayerGui.DialogApp.Dialog.NormalDialog.Buttons.ButtonTemplate then return end
-    for i, v in pairs(Player.PlayerGui.DialogApp.Dialog.NormalDialog.Buttons:GetDescendants()) do
-        if v.Name == "TextLabel" then
-            if v.Text == PassOn then
-                clickGuiButton(v.Parent.Parent)
-                -- firesignal(v.Parent.Parent.MouseButton1Click)
-                break
-            end
-        end
-    end
-end
+
 
 Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(NormalDialogChild)
     if NormalDialogChild.Name == "NormalDialog" then
