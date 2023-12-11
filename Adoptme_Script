@@ -60,6 +60,14 @@ local function FireButton(PassOn)
     end
 end
 
+-- mouse cant click on script button
+-- local function minimizeGui()
+--     VI:SendMouseButtonEvent(710, 140, 0, true, game, 1)
+--     task.wait(1)
+--     VI:SendMouseButtonEvent(710, 140, 0, false, game, 1)
+-- end
+
+
 -- ChatConnection = Player.PlayerGui.Chat.Frame.ChatChannelParentFrame["Frame_MessageLogDisplay"].Scroller.DescendantAdded:Connect(function(ChatChild)
 -- 	if ChatChild.Name == "TextButton" then
 -- 		task.wait(1)
@@ -1608,7 +1616,7 @@ local function autoFarm()
     CompleteBabyAilments()
     CompletePetAilments()
     task.wait(2)
-    for i=1, 31 do
+    for i=1, 26 do
         game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("WinterEventAPI/AdventCalendarTryTakeReward"):InvokeServer(i)
         task.wait(.1)
     end
@@ -2133,8 +2141,8 @@ end)
 
 -----------          UI  Functions           ------------------
 
-local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
-local Window = OrionLib:MakeWindow({Name = "Adopt me", HidePremium = false, SaveConfig = false, ConfigFolder = "Bakane_Adoptme", IntroText = "Hello World"})
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/Arroz-con/Orion/main/source')))()
+local Window = OrionLib:MakeWindow({Name = "Adopt me", HidePremium = false, SaveConfig = false, ConfigFolder = "Bakane_Adoptme", IntroEnabled = false})
 
 local Farm = Window:MakeTab({
     Name = "Auto Farm",
@@ -2616,6 +2624,7 @@ if SETTINGS.ENABLE_AUTO_FARM then
     if Bed then
         task.wait(math.random(1, 5))
         FarmToggle:Set(true)
+        task.wait(2)
     else
         FarmToggle:Set(false)
     end
