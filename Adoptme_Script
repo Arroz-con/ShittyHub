@@ -1652,7 +1652,7 @@ local function ClickTradeWindowPopUps()
     for _, v in pairs(Player.PlayerGui.DialogApp.Dialog.NormalDialog.Buttons:GetDescendants()) do
         if v.Name == "TextLabel" then
             if v.Text == "Accept" or v.Text == "Okay" or v.Text == "Next" or v.Text == "I understand" or v.Text == "No" then
-                firesignal(v.Parent.Parent.MouseButton1Click)
+                clickGuiButton(v.Parent.Parent)
                 return
             end
         end
@@ -1661,7 +1661,7 @@ local function ClickTradeWindowPopUps()
     for _, v in pairs(Player.PlayerGui.DialogApp.Dialog.HeaderDialog.Buttons:GetDescendants()) do
         if v.Name == "TextLabel" then
             if v.Text == "Accept" or v.Text == "Okay" or v.Text == "Next" or v.Text == "I understand" then
-                firesignal(v.Parent.Parent.MouseButton1Click)
+                clickGuiButton(v.Parent.Parent)
                 return
             end
         end
