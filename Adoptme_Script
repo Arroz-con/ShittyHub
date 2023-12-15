@@ -650,7 +650,7 @@ end
 --local Pet_Farming
 local PetCurrentlyFarming
 local Egg2Buy = SETTINGS.PET_TO_BUY
-local Gift2Buy = "summerfest_2023_hermit_crab_box"
+local Gift2Buy = "winter_2023_hare_box"
 local Pet2Buy = SETTINGS.PET_TO_BUY -- ugc_refresh_2023_warthog   ugc_refresh_2023_ostrich
 
 local function buyPet()
@@ -675,26 +675,23 @@ local function getEgg()
     task.wait(1)
 end
 
--- local function GetGiftPet()
---     local FoundPet = false
---     while FoundPet == false do
---         task.wait(1)
---         for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.gifts) do
---             if v["id"] == Gift2Buy then
---                 ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, {["use_sound_delay"] = true})
---                 task.wait(1)
---                 ReplicatedStorage.API["LootBoxAPI/ExchangeItemForReward"]:InvokeServer(v["id"], v["unique"])
---                 return true
---             end 
---         end
+local function GetGiftPet() 
+    for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.gifts) do
+        if v["id"] == Gift2Buy then
+            ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, {["use_sound_delay"] = true})
+            task.wait(1)
+            ReplicatedStorage.API["LootBoxAPI/ExchangeItemForReward"]:InvokeServer(v["id"], v["unique"])
+            return true
+        end 
+    end
 
---         local BuyGift = ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("gifts", Gift2Buy, {})
---         if tostring(BuyGift) == "too little money" then
---             --nothing
---             return true -- dont wanna buy egg, we will wait for event currenty
---         end
---     end
--- end
+    local BuyGift = ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("gifts", Gift2Buy, {})
+    if tostring(BuyGift) == "too little money" then
+        --nothing
+        return true -- dont wanna buy egg, we will wait for event currenty
+    end
+
+end
 
 
 local function getCommon(number)
@@ -999,14 +996,14 @@ local function getPet()
     if getUnCommon() then return end
     if getCommon() then return end
 
-    -- if GetGiftPet() then
-    --     task.wait(1)
-    --     if getLegendary() then return end
-    --     if getUltraRare() then return end
-    --     if getRare() then return end
-    --     if getUnCommon() then return end
-    --     if getCommon() then return end
-    -- end
+    if GetGiftPet() then
+        task.wait(1)
+        if getLegendary() then return end
+        if getUltraRare() then return end
+        if getRare() then return end
+        if getUnCommon() then return end
+        if getCommon() then return end
+    end
 
     if getEgg() then return end
     -- if buyPet() then return end
