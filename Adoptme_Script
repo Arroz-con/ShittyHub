@@ -1530,13 +1530,11 @@ local function autoFarm()
                     NormalDialogChild.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
                         if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Pet Rescue is starting soon!") then
                             FireButton("Yes")
-                            -- TeleportWinterShop()
-                            -- TeleportPetRescue()
-                            -- Bypass("RouterClient").get("MinigameAPI/AttemptJoin"):FireServer("pet_rescue", true)
-                        elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Chickatrice Says!") then
+                        
+                        elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Santa's Workshop is starting soon!") then
                             FireButton("Yes")
 
-                        elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Spooky Shuffle") then
+                        elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Cocoa Chaos is starting soon!") then
                             FireButton("Yes")
 
                         end
@@ -1554,13 +1552,11 @@ local function autoFarm()
             Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
                 if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Pet Rescue is starting soon!") then
                     FireButton("Yes")
-                    -- TeleportWinterShop()
-                    -- task.wait(2)
-                    -- TeleportPetRescue()
-                elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Chickatrice Says!") then
+                 
+                elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Santa's Workshop is starting soon!") then
                     FireButton("Yes")
 
-                elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Spooky Shuffle") then
+                elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Cocoa Chaos is starting soon!") then
                     FireButton("Yes")
                 end
             end)
@@ -2080,7 +2076,7 @@ local function tradeCollector(namePassOn)
                     end
 
                     ClickTradeWindowPopUps()
-                    task.wait(5)
+                    task.wait(1)
                 until Player.PlayerGui.TradeApp.Frame.Visible
                 ClickTradeWindowPopUps()
                 
@@ -2457,16 +2453,6 @@ Buy:AddTextbox({
     Callback = function(value)
         howmany = value
     end  
-})
-
-Buy:AddButton({
-    Name = "Hare Box",
-    Callback = function()
-        for i = 1, (howmany or 1) do
-            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("gifts", "winter_2023_hare_box", {})
-            task.wait(.1)
-        end
-    end
 })
 
 Buy:AddButton({
