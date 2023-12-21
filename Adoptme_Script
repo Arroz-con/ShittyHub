@@ -2460,6 +2460,16 @@ Buy:AddTextbox({
 })
 
 Buy:AddButton({
+    Name = "Hare Box",
+    Callback = function()
+        for i = 1, (howmany or 1) do
+            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("gifts", "winter_2023_hare_box", {})
+            task.wait(.1)
+        end
+    end
+})
+
+Buy:AddButton({
     Name = "winter_2023_fleur_de_ice",
     Callback = function()
         for i = 1, (howmany or 1) do
