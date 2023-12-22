@@ -996,14 +996,14 @@ local function getPet()
     if getUnCommon() then return end
     if getCommon() then return end
 
-    if GetGiftPet() then
-        task.wait(1)
-        if getLegendary() then return end
-        if getUltraRare() then return end
-        if getRare() then return end
-        if getUnCommon() then return end
-        if getCommon() then return end
-    end
+    -- if GetGiftPet() then
+    --     task.wait(1)
+    --     if getLegendary() then return end
+    --     if getUltraRare() then return end
+    --     if getRare() then return end
+    --     if getUnCommon() then return end
+    --     if getCommon() then return end
+    -- end
 
     if getEgg() then return end
     -- if buyPet() then return end
