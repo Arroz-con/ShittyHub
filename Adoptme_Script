@@ -2109,6 +2109,7 @@ local function tradeCollector(namePassOn)
                 ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
                 task.wait()
                 ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
+                ClickTradeWindowPopUps()
                 petCounter = 0
             end)
 
