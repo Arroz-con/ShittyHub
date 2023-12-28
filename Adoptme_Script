@@ -2071,7 +2071,6 @@ local function tradeCollector(namePassOn)
             if not tabBoolean then return end
             pcall(function()
                 repeat
-                    ClickTradeWindowPopUps()
                     if not Player.PlayerGui.TradeApp.Frame.Visible then
                         ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(Players[namePassOn])
                     end
@@ -2079,6 +2078,8 @@ local function tradeCollector(namePassOn)
                     ClickTradeWindowPopUps()
                     task.wait(1)
                 until Player.PlayerGui.TradeApp.Frame.Visible
+                ClickTradeWindowPopUps()
+                task.wait()
                 ClickTradeWindowPopUps()
                 
                 local petCounter = 0   
@@ -2110,10 +2111,11 @@ local function tradeCollector(namePassOn)
                 ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
                 task.wait()
                 ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
-                ClickTradeWindowPopUps()
                 petCounter = 0
+                task.wait()
+                ClickTradeWindowPopUps()
             end)
-
+            ClickTradeWindowPopUps()
             task.wait(1)
         end
     end)
