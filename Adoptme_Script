@@ -1532,10 +1532,10 @@ local function autoFarm()
                             FireButton("Yes")
                         
                         elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Santa's Workshop is starting soon!") then
-                            FireButton("Yes")
+                            FireButton("No")
 
                         elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Cocoa Chaos is starting soon!") then
-                            FireButton("Yes")
+                            FireButton("No")
 
                         end
                     end)
