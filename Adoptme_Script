@@ -2626,3 +2626,10 @@ if SETTINGS.ENABLE_AUTO_FARM then
         FarmToggle:Set(false)
     end
 end
+
+fluxus.queue_on_teleport([[
+		repeat task.wait() until game:IsLoaded()
+		game:Shutdown()
+		]])
+        
+        
