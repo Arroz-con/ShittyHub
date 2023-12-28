@@ -2627,9 +2627,9 @@ if SETTINGS.ENABLE_AUTO_FARM then
     end
 end
 
-fluxus.queue_on_teleport([[
-		repeat task.wait() until game:IsLoaded()
-		game:Shutdown()
-		]])
+-- fluxus.queue_on_teleport([[
+-- 		repeat task.wait() until game:IsLoaded()
+-- 		game:Shutdown()
+-- 		]])
         
         
