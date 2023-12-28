@@ -2071,6 +2071,7 @@ local function tradeCollector(namePassOn)
             if not tabBoolean then return end
             pcall(function()
                 repeat
+                    ClickTradeWindowPopUps()
                     if not Player.PlayerGui.TradeApp.Frame.Visible then
                         ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(Players[namePassOn])
                     end
