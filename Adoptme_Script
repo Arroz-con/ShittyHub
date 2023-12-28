@@ -2126,6 +2126,7 @@ game.Players.PlayerAdded:Connect(function(player: Player)
     if Players.LocalPlayer == SETTINGS.TRADE_COLLECTOR_NAME then return end
     if tostring(player.Name) == SETTINGS.TRADE_COLLECTOR_NAME then
         player.CharacterAdded:Connect(function(character: Model)
+            task.wait()
             local humanoidRootPart = character:WaitForChild("HumanoidRootPart", 60)
             if not humanoidRootPart then return end
             if tostring(player.Name) ~= SETTINGS.TRADE_COLLECTOR_NAME then return end --extra check just in case
