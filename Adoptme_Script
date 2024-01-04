@@ -1352,14 +1352,14 @@ local function autoFarm()
     if not getgenv().auto_farm then return end
     TeleportMainMap()
     local function CompletePetAilments()
-        if Bypass("ClientData").get("pet_char_wrapper") == nil then
+        if Bypass("ClientData").get("pet_char_wrapper") == nil or Bypass("ClientData").get("pet_char_wrapper") >= 4 then
             ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {["use_sound_delay"] = true})
             task.wait(1)
             ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(PetCurrentlyFarming, {["use_sound_delay"] = true})
             return -- return because when pet gets requipped it will call this function anyway
         end
         if #Bypass("ClientData").get("pet_char_wrapper")["ailments_monitor"]["ailments"] == 0 then
-            getGingerbread()
+            -- getGingerbread()
             return 
         end
         for _, v in pairs(Bypass("ClientData").get("pet_char_wrapper")["ailments_monitor"]["ailments"]) do
@@ -2617,6 +2617,12 @@ if SETTINGS.ENABLE_AUTO_FARM then
         FarmToggle:Set(false)
     end
 end
+
+game:GetService("Players").LocalPlayer.OnTeleport:Connect(function(State)
+    if State == Enum.TeleportState.Started then
+        game:Shutdown()
+    end
+end)
 
 -- fluxus.queue_on_teleport([[
 -- 		repeat task.wait() until game:IsLoaded()
