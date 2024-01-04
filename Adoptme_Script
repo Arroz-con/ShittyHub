@@ -3,16 +3,20 @@ if not game:IsLoaded() then
 end
 
 if game.PlaceId ~= 920587237 then return end
-local Player = game.Players.LocalPlayer
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local VI = game:GetService("VirtualInputManager")
 local UserGameSettings = UserSettings():GetService("UserGameSettings")
+local UserInputService = game:GetService("UserInputService")
+local VirtualUser = game:GetService("VirtualUser")
+
 local NewsAppConnection
 local DialogConnection
 local RoleChooserDialogConnection
 local RobuxProductDialogConnection
 local banMessageConnection
 local DailyClaimConnection
-local ChatConnection
+-- local ChatConnection
 local CharConn
 local DailyBoolean = true
 local DailyRewardTable = {[9] = "reward_1", [30] = "reward_2", [90] = "reward_3", [140] = "reward_4", [180] = "reward_5", [210] = "reward_6", [230] = "reward_7",
@@ -27,12 +31,15 @@ local ClaimTable = {["hatch_three_eggs"] = {3}, ["fully_age_three_pets"] = {3}, 
 ["buy_three_furniture_items_with_friends_coop_budget"] = {3}, ["buy_five_furniture_items"] = {5}, ["buy_fifteen_furniture_items"] = {15},
 ["play_as_a_baby_for_twenty_five_minutes"] = {1500}, ["play_for_thirty_minutes"] = {1800}}
 
-local Bypass = require(game.ReplicatedStorage:WaitForChild("Fsys")).load
+local Player = Players.LocalPlayer
+Player.PlayerGui:WaitForChild("NewsApp", 60)
+Player.PlayerGui:WaitForChild("DialogApp", 60)
+
+local Bypass = require(ReplicatedStorage:WaitForChild("Fsys", 60)).load
+local inventoryDB = Bypass("InventoryDB")
+local Remote = Bypass("RouterClient").get("HousingAPI/ActivateFurniture")
 local ClaimRemote = Bypass("RouterClient").get("QuestAPI/ClaimQuest")
 local RerollRemote = Bypass("RouterClient").get("QuestAPI/RerollQuest")
-
-Player.PlayerGui:WaitForChild("NewsApp")
-Player.PlayerGui:WaitForChild("DialogApp")
 
 UserGameSettings.GraphicsQualityLevel = 1
 UserGameSettings.MasterVolume = 0
@@ -45,6 +52,7 @@ local function clickGuiButton(button)
     VI:SendMouseButtonEvent(button.AbsolutePosition.X + 60, button.AbsolutePosition.Y + 60, 0, false, game, 1)
     task.wait()
 end
+
 
 local function FireButton(PassOn)
     task.wait() -- gives it time for button
@@ -60,13 +68,6 @@ local function FireButton(PassOn)
     end
 end
 
--- mouse cant click on script button
--- local function minimizeGui()
---     VI:SendMouseButtonEvent(710, 140, 0, true, game, 1)
---     task.wait(1)
---     VI:SendMouseButtonEvent(710, 140, 0, false, game, 1)
--- end
-
 
 -- ChatConnection = Player.PlayerGui.Chat.Frame.ChatChannelParentFrame["Frame_MessageLogDisplay"].Scroller.DescendantAdded:Connect(function(ChatChild)
 -- 	if ChatChild.Name == "TextButton" then
@@ -75,6 +76,7 @@ end
 -- 		ChatConnection:Disconnect()
 -- 	end
 -- end)
+
 
 --// Main Adopt me Screen (Play! Button)
 NewsAppConnection = Player.PlayerGui.NewsApp:GetPropertyChangedSignal("Enabled"):Connect(function()
@@ -86,12 +88,14 @@ NewsAppConnection = Player.PlayerGui.NewsApp:GetPropertyChangedSignal("Enabled")
     end
 end)
 
+
 if Player.PlayerGui.NewsApp.Enabled then
     local AbsPlay = Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton
     clickGuiButton(AbsPlay)
     --firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
     NewsAppConnection:Disconnect()
 end
+
 
 banMessageConnection = Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal("Visible"):Connect(function()
     if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
@@ -106,12 +110,14 @@ banMessageConnection = Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropert
     end
 end)
 
+
 if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
     if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("ban") then
         FireButton("Okay")
         banMessageConnection:Disconnect()
     end
 end
+
 
 --// Clicks on baby button
 RoleChooserDialogConnection = Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog:GetPropertyChangedSignal("Visible"):Connect(function()
@@ -122,10 +128,12 @@ RoleChooserDialogConnection = Player.PlayerGui.DialogApp.Dialog.RoleChooserDialo
     end
 end)
 
+
 if Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
     firesignal(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby.MouseButton1Click)
     RoleChooserDialogConnection:Disconnect()
 end
+
 
 --// Clicks no robux product button
 RobuxProductDialogConnection = Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog:GetPropertyChangedSignal("Visible"):Connect(function()
@@ -142,6 +150,7 @@ RobuxProductDialogConnection = Player.PlayerGui.DialogApp.Dialog.RobuxProductDia
         end     			
     end
 end)
+
 
 local function GrabDailyReward()
     local Daily = Bypass("ClientData").get("daily_login_manager")
@@ -163,6 +172,7 @@ local function GrabDailyReward()
         end
     end
 end
+
 
 DailyClaimConnection = Player.PlayerGui.DailyLoginApp:GetPropertyChangedSignal("Enabled"):Connect(function()
     repeat task.wait() until Player.PlayerGui.DailyLoginApp.Enabled
@@ -191,6 +201,7 @@ DailyClaimConnection = Player.PlayerGui.DailyLoginApp:GetPropertyChangedSignal("
     end
 end)
 
+
 local Char = Player.Character or Player.CharacterAdded:Wait()
 CharConn = Char.ChildAdded:Connect(function(HRPChild)
     if HRPChild.Name == "HumanoidRootPart" then
@@ -199,7 +210,6 @@ CharConn = Char.ChildAdded:Connect(function(HRPChild)
         CharConn:Disconnect()
     end
 end)
-
 
 
 Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(NormalDialogChild)
@@ -218,6 +228,7 @@ Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(NormalDialogChild)
     end
 end)
 
+
 Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal("Visible"):Connect(function()
     if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
         Player.PlayerGui.DialogApp.Dialog.NormalDialog:WaitForChild("Info")
@@ -225,16 +236,34 @@ Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal("Visible
         Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
             if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("4.5%% Legendary") then
                 FireButton("Okay")
+
+            elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Are you subscribed") then
+                FireButton("Yes")
+
+            elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Thanks for subscribing") then
+                FireButton("Okay")
+
+            -- elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Be careful when trading") then
+            --     FireButton("Okay")
+
+            -- elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("This trade seems unbalanced") then
+            --     FireButton("Next")
+
+            -- elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Any items lost to scams") then
+            --     FireButton("I understand")
+
             end
         end)
     end
 end)
+
 
 if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
     if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("4.5%% Legendary") then
         FireButton("Okay")
     end
 end
+
 
 ---\\Auto taskboard Quest
 local function QuestCount()
@@ -249,6 +278,7 @@ local function QuestCount()
     return Count
 end
 
+
 local function ReRollCount()
     for i, v in pairs(Bypass("ClientData").get("quest_manager")["daily_quest_data"]) do
         if v == 1 or v == 0 then
@@ -256,6 +286,7 @@ local function ReRollCount()
         end
     end
 end
+
 
 local function NewTask()
     NewTaskBool = false
@@ -292,6 +323,7 @@ local function NewTask()
     NewTaskBool = true
 end
 
+
 local function NewClaim()
     NewClaimBool = false
     for _, v in pairs(Bypass("ClientData").get("quest_manager")["quests_cached"]) do
@@ -309,6 +341,7 @@ local function NewClaim()
     NewClaimBool = true
 end
 
+
 game.Players.LocalPlayer.PlayerGui.QuestIconApp.ImageButton.EventContainer.IsNew:GetPropertyChangedSignal("Position"):Connect(function()
     if NewTaskBool then
         NewTaskBool = false
@@ -316,6 +349,7 @@ game.Players.LocalPlayer.PlayerGui.QuestIconApp.ImageButton.EventContainer.IsNew
         NewTask()
     end
 end)
+
 
 game.Players.LocalPlayer.PlayerGui.QuestIconApp.ImageButton.EventContainer.IsClaimable:GetPropertyChangedSignal("Position"):Connect(function()
     if NewClaimBool then
@@ -331,20 +365,9 @@ NewTask()
 
 --// Spikes11 code ^^^
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
-local Player = Players.LocalPlayer
-local RunService = game:GetService("RunService")
-local Bypass = require(game.ReplicatedStorage:WaitForChild("Fsys")).load
-local inventoryDB = Bypass("InventoryDB")
-local Workspace = game:GetService("Workspace")
-local Remote = Bypass("RouterClient").get("HousingAPI/ActivateFurniture")
-local UserInputService = game:GetService("UserInputService")
-local VirtualUser = game:GetService("VirtualUser")
-
-local TradeButtons = Player.PlayerGui.DialogApp.Dialog.NormalDialog.Buttons
-local CheckMarkNF = Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.PartnerOffer.Accepted
-local CheckMarkCF = Player.PlayerGui.TradeApp.Frame.ConfirmationFrame.PartnerOffer.Accepted
+-- local TradeButtons = Player.PlayerGui.DialogApp.Dialog.NormalDialog.Buttons
+-- local CheckMarkNF = Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.PartnerOffer.Accepted
+-- local CheckMarkCF = Player.PlayerGui.TradeApp.Frame.ConfirmationFrame.PartnerOffer.Accepted
 local baitId
 local selectedPlayer
 
@@ -393,7 +416,7 @@ local function buyCrib()
         }
     }
     
-    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/BuyFurnitures"):InvokeServer(unpack(args))   
+    ReplicatedStorage:WaitForChild("API"):WaitForChild("HousingAPI/BuyFurnitures"):InvokeServer(unpack(args))   
 end
 
 -- local function buyPiano()
@@ -439,9 +462,9 @@ Player.Idled:Connect(function()
 end)
 
 
--- for _,v in pairs(getconnections(Player.Idled)) do
---     v:Disable()
--- end
+for _,v in pairs(getconnections(Player.Idled)) do
+    v:Disable()
+end
 
 
 local SetLocationTP
@@ -628,19 +651,19 @@ local function findBait(baitPassOn)
     end  
 end
 
---collect lure loot
-local function collectLureLoot()
-    local args = {
-        [1] = game:GetService("Players").LocalPlayer,
-        [2] = normalLure,
-        [3] = "UseBlock",
-        [4] = false,
-        [5] = game:GetService("Players").LocalPlayer.Character
-    }
+--collect lure loot, not needed because placeBait does the collect too
+-- local function collectLureLoot()
+--     local args = {
+--         [1] = game:GetService("Players").LocalPlayer,
+--         [2] = normalLure,
+--         [3] = "UseBlock",
+--         [4] = false,
+--         [5] = game:GetService("Players").LocalPlayer.Character
+--     }
     
-    game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/ActivateFurniture"):InvokeServer(unpack(args))
+--     game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/ActivateFurniture"):InvokeServer(unpack(args))
     
-end
+-- end
 
 local function subToHouse()
     game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/SubscribeToHouse"):FireServer(Player)   
@@ -911,41 +934,41 @@ end
 
 local petsToAgeTable = {}
 
-local function getRandomPet()
-    local randomLowTierTable = {}
-    local nameCountTable = {}
-    local has4PetsTable = {}
+-- local function getRandomPet()
+--     local randomLowTierTable = {}
+--     local nameCountTable = {}
+--     local has4PetsTable = {}
 
-    for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
-        if v.properties.age <= 5 and not v.properties.neon and not v.properties.mega_neon then
-            table.insert(randomLowTierTable, v.id)
-        end
-    end
+--     for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+--         if v.properties.age <= 5 and not v.properties.neon and not v.properties.mega_neon then
+--             table.insert(randomLowTierTable, v.id)
+--         end
+--     end
 
-    for _, v in pairs(randomLowTierTable) do
-        local name = v
-        nameCountTable[name] = (nameCountTable[name] or 0) + 1
-    end
+--     for _, v in pairs(randomLowTierTable) do
+--         local name = v
+--         nameCountTable[name] = (nameCountTable[name] or 0) + 1
+--     end
 
-    for name, count in pairs(nameCountTable) do
-        if tonumber(count) >= 4 then
-            table.insert(has4PetsTable, name)
-        end
-    end
+--     for name, count in pairs(nameCountTable) do
+--         if tonumber(count) >= 4 then
+--             table.insert(has4PetsTable, name)
+--         end
+--     end
 
-    local petCounter = 0
-    for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
-        if v.id == has4PetsTable[1] and v.properties.age <= 5 and not v.properties.neon and not v.properties.mega_neon then
-            table.insert(petsToAgeTable, v.unique)
-            petCounter += 1
-            if petCounter == 4 then
-                petCounter = 0
-                return true
-            end
-        end
-    end
-    return false
-end
+--     local petCounter = 0
+--     for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+--         if v.id == has4PetsTable[1] and v.properties.age <= 5 and not v.properties.neon and not v.properties.mega_neon then
+--             table.insert(petsToAgeTable, v.unique)
+--             petCounter += 1
+--             if petCounter == 4 then
+--                 petCounter = 0
+--                 return true
+--             end
+--         end
+--     end
+--     return false
+-- end
 
 local function getPet()
     if SETTINGS.FOCUS_FARM_AGE_POTION then
@@ -1150,21 +1173,21 @@ local function DayNightAilments(DayNightAilmentsPassOn) -- DayNightAilmentsPassO
     ReplicatedStorage.API["HousingAPI/ActivateFurniture"]:InvokeServer(Player, DayNightAilmentsPassOn, "UseBlock", {["cframe"] = Player.Character.HumanoidRootPart.CFrame}, Bypass("ClientData").get("pet_char_wrapper")["char"])
 end
 
-local function ReEquipPet()
-    if Bypass("ClientData").get("pet_char_wrapper") == nil or false then
-        getPet()
-        return
-    end
-    local Mag = (Player.Character.HumanoidRootPart.Position - Bypass("ClientData").get("pet_char_wrapper").char:FindFirstChild("HumanoidRootPart").Position).Magnitude
-    if Mag then
-        if Mag >= 10 then
-            ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {["use_sound_delay"] = true})
-            task.wait(2)
-            ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(PetCurrentlyFarming, {["use_sound_delay"] = true})
-            return
-        end
-    end
-end
+-- local function ReEquipPet()
+--     if Bypass("ClientData").get("pet_char_wrapper") == nil or false then
+--         getPet()
+--         return
+--     end
+--     local Mag = (Player.Character.HumanoidRootPart.Position - Bypass("ClientData").get("pet_char_wrapper").char:FindFirstChild("HumanoidRootPart").Position).Magnitude
+--     if Mag then
+--         if Mag >= 10 then
+--             ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {["use_sound_delay"] = true})
+--             task.wait(2)
+--             ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(PetCurrentlyFarming, {["use_sound_delay"] = true})
+--             return
+--         end
+--     end
+-- end
 
 local function removeHandHeldItem()
     local tool = Player.Character:FindFirstChild("PotionTool") or Player.Character:FindFirstChild("MessageTool")
@@ -1173,24 +1196,24 @@ local function removeHandHeldItem()
     end
 end
 
-local function checkForPlayerInHouse()
-    if game.Workspace.HouseInteriors.blueprint:FindFirstChildWhichIsA("Model") then
-        FarmToggle:Set(false)
-        task.wait(1)
-        FarmToggle:Set(true)
-    end
-end
+-- local function checkForPlayerInHouse()
+--     if game.Workspace.HouseInteriors.blueprint:FindFirstChildWhichIsA("Model") then
+--         FarmToggle:Set(false)
+--         task.wait(1)
+--         FarmToggle:Set(true)
+--     end
+-- end
 
 --//Teleport function for main map
 
-local function ExitHome()
-    ReplicatedStorage.API["HousingAPI/UnsubscribeFromHouse"]:InvokeServer(Player, true)
-    task.wait(3)
-    game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
-    Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).ExitBillboardBrick.CFrame + Vector3.new(0,0,17)
-    task.wait(3) -- gives it time to load on the otherside
-    game.Players.LocalPlayer.Character.Humanoid:MoveTo(Vector3.new(1,0,0))
-end
+-- local function ExitHome()
+--     ReplicatedStorage.API["HousingAPI/UnsubscribeFromHouse"]:InvokeServer(Player, true)
+--     task.wait(3)
+--     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
+--     Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).ExitBillboardBrick.CFrame + Vector3.new(0,0,17)
+--     task.wait(3) -- gives it time to load on the otherside
+--     game.Players.LocalPlayer.Character.Humanoid:MoveTo(Vector3.new(1,0,0))
+-- end
 
 local function TeleportMainMap()
     Bypass("CollisionsClient").set_collidable(false)
@@ -1205,29 +1228,29 @@ local function TeleportMainMap()
     subToHouse()
 end
 
-local function TeleportWinterShop()
-    Bypass("CollisionsClient").set_collidable(false)
-    Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
-    SetLocationFunc("Winter2023Shop", "MainDoor2", {})
-    game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
-    Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:FindFirstChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Event.BuyCurrency.PrimaryPart.CFrame + Vector3.new(10, 5, 10)
-    Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
-    Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
-    Player.Character.Humanoid.WalkSpeed = 0
-    for i=1, 20 do
-        game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("WinterEventAPI/AdventCalendarTryTakeReward"):InvokeServer(i)
-        task.wait(.1)
-    end
-    task.wait(2)
-end
+-- local function TeleportWinterShop()
+--     Bypass("CollisionsClient").set_collidable(false)
+--     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
+--     SetLocationFunc("Winter2023Shop", "MainDoor2", {})
+--     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
+--     Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:FindFirstChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Event.BuyCurrency.PrimaryPart.CFrame + Vector3.new(10, 5, 10)
+--     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
+--     Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+--     Player.Character.Humanoid.WalkSpeed = 0
+--     for i=1, 20 do
+--         game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("WinterEventAPI/AdventCalendarTryTakeReward"):InvokeServer(i)
+--         task.wait(.1)
+--     end
+--     task.wait(2)
+-- end
 
-local function TeleportPetRescue()
-    Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
-    Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:FindFirstChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).PetRescue.JoinZone.Collider.CFrame + Vector3.new(0, -14, 0)
-    Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
-    Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
-    Player.Character.Humanoid.WalkSpeed = 0
-end
+-- local function TeleportPetRescue()
+--     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
+--     Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:FindFirstChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).PetRescue.JoinZone.Collider.CFrame + Vector3.new(0, -14, 0)
+--     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
+--     Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+--     Player.Character.Humanoid.WalkSpeed = 0
+-- end
 
 --game:GetService("Workspace").Interiors.FireDimension.Doors.WarpDoor.WorkingParts.TouchToEnter
 -- local function TeleportFireDimension()
@@ -1243,7 +1266,7 @@ end
 
 local function TeleportCampSite()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
-    SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
+    -- SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
     Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.Campsite.MarshmallowChair.VintageChair.Union.CFrame + Vector3.new(math.random(1, 20), 10, math.random(1, 20))
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
@@ -1253,7 +1276,7 @@ end
 
 local function TeleportPoolParty()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
-    SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
+    -- SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
     Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.PoolArea.PoolOrigin.CFrame + Vector3.new(math.random(1, 20), 10, math.random(1, 20))
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
@@ -1263,7 +1286,7 @@ end
 
 local function TeleportPlayGround()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
-    SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
+    -- SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
     Player.Character.PrimaryPart.CFrame = game:GetService("Workspace").StaticMap.Park.Roundabout.SeatsSpinModel.Visual:FindFirstChildWhichIsA("Part").CFrame + Vector3.new(math.random(1, 20), 10, math.random(-20, -1))
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
@@ -1299,58 +1322,17 @@ local function SwitchOutFullyGrown()
     end 
 end
 
-local function isProgression(taskPassOn)
-    if Player.PlayerGui:FindFirstChild("pet_progression") then
-        Player.PlayerGui.pet_progression:FindFirstChild("SurfaceGui")
-        Player.PlayerGui.pet_progression.SurfaceGui:FindFirstChild("PetProgression")
-        Player.PlayerGui.pet_progression.SurfaceGui.PetProgression:FindFirstChild("TextLabel")
-        if Player.PlayerGui.pet_progression.SurfaceGui.PetProgression.TextLabel.Text == taskPassOn then
-            return true
-        end
-    end
-    return false
-end
-
--- local isRunning = true
--- local NameID = "lures_2023_campfire_cookies_liveops"
-
-
--- local function getIngredients(ingredient)
---     for i = 1, 11 do
---         ReplicatedStorage.API:FindFirstChild("FireDimensionAPI/PickFruit"):InvokeServer(string.lower(ingredient), i)
---         task.wait(.1)
---     end
--- end
-
-
--- local function opensCookie()
---     for i, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Players.LocalPlayer.Name].inventory.food) do
---         if v["id"] == NameID then
---             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("LootBoxAPI/ExchangeItemForReward"):InvokeServer(v["id"], v["unique"])
+-- local function isProgression(taskPassOn)
+--     if Player.PlayerGui:FindFirstChild("pet_progression") then
+--         Player.PlayerGui.pet_progression:FindFirstChild("SurfaceGui")
+--         Player.PlayerGui.pet_progression.SurfaceGui:FindFirstChild("PetProgression")
+--         Player.PlayerGui.pet_progression.SurfaceGui.PetProgression:FindFirstChild("TextLabel")
+--         if Player.PlayerGui.pet_progression.SurfaceGui.PetProgression.TextLabel.Text == taskPassOn then
 --             return true
 --         end
 --     end
 --     return false
 -- end
-
-
--- local function FireDimensionFarm()
---     task.spawn(function()
---         getIngredients("Berry")
---         getIngredients("Mango")
---         getIngredients("Pear")
-
---         ReplicatedStorage.API:FindFirstChild("FireDimensionAPI/CookRecipe"):InvokeServer("daily_recipe")
---         task.wait(1)
-
---         opensCookie()
---         task.wait(1)
-
---         ReplicatedStorage.API:FindFirstChild("FireDimensionAPI/CookRecipe"):InvokeServer("super_recipe")
---         task.wait(1)
---     end)
--- end
-
 
 
 local function getGingerbread()
@@ -1644,6 +1626,10 @@ end
 --         end
 --     end
 -- end)
+
+
+
+
 
 local function ClickTradeWindowPopUps()
     for _, v in pairs(Player.PlayerGui.DialogApp.Dialog.NormalDialog.Buttons:GetDescendants()) do
