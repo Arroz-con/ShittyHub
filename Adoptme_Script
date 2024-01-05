@@ -1354,19 +1354,20 @@ local function autoFarm()
     TeleportMainMap()
     local function CompletePetAilments()
         if Bypass("ClientData").get("pet_char_wrapper") == nil then
-            ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {})
+            ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {["use_sound_delay"] = true})
             task.wait(1)
-            ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(PetCurrentlyFarming, {})
+            ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(PetCurrentlyFarming, {["use_sound_delay"] = true})
             return -- return because when pet gets requipped it will call this function anyway
         end
 
         if #Bypass("ClientData").get("pet_char_wrapper")["ailments_monitor"]["ailments"] >= 4 then
-            if not stopEquip then return end
-            stopEquip = true
-            ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {})
-            task.wait(1)
-            ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(PetCurrentlyFarming, {})
-            return
+            if not stopEquip then
+                stopEquip = true
+                ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {["use_sound_delay"] = true})
+                task.wait(1)
+                ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(PetCurrentlyFarming, {["use_sound_delay"] = true})
+                return
+            end
         end
 
         for _, v in pairs(Bypass("ClientData").get("pet_char_wrapper")["ailments_monitor"]["ailments"]) do
@@ -1376,47 +1377,48 @@ local function autoFarm()
                 if not SETTINGS.FOCUS_FARM_AGE_POTION then
                     agePotion("pet_age_potion")
                 end
+                break
             elseif v["id"] == "thirsty" then
                 FoodAilments("water") 
             elseif v["id"] == "sick" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
                     Bypass("RouterClient").get("MonitorAPI/HealWithDoctor"):FireServer()
-                    return
+                    break
                 end
             elseif v["id"] == "salon" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
                     ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("Salon")
-                    return
+                    break
                 end
             elseif v["id"] == "pizza_party" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
                     ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("PizzaShop")
-                    return 
+                    break 
                 end
             elseif v["id"] == "school" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
                     ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("School")
-                    return 
+                    break 
                 end
             elseif v["id"] == "bored" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
                     TeleportPlayGround()
-                    return 
+                    break 
                 end
             elseif v["id"] == "sleepy" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
                     DayNightAilments(Bed)
-                    return
+                    break
                 end
             elseif v["id"] == "dirty" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
                     DayNightAilments(Shower)   
-                    return
+                    break
                 end
             elseif v["id"] == "pool_party" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
                     TeleportPoolParty()
-                    return
+                    break
                 end
             elseif v["id"] == "camping" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
@@ -1424,7 +1426,7 @@ local function autoFarm()
 
                     baitId = findBait("lures_2023_campfire_cookies")
                     placeBait(baitId)
-                    return
+                    break
                 end
             end
         end
