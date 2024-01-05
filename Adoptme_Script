@@ -2076,7 +2076,7 @@ local function tradeCollector(namePassOn)
                     end
 
                     ClickTradeWindowPopUps()
-                    task.wait(1)
+                    task.wait(10)
                 until Player.PlayerGui.TradeApp.Frame.Visible
                 ClickTradeWindowPopUps()
                 task.wait()
