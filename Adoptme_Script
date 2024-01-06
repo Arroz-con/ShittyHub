@@ -980,20 +980,20 @@ local function getPet()
         if getCommon(6) then return end
     end
 
-    if SETTINGS.HATCH_EGG_PRIORITY then
-        if priorityEgg() then return end
-        for i = 1, 1 do
-            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", SETTINGS.HATCH_EGG_PRIORITY_NAMES[1], {})
-            return
-        end
-    end
-
     if SETTINGS.PET_NEON_PRIORITY then
         if getNeonPet() then return end
     end
 
     if SETTINGS.PET_ONLY_PRIORITY then
         if priorityPet() then return end
+    end
+
+    if SETTINGS.HATCH_EGG_PRIORITY then
+        if priorityEgg() then return end
+        for i = 1, 1 do
+            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", SETTINGS.HATCH_EGG_PRIORITY_NAMES[1], {})
+            return
+        end
     end
 
     if getLegendary() then return end
@@ -1452,7 +1452,7 @@ local function autoFarm()
     end)
 
     game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildRemoved:Connect(function()
-        task.wait(1)
+        task.wait(2)
         if not SETTINGS.FOCUS_FARM_AGE_POTION then
             SwitchOutFullyGrown()
         end
@@ -1468,7 +1468,7 @@ local function autoFarm()
                 MakeMegaNeon()
                 task.wait(2) -- gives it time for pet to fully equipped
             end
-
+            task.wait(2)
             if not SETTINGS.FOCUS_FARM_AGE_POTION then
                 SwitchOutFullyGrown()
             end
