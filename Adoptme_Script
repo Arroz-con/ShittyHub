@@ -10,6 +10,7 @@ local UserGameSettings = UserSettings():GetService("UserGameSettings")
 local UserInputService = game:GetService("UserInputService")
 local VirtualUser = game:GetService("VirtualUser")
 
+local ThemeColorDialogConnection
 local NewsAppConnection
 local DialogConnection
 local RoleChooserDialogConnection
@@ -41,9 +42,17 @@ local Remote = Bypass("RouterClient").get("HousingAPI/ActivateFurniture")
 local ClaimRemote = Bypass("RouterClient").get("QuestAPI/ClaimQuest")
 local RerollRemote = Bypass("RouterClient").get("QuestAPI/RerollQuest")
 
+local Bed
+local Shower
+--local Piano
+local normalLure
+
 UserGameSettings.GraphicsQualityLevel = 1
 UserGameSettings.MasterVolume = 0
 
+for i, v in pairs(debug.getupvalue(require(ReplicatedStorage.Fsys).load("RouterClient").init, 4)) do
+    v.Name = i
+end
 
 local function clickGuiButton(button)
     task.wait()
@@ -69,6 +78,100 @@ local function FireButton(PassOn)
 end
 
 
+--// gets the trade license so you can trade legendarys
+local function getTradeLicense()
+    Bypass("RouterClient").get("SettingsAPI/SetBooleanFlag"):FireServer("has_talked_to_trade_quest_npc", true)
+    task.wait()
+    Bypass("RouterClient").get("TradeAPI/BeginQuiz"):FireServer()
+    task.wait(1)
+    for _, v in pairs(Bypass('ClientData').get("trade_license_quiz_manager")["quiz"]) do
+        Bypass("RouterClient").get("TradeAPI/AnswerQuizQuestion"):FireServer(v["answer"])
+    end
+end
+
+--// completes the starter tutorial
+local function completeStarterTutorial()
+    Bypass("LegacyTutorial").cancel_tutorial()
+    Bypass("TutorialClient").cancel()
+    ReplicatedStorage.API["LegacyTutorialAPI/EquipTutorialEgg"]:FireServer()
+    ReplicatedStorage.API["LegacyTutorialAPI/AddTutorialQuest"]:FireServer()
+    ReplicatedStorage.API["LegacyTutorialAPI/AddHungryAilmentToTutorialEgg"]:FireServer()
+    local function feedStartEgg(SandwichPassOn)
+        local Foodid2
+        for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.food) do
+            if v.id == SandwichPassOn then
+                Foodid2 = v.unique
+                break
+            end
+        end
+        
+        ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(Foodid2, {["use_sound_delay"] = true})
+        task.wait(1)
+        ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(Foodid2)
+    end
+
+    feedStartEgg("sandwich-default")
+    Bypass("RouterClient").get("TeamAPI/ChooseTeam"):InvokeServer("Babies", true)
+end
+
+
+local function findFurniture()
+    for _, v in pairs(game:GetService("Workspace").HouseInteriors.furniture:GetDescendants()) do
+        if v.Name == "BasicCrib" then
+            Bed = v.Parent.Name:match("%a+-%d+")
+
+        elseif v.Name == "StylishShower" or v.Name == "ModernShower" then
+            Shower = v.Parent.Name:match("%a+-%d+")
+
+        -- elseif v.Name == "Piano" then
+        --     Piano = v.Parent.Name:match("%a+-%d+")
+
+        elseif v.Name == "Lures2023NormalLure" then
+            normalLure = v.Parent.Name:match("%a+-%d+")
+
+        end
+    end
+end
+
+local function buyCrib()
+    local args = {
+        [1] = {
+            [1] = {
+                ["kind"] = "basiccrib",
+                ["properties"] = {
+                    ["cframe"] = CFrame.new(Vector3.new(13.7001953125, 0, -20.699951171875), Vector3.new(-8.742277657347586e-08, -0, -1))
+                }
+            }
+        }
+    }
+    
+    ReplicatedStorage:WaitForChild("API"):WaitForChild("HousingAPI/BuyFurnitures"):InvokeServer(unpack(args))   
+end
+
+
+ThemeColorDialogConnection = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:GetPropertyChangedSignal("Visible"):Connect(function()
+    if Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
+        task.wait()
+        local colorButton = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Info.Response:FindFirstChild("ColorTemplate")
+        local doneButton = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Buttons.ButtonTemplate
+        if not colorButton then return end
+        print(colorButton)
+        clickGuiButton(colorButton)
+        task.wait(1)
+        clickGuiButton(doneButton)
+        task.wait(10)
+        completeStarterTutorial()
+        task.wait(1)
+        getTradeLicense()
+        task.wait(1)
+        buyCrib()
+        task.wait(1)
+        game:Shutdown()
+        ThemeColorDialogConnection:Disconnect()
+    end
+end)
+
+
 -- ChatConnection = Player.PlayerGui.Chat.Frame.ChatChannelParentFrame["Frame_MessageLogDisplay"].Scroller.DescendantAdded:Connect(function(ChatChild)
 -- 	if ChatChild.Name == "TextButton" then
 -- 		task.wait(1)
@@ -83,7 +186,7 @@ NewsAppConnection = Player.PlayerGui.NewsApp:GetPropertyChangedSignal("Enabled")
     if Player.PlayerGui.NewsApp.Enabled then
         local AbsPlay = Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton
         clickGuiButton(AbsPlay)
-        --firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
+        -- firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
         NewsAppConnection:Disconnect()
     end
 end)
@@ -92,7 +195,7 @@ end)
 if Player.PlayerGui.NewsApp.Enabled then
     local AbsPlay = Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton
     clickGuiButton(AbsPlay)
-    --firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
+    -- firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
     NewsAppConnection:Disconnect()
 end
 
@@ -234,20 +337,23 @@ Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal("Visible
         Player.PlayerGui.DialogApp.Dialog.NormalDialog:WaitForChild("Info")
         Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info:WaitForChild("TextLabel")
         Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
+            task.wait()
             if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("4.5%% Legendary") then
                 FireButton("Okay")
 
             elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Are you subscribed") then
                 FireButton("Yes")
 
-            elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Thanks for subscribing") then
+            elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Thanks for subscribing!") then
                 FireButton("Okay")
 
-            -- elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Be careful when trading") then
-            --     FireButton("Okay")
+            elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Welcome to Adopt Me!") then
+                FireButton("Next")
+                task.wait(1)
+                FireButton("Start")
 
-            -- elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("This trade seems unbalanced") then
-            --     FireButton("Next")
+            -- elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("start the day off right") then
+            --     FireButton("Start")
 
             -- elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Any items lost to scams") then
             --     FireButton("I understand")
@@ -381,43 +487,6 @@ local get_thread_identity = get_thread_context
 local set_thread_context = set_thread_context or setthreadcontext or setidentity or syn.set_thread_identity or fluxus.set_thread_identity
 local set_thread_identity = set_thread_context
 
-local Bed
-local Shower
---local Piano
-local normalLure
-
-local function findFurniture()
-    for _, v in pairs(game:GetService("Workspace").HouseInteriors.furniture:GetDescendants()) do
-        if v.Name == "BasicCrib" then
-            Bed = v.Parent.Name:match("%a+-%d+")
-
-        elseif v.Name == "StylishShower" or v.Name == "ModernShower" then
-            Shower = v.Parent.Name:match("%a+-%d+")
-
-        -- elseif v.Name == "Piano" then
-        --     Piano = v.Parent.Name:match("%a+-%d+")
-
-        elseif v.Name == "Lures2023NormalLure" then
-            normalLure = v.Parent.Name:match("%a+-%d+")
-
-        end
-    end
-end
-
-local function buyCrib()
-    local args = {
-        [1] = {
-            [1] = {
-                ["kind"] = "basiccrib",
-                ["properties"] = {
-                    ["cframe"] = CFrame.new(Vector3.new(13.7001953125, 0, -20.699951171875), Vector3.new(-8.742277657347586e-08, -0, -1))
-                }
-            }
-        }
-    }
-    
-    ReplicatedStorage:WaitForChild("API"):WaitForChild("HousingAPI/BuyFurnitures"):InvokeServer(unpack(args))   
-end
 
 -- local function buyPiano()
 --     local args = {
@@ -452,10 +521,6 @@ getgenv().auto_trade_eggs = true
 getgenv().auto_trade_all_inventory = true
 
 local selectedPettoFarm
-
-for i, v in pairs(debug.getupvalue(require(ReplicatedStorage.Fsys).load("RouterClient").init, 4)) do
-    v.Name = i
-end
 
 Player.Idled:Connect(function()
     VirtualUser:ClickButton2(Vector2.new())
@@ -574,41 +639,6 @@ local function clipBoardInventory()
     setclipboard(allInventory)
 end
 
---// gets the trade license so you can trade legendarys
-local function getTradeLicense()
-    Bypass("RouterClient").get("SettingsAPI/SetBooleanFlag"):FireServer("has_talked_to_trade_quest_npc", true)
-    task.wait()
-    Bypass("RouterClient").get("TradeAPI/BeginQuiz"):FireServer()
-    task.wait(1)
-    for _, v in pairs(Bypass('ClientData').get("trade_license_quiz_manager")["quiz"]) do
-        Bypass("RouterClient").get("TradeAPI/AnswerQuizQuestion"):FireServer(v["answer"])
-    end
-end
-
---// completes the starter tutorial
-local function completeStarterTutorial()
-    Bypass("LegacyTutorial").cancel_tutorial()
-    Bypass("TutorialClient").cancel()
-    ReplicatedStorage.API["LegacyTutorialAPI/EquipTutorialEgg"]:FireServer()
-    ReplicatedStorage.API["LegacyTutorialAPI/AddTutorialQuest"]:FireServer()
-    ReplicatedStorage.API["LegacyTutorialAPI/AddHungryAilmentToTutorialEgg"]:FireServer()
-    local function feedStartEgg(SandwichPassOn)
-        local Foodid2
-        for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.food) do
-            if v.id == SandwichPassOn then
-                Foodid2 = v.unique
-                break
-            end
-        end
-        
-        ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(Foodid2, {["use_sound_delay"] = true})
-        task.wait(1)
-        ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(Foodid2)
-    end
-
-    feedStartEgg("sandwich-default")
-    Bypass("RouterClient").get("TeamAPI/ChooseTeam"):InvokeServer("Babies", true)
-end
 
 -- buy the lure bait and place it
 local function buyLure()
@@ -1610,7 +1640,9 @@ local function autoFarm()
     CompletePetAilments()
     task.wait(2)
     
-    --setfpscap(SETTINGS.SET_FPS)
+    setfpscap(SETTINGS.SET_FPS)
+
+
 
 end
 
@@ -2633,6 +2665,9 @@ game:GetService("Players").LocalPlayer.OnTeleport:Connect(function(State)
         game:Shutdown()
     end
 end)
+
+-- Disconnect all connections that are not needed anymore
+ThemeColorDialogConnection:Disconnect()
 
 -- fluxus.queue_on_teleport([[
 -- 		repeat task.wait() until game:IsLoaded()
