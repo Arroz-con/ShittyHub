@@ -1634,6 +1634,8 @@ local function autoFarm()
         MakeMegaNeon()
     end
 
+    
+    task.wait()
     getPet()
     task.wait(2)
     CompleteBabyAilments()
@@ -1641,8 +1643,6 @@ local function autoFarm()
     task.wait(2)
     
     setfpscap(SETTINGS.SET_FPS)
-
-
 
 end
 
@@ -2155,17 +2155,16 @@ end
 
 
 game.Players.PlayerAdded:Connect(function(player: Player)
-    if Players.LocalPlayer == SETTINGS.TRADE_COLLECTOR_NAME then return end
-    if tostring(player.Name) == SETTINGS.TRADE_COLLECTOR_NAME then
-        player.CharacterAdded:Connect(function(character: Model)
-            task.wait()
-            local humanoidRootPart = character:WaitForChild("HumanoidRootPart", 60)
-            if not humanoidRootPart then return end
-            if tostring(player.Name) ~= SETTINGS.TRADE_COLLECTOR_NAME then return end --extra check just in case
+    player.CharacterAdded:Connect(function(character: Model)
+        if Players.LocalPlayer == SETTINGS.TRADE_COLLECTOR_NAME then return end
+        if tostring(player.Name) ~= SETTINGS.TRADE_COLLECTOR_NAME then return end
 
-            tradeCollector(tostring(player.Name))
-        end)
-    end
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart", 120)
+        if not humanoidRootPart then return end
+        if tostring(player.Name) ~= SETTINGS.TRADE_COLLECTOR_NAME then return end --extra check just in case
+
+        tradeCollector(tostring(player.Name))
+    end)
 end)
 
 
