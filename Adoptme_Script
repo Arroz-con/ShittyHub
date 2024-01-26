@@ -222,7 +222,7 @@ if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
 end
 
 
---// Clicks on baby button
+-- // Clicks on baby button
 RoleChooserDialogConnection = Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog:GetPropertyChangedSignal("Visible"):Connect(function()
     task.wait()
     if Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
@@ -482,10 +482,8 @@ local getconstant = getconstant or debug.getconstant
 local getconstants = getconstants or debug.getconstants
 local getgc = getgc or get_gc_objects or debug.getgc
 local getreg = getreg or getregistry or debug.getregistry
-local get_thread_context = get_thread_context or getthreadcontext or getidentity or syn.get_thread_identity or fluxus.get_thread_identity
-local get_thread_identity = get_thread_context
-local set_thread_context = set_thread_context or setthreadcontext or setidentity or syn.set_thread_identity or fluxus.set_thread_identity
-local set_thread_identity = set_thread_context
+local get_thread_identity = get_thread_identity or gti or getthreadidentity or getidentity or syn.get_thread_identity or fluxus.get_thread_identity
+local set_thread_identity = set_thread_context or sti or setthreadcontext or setidentity or syn.set_thread_identity or fluxus.set_thread_identity
 
 
 -- local function buyPiano()
