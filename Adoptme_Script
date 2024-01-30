@@ -2151,21 +2151,6 @@ local function tradeCollector(namePassOn)
     end)
 end
 
-
-game.Players.PlayerAdded:Connect(function(player: Player)
-    player.CharacterAdded:Connect(function(character: Model)
-        if Players.LocalPlayer == SETTINGS.TRADE_COLLECTOR_NAME then return end
-        if tostring(player.Name) ~= SETTINGS.TRADE_COLLECTOR_NAME then return end
-
-        local humanoidRootPart = character:WaitForChild("HumanoidRootPart", 120)
-        if not humanoidRootPart then return end
-        if tostring(player.Name) ~= SETTINGS.TRADE_COLLECTOR_NAME then return end --extra check just in case
-
-        tradeCollector(tostring(player.Name))
-    end)
-end)
-
-
 -----------          UI  Functions           ------------------
 
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/Arroz-con/Orion/main/source')))()
@@ -2268,7 +2253,7 @@ Auto:AddSection({
     Name = "only enable Auto Accept trade on alt getting the items"
 })
 
-Auto:AddToggle({
+local AutoTradeToggle = Auto:AddToggle({
     Name = "Auto Accept Trade ",
     Callback = function(value)
         getgenv().auto_accept_trade = value
@@ -2489,79 +2474,8 @@ Buy:AddTextbox({
     end  
 })
 
-Buy:AddButton({
-    Name = "winter_2023_fleur_de_ice",
-    Callback = function()
-        for i = 1, (howmany or 1) do
-            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "winter_2023_fleur_de_ice", {})
-            task.wait(.1)
-        end
-    end
-})
 
-Buy:AddButton({
-    Name = "eggnog_dog",
-    Callback = function()
-        for i = 1, (howmany or 1) do
-            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "winter_2023_eggnog_dog", {})
-            task.wait(.1)
-        end
-    end
-})
-
-Buy:AddButton({
-    Name = "peppermint_penguin",
-    Callback = function()
-        for i = 1, (howmany or 1) do
-            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "winter_2023_peppermint_penguin", {})
-            task.wait(.1)
-        end
-    end
-})
-
-Buy:AddButton({
-    Name = "christmas_pudding_pup",
-    Callback = function()
-        for i = 1, (howmany or 1) do
-            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "winter_2023_christmas_pudding_pup", {})
-            task.wait(.1)
-        end
-    end
-})
-
-Buy:AddButton({
-    Name = "nutcracker_squirrel",
-    Callback = function()
-        for i = 1, (howmany or 1) do
-            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "winter_2023_nutcracker_squirrel", {})
-            task.wait(.1)
-        end
-    end
-})
-
-
-Buy:AddButton({
-    Name = "gingerbread_mouse",
-    Callback = function()
-        for i = 1, (howmany or 1) do
-            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "winter_2023_gingerbread_mouse", {})
-            task.wait(.1)
-        end
-    end
-})
-
-Buy:AddButton({
-    Name = "Beluga Whale",
-    Callback = function()
-        for i = 1, (howmany or 1) do
-            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "winter_2023_beluga_whale", {})
-            task.wait(.1)
-        end
-    end
-})
-
-
-local egg1 = "urban_2023_egg"
+local egg1 = "desert_2024_egg"
 Buy:AddButton({
     Name = tostring(inventoryDB.pets[egg1].name.." - "..inventoryDB.pets[egg1].cost.." - "..(inventoryDB.pets[egg1].currency_id or "bucks")),
     Callback = function()
@@ -2571,7 +2485,6 @@ Buy:AddButton({
         end
     end
 })
-
 
 
 --// things needed when joining game for the first time
@@ -2646,6 +2559,23 @@ placeBait(baitId)
 
 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/SetDoorLocked"):InvokeServer(true)
 
+game.Players.PlayerAdded:Connect(function(player: Player)
+    player.CharacterAdded:Connect(function(character: Model)
+        if Players.LocalPlayer.Name == SETTINGS.TRADE_COLLECTOR_NAME then return end
+        if tostring(player.Name) ~= SETTINGS.TRADE_COLLECTOR_NAME then return end
+
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart", 120)
+        if not humanoidRootPart then return end
+        if tostring(player.Name) ~= SETTINGS.TRADE_COLLECTOR_NAME then return end --extra check just in case
+
+        tradeCollector(tostring(player.Name))
+    end)
+end)
+
+if Players.LocalPlayer.Name == SETTINGS.TRADE_COLLECTOR_NAME then
+    AutoTradeToggle:Set(true)
+    return
+end
 
 if SETTINGS.ENABLE_AUTO_FARM then
     if Bed then
