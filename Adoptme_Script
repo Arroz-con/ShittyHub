@@ -1695,9 +1695,9 @@ local function clickAcceptConfirmation()
     if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
         ClickTradeWindowPopUps()
     end
-    repeat task.wait() until Player.PlayerGui.TradeApp.Frame.ConfirmationFrame.LockIcon.Visible == false
+    repeat task.wait(1) until Player.PlayerGui.TradeApp.Frame.ConfirmationFrame.LockIcon.Visible == false
     ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
-    repeat task.wait() until not Player.PlayerGui.TradeApp.Frame.Visible
+    repeat task.wait(1) until not Player.PlayerGui.TradeApp.Frame.Visible
     ClickTradeWindowPopUps()
 end
 
@@ -1705,11 +1705,10 @@ local function clickAcceptNegotiation()
     if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
         ClickTradeWindowPopUps()
     end
-    repeat task.wait()
-    until Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.LockIcon.Visible == false
+    repeat task.wait(1) until Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.LockIcon.Visible == false
     ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
     ClickTradeWindowPopUps()
-    task.wait()
+    task.wait(1)
 end
 
 local function autoAcceptTrade()
@@ -1718,8 +1717,9 @@ local function autoAcceptTrade()
             if not getgenv().auto_accept_trade then return end
             pcall(function()
                 ClickTradeWindowPopUps()
-                ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
-                ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
+                
+                clickAcceptNegotiation()
+                clickAcceptConfirmation()
             end)
         end
     end)
@@ -2067,7 +2067,7 @@ end
 
 local function checkInventory()
     if not game.Players[SETTINGS.TRADE_COLLECTOR_NAME] then
-        return false, "false"
+        return false, "false", {}
     end
 
     for _, gift in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.gifts) do
