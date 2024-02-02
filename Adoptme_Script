@@ -1691,11 +1691,15 @@ local function ClickTradeWindowPopUps()
     end
 end
 
+-- Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.Accept.Face.Colors.Base.AbsolutePosition == 486, 320.5 -- grey not clickable    -- 486, 316.5 green clickable
+-- Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.Accept.Face.Colors.Base.ImageColor3 == 74, 198, 85
+-- Player.PlayerGui.TradeApp.Frame.ConfirmationFrame.Accept.Face.Colors.Base.AbsolutePosition == 
+
 local function clickAcceptConfirmation()
     if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
         ClickTradeWindowPopUps()
     end
-    repeat task.wait(1) until Player.PlayerGui.TradeApp.Frame.ConfirmationFrame.LockIcon.Visible == false
+    repeat task.wait(1) until Player.PlayerGui.TradeApp.Frame.ConfirmationFrame.Accept.Face.Colors.Base.AbsolutePosition ==  Vector2.new(491, 323.5)
     ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
     repeat task.wait(1) until not Player.PlayerGui.TradeApp.Frame.Visible
     ClickTradeWindowPopUps()
@@ -1705,10 +1709,10 @@ local function clickAcceptNegotiation()
     if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
         ClickTradeWindowPopUps()
     end
-    repeat task.wait(1) until Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.LockIcon.Visible == false
+    repeat task.wait(1) until Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.Accept.Face.Colors.Base.AbsolutePosition ==  Vector2.new(486, 316.5)
     ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
     ClickTradeWindowPopUps()
-    task.wait(1)
+    task.wait(5)
 end
 
 local function autoAcceptTrade()
@@ -2303,14 +2307,14 @@ Auto:AddToggle({
         while task.wait(1) do
             if not getgenv().auto_trade_all_inventory then break end
             autoTradeAllInventory("pets")
-            --autoTradeAllInventory("pet_accessories") -- pet wear and wings
-            --autoTradeAllInventory("strollers")
-            --autoTradeAllInventory("food")
-            --autoTradeAllInventory("transport") -- vehicle
-            --autoTradeAllInventory("toys")
+            autoTradeAllInventory("pet_accessories") -- pet wear and wings
+            autoTradeAllInventory("strollers")
+            autoTradeAllInventory("food")
+            autoTradeAllInventory("transport") -- vehicle
+            autoTradeAllInventory("toys")
             autoTradeAllInventory("gifts")
-            ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
-            ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
+            clickAcceptNegotiation()
+            clickAcceptConfirmation()
         end 
     end    
 })
