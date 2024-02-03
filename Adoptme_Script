@@ -1690,43 +1690,54 @@ local function ClickTradeWindowPopUps()
         end
     end
 end
-
--- Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.Accept.Face.Colors.Base.AbsolutePosition == 486, 320.5 -- grey not clickable    -- 486, 316.5 green clickable
--- Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.Accept.Face.Colors.Base.ImageColor3 == 74, 198, 85
--- Player.PlayerGui.TradeApp.Frame.ConfirmationFrame.Accept.Face.Colors.Base.AbsolutePosition == 
+-- game:GetService("Players").dudemyblox.PlayerGui.TradeApp.Frame.ConfirmationFrame
+-- game:GetService("Players").dudemyblox.PlayerGui.TradeApp.Frame.NegotiationFrame.Body
 
 local function clickAcceptConfirmation()
     task.wait(1)
     if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
         ClickTradeWindowPopUps()
     end
-    repeat task.wait(1) until Player.PlayerGui.TradeApp.Frame.ConfirmationFrame.LockIcon.Visible == false
-    ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
-    repeat task.wait(1) until not Player.PlayerGui.TradeApp.Frame.Visible
+
+    repeat
+        if Player.PlayerGui.TradeApp.Frame.Visible then
+            clickGuiButton(Player.PlayerGui.TradeApp.Frame.ConfirmationFrame.Accept)
+            print("ConfirmationFrame")
+        end
+        task.wait(2)
+    until Player.PlayerGui.TradeApp.Frame.ConfirmationFrame.MyOffer.Accepted.ImageTransparency ~= 1 or nil
+
+    -- ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
     ClickTradeWindowPopUps()
 end
+
 
 local function clickAcceptNegotiation()
     task.wait(1)
     if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
         ClickTradeWindowPopUps()
     end
-    repeat task.wait(1) until Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.LockIcon.Visible == false
-    ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
+
+    repeat
+        if Player.PlayerGui.TradeApp.Frame.Visible then
+            clickGuiButton(Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.Accept)
+            print("NegotiationFrame")
+        end
+        task.wait(2)
+    until Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.MyOffer.Accepted.ImageTransparency ~= 1 or nil
+    -- ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
     ClickTradeWindowPopUps()
-    task.wait(5)
 end
 
-local function autoAcceptTrade()
-    task.spawn(function()
-        while task.wait(1) do
-            if not getgenv().auto_accept_trade then return end
-            pcall(function()
-                ClickTradeWindowPopUps()
-                
-                clickAcceptNegotiation()
-                clickAcceptConfirmation()
-            end)
+local function autoAcceptTrade(bool)
+    pcall(function()
+        while true do
+            if not bool then return end
+            ClickTradeWindowPopUps()
+            clickAcceptNegotiation()
+            clickAcceptConfirmation()
+            print("looping "..tostring(bool))
+            task.wait(1)
         end
     end)
 end
@@ -2081,11 +2092,11 @@ local function checkInventory()
         end
     end
 
-    for _, toy in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.toys) do
-        if toy.id == SETTINGS.TRADE_LIST.TOYS_TABLE then
-            return true, "toys", SETTINGS.TRADE_LIST.TOYS_TABLE
-        end
-    end
+    -- for _, toy in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.toys) do
+    --     if toy.id == SETTINGS.TRADE_LIST.TOYS_TABLE then
+    --         return true, "toys", SETTINGS.TRADE_LIST.TOYS_TABLE
+    --     end
+    -- end
 
     for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
         if pet.id == "practice_dog" then continue end
@@ -2109,7 +2120,7 @@ local function tradeCollector(namePassOn)
                     end
 
                     ClickTradeWindowPopUps()
-                    task.wait(10)
+                    task.wait(math.random(20, 60))
                 until Player.PlayerGui.TradeApp.Frame.Visible
                 ClickTradeWindowPopUps()
                 task.wait()
@@ -2259,8 +2270,8 @@ Auto:AddSection({
 local AutoTradeToggle = Auto:AddToggle({
     Name = "Auto Accept Trade ",
     Callback = function(value)
-        getgenv().auto_accept_trade = value
-        autoAcceptTrade()
+        -- getgenv().auto_accept_trade = value
+        autoAcceptTrade(value)
     end    
 })
 
@@ -2577,7 +2588,7 @@ end)
 
 if Players.LocalPlayer.Name == SETTINGS.TRADE_COLLECTOR_NAME then
     AutoTradeToggle:Set(true)
-    return
+    task.wait(1)
 end
 
 if SETTINGS.ENABLE_AUTO_FARM then
