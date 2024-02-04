@@ -155,7 +155,6 @@ ThemeColorDialogConnection = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:
         local colorButton = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Info.Response:FindFirstChild("ColorTemplate")
         local doneButton = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Buttons.ButtonTemplate
         if not colorButton then return end
-        print(colorButton)
         clickGuiButton(colorButton)
         task.wait(1)
         clickGuiButton(doneButton)
@@ -1702,7 +1701,7 @@ local function clickAcceptConfirmation()
     repeat
         if Player.PlayerGui.TradeApp.Frame.Visible then
             clickGuiButton(Player.PlayerGui.TradeApp.Frame.ConfirmationFrame.Accept)
-            print("ConfirmationFrame")
+
         end
         task.wait(2)
     until Player.PlayerGui.TradeApp.Frame.ConfirmationFrame.MyOffer.Accepted.ImageTransparency ~= 1 or nil
@@ -1721,7 +1720,6 @@ local function clickAcceptNegotiation()
     repeat
         if Player.PlayerGui.TradeApp.Frame.Visible then
             clickGuiButton(Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.Accept)
-            print("NegotiationFrame")
         end
         task.wait(2)
     until Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.MyOffer.Accepted.ImageTransparency ~= 1 or nil
@@ -2086,7 +2084,6 @@ local function checkInventory()
     for _, gift in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.gifts) do
         for _, v2 in SETTINGS.TRADE_LIST.GIFTS_TABLE do
             if gift.id == v2 then
-                print(gift.id)
                 return true, "gifts", SETTINGS.TRADE_LIST.GIFTS_TABLE
             end
         end
@@ -2101,7 +2098,6 @@ local function checkInventory()
     for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
         if pet.id == "practice_dog" then continue end
         if pet.id == SETTINGS.TRADE_LIST.PETS_TABLE or pet.properties.age == 6 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon == true then
-            print(pet.id)
             return true, "pets", SETTINGS.TRADE_LIST.PETS_TABLE
         end
     end
