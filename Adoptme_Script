@@ -1698,15 +1698,18 @@ local function clickAcceptConfirmation()
         ClickTradeWindowPopUps()
     end
 
-    repeat
-        if Player.PlayerGui.TradeApp.Frame.Visible then
-            clickGuiButton(Player.PlayerGui.TradeApp.Frame.ConfirmationFrame.Accept)
+    -- repeat
+    --     if Player.PlayerGui.TradeApp.Frame.Visible then
+    --         clickGuiButton(Player.PlayerGui.TradeApp.Frame.ConfirmationFrame.Accept)
 
-        end
-        task.wait()
-    until Player.PlayerGui.TradeApp.Frame.ConfirmationFrame.MyOffer.Accepted.ImageTransparency ~= 1 or nil
+    --     end
+    --     task.wait()
+    -- until Player.PlayerGui.TradeApp.Frame.ConfirmationFrame.MyOffer.Accepted.ImageTransparency ~= 1 or nil
+    
+    if Player.PlayerGui.TradeApp.Frame.Visible then
+        ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
+    end
 
-    -- ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
     ClickTradeWindowPopUps()
 end
 
@@ -1717,13 +1720,15 @@ local function clickAcceptNegotiation()
         ClickTradeWindowPopUps()
     end
 
-    repeat
-        if Player.PlayerGui.TradeApp.Frame.Visible then
-            clickGuiButton(Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.Accept)
-        end
-        task.wait(2)
-    until Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.MyOffer.Accepted.ImageTransparency ~= 1 or nil
-    -- ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
+    -- repeat
+    --     if Player.PlayerGui.TradeApp.Frame.Visible then
+    --         clickGuiButton(Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.Accept)
+    --     end
+    --     task.wait(2)
+    -- until Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.MyOffer.Accepted.ImageTransparency ~= 1 or nil
+    if Player.PlayerGui.TradeApp.Frame.Visible then
+        ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
+    end
     ClickTradeWindowPopUps()
 end
 
@@ -1735,6 +1740,7 @@ local function autoAcceptTrade(bool)
             clickAcceptNegotiation()
             ClickTradeWindowPopUps()
             clickAcceptConfirmation()
+            print("looping"..tostring(bool))
             task.wait(1)
         end
     end)
@@ -1745,7 +1751,7 @@ local function autoTradeAllInventory(TabPassOn)
         ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(selectedPlayer)
     end
     ClickTradeWindowPopUps()
-    task.wait(5)
+    task.wait(10)
 
     local petCounter = 0
     
@@ -2097,7 +2103,7 @@ local function checkInventory()
     end
 
     for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
-        if pet.id == "practice_dog" then continue end
+        -- if pet.id == "practice_dog" then continue end
         if pet.id == SETTINGS.TRADE_LIST.PETS_TABLE or pet.properties.age == 6 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon == true then
             return true, "pets", SETTINGS.TRADE_LIST.PETS_TABLE
         end
@@ -2108,7 +2114,7 @@ end
 
 local function tradeCollector(namePassOn)
     while SETTINGS.ENABLE_TRADE_COLLECTOR and SETTINGS.TRADE_COLLECTOR_NAME and Players[namePassOn] do
-        local tabBoolean, tabName, table = checkInventory()
+        local tabBoolean, tabName, tables = checkInventory()
         if not tabBoolean then return end
         pcall(function()
             repeat
@@ -2120,19 +2126,20 @@ local function tradeCollector(namePassOn)
                 task.wait(math.random(10, 40))
             until Player.PlayerGui.TradeApp.Frame.Visible
             ClickTradeWindowPopUps()
-            task.wait()
+            task.wait(1)
             ClickTradeWindowPopUps()
             
             local petCounter = 0   
             for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory[tabName]) do
-                if pet.id == "practice_dog" then continue end
-                for _, v2 in table do
+                -- if pet.id == "practice_dog" then continue end
+                for _, v2 in tables do
                     if pet.id == v2 or pet.properties.age == 6 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon == true then
                         ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
                         petCounter = petCounter + 1
                         if petCounter >= 18 then
                             break 
                         end
+                        task.wait(0.1)
                     end
                 end
             end
@@ -2267,7 +2274,7 @@ Auto:AddSection({
 local AutoTradeToggle = Auto:AddToggle({
     Name = "Auto Accept Trade ",
     Callback = function(value)
-        -- getgenv().auto_accept_trade = value
+        getgenv().auto_accept_trade = value
         autoAcceptTrade(value)
     end    
 })
