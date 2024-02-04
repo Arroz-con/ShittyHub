@@ -2065,7 +2065,7 @@ local function autoTradeCustomGifts()
             pcall(function()
                 for _, gift in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.gifts) do
                     if gift.id == selectedGift then
-                        ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(gift.unique)
+                        ReplicatedStorage.API:FindFirstChild("TradeAPI/AddItemToOffer"):FireServer(gift.unique)
                         petCounter = petCounter + 1 
                         if petCounter >= 19 then
                             break 
@@ -2133,10 +2133,10 @@ local function tradeCollector(namePassOn)
             for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory[tabName]) do
                 -- if pet.id == "practice_dog" then continue end
                 for _, v2 in tables do
-                    print(v2)
                     if pet.id == v2 or pet.properties.age == 6 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon == true then
-                        ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
+                        ReplicatedStorage.API:FindFirstChild("TradeAPI/AddItemToOffer"):FireServer(pet.unique)
                         petCounter = petCounter + 1
+                        print(pet.id)
                         if petCounter >= 18 then
                             break 
                         end
