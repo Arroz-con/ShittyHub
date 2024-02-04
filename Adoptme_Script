@@ -2092,11 +2092,11 @@ local function checkInventory()
         end
     end
 
-    -- for _, toy in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.toys) do
-    --     if toy.id == SETTINGS.TRADE_LIST.TOYS_TABLE then
-    --         return true, "toys", SETTINGS.TRADE_LIST.TOYS_TABLE
-    --     end
-    -- end
+    for _, toy in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.toys) do
+        if toy.id == SETTINGS.TRADE_LIST.TOYS_TABLE then
+            return true, "toys", SETTINGS.TRADE_LIST.TOYS_TABLE
+        end
+    end
 
     for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
         if pet.id == "practice_dog" then continue end
