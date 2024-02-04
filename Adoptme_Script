@@ -1693,7 +1693,7 @@ end
 -- game:GetService("Players").dudemyblox.PlayerGui.TradeApp.Frame.NegotiationFrame.Body
 
 local function clickAcceptConfirmation()
-    task.wait(1)
+    task.wait()
     if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
         ClickTradeWindowPopUps()
     end
@@ -1703,7 +1703,7 @@ local function clickAcceptConfirmation()
             clickGuiButton(Player.PlayerGui.TradeApp.Frame.ConfirmationFrame.Accept)
 
         end
-        task.wait(2)
+        task.wait()
     until Player.PlayerGui.TradeApp.Frame.ConfirmationFrame.MyOffer.Accepted.ImageTransparency ~= 1 or nil
 
     -- ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
@@ -1712,7 +1712,7 @@ end
 
 
 local function clickAcceptNegotiation()
-    task.wait(1)
+    task.wait()
     if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
         ClickTradeWindowPopUps()
     end
@@ -1721,7 +1721,7 @@ local function clickAcceptNegotiation()
         if Player.PlayerGui.TradeApp.Frame.Visible then
             clickGuiButton(Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.Accept)
         end
-        task.wait(2)
+        task.wait()
     until Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.MyOffer.Accepted.ImageTransparency ~= 1 or nil
     -- ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
     ClickTradeWindowPopUps()
@@ -1733,6 +1733,7 @@ local function autoAcceptTrade(bool)
             if not bool then return end
             ClickTradeWindowPopUps()
             clickAcceptNegotiation()
+            ClickTradeWindowPopUps()
             clickAcceptConfirmation()
             task.wait(1)
         end
@@ -2129,7 +2130,7 @@ local function tradeCollector(namePassOn)
                     if pet.id == v2 or pet.properties.age == 6 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon == true then
                         ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
                         petCounter = petCounter + 1
-                        if petCounter >= 19 then
+                        if petCounter >= 18 then
                             break 
                         end
                     end
@@ -2148,6 +2149,7 @@ local function tradeCollector(namePassOn)
             -- end
 
             ClickTradeWindowPopUps()
+            task.wait()
             ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
             task.wait()
             ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
