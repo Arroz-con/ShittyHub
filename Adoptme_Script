@@ -1736,7 +1736,6 @@ local function autoAcceptTrade(bool)
             ClickTradeWindowPopUps()
             clickAcceptNegotiation()
             clickAcceptConfirmation()
-            print("looping "..tostring(bool))
             task.wait(1)
         end
     end)
@@ -2087,6 +2086,7 @@ local function checkInventory()
     for _, gift in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.gifts) do
         for _, v2 in SETTINGS.TRADE_LIST.GIFTS_TABLE do
             if gift.id == v2 then
+                print(gift.id)
                 return true, "gifts", SETTINGS.TRADE_LIST.GIFTS_TABLE
             end
         end
@@ -2101,6 +2101,7 @@ local function checkInventory()
     for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
         if pet.id == "practice_dog" then continue end
         if pet.id == SETTINGS.TRADE_LIST.PETS_TABLE or pet.properties.age == 6 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon == true then
+            print(pet.id)
             return true, "pets", SETTINGS.TRADE_LIST.PETS_TABLE
         end
     end
@@ -2109,60 +2110,58 @@ local function checkInventory()
 end
 
 local function tradeCollector(namePassOn)
-    task.spawn(function()
-        while SETTINGS.ENABLE_TRADE_COLLECTOR and SETTINGS.TRADE_COLLECTOR_NAME and Players[namePassOn] do
-            local tabBoolean, tabName, table = checkInventory()
-            if not tabBoolean then return end
-            pcall(function()
-                repeat
-                    if not Player.PlayerGui.TradeApp.Frame.Visible then
-                        ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(Players[namePassOn])
-                    end
+    while SETTINGS.ENABLE_TRADE_COLLECTOR and SETTINGS.TRADE_COLLECTOR_NAME and Players[namePassOn] do
+        local tabBoolean, tabName, table = checkInventory()
+        if not tabBoolean then return end
+        pcall(function()
+            repeat
+                if not Player.PlayerGui.TradeApp.Frame.Visible then
+                    ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(Players[namePassOn])
+                end
 
-                    ClickTradeWindowPopUps()
-                    task.wait(math.random(20, 60))
-                until Player.PlayerGui.TradeApp.Frame.Visible
                 ClickTradeWindowPopUps()
-                task.wait()
-                ClickTradeWindowPopUps()
-                
-                local petCounter = 0   
-                for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory[tabName]) do
-                    if pet.id == "practice_dog" then continue end
-                    for _, v2 in table do
-                        if pet.id == v2 or pet.properties.age == 6 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon == true then
-                            ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
-                            petCounter = petCounter + 1
-                            if petCounter >= 19 then
-                                break 
-                            end
+                task.wait(math.random(10, 40))
+            until Player.PlayerGui.TradeApp.Frame.Visible
+            ClickTradeWindowPopUps()
+            task.wait()
+            ClickTradeWindowPopUps()
+            
+            local petCounter = 0   
+            for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory[tabName]) do
+                if pet.id == "practice_dog" then continue end
+                for _, v2 in table do
+                    if pet.id == v2 or pet.properties.age == 6 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon == true then
+                        ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
+                        petCounter = petCounter + 1
+                        if petCounter >= 19 then
+                            break 
                         end
                     end
                 end
+            end
 
-                -- local petCounter = 0   
-                -- for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory[tabName]) do
-                --     if pet.id ~= "practice_dog" and not pet.properties.neon and pet.properties.age ~= 6 then
-                --         ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
-                --         petCounter = petCounter + 1
-                --         if petCounter >= 19 then
-                --             break 
-                --         end
-                --     end
-                -- end
+            -- local petCounter = 0   
+            -- for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory[tabName]) do
+            --     if pet.id ~= "practice_dog" and not pet.properties.neon and pet.properties.age ~= 6 then
+            --         ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
+            --         petCounter = petCounter + 1
+            --         if petCounter >= 19 then
+            --             break 
+            --         end
+            --     end
+            -- end
 
-                ClickTradeWindowPopUps()
-                ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
-                task.wait()
-                ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
-                petCounter = 0
-                task.wait()
-                ClickTradeWindowPopUps()
-            end)
             ClickTradeWindowPopUps()
-            task.wait(1)
-        end
-    end)
+            ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
+            task.wait()
+            ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
+            petCounter = 0
+            task.wait()
+            ClickTradeWindowPopUps()
+        end)
+        ClickTradeWindowPopUps()
+        task.wait(1)
+    end
 end
 
 -----------          UI  Functions           ------------------
