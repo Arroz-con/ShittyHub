@@ -1721,7 +1721,7 @@ local function clickAcceptNegotiation()
         if Player.PlayerGui.TradeApp.Frame.Visible then
             clickGuiButton(Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.Accept)
         end
-        task.wait()
+        task.wait(2)
     until Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.MyOffer.Accepted.ImageTransparency ~= 1 or nil
     -- ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
     ClickTradeWindowPopUps()
