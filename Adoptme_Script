@@ -2120,10 +2120,11 @@ local function tradeCollector(namePassOn)
             repeat
                 if not Player.PlayerGui.TradeApp.Frame.Visible then
                     ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(Players[namePassOn])
+                    task.wait(math.random(10, 40))
                 end
 
                 ClickTradeWindowPopUps()
-                task.wait(math.random(10, 40))
+                task.wait(1)
             until Player.PlayerGui.TradeApp.Frame.Visible
             ClickTradeWindowPopUps()
             task.wait(1)
@@ -2136,8 +2137,6 @@ local function tradeCollector(namePassOn)
                     if pet.id == v2 or pet.properties.age == 6 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon then
                         ReplicatedStorage.API:WaitForChild("TradeAPI/AddItemToOffer"):FireServer(pet.unique)
                         petCounter = petCounter + 1
-                        print(pet.id)
-                        print(pet.unique)
                         if petCounter >= 18 then
                             break 
                         end
@@ -2158,12 +2157,12 @@ local function tradeCollector(namePassOn)
             -- end
 
             ClickTradeWindowPopUps()
-            task.wait()
+            task.wait(1)
             ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
-            task.wait()
+            task.wait(1)
             ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
             petCounter = 0
-            task.wait()
+            task.wait(1)
             ClickTradeWindowPopUps()
         end)
         ClickTradeWindowPopUps()
