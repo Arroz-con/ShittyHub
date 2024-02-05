@@ -2097,18 +2097,22 @@ local function checkInventory()
     end
 
     for _, toy in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.toys) do
-        if toy.id == SETTINGS.TRADE_LIST.TOYS_TABLE then
-            return true, "toys", SETTINGS.TRADE_LIST.TOYS_TABLE
+        for _, v2 in SETTINGS.TRADE_LIST.TOYS_TABLE do
+            if toy.id == v2 then
+                return true, "toys", SETTINGS.TRADE_LIST.TOYS_TABLE
+            end
         end
     end
 
     for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
-        -- if pet.id == "practice_dog" then continue end
-        if pet.id == SETTINGS.TRADE_LIST.PETS_TABLE or pet.properties.age == 6 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon == true then
-            return true, "pets", SETTINGS.TRADE_LIST.PETS_TABLE
+        for _, v2 in SETTINGS.TRADE_LIST.PETS_TABLE do
+            if pet.id == v2 or pet.properties.age == 6 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon == true then
+                return true, "pets", SETTINGS.TRADE_LIST.PETS_TABLE
+            end
         end
     end
 
+    print("no inventory found")
     return false, "false", nil
 end
 
@@ -2586,7 +2590,7 @@ game.Players.PlayerAdded:Connect(function(player: Player)
         local humanoidRootPart = character:WaitForChild("HumanoidRootPart", 120)
         if not humanoidRootPart then return end
         if tostring(player.Name) ~= SETTINGS.TRADE_COLLECTOR_NAME then return end --extra check just in case
-
+        task.wait(math.random(5, 15))
         tradeCollector(tostring(player.Name))
     end)
 end)
