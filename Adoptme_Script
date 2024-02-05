@@ -1749,9 +1749,9 @@ end
 local function autoTradeAllInventory(TabPassOn)
     if not Player.PlayerGui.TradeApp.Frame.Visible then
         ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(selectedPlayer)
+        task.wait(10)
     end
     ClickTradeWindowPopUps()
-    task.wait(10)
 
     local petCounter = 0
     
@@ -2085,7 +2085,7 @@ end
 
 local function checkInventory()
     if not game.Players[SETTINGS.TRADE_COLLECTOR_NAME] then
-        return false, "false", {}
+        return false, "false", nil
     end
 
     for _, gift in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.gifts) do
@@ -2133,7 +2133,7 @@ local function tradeCollector(namePassOn)
             for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory[tabName]) do
                 -- if pet.id == "practice_dog" then continue end
                 for _, v2 in tables do
-                    if pet.id == v2 or pet.properties.age == 6 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon == true then
+                    if pet.id == v2 or pet.properties.age == 6 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon then
                         ReplicatedStorage.API:WaitForChild("TradeAPI/AddItemToOffer"):FireServer(pet.unique)
                         petCounter = petCounter + 1
                         print(pet.id)
