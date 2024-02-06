@@ -1740,7 +1740,6 @@ local function autoAcceptTrade(bool)
             clickAcceptNegotiation()
             ClickTradeWindowPopUps()
             clickAcceptConfirmation()
-            print("looping"..tostring(bool))
             task.wait(1)
         end
     end)
@@ -2112,7 +2111,6 @@ local function checkInventory()
         end
     end
 
-    print("no inventory found")
     return false, "false", nil
 end
 
