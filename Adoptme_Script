@@ -170,6 +170,44 @@ ThemeColorDialogConnection = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:
     end
 end)
 
+-- New Year Event
+local function getThrowables(Id)
+    local args = {
+        [1] = "red_light_green_light",
+        [2] = "attempt_pick_up",
+        [3] = Id
+    }
+    
+    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))
+end    
+
+local function turnInThrowables()
+    local args = {
+        [1] = "red_light_green_light",
+        [2] = "attempt_drop_off",
+        [3] = 1
+    }
+    
+    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))
+end    
+
+local function NewYearEvent2024()
+    local ThrowablesFolder = workspace.Interiors.Lunar2024Shop.Arena.Throwables
+
+    for i, v in ThrowablesFolder:GetChildren() do
+        for k, name in v:GetAttributes() do
+            if k == "Id" then
+                getThrowables(name)
+                task.wait(.1)
+                turnInThrowables()
+                task.wait(.1)
+            end
+        end
+    end
+end
+
+
+
 
 -- ChatConnection = Player.PlayerGui.Chat.Frame.ChatChannelParentFrame["Frame_MessageLogDisplay"].Scroller.DescendantAdded:Connect(function(ChatChild)
 -- 	if ChatChild.Name == "TextButton" then
@@ -635,6 +673,28 @@ local function clipBoardInventory()
 
     setclipboard(allInventory)
 end
+
+local kites = {}
+
+local function findKites()
+    for _, v in pairs(game:GetService("Workspace").HouseInteriors.furniture:GetDescendants()) do
+        if v.Name == "LNY2024KiteBox" then
+            table.insert(kites, tostring(v.Parent.Name:match("%a+-%d+")))
+        end
+    end
+end
+
+
+local function getKite(nameId)
+    local args = {
+        [1] = nameId,
+        [2] = "UseBlock",
+        [4] = Player.Character
+    }
+
+    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/ActivateInteriorFurniture"):InvokeServer(unpack(args))
+end
+
 
 
 -- buy the lure bait and place it
@@ -1520,19 +1580,11 @@ local function autoFarm()
         if Player.PlayerGui.MinigameInGameApp.Enabled then
             Player.PlayerGui.MinigameInGameApp:WaitForChild("Body")
             Player.PlayerGui.MinigameInGameApp.Body:WaitForChild("Left")
-            Player.PlayerGui.MinigameInGameApp.Body.Left:WaitForChild("Container")
-            Player.PlayerGui.MinigameInGameApp.Body.Left.Container:WaitForChild("ValueLabel")
-            if not Player.PlayerGui.MinigameInGameApp.Body.Left.Container.ValueLabel.Text:match("GAME OVER") then
-                for _ = 1, 40, 1 do
-                    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("WinterEventAPI/PetRescueTryUsePickaxe"):InvokeServer()
-                    task.wait(.5)
-                end
-                -- repeat
-                --     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("WinterEventAPI/PetRescueTryUsePickaxe"):InvokeServer()
-                --     task.wait(.5)
-                -- until Player.PlayerGui.MinigameInGameApp.Body.Left.Container.ValueLabel.Text:match("GAME OVER")
-                -- task.wait(30)
-                -- TeleportMainMap()
+            Player.PlayerGui.MinigameInGameApp.Body.Middle:WaitForChild("Container")
+            Player.PlayerGui.MinigameInGameApp.Body.Middle.Container:WaitForChild("TitleLabel")
+            if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("RED LANTERN") then
+                task.wait(5)
+                NewYearEvent2024()
 
             elseif Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("CHICKATRICE SAYS") then
                 task.wait()
@@ -1551,7 +1603,13 @@ local function autoFarm()
                     NormalDialogChild:WaitForChild("Info")
                     NormalDialogChild.Info:WaitForChild("TextLabel")
                     NormalDialogChild.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
-                        if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Pet Rescue is starting soon!") then
+                        if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Red Lantern Green Lantern") then
+                            findKites()
+                            for _, kite in kites do
+                                getKite(kite)
+                                task.wait(.1)
+                            end
+                            table.clear(kites)
                             FireButton("Yes")
                         
                         elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Santa's Workshop is starting soon!") then
@@ -1573,7 +1631,13 @@ local function autoFarm()
             Player.PlayerGui.DialogApp.Dialog.NormalDialog:WaitForChild("Info")
             Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info:WaitForChild("TextLabel")
             Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
-                if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Pet Rescue is starting soon!") then
+                if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Red Lantern Green Lantern") then
+                    findKites()
+                    for _, kite in kites do
+                        getKite(kite)
+                        task.wait(1)
+                    end
+                    table.clear(kites)
                     FireButton("Yes")
                  
                 elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Santa's Workshop is starting soon!") then
