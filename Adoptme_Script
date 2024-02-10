@@ -1467,12 +1467,7 @@ local function autoFarm()
                 break
             elseif v["id"] == "thirsty" then
                 FoodAilments("water")
-                findKites()
-                for _, kite in kites do
-                    getKite(kite)
-                    task.wait(.1)
-                end
-                table.clear(kites)
+        
             elseif v["id"] == "sick" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
                     Bypass("RouterClient").get("MonitorAPI/HealWithDoctor"):FireServer()
@@ -1675,6 +1670,13 @@ local function autoFarm()
                 RemoveGameOverButton()
                 Player.PlayerGui.MinigameRewardsApp.Body.Visible = false
                 TeleportMainMap()
+                task.wait(2)
+                findKites()
+                for _, kite in kites do
+                    getKite(kite)
+                    task.wait(.1)
+                end
+                table.clear(kites)
             end
         end
     end)
