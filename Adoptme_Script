@@ -2144,6 +2144,12 @@ local function checkInventory()
         return false, "false", nil
     end
 
+    for _, gift in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.transport) do
+        if gift.id == "lunar_2024_dragonster" then
+            return true, "transport", {"lunar_2024_dragonster"}
+        end
+    end
+
     for _, gift in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.gifts) do
         for _, v2 in SETTINGS.TRADE_LIST.GIFTS_TABLE do
             if gift.id == v2 then
