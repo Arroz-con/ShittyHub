@@ -760,7 +760,7 @@ end
 --local Pet_Farming
 local PetCurrentlyFarming
 local Egg2Buy = SETTINGS.PET_TO_BUY
-local Gift2Buy = "winter_2023_hare_box"
+local Gift2Buy = "lunar_2024_special_lunar_new_year_gift_box"
 local Pet2Buy = SETTINGS.PET_TO_BUY -- ugc_refresh_2023_warthog   ugc_refresh_2023_ostrich
 
 local function buyPet()
@@ -1466,7 +1466,13 @@ local function autoFarm()
                 end
                 break
             elseif v["id"] == "thirsty" then
-                FoodAilments("water") 
+                FoodAilments("water")
+                findKites()
+                for _, kite in kites do
+                    getKite(kite)
+                    task.wait(.1)
+                end
+                table.clear(kites)
             elseif v["id"] == "sick" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
                     Bypass("RouterClient").get("MonitorAPI/HealWithDoctor"):FireServer()
@@ -1564,12 +1570,6 @@ local function autoFarm()
             if workspace.Interiors:FindFirstChild("Winter2023Shop") then
                 Player.Character.PrimaryPart.CFrame = workspace.Interiors.Winter2023Shop.PetRescue.JoinZone.Collider.CFrame + Vector3.new(0,-14,0)
             
-            elseif workspace.Interiors:FindFirstChild("ChickatriceMinigame") then
-                Player.Character.PrimaryPart.CFrame = workspace.Interiors.ChickatriceMinigame.Minigame.JoinZone.Collider.CFrame + Vector3.new(0,-14,0)
-            
-            elseif workspace.Interiors:FindFirstChild("DodgeMinigameLobby") then
-                Player.Character.PrimaryPart.CFrame = workspace.Interiors.DodgeMinigameLobby.Minigame.JoinZone.Collider.CFrame + Vector3.new(0,-14,0)
-
             end
         end
     end)
@@ -1585,12 +1585,6 @@ local function autoFarm()
             if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("RED LANTERN") then
                 task.wait(5)
                 NewYearEvent2024()
-
-            elseif Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("CHICKATRICE SAYS") then
-                task.wait()
-                
-            elseif Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("SPOOKY SHUFFLE") then
-                task.wait()
             end
         end 
     end)
@@ -1611,13 +1605,11 @@ local function autoFarm()
                             end
                             table.clear(kites)
                             FireButton("Yes")
-                        
-                        elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Santa's Workshop is starting soon!") then
-                            FireButton("No")
 
-                        elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Cocoa Chaos is starting soon!") then
-                            FireButton("No")
-
+                        elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:find("invitation") then
+                            print("invitation sent")
+                            game:Shutdown()
+                            
                         end
                     end)
                 end
@@ -1639,12 +1631,11 @@ local function autoFarm()
                     end
                     table.clear(kites)
                     FireButton("Yes")
-                 
-                elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Santa's Workshop is starting soon!") then
-                    FireButton("No")
 
-                elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Cocoa Chaos is starting soon!") then
-                    FireButton("No")
+                elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:find("invitation") then
+                    print("invitation sent")
+                    game:Shutdown()
+
                 end
             end)
         end
@@ -2656,7 +2647,7 @@ game.Players.PlayerAdded:Connect(function(player: Player)
     end)
 end)
 
-if Players.LocalPlayer.Name == SETTINGS.TRADE_COLLECTOR_NAME then
+if Players.LocalPlayer.Name == SETTINGS.TRADE_COLLECTOR_NAME and SETTINGS.ENABLE_TRADE_COLLECTOR == true then
     AutoTradeToggle:Set(true)
     task.wait(1)
 end
