@@ -1503,11 +1503,6 @@ local function autoFarm()
                 break
             elseif v["id"] == "thirsty" then
                 FoodAilments("water")
-                FireDimensionEvent()
-                task.wait(1)
-                if not game:GetService("Workspace").Interiors["MainMap/Default"] then
-                    SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
-                end
         
             elseif v["id"] == "sick" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
@@ -1554,8 +1549,10 @@ local function autoFarm()
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
                     TeleportCampSite()
 
+                    subToHouse()
                     baitId = findBait("fire_dimension_2024_burnt_bites_bait")
                     placeBait(baitId)
+                    FireDimensionEvent()
                     break
                 end
             end
