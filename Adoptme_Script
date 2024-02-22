@@ -361,6 +361,9 @@ Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(NormalDialogChild)
                 NormalDialogChild.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
                     if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("4.5%% Legendary") then
                         FireButton("Okay")
+
+                    elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Thanks for subscribing!") then
+                        FireButton("Okay")
                     end
                 end)
             end
@@ -554,6 +557,7 @@ getgenv().auto_trade_custom_gifts = true
 getgenv().auto_trade_all_neons = true
 getgenv().auto_trade_eggs = true
 getgenv().auto_trade_all_inventory = true
+
 
 local selectedPettoFarm
 
@@ -1688,7 +1692,6 @@ local function autoFarm()
         MakeMegaNeon()
     end
 
-    
     task.wait()
     getPet()
     task.wait(2)
@@ -1696,7 +1699,7 @@ local function autoFarm()
     CompletePetAilments()
     task.wait(2)
     
-    setfpscap(SETTINGS.SET_FPS)
+    -- setfpscap(SETTINGS.SET_FPS)
 
 end
 
@@ -1791,7 +1794,7 @@ end
 
 local function autoAcceptTrade(bool)
     pcall(function()
-        while true do
+        while getgenv().auto_accept_trade do
             if not bool then return end
             ClickTradeWindowPopUps()
             clickAcceptNegotiation()
@@ -2030,21 +2033,20 @@ end
 
 local function autoTradeCustom()
     task.spawn(function()
-        while task.wait(0.5) do
-            if not getgenv().auto_trade_custom then return end
+        while getgenv().auto_trade_custom do
             pcall(function()
                 if not Player.PlayerGui.TradeApp.Frame.Visible then
                     ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(selectedPlayer)
                 end
                 ClickTradeWindowPopUps() 
             end)
+            task.wait(1)
         end
     end)
 
     task.spawn(function()
         local petCounter = 0
-        while task.wait(0.5) do
-            if not getgenv().auto_trade_custom then return end
+        while getgenv().auto_trade_custom do
             pcall(function()
                 for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
                     if pet.id == selectedPet then
@@ -2060,6 +2062,7 @@ local function autoTradeCustom()
                 ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
                 petCounter = 0
             end)
+            task.wait(1)
         end
     end)
 end
@@ -2185,14 +2188,14 @@ local function tradeCollector(namePassOn)
             repeat
                 if not Player.PlayerGui.TradeApp.Frame.Visible then
                     ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(Players[namePassOn])
-                    task.wait(math.random(10, 30))
+                    task.wait(2)
                 end
 
                 ClickTradeWindowPopUps()
                 task.wait()
             until Player.PlayerGui.TradeApp.Frame.Visible
             ClickTradeWindowPopUps()
-            task.wait(1)
+            task.wait(.1)
             ClickTradeWindowPopUps()
             
             local petCounter = 0   
@@ -2533,12 +2536,13 @@ Auto:AddButton({
 
 
 Auto:AddToggle({
-    Name = "Auto Trade Custom Pet",
+    Name = "Auto Trade Custom Gift",
     Callback = function(value)
         getgenv().auto_trade_custom_gifts = value
         autoTradeCustomGifts()
     end    
 })
+
 
 --// Buying Tabs //--
 
@@ -2675,6 +2679,10 @@ game:GetService("Players").LocalPlayer.OnTeleport:Connect(function(State)
         game:Shutdown()
     end
 end)
+
+if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Thanks for subscribing!") then
+    FireButton("Okay")
+end
 
 -- Disconnect all connections that are not needed anymore
 ThemeColorDialogConnection:Disconnect()
