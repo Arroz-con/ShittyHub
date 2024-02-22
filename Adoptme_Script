@@ -594,6 +594,7 @@ end
 -- Fire Dimension Event
 local function FireDimensionEvent()
     SetLocationFunc("FireDimension", "MainDoor", {})
+    task.wait(1)
     local ingredients = workspace.Interiors.FireDimension.Cooking.IngredientLocations
 
     local function getIngredients(ingredient)
@@ -1385,7 +1386,7 @@ end
 
 local function TeleportCampSite()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
-    SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
+    -- SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
     Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.Campsite.MarshmallowChair.VintageChair.Union.CFrame + Vector3.new(math.random(1, 20), 10, math.random(1, 20))
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
@@ -1395,7 +1396,7 @@ end
 
 local function TeleportPoolParty()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
-    SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
+    -- SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
     Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.PoolArea.PoolOrigin.CFrame + Vector3.new(math.random(1, 20), 10, math.random(1, 20))
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
@@ -1405,7 +1406,7 @@ end
 
 local function TeleportPlayGround()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
-    SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
+    -- SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
     Player.Character.PrimaryPart.CFrame = game:GetService("Workspace").StaticMap.Park.Roundabout.SeatsSpinModel.Visual:FindFirstChildWhichIsA("Part").CFrame + Vector3.new(math.random(1, 20), 10, math.random(-20, -1))
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
@@ -1500,6 +1501,10 @@ local function autoFarm()
             elseif v["id"] == "thirsty" then
                 FoodAilments("water")
                 FireDimensionEvent()
+                task.wait(1)
+                if not game:GetService("Workspace").Interiors["MainMap/Default"] then
+                    SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
+                end
         
             elseif v["id"] == "sick" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
