@@ -10,6 +10,15 @@ local UserGameSettings = UserSettings():GetService("UserGameSettings")
 local UserInputService = game:GetService("UserInputService")
 local VirtualUser = game:GetService("VirtualUser")
 
+local getupvalue = getupvalue or debug.getupvalue
+local getconstant = getconstant or debug.getconstant
+local getconstants = getconstants or debug.getconstants
+local getgc = getgc or get_gc_objects or debug.getgc
+local getreg = getreg or getregistry or debug.getregistry
+local get_thread_identity = get_thread_identity or gti or getthreadidentity or getidentity or syn.get_thread_identity or fluxus.get_thread_identity
+local set_thread_identity = set_thread_context or sti or setthreadcontext or setidentity or syn.set_thread_identity or fluxus.set_thread_identity
+
+
 local ThemeColorDialogConnection
 local NewsAppConnection
 local DialogConnection
@@ -44,11 +53,12 @@ local RerollRemote = Bypass("RouterClient").get("QuestAPI/RerollQuest")
 
 local Bed
 local Shower
---local Piano
+local Piano
 local normalLure
 
 UserGameSettings.GraphicsQualityLevel = 1
 UserGameSettings.MasterVolume = 0
+
 
 for i, v in pairs(debug.getupvalue(require(ReplicatedStorage.Fsys).load("RouterClient").init, 4)) do
     v.Name = i
@@ -123,14 +133,30 @@ local function findFurniture()
         elseif v.Name == "StylishShower" or v.Name == "ModernShower" then
             Shower = v.Parent.Name:match("%a+-%d+")
 
-        -- elseif v.Name == "Piano" then
-        --     Piano = v.Parent.Name:match("%a+-%d+")
+        elseif v.Name == "Piano" then
+            Piano = v.Parent.Name:match("%a+-%d+")
 
         elseif v.Name == "Lures2023NormalLure" then
             normalLure = v.Parent.Name:match("%a+-%d+")
 
         end
     end
+end
+
+local function buyPiano()
+    local args = {
+        [1] = {
+            [1] = {
+                ["kind"] = "piano",
+                ["properties"] = {
+                    ["cframe"] = CFrame.new(Vector3.new(13.7001953125, 0, -20.699951171875), Vector3.new(-8.742277657347586e-08, -0, -1))
+                }
+            }
+        }
+    }
+    
+    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/BuyFurnitures"):InvokeServer(unpack(args))
+    
 end
 
 local function buyCrib()
@@ -169,43 +195,6 @@ ThemeColorDialogConnection = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:
         ThemeColorDialogConnection:Disconnect()
     end
 end)
-
--- New Year Event
-local function getThrowables(Id)
-    local args = {
-        [1] = "red_light_green_light",
-        [2] = "attempt_pick_up",
-        [3] = Id
-    }
-    
-    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))
-end    
-
-local function turnInThrowables()
-    local args = {
-        [1] = "red_light_green_light",
-        [2] = "attempt_drop_off",
-        [3] = 1
-    }
-    
-    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))
-end    
-
-local function NewYearEvent2024()
-    local ThrowablesFolder = workspace.Interiors.Lunar2024Shop.Arena.Throwables
-
-    for i, v in ThrowablesFolder:GetChildren() do
-        for k, name in v:GetAttributes() do
-            if k == "Id" then
-                getThrowables(name)
-                task.wait(.1)
-                turnInThrowables()
-                task.wait(.1)
-            end
-        end
-    end
-end
-
 
 
 
@@ -517,33 +506,6 @@ NewTask()
 local baitId
 local selectedPlayer
 
-local getupvalue = getupvalue or debug.getupvalue
-local getconstant = getconstant or debug.getconstant
-local getconstants = getconstants or debug.getconstants
-local getgc = getgc or get_gc_objects or debug.getgc
-local getreg = getreg or getregistry or debug.getregistry
-local get_thread_identity = get_thread_identity or gti or getthreadidentity or getidentity or syn.get_thread_identity or fluxus.get_thread_identity
-local set_thread_identity = set_thread_context or sti or setthreadcontext or setidentity or syn.set_thread_identity or fluxus.set_thread_identity
-
-
--- local function buyPiano()
---     local args = {
---         [1] = {
---             [1] = {
---                 ["kind"] = "piano",
---                 ["properties"] = {
---                     ["cframe"] = CFrame.new(Vector3.new(13.7001953125, 0, -20.699951171875), Vector3.new(-8.742277657347586e-08, -0, -1))
---                 }
---             }
---         }
---     }
-    
---     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/BuyFurnitures"):InvokeServer(unpack(args))
-    
--- end
-
-
-
 getgenv().auto_accept_trade = true
 getgenv().auto_trade_all_pets = true
 getgenv().auto_trade_fullgrown_neon_and_mega = true
@@ -590,6 +552,72 @@ local function SetLocationFunc(a, b, c)
     set_thread_identity(2)
     SetLocationTP(a,b,c)
     set_thread_identity(k)
+end
+
+
+-- New Year Event
+local function getThrowables(Id)
+    local args = {
+        [1] = "red_light_green_light",
+        [2] = "attempt_pick_up",
+        [3] = Id
+    }
+    
+    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))
+end    
+
+local function turnInThrowables()
+    local args = {
+        [1] = "red_light_green_light",
+        [2] = "attempt_drop_off",
+        [3] = 1
+    }
+    
+    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))
+end    
+
+local function NewYearEvent2024()
+    local ThrowablesFolder = workspace.Interiors.Lunar2024Shop.Arena.Throwables
+
+    for i, v in ThrowablesFolder:GetChildren() do
+        for k, name in v:GetAttributes() do
+            if k == "Id" then
+                getThrowables(name)
+                task.wait(.1)
+                turnInThrowables()
+                task.wait(.1)
+            end
+        end
+    end
+end
+
+-- Fire Dimension Event
+local function FireDimensionEvent()
+    SetLocationFunc("FireDimension", "MainDoor", {})
+    local ingredients = workspace.Interiors.FireDimension.Cooking.IngredientLocations
+
+    local function getIngredients(ingredient)
+        for _, v in ingredients:WaitForChild(ingredient):GetChildren() do
+            ReplicatedStorage.API:FindFirstChild("FireDimensionAPI/PickFruit"):InvokeServer(string.lower(ingredient), tonumber(v.Name))
+            task.wait()
+        end
+    end
+
+    getIngredients("Berry")
+    getIngredients("Mango")
+    getIngredients("Pear")
+
+    repeat
+        local hasCookie = ReplicatedStorage.API:WaitForChild("FireDimensionAPI/CookRecipe"):InvokeServer("daily_recipe")
+        task.wait(1)
+        print(hasCookie)
+    until hasCookie == nil
+
+    -- repeat
+    --     local hasMoltenMelon = ReplicatedStorage.API:FindFirstChild("FireDimensionAPI/CookRecipe"):InvokeServer("super_recipe")
+    --     task.wait(1)
+    -- until hasMoltenMelon == nil
+
 end
 
 
@@ -1357,7 +1385,7 @@ end
 
 local function TeleportCampSite()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
-    -- SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
+    SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
     Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.Campsite.MarshmallowChair.VintageChair.Union.CFrame + Vector3.new(math.random(1, 20), 10, math.random(1, 20))
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
@@ -1367,7 +1395,7 @@ end
 
 local function TeleportPoolParty()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
-    -- SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
+    SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
     Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.PoolArea.PoolOrigin.CFrame + Vector3.new(math.random(1, 20), 10, math.random(1, 20))
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
@@ -1377,7 +1405,7 @@ end
 
 local function TeleportPlayGround()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
-    -- SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
+    SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
     Player.Character.PrimaryPart.CFrame = game:GetService("Workspace").StaticMap.Park.Roundabout.SeatsSpinModel.Visual:FindFirstChildWhichIsA("Part").CFrame + Vector3.new(math.random(1, 20), 10, math.random(-20, -1))
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
@@ -1471,10 +1499,12 @@ local function autoFarm()
                 break
             elseif v["id"] == "thirsty" then
                 FoodAilments("water")
+                FireDimensionEvent()
         
             elseif v["id"] == "sick" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
                     Bypass("RouterClient").get("MonitorAPI/HealWithDoctor"):FireServer()
+                    
                     break
                 end
             elseif v["id"] == "salon" then
@@ -1606,7 +1636,6 @@ local function autoFarm()
                             FireButton("Yes")
 
                         elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:find("invitation") then
-                            print("invitation sent")
                             game:Shutdown()
                             
                         end
@@ -1758,13 +1787,13 @@ local function clickAcceptConfirmation()
         ClickTradeWindowPopUps()
     end
 
-    -- repeat
-    --     if Player.PlayerGui.TradeApp.Frame.Visible then
-    --         clickGuiButton(Player.PlayerGui.TradeApp.Frame.ConfirmationFrame.Accept)
+    repeat
+        -- if Player.PlayerGui.TradeApp.Frame.Visible then
+        --     clickGuiButton(Player.PlayerGui.TradeApp.Frame.ConfirmationFrame.Accept)
 
-    --     end
-    --     task.wait()
-    -- until Player.PlayerGui.TradeApp.Frame.ConfirmationFrame.MyOffer.Accepted.ImageTransparency ~= 1 or nil
+        -- end
+        task.wait(1)
+    until Player.PlayerGui.TradeApp.Frame.ConfirmationFrame.TradeIcon.Countdown.Visible == false
     
     if Player.PlayerGui.TradeApp.Frame.Visible then
         ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
@@ -1780,12 +1809,13 @@ local function clickAcceptNegotiation()
         ClickTradeWindowPopUps()
     end
 
-    -- repeat
-    --     if Player.PlayerGui.TradeApp.Frame.Visible then
-    --         clickGuiButton(Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.Accept)
-    --     end
-    --     task.wait(2)
-    -- until Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.MyOffer.Accepted.ImageTransparency ~= 1 or nil
+    repeat
+        -- if Player.PlayerGui.TradeApp.Frame.Visible then
+        --     clickGuiButton(Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.Accept)
+        -- end
+        task.wait(1)
+    until Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.LockIcon.Visible == false
+
     if Player.PlayerGui.TradeApp.Frame.Visible then
         ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
     end
@@ -2106,22 +2136,26 @@ end
 
 local function autoTradeCustomGifts()
     task.spawn(function()
-        while task.wait(1) do
+        local petCounter = 0
+        local stuckCounter = 0
+
+        while getgenv().auto_trade_custom_gifts do
             if not getgenv().auto_trade_custom_gifts then return end
             pcall(function()
                 if not Player.PlayerGui.TradeApp.Frame.Visible then
                     ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(selectedPlayer)
                 end
-                ClickTradeWindowPopUps()
-            end)
-        end
-    end)
 
-    task.spawn(function()
-        local petCounter = 0
-        while task.wait(1) do
-            if not getgenv().auto_trade_custom_gifts then return end
-            pcall(function()
+                ClickTradeWindowPopUps()
+
+                repeat
+                    stuckCounter += 1
+                    task.wait(1) 
+                
+                until Player.PlayerGui.TradeApp.Frame.Visible or stuckCounter == 10
+                
+                stuckCounter = 0
+
                 for _, gift in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.gifts) do
                     if gift.id == selectedGift then
                         ReplicatedStorage.API:FindFirstChild("TradeAPI/AddItemToOffer"):FireServer(gift.unique)
@@ -2132,11 +2166,12 @@ local function autoTradeCustomGifts()
                         task.wait(.1)
                     end
                 end
-                ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
+                clickAcceptNegotiation()
                 task.wait(1)
-                ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
+                clickAcceptConfirmation()
                 petCounter = 0
             end)
+            task.wait(1)
         end
     end)
 end
@@ -2629,7 +2664,7 @@ task.wait(1)
 findFurniture()
 
 -- "lures_2023_campfire_cookies"  "lures_2023_flame_swirl_pie"
-baitId = findBait("lures_2023_overcooked_tart")
+baitId = findBait("fire_dimension_2024_burnt_bites_bait")
 
 if baitId == nil then
     baitId = findBait("lures_2023_flame_swirl_pie")
