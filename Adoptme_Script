@@ -2148,7 +2148,7 @@ local function autoTradeSemiAuto()
 end
 
 
-local function autoTradeCustomGifts()
+local function autoTradeCustomTab(tab: string)
     task.spawn(function()
         local petCounter = 0
         local stuckCounter = 0
@@ -2170,9 +2170,9 @@ local function autoTradeCustomGifts()
                 
                 stuckCounter = 0
 
-                for _, gift in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.gifts) do
-                    if gift.id == selectedGift then
-                        ReplicatedStorage.API:FindFirstChild("TradeAPI/AddItemToOffer"):FireServer(gift.unique)
+                for _, item in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory[tab]) do
+                    if item.id == selectedItem then
+                        ReplicatedStorage.API:FindFirstChild("TradeAPI/AddItemToOffer"):FireServer(item.unique)
                         petCounter = petCounter + 1 
                         if petCounter >= 19 then
                             break 
@@ -2237,7 +2237,7 @@ local function tradeCollector(namePassOn)
             repeat
                 if not Player.PlayerGui.TradeApp.Frame.Visible then
                     ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(Players[namePassOn])
-                    task.wait(2)
+                    task.wait(10)
                 end
 
                 ClickTradeWindowPopUps()
@@ -2376,6 +2376,25 @@ Farm:AddToggle({
     end    
 })
 
+local function refreshInventory(tab: string, dropDownName: string)
+    local petOptions = {}
+    local petTable = {}
+    local addedNames = {}
+    for i, p in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory[tab]) do
+        if p and not addedNames[p.id] then
+            if not petTable[p.id] then
+                petTable[p.id] = {}
+            end
+            table.insert(petTable[p.id], p.id)
+            addedNames[p.id] = true
+        end
+    end
+    for name, ids in pairs(petTable) do
+        table.insert(petOptions, name)
+        table.sort(petOptions)
+    end
+    dropDownName:Refresh(petOptions, true)
+end
 
 --################ Auto Trade Tab #################################################################################
 local Auto = Window:MakeTab({
@@ -2518,23 +2537,7 @@ local PetsDropdown = Auto:AddDropdown({
 Auto:AddButton({
     Name = "Refresh Pet List",
     Callback = function()
-        local petOptions = {}
-        local petTable = {}
-        local addedNames = {}
-        for i, p in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
-            if p and not addedNames[p.id] then
-                if not petTable[p.id] then
-                    petTable[p.id] = {}
-                end
-                table.insert(petTable[p.id], p.id)
-                addedNames[p.id] = true
-            end
-        end
-        for name, ids in pairs(petTable) do
-            table.insert(petOptions, name)
-            table.sort(petOptions)
-        end
-        PetsDropdown:Refresh(petOptions, true)
+        refreshInventory("pets", PetsDropdown)
     end
 })
 
@@ -2543,7 +2546,7 @@ Auto:AddToggle({
     Name = "Auto Trade Custom Pet",
     Callback = function(value)
         getgenv().auto_trade_custom = value
-        autoTradeCustom()
+        autoTradeCustomTab("pets")
     end    
 })
 
@@ -2552,10 +2555,10 @@ Auto:AddSection({
 })
 
 
-local PetsDropdown2 = Auto:AddDropdown({
+local GiftsDropdown = Auto:AddDropdown({
     Name = "Select gift",
     Callback = function(value)
-        selectedGift = value
+        selectedItem = value
     end
 })
 
@@ -2563,23 +2566,7 @@ local PetsDropdown2 = Auto:AddDropdown({
 Auto:AddButton({
     Name = "Refresh Gift List",
     Callback = function()
-        local petOptions = {}
-        local petTable = {}
-        local addedNames = {}
-        for i, p in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.gifts) do
-            if p and not addedNames[p.id] then
-                if not petTable[p.id] then
-                    petTable[p.id] = {}
-                end
-                table.insert(petTable[p.id], p.id)
-                addedNames[p.id] = true
-            end
-        end
-        for name, ids in pairs(petTable) do
-            table.insert(petOptions, name)
-            table.sort(petOptions)
-        end
-        PetsDropdown2:Refresh(petOptions, true)
+        refreshInventory("gifts", GiftsDropdown)
     end
 })
 
@@ -2588,7 +2575,37 @@ Auto:AddToggle({
     Name = "Auto Trade Custom Gift",
     Callback = function(value)
         getgenv().auto_trade_custom_gifts = value
-        autoTradeCustomGifts()
+        autoTradeCustomTab("gifts")
+    end    
+})
+
+
+Auto:AddSection({
+    Name = "Send Toys"
+})
+
+
+local ToysDropdown = Auto:AddDropdown({
+    Name = "Select toys",
+    Callback = function(value)
+        selectedItem = value
+    end
+})
+
+
+Auto:AddButton({
+    Name = "Refresh toys List",
+    Callback = function()
+        refreshInventory("toys", ToysDropdown)
+    end
+})
+
+
+Auto:AddToggle({
+    Name = "Auto Trade Custom Toy",
+    Callback = function(value)
+        getgenv().auto_trade_custom_gifts = value
+        autoTradeCustomTab("toys")
     end    
 })
 
