@@ -611,7 +611,6 @@ local function FireDimensionEvent()
     repeat
         local hasCookie = ReplicatedStorage.API:WaitForChild("FireDimensionAPI/CookRecipe"):InvokeServer("daily_recipe")
         task.wait(1)
-        print(hasCookie)
     until hasCookie == nil
 
     -- repeat
@@ -1335,6 +1334,14 @@ end
 --     game.Players.LocalPlayer.Character.Humanoid:MoveTo(Vector3.new(1,0,0))
 -- end
 
+local function floorPart()
+    local part = Instance.new("Part")
+    part.Position = game.Workspace.Interiors:FindFirstChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.Campsite.MarshmallowChair.VintageChair.Union.Position + Vector3.new(0, -2, 0)
+    part.Size = Vector3.new(2000, 2, 2000)
+    part.Anchored = true
+    part.Parent = workspace
+end
+
 local function TeleportMainMap()
     Bypass("CollisionsClient").set_collidable(false)
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
@@ -1346,6 +1353,7 @@ local function TeleportMainMap()
     Player.Character.Humanoid.WalkSpeed = 0
     task.wait(2)
     subToHouse()
+    floorPart()
 end
 
 -- local function TeleportWinterShop()
@@ -1667,7 +1675,7 @@ local function autoFarm()
                     FireButton("Yes")
 
                 elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:find("invitation") then
-                    print("invitation sent")
+                   
                     game:Shutdown()
 
                 end
