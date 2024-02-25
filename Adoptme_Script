@@ -2153,11 +2153,12 @@ local function autoTradeCustomTab(tab: string)
         local petCounter = 0
         local stuckCounter = 0
 
-        while getgenv().auto_trade_custom_gifts do
-            if not getgenv().auto_trade_custom_gifts then return end
+        while getgenv().auto_trade_custom do
+            if not getgenv().auto_trade_custom then return end
             pcall(function()
                 if not Player.PlayerGui.TradeApp.Frame.Visible then
                     ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(selectedPlayer)
+                    task.wait()
                 end
 
                 ClickTradeWindowPopUps()
@@ -2174,7 +2175,7 @@ local function autoTradeCustomTab(tab: string)
                     if item.id == selectedItem then
                         ReplicatedStorage.API:FindFirstChild("TradeAPI/AddItemToOffer"):FireServer(item.unique)
                         petCounter = petCounter + 1 
-                        if petCounter >= 19 then
+                        if petCounter >= 18 then
                             break 
                         end
                         task.wait(.1)
@@ -2528,8 +2529,8 @@ Auto:AddSection({
 
 local PetsDropdown = Auto:AddDropdown({
     Name = "Select a Pet",
-    Callback = function(selectedPet_input)
-        selectedPet = selectedPet_input
+    Callback = function(value)
+        selectedItem = value
     end
 })
 
@@ -2574,7 +2575,7 @@ Auto:AddButton({
 Auto:AddToggle({
     Name = "Auto Trade Custom Gift",
     Callback = function(value)
-        getgenv().auto_trade_custom_gifts = value
+        getgenv().auto_trade_custom = value
         autoTradeCustomTab("gifts")
     end    
 })
@@ -2604,7 +2605,7 @@ Auto:AddButton({
 Auto:AddToggle({
     Name = "Auto Trade Custom Toy",
     Callback = function(value)
-        getgenv().auto_trade_custom_gifts = value
+        getgenv().auto_trade_custom = value
         autoTradeCustomTab("toys")
     end    
 })
