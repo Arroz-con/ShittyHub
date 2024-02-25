@@ -2154,7 +2154,6 @@ local function autoTradeCustomTab(tab: string)
         local stuckCounter = 0
 
         while getgenv().auto_trade_custom do
-            if not getgenv().auto_trade_custom then return end
             pcall(function()
                 if not Player.PlayerGui.TradeApp.Frame.Visible then
                     ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(selectedPlayer)
