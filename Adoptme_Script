@@ -608,10 +608,10 @@ local function FireDimensionEvent()
     getIngredients("Mango")
     getIngredients("Pear")
 
-    repeat
-        local hasCookie = ReplicatedStorage.API:WaitForChild("FireDimensionAPI/CookRecipe"):InvokeServer("daily_recipe")
+    for i = 1, 2, 1 do
+        ReplicatedStorage.API:WaitForChild("FireDimensionAPI/CookRecipe"):InvokeServer("daily_recipe")
         task.wait(1)
-    until hasCookie == nil
+    end
 
     -- repeat
     --     local hasMoltenMelon = ReplicatedStorage.API:FindFirstChild("FireDimensionAPI/CookRecipe"):InvokeServer("super_recipe")
@@ -1166,7 +1166,7 @@ local function MakeNeon()
         for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
             if v.properties.age == 6 and not v.properties.neon and not v.properties.mega_neon then
                 table.insert(getFullGrown, v.id)
-                table.sort(getFullGrown)
+                -- table.sort(getFullGrown)
             end
         end
 
@@ -1334,6 +1334,7 @@ end
 --     game.Players.LocalPlayer.Character.Humanoid:MoveTo(Vector3.new(1,0,0))
 -- end
 
+
 local function floorPart()
     local part = Instance.new("Part")
     part.Position = game.Workspace.Interiors:FindFirstChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.Campsite.MarshmallowChair.VintageChair.Union.Position + Vector3.new(0, -2, 0)
@@ -1347,13 +1348,14 @@ local function TeleportMainMap()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
     SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
-    Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:FindFirstChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.Campsite.MarshmallowChair.VintageChair.Union.CFrame + Vector3.new(math.random(1, 5), 10, math.random(1, 5))
+    Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:FindFirstChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.Campsite.MarshmallowChair.VintageChair.Union.CFrame + Vector3.new(math.random(1, 10), 10, math.random(1, 10))
+    floorPart()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
     Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
     Player.Character.Humanoid.WalkSpeed = 0
     task.wait(2)
     subToHouse()
-    floorPart()
+    
 end
 
 -- local function TeleportWinterShop()
@@ -1392,6 +1394,7 @@ end
 --     task.wait(2)
 -- end
 
+
 local function TeleportCampSite()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
     SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
@@ -1405,7 +1408,7 @@ end
 
 local function TeleportPoolParty()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
-    -- SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
+    SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
     task.wait(1)
     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
     Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.PoolArea.PoolOrigin.CFrame + Vector3.new(math.random(1, 20), 10, math.random(1, 20))
@@ -1416,7 +1419,7 @@ end
 
 local function TeleportPlayGround()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
-    -- SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
+    SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
     task.wait(1)
     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
     Player.Character.PrimaryPart.CFrame = game:GetService("Workspace").StaticMap.Park.Roundabout.SeatsSpinModel.Visual:FindFirstChildWhichIsA("Part").CFrame + Vector3.new(math.random(1, 20), 10, math.random(-20, -1))
@@ -1496,7 +1499,7 @@ local function autoFarm()
             if not stopEquip then
                 stopEquip = true
                 ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {["use_sound_delay"] = true})
-                task.wait(1)
+                task.wait()
                 ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(PetCurrentlyFarming, {["use_sound_delay"] = true})
             end
         end
@@ -1541,6 +1544,13 @@ local function autoFarm()
             elseif v["id"] == "sleepy" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
                     DayNightAilments(Bed)
+
+                    subToHouse()
+                    baitId = findBait("fire_dimension_2024_burnt_bites_bait")
+                    placeBait(baitId)
+                    task.wait(1)
+                    placeBait(baitId)
+                    FireDimensionEvent()
                     break
                 end
             elseif v["id"] == "dirty" then
@@ -1556,12 +1566,6 @@ local function autoFarm()
             elseif v["id"] == "camping" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
                     TeleportCampSite()
-
-                    subToHouse()
-                    baitId = findBait("fire_dimension_2024_burnt_bites_bait")
-                    placeBait(baitId)
-                    FireDimensionEvent()
-                    SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
                     break
                 end
             end
@@ -2757,3 +2761,6 @@ ThemeColorDialogConnection:Disconnect()
 -- 		repeat task.wait() until game:IsLoaded()
 -- 		game:Shutdown()
 -- 		]])
+
+
+game:GetService("RunService"):Set3dRenderingEnabled(SETTINGS.RENDERING)
