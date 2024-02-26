@@ -2763,4 +2763,4 @@ ThemeColorDialogConnection:Disconnect()
 -- 		]])
 
 
-game:GetService("RunService"):Set3dRenderingEnabled(SETTINGS.RENDERING)
+-- game:GetService("RunService"):Set3dRenderingEnabled(false)
