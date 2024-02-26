@@ -1502,9 +1502,11 @@ local function autoFarm()
                 ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {["use_sound_delay"] = true})
                 task.wait()
                 ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(PetCurrentlyFarming, {["use_sound_delay"] = true})
+                task.wait(10)
             end
         end
 
+        -- if not #Bypass("ClientData").get("pet_char_wrapper")["ailments_monitor"]["ailments"] >= 1 then return end
         for _, v in pairs(Bypass("ClientData").get("pet_char_wrapper")["ailments_monitor"]["ailments"]) do
             if v["id"] == "hungry" then
                 FoodAilments("icecream")
