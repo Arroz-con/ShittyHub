@@ -1543,9 +1543,10 @@ local function autoFarm()
                 end
             elseif v["id"] == "sleepy" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
+                    subToHouse()
+                    task.wait(2)
                     DayNightAilments(Bed)
 
-                    subToHouse()
                     baitId = findBait("fire_dimension_2024_burnt_bites_bait")
                     placeBait(baitId)
                     task.wait(1)
