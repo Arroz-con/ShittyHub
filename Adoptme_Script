@@ -1092,11 +1092,6 @@ local petsToAgeTable = {}
 local function getPet()
     if SETTINGS.FOCUS_FARM_AGE_POTION then
         if getCommon(6) then return end
-        if getLegendary(6) then return end
-        if getUltraRare(6) then return end
-        if getRare(6) then return end
-        if getUnCommon(6) then return end
-        if getCommon(6) then return end
     end
 
     if SETTINGS.PET_NEON_PRIORITY then
