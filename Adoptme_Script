@@ -1161,19 +1161,19 @@ local function MakeNeon()
         for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
             if v.properties.age == 6 and not v.properties.neon and not v.properties.mega_neon then
                 table.insert(getFullGrown, v.id)
+
                 -- table.sort(getFullGrown)
             end
         end
 
         for _, v in pairs(getFullGrown) do
-            local name = v
-            nameCount[name] = (nameCount[name] or 0) + 1
+            nameCount[v] = (nameCount[v] or 0) + 1
         end
 
         for name, count in pairs(nameCount) do
             if count >= 4 then
                 table.insert(maketoneon, name)
-
+                break
             end
         end
 
@@ -1210,19 +1210,17 @@ local function MakeMegaNeon()
         for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
             if v.properties.age == 6 and v.properties.neon then
                 table.insert(getFullGrown2, v.id)
-                table.sort(getFullGrown2)
             end
         end
 
         for _, v in pairs(getFullGrown2) do
-            local name = v
-            nameCount2[name] = (nameCount2[name] or 0) + 1
+            nameCount2[v] = (nameCount2[v] or 0) + 1
         end
 
         for name, count in pairs(nameCount2) do
             if count >= 4 then
                 table.insert(maketoneon2, name)
-            
+                break
             end
         end
 
@@ -2252,20 +2250,36 @@ local function tradeCollector(namePassOn)
             task.wait(.1)
             ClickTradeWindowPopUps()
             
-            local petCounter = 0   
-            for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory[tabName]) do
-                -- if pet.id == "practice_dog" then continue end
-                for _, v2 in tables do
-                    if pet.id == v2 or pet.properties.age == 6 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon then
-                        ReplicatedStorage.API:FindFirstChild("TradeAPI/AddItemToOffer"):FireServer(pet.unique)
-                        petCounter = petCounter + 1
-                        if petCounter >= 9 then
-                            break 
+            local petCounter = 0
+            if SETTINGS.TRADE_ONLY_LUMINOUS_MEGA then
+                for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory[tabName]) do
+                    for _, v2 in tables do
+                        if pet.id == v2 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon then
+                            ReplicatedStorage.API:FindFirstChild("TradeAPI/AddItemToOffer"):FireServer(pet.unique)
+                            petCounter = petCounter + 1
+                            if petCounter >= 18 then
+                                break 
+                            end
+                            task.wait(.1)
                         end
-                        task.wait(.1)
+                    end
+                end
+        
+            else
+                for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory[tabName]) do
+                    for _, v2 in tables do
+                        if pet.id == v2 or pet.properties.age == 6 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon then
+                            ReplicatedStorage.API:FindFirstChild("TradeAPI/AddItemToOffer"):FireServer(pet.unique)
+                            petCounter = petCounter + 1
+                            if petCounter >= 18 then
+                                break 
+                            end
+                            task.wait(.1)
+                        end
                     end
                 end
             end
+            
 
             -- local petCounter = 0   
             -- for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory[tabName]) do
