@@ -1744,7 +1744,10 @@ local function autoFarm()
     CompleteBabyAilments()
     CompletePetAilments()
     task.wait(2)
-    
+
+    -- adopt me code
+    ReplicatedStorage:WaitForChild("API"):WaitForChild("CodeRedemptionAPI/AttemptRedeemCode"):InvokeServer("2xfire")
+
     -- setfpscap(SETTINGS.SET_FPS)
 
 end
@@ -2169,10 +2172,11 @@ local function autoTradeCustomTab(tab: string)
                     stuckCounter += 1
                     task.wait(1) 
                 
-                until Player.PlayerGui.TradeApp.Frame.Visible or stuckCounter == 10
+                until Player.PlayerGui.TradeApp.Frame.Visible or stuckCounter == 30
                 
                 stuckCounter = 0
 
+                task.wait(1)
                 for _, item in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory[tab]) do
                     if item.id == selectedItem then
                         ReplicatedStorage.API:FindFirstChild("TradeAPI/AddItemToOffer"):FireServer(item.unique)
@@ -2775,6 +2779,13 @@ game:GetService("Players").LocalPlayer.OnTeleport:Connect(function(State)
         game:Shutdown()
     end
 end)
+
+if Player.PlayerGui.NewsApp.Enabled then
+    local AbsPlay = Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton
+    clickGuiButton(AbsPlay)
+    -- firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
+    NewsAppConnection:Disconnect()
+end
 
 if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Thanks for subscribing!") then
     FireButton("Okay")
