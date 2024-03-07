@@ -3,6 +3,7 @@ if not game:IsLoaded() then
 end
 
 if game.PlaceId ~= 920587237 then return end
+
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local VI = game:GetService("VirtualInputManager")
@@ -1403,8 +1404,8 @@ local function TeleportPoolParty()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
     SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
     task.wait(1)
-    game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
-    Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.PoolArea.PoolOrigin.CFrame + Vector3.new(math.random(1, 20), 10, math.random(1, 20))
+    game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))     
+    Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.Beach.BeachSetDressing.TikiTorch.Block.CFrame + Vector3.new(math.random(1, 10), 10, math.random(1, 10))
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
     Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
     Player.Character.Humanoid.WalkSpeed = 0
@@ -1543,6 +1544,9 @@ local function autoFarm()
                     DayNightAilments(Bed)
 
                     baitId = findBait("fire_dimension_2024_burnt_bites_bait")
+                    if baitId == nil then
+                        baitId = findBait("lures_2023_campfire_cookies")
+                    end
                     placeBait(baitId)
                     task.wait(1)
                     placeBait(baitId)
@@ -2643,6 +2647,35 @@ Auto:AddToggle({
     end    
 })
 
+
+Auto:AddSection({
+    Name = "Send food"
+})
+
+
+local ToysDropdown = Auto:AddDropdown({
+    Name = "Select food",
+    Callback = function(value)
+        selectedItem = value
+    end
+})
+
+
+Auto:AddButton({
+    Name = "Refresh food List",
+    Callback = function()
+        refreshInventory("food", ToysDropdown)
+    end
+})
+
+
+Auto:AddToggle({
+    Name = "Auto Trade Custom Food",
+    Callback = function(value)
+        getgenv().auto_trade_custom = value
+        autoTradeCustomTab("food")
+    end    
+})
 
 --// Buying Tabs //--
 
