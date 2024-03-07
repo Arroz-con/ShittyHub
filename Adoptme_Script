@@ -1558,7 +1558,7 @@ local function autoFarm()
                     DayNightAilments(Shower)   
                     break
                 end
-            elseif v["id"] == "pool_party" then
+            elseif v["id"] == "beach" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
                     TeleportPoolParty()
                     break
