@@ -576,7 +576,7 @@ local function turnInThrowables()
     
     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))
 end    
-
+--[[
 local function NewYearEvent2024()
     local ThrowablesFolder = workspace.Interiors.Lunar2024Shop.Arena.Throwables
 
@@ -591,7 +591,9 @@ local function NewYearEvent2024()
         end
     end
 end
+--]]
 
+--[[
 -- Fire Dimension Event
 local function FireDimensionEvent()
     SetLocationFunc("FireDimension", "MainDoor", {})
@@ -620,7 +622,7 @@ local function FireDimensionEvent()
     -- until hasMoltenMelon == nil
 
 end
-
+--]]
 
 local pets_legendary = {}
 local pets_ultrarare = {}
@@ -1391,7 +1393,7 @@ end
 
 local function TeleportCampSite()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
-    SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
+    -- SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
     task.wait(1)
     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
     Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.Campsite.MarshmallowChair.VintageChair.Union.CFrame + Vector3.new(math.random(1, 20), 10, math.random(1, 20))
@@ -1400,9 +1402,9 @@ local function TeleportCampSite()
     Player.Character.Humanoid.WalkSpeed = 0
 end
 
-local function TeleportPoolParty()
+local function TeleportBeachParty()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
-    SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
+    -- SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
     task.wait(1)
     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))     
     Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.Beach.BeachSetDressing.TikiTorch.Block.CFrame + Vector3.new(math.random(1, 10), 10, math.random(1, 10))
@@ -1413,7 +1415,7 @@ end
 
 local function TeleportPlayGround()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
-    SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
+    -- SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
     task.wait(1)
     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
     Player.Character.PrimaryPart.CFrame = game:GetService("Workspace").StaticMap.Park.Roundabout.SeatsSpinModel.Visual:FindFirstChildWhichIsA("Part").CFrame + Vector3.new(math.random(1, 20), 10, math.random(-20, -1))
@@ -1550,7 +1552,7 @@ local function autoFarm()
                     placeBait(baitId)
                     task.wait(1)
                     placeBait(baitId)
-                    FireDimensionEvent()
+                    --FireDimensionEvent()
                     break
                 end
             elseif v["id"] == "dirty" then
@@ -1558,9 +1560,9 @@ local function autoFarm()
                     DayNightAilments(Shower)   
                     break
                 end
-            elseif v["id"] == "beach" then
+            elseif v["id"] == "beach_party" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
-                    TeleportPoolParty()
+                    TeleportBeachParty()
                     break
                 end
             elseif v["id"] == "camping" then
@@ -1634,7 +1636,7 @@ local function autoFarm()
             Player.PlayerGui.MinigameInGameApp.Body.Middle.Container:WaitForChild("TitleLabel")
             if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("RED LANTERN") then
                 task.wait(5)
-                NewYearEvent2024()
+                -- NewYearEvent2024()
             end
         end 
     end)
