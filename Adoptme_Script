@@ -1406,8 +1406,8 @@ local function TeleportBeachParty()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
     -- SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
     task.wait(1)
-    game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))     
-    Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.Beach.BeachSetDressing.TikiTorch.Block.CFrame + Vector3.new(math.random(1, 10), 10, math.random(1, 10))
+    game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))) 
+    Player.Character.PrimaryPart.CFrame = game:GetService("Workspace").StaticMap.Beach.BeachPartyAilmentTarget.CFrame + Vector3.new(math.random(1, 20), 10, math.random(1, 20))
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
     Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
     Player.Character.Humanoid.WalkSpeed = 0
