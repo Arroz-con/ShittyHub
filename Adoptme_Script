@@ -2756,7 +2756,70 @@ ClipBoard:AddButton({
     end
 })
 
+-- AGE UP POTIONS TAB
 
+local AgeUpPotion = Window:MakeTab({
+    Name = "Age Up Potion",
+    Icon = "rbxassetid://259820115",
+    PremiumOnly = false
+})
+
+local PetsDropdown3 = AgeUpPotion:AddDropdown({
+    Name = "Select a Pet",
+    Callback = function(value)
+        selectedItem = value
+    end
+})
+
+
+AgeUpPotion:AddButton({
+    Name = "Refresh Pet List",
+    Callback = function()
+        refreshInventory("pets", PetsDropdown3)
+    end
+})
+
+
+AgeUpPotion:AddButton({
+    Name = "Click to Age up Pet",
+    Callback = function()
+        local function equipPet()
+            for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+                if v.id == selectedItem and v.id ~= "practice_dog" and v.properties.age ~= 6 and not v.properties.mega_neon then
+                    ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, {["use_sound_delay"] = true})
+                    task.wait(1)
+                    return true
+                end
+            end
+            return false
+        end
+        
+        local function feedAgePotion()
+            for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.food) do
+                if v.id == "pet_age_potion" then
+                    ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(v.unique)
+                    return true
+                end
+            end
+            return false
+        end
+        
+        local run = true
+        
+        while run do
+            if not equipPet() then run = false end
+            if run == false then break end
+            task.wait(1) -- wait for pet to equip
+            for i = 1, 10 do
+                local age = Bypass("ClientData").get("pet_char_wrapper")["pet_progression"]["age"]
+                task.wait()
+                if age == 6 then break end
+                if not feedAgePotion() then run = false end
+                task.wait(1)
+            end
+        end
+    end
+})
 
 
 buyLure()
