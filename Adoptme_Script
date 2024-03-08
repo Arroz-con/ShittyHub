@@ -2787,7 +2787,7 @@ AgeUpPotion:AddButton({
             for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
                 if v.id == selectedItem and v.id ~= "practice_dog" and v.properties.age ~= 6 and not v.properties.mega_neon then
                     ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, {["use_sound_delay"] = true})
-                    task.wait(1)
+                    task.wait()
                     return true
                 end
             end
@@ -2809,13 +2809,13 @@ AgeUpPotion:AddButton({
         while run do
             if not equipPet() then run = false end
             if run == false then break end
-            task.wait(1) -- wait for pet to equip
+            task.wait() -- wait for pet to equip
             for i = 1, 10 do
                 local age = Bypass("ClientData").get("pet_char_wrapper")["pet_progression"]["age"]
                 task.wait()
                 if age == 6 then break end
                 if not feedAgePotion() then run = false end
-                task.wait(1)
+                task.wait()
             end
         end
     end
