@@ -693,7 +693,7 @@ local function clipBoardInventory()
         local bucks = string.gsub(Player.PlayerGui.BucksIndicatorApp.CurrencyIndicator.Container.Amount.Text, ",", "")
         local cash = math.ceil(tonumber(bucks) * 0.00009)
         allInventory = allInventory..`Account has {bucks} bucks\n`
-        allInventory = allInventory..`sell for ${tostring(cash)}\n\n`
+        allInventory = allInventory..`sell for ${tostring(cash)} {Player.Name}\n\n`
     end
 
     getInventoryInfo("pets", petsTable)
