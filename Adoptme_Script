@@ -670,14 +670,14 @@ local function clipBoardInventory()
     local transportTable = {}
     local toysTable = {}
     local giftsTable = {}
+    local allInventory = ""
 
     local function getInventoryInfo(tab, tablePassOn)
         for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory[tab]) do
+            if v.id == "practice_dog" then continue end
             tablePassOn[v.id] = (tablePassOn[v.id] or 0) + 1
         end
     end
-
-    local allInventory = ""
 
     local function getTable(inventoryPassOn, tablePassOn, namePassOn)
         for i, v in tablePassOn do
@@ -689,6 +689,11 @@ local function clipBoardInventory()
         end
     end
 
+    local function getBucksInfo()
+        local bucks = Player.PlayerGui.BucksIndicatorApp.CurrencyIndicator.Container.Amount.Text
+        allInventory = allInventory..`Account has {bucks} bucks\n\n`
+    end
+
     getInventoryInfo("pets", petsTable)
     getInventoryInfo("pet_accessories", petAccessoriesTable)
     getInventoryInfo("strollers", strollersTable)
@@ -697,6 +702,7 @@ local function clipBoardInventory()
     getInventoryInfo("toys", toysTable)
     getInventoryInfo("gifts", giftsTable)
 
+    getBucksInfo()
     getTable("pets", petsTable, "PET")
     getTable("pet_accessories", petAccessoriesTable, "PET_ACCESSORIE")
     getTable("strollers", strollersTable, "STROLLER")
