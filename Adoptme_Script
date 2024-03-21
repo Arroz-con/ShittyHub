@@ -555,7 +555,7 @@ local function SetLocationFunc(a, b, c)
     set_thread_identity(k)
 end
 
-
+--[[
 -- New Year Event
 local function getThrowables(Id)
     local args = {
@@ -576,7 +576,7 @@ local function turnInThrowables()
     
     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))
 end    
---[[
+
 local function NewYearEvent2024()
     local ThrowablesFolder = workspace.Interiors.Lunar2024Shop.Arena.Throwables
 
@@ -623,6 +623,19 @@ local function FireDimensionEvent()
 
 end
 --]]
+
+-- Easter Event 2024
+
+local function collectEggs()
+    local args = {
+        [1] = "egg_catch_minigame",
+        [2] = "candy_collected",
+        [3] = 3
+    }
+
+    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))
+end
+
 
 local pets_legendary = {}
 local pets_ultrarare = {}
@@ -1642,9 +1655,12 @@ local function autoFarm()
             Player.PlayerGui.MinigameInGameApp.Body:WaitForChild("Left")
             Player.PlayerGui.MinigameInGameApp.Body.Middle:WaitForChild("Container")
             Player.PlayerGui.MinigameInGameApp.Body.Middle.Container:WaitForChild("TitleLabel")
-            if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("RED LANTERN") then
+            if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("SUNNY SCRAMBLE") then
                 task.wait(5)
-                -- NewYearEvent2024()
+                repeat
+                    collectEggs()
+                    task.wait(1)
+                until Player.PlayerGui.MinigameInGameApp.Enabled == false
             end
         end 
     end)
@@ -1657,13 +1673,7 @@ local function autoFarm()
                     NormalDialogChild:WaitForChild("Info")
                     NormalDialogChild.Info:WaitForChild("TextLabel")
                     NormalDialogChild.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
-                        if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Red Lantern Green Lantern") then
-                            findKites()
-                            for _, kite in kites do
-                                getKite(kite)
-                                task.wait(.1)
-                            end
-                            table.clear(kites)
+                        if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Sunny Scramble") then
                             FireButton("Yes")
 
                         elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:find("invitation") then
@@ -1682,13 +1692,7 @@ local function autoFarm()
             Player.PlayerGui.DialogApp.Dialog.NormalDialog:WaitForChild("Info")
             Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info:WaitForChild("TextLabel")
             Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
-                if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Red Lantern Green Lantern") then
-                    findKites()
-                    for _, kite in kites do
-                        getKite(kite)
-                        task.wait(1)
-                    end
-                    table.clear(kites)
+                if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Sunny Scramble") then
                     FireButton("Yes")
 
                 elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:find("invitation") then
