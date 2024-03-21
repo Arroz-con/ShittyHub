@@ -1656,10 +1656,10 @@ local function autoFarm()
             Player.PlayerGui.MinigameInGameApp.Body.Middle:WaitForChild("Container")
             Player.PlayerGui.MinigameInGameApp.Body.Middle.Container:WaitForChild("TitleLabel")
             if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("SUNNY SCRAMBLE") then
-                task.wait(5)
+                task.wait(1)
                 repeat
                     collectEggs()
-                    task.wait(1)
+                    task.wait(.1)
                 until Player.PlayerGui.MinigameInGameApp.Enabled == false
             end
         end 
