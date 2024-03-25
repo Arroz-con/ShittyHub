@@ -702,6 +702,16 @@ local function clipBoardInventory()
         end
     end
 
+    local function getAgeupPotionInfo()
+        local count = 0
+        for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
+            if v.id == "pet_age_potion" then
+                count += 1
+            end
+        end
+        return count
+    end
+
     local function getBucksInfo()
         local bucks = Player.PlayerGui.BucksIndicatorApp.CurrencyIndicator.Container.Amount.Text
         allInventory = allInventory..`Account has {bucks} bucks\n`
@@ -709,9 +719,12 @@ local function clipBoardInventory()
         local bucks = string.gsub(Player.PlayerGui.BucksIndicatorApp.CurrencyIndicator.Container.Amount.Text, ",", "")
         local cash = tonumber(bucks) * 0.000037
 
+        local potions = getAgeupPotionInfo()
+        local potionAmount = potions * 0.035
+
         local currency = string.gsub(Player.PlayerGui.AltCurrencyIndicatorApp.CurrencyIndicator.Container.Amount.Text, ",", "")
         local eventCurrency = tonumber(currency) * 0.0000035714  -- $0.05 each box at 14,000 currency per box
-        local formatNumber = string.format("%.2f", (cash + eventCurrency))
+        local formatNumber = string.format("%.2f", (cash + eventCurrency + potionAmount))
 
         allInventory = allInventory..`sell for ${tostring(formatNumber)}  {Player.Name}\n\n`
     end
