@@ -714,7 +714,9 @@ local function clipBoardInventory()
 
     local function getBucksInfo()
         local bucks = Player.PlayerGui.BucksIndicatorApp.CurrencyIndicator.Container.Amount.Text
-        allInventory = allInventory..`Account has {bucks} bucks\n`
+        local eventCurrency = Player.PlayerGui.AltCurrencyIndicatorApp.CurrencyIndicator.Container.Amount.Text
+        allInventory = allInventory..`Bucks: {bucks}\n`
+        allInventory = allInventory..`Easter eggs: {eventCurrency}\n`
 
         local bucks = string.gsub(Player.PlayerGui.BucksIndicatorApp.CurrencyIndicator.Container.Amount.Text, ",", "")
         local cash = tonumber(bucks) * 0.000037
