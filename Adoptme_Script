@@ -713,16 +713,15 @@ local function clipBoardInventory()
     end
 
     local function getBucksInfo()
+        local potions = getAgeupPotionInfo()
+        local potionAmount = potions * 0.035
+
         local bucks = Player.PlayerGui.BucksIndicatorApp.CurrencyIndicator.Container.Amount.Text
         local eventCurrency = Player.PlayerGui.AltCurrencyIndicatorApp.CurrencyIndicator.Container.Amount.Text
-        allInventory = allInventory..`Bucks: {bucks}\n`
-        allInventory = allInventory..`Easter eggs: {eventCurrency}\n`
+        allInventory = allInventory..`{eventCurrency} Eggs + {bucks} Bucks + {potions} Age-up Potions | Adopt me\n`
 
         local bucks = string.gsub(Player.PlayerGui.BucksIndicatorApp.CurrencyIndicator.Container.Amount.Text, ",", "")
         local cash = tonumber(bucks) * 0.000037
-
-        local potions = getAgeupPotionInfo()
-        local potionAmount = potions * 0.035
 
         local currency = string.gsub(Player.PlayerGui.AltCurrencyIndicatorApp.CurrencyIndicator.Container.Amount.Text, ",", "")
         local eventCurrency = tonumber(currency) * 0.0000035714  -- $0.05 each box at 14,000 currency per box
