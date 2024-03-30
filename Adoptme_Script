@@ -54,12 +54,13 @@ local RerollRemote = Bypass("RouterClient").get("QuestAPI/RerollQuest")
 
 local Bed
 local Shower
-local Piano
+-- local Piano
 local normalLure
 
 UserGameSettings.GraphicsQualityLevel = 1
 UserGameSettings.MasterVolume = 0
 
+repeat task.wait() until Player.PlayerGui.NewsApp.Enabled
 
 for i, v in pairs(debug.getupvalue(require(ReplicatedStorage.Fsys).load("RouterClient").init, 4)) do
     v.Name = i
@@ -144,6 +145,7 @@ local function findFurniture()
     end
 end
 
+--[[
 local function buyPiano()
     local args = {
         [1] = {
@@ -159,6 +161,7 @@ local function buyPiano()
     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/BuyFurnitures"):InvokeServer(unpack(args))
     
 end
+--]]
 
 local function buyCrib()
     local args = {
@@ -522,7 +525,7 @@ getgenv().auto_trade_eggs = true
 getgenv().auto_trade_all_inventory = true
 
 
-local selectedPettoFarm
+-- local selectedPettoFarm
 
 Player.Idled:Connect(function()
     VirtualUser:ClickButton2(Vector2.new())
@@ -1214,11 +1217,16 @@ local function MakeNeon()
         table.clear(nameCount)
         table.clear(maketoneon)
         table.clear(maketoneonnow)
+        local count = 0
+
         for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
             if v.properties.age == 6 and not v.properties.neon and not v.properties.mega_neon then
                 table.insert(getFullGrown, v.id)
 
-                -- table.sort(getFullGrown)
+                if v.id == getFullGrown[v.id] then
+                    count += 1
+                    if count >= 4 then break end
+                end
             end
         end
 
@@ -1385,10 +1393,14 @@ end
 
 
 local function floorPart()
+    for _, v in workspace:GetChildren() do
+        if v.Name == "FloorPart1" then return end
+    end
     local part = Instance.new("Part")
     part.Position = game.Workspace.Interiors:FindFirstChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.Campsite.MarshmallowChair.VintageChair.Union.Position + Vector3.new(0, -2, 0)
     part.Size = Vector3.new(2000, 2, 2000)
     part.Anchored = true
+    part.Name = "FloorPart1"
     part.Parent = workspace
 end
 
@@ -1447,7 +1459,7 @@ end
 local function TeleportCampSite()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
     -- SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
-    task.wait(1)
+    task.wait(math.random(1, 20))
     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
     Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.Campsite.MarshmallowChair.VintageChair.Union.CFrame + Vector3.new(math.random(1, 20), 10, math.random(1, 20))
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
@@ -1458,7 +1470,7 @@ end
 local function TeleportBeachParty()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
     -- SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
-    task.wait(1)
+    task.wait(math.random(1, 20))
     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))) 
     Player.Character.PrimaryPart.CFrame = game:GetService("Workspace").StaticMap.Beach.BeachPartyAilmentTarget.CFrame + Vector3.new(math.random(1, 20), 10, math.random(1, 20))
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
@@ -1469,7 +1481,7 @@ end
 local function TeleportPlayGround()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
     -- SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
-    task.wait(1)
+    task.wait(math.random(1, 20))
     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
     Player.Character.PrimaryPart.CFrame = game:GetService("Workspace").StaticMap.Park.Roundabout.SeatsSpinModel.Visual:FindFirstChildWhichIsA("Part").CFrame + Vector3.new(math.random(1, 20), 10, math.random(-20, -1))
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
@@ -1595,7 +1607,7 @@ local function autoFarm()
             elseif v["id"] == "sleepy" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
                     subToHouse()
-                    task.wait(2)
+                    task.wait(math.random(1, 10))
                     DayNightAilments(Bed)
 
                     baitId = findBait("fire_dimension_2024_burnt_bites_bait")
@@ -1707,6 +1719,7 @@ local function autoFarm()
                     NormalDialogChild.Info:WaitForChild("TextLabel")
                     NormalDialogChild.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
                         if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Sunny Scramble") then
+                            task.wait(math.random(1, 10))
                             FireButton("Yes")
 
                         elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:find("invitation") then
@@ -1726,6 +1739,7 @@ local function autoFarm()
             Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info:WaitForChild("TextLabel")
             Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
                 if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Sunny Scramble") then
+                    task.wait(math.random(1, 10))
                     FireButton("Yes")
 
                 elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:find("invitation") then
@@ -1772,12 +1786,6 @@ local function autoFarm()
                 Player.PlayerGui.MinigameRewardsApp.Body.Visible = false
                 TeleportMainMap()
                 task.wait(2)
-                findKites()
-                for _, kite in kites do
-                    getKite(kite)
-                    task.wait(.1)
-                end
-                table.clear(kites)
             end
         end
     end)
@@ -1902,7 +1910,7 @@ local function autoAcceptTrade(bool)
             clickAcceptNegotiation()
             ClickTradeWindowPopUps()
             clickAcceptConfirmation()
-            task.wait(1)
+            task.wait()
         end
     end)
 end
