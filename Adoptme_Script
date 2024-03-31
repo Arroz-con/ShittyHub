@@ -43,8 +43,8 @@ local ClaimTable = {["hatch_three_eggs"] = {3}, ["fully_age_three_pets"] = {3}, 
 ["play_as_a_baby_for_twenty_five_minutes"] = {1500}, ["play_for_thirty_minutes"] = {1800}}
 
 local Player = Players.LocalPlayer
-Player.PlayerGui:WaitForChild("NewsApp", 60)
-Player.PlayerGui:WaitForChild("DialogApp", 60)
+Player.PlayerGui:WaitForChild("NewsApp")
+Player.PlayerGui:WaitForChild("DialogApp")
 
 local Bypass = require(ReplicatedStorage:WaitForChild("Fsys", 60)).load
 local inventoryDB = Bypass("InventoryDB")
@@ -59,9 +59,6 @@ local normalLure
 
 UserGameSettings.GraphicsQualityLevel = 1
 UserGameSettings.MasterVolume = 0
-
-Player.PlayerGui.NewsApp:WaitForChild("EnclosingFrame")
-repeat task.wait() until Player.PlayerGui.NewsApp.EnclosingFrame.Visible
 
 for i, v in pairs(debug.getupvalue(require(ReplicatedStorage.Fsys).load("RouterClient").init, 4)) do
     v.Name = i
@@ -224,7 +221,7 @@ end)
 
 
 if Player.PlayerGui.NewsApp.Enabled then
-    local AbsPlay = Player.PlayerGui.NewsApp.EnclosingFrame:WaitForChild("MainFrame"):WaitForChild("Contents"):WaitForChild("PlayButton")
+    local AbsPlay = Player.PlayerGui.NewsApp:WaitForChild("EnclosingFrame"):WaitForChild("MainFrame"):WaitForChild("Contents"):WaitForChild("PlayButton")
     clickGuiButton(AbsPlay)
     -- firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
     NewsAppConnection:Disconnect()
@@ -1460,7 +1457,7 @@ end
 local function TeleportCampSite()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
     -- SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
-    task.wait(math.random(1, 20))
+    task.wait(1)
     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
     Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.Campsite.MarshmallowChair.VintageChair.Union.CFrame + Vector3.new(math.random(1, 20), 10, math.random(1, 20))
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
@@ -1471,7 +1468,7 @@ end
 local function TeleportBeachParty()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
     -- SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
-    task.wait(math.random(1, 20))
+    task.wait(1)
     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))) 
     Player.Character.PrimaryPart.CFrame = game:GetService("Workspace").StaticMap.Beach.BeachPartyAilmentTarget.CFrame + Vector3.new(math.random(1, 20), 10, math.random(1, 20))
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
@@ -1482,7 +1479,7 @@ end
 local function TeleportPlayGround()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
     -- SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
-    task.wait(math.random(1, 20))
+    task.wait(1)
     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
     Player.Character.PrimaryPart.CFrame = game:GetService("Workspace").StaticMap.Park.Roundabout.SeatsSpinModel.Visual:FindFirstChildWhichIsA("Part").CFrame + Vector3.new(math.random(1, 20), 10, math.random(-20, -1))
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
@@ -1608,7 +1605,7 @@ local function autoFarm()
             elseif v["id"] == "sleepy" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
                     subToHouse()
-                    task.wait(math.random(1, 10))
+                    task.wait(2)
                     DayNightAilments(Bed)
 
                     baitId = findBait("fire_dimension_2024_burnt_bites_bait")
@@ -1720,7 +1717,7 @@ local function autoFarm()
                     NormalDialogChild.Info:WaitForChild("TextLabel")
                     NormalDialogChild.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
                         if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Sunny Scramble") then
-                            task.wait(math.random(1, 10))
+                            task.wait(1)
                             FireButton("Yes")
 
                         elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:find("invitation") then
@@ -1740,7 +1737,7 @@ local function autoFarm()
             Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info:WaitForChild("TextLabel")
             Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
                 if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Sunny Scramble") then
-                    task.wait(math.random(1, 10))
+                    task.wait()
                     FireButton("Yes")
 
                 elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:find("invitation") then
