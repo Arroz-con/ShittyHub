@@ -224,7 +224,7 @@ end)
 
 
 if Player.PlayerGui.NewsApp.Enabled then
-    local AbsPlay = Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton
+    local AbsPlay = Player.PlayerGui.NewsApp.EnclosingFrame:WaitForChild("MainFrame"):WaitForChild("Contents"):WaitForChild("PlayButton")
     clickGuiButton(AbsPlay)
     -- firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
     NewsAppConnection:Disconnect()
