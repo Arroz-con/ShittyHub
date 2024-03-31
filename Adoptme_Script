@@ -2932,12 +2932,11 @@ game:GetService("Players").LocalPlayer.OnTeleport:Connect(function(State)
     end
 end)
 
-if Player.PlayerGui.NewsApp.Enabled then
+repeat
     local AbsPlay = Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton
     clickGuiButton(AbsPlay)
-    -- firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
-    NewsAppConnection:Disconnect()
-end
+    task.wait(1)
+until not Player.PlayerGui.NewsApp.Enabled
 
 if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Thanks for subscribing!") then
     FireButton("Okay")
