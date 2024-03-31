@@ -2941,11 +2941,15 @@ if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Tha
 end
 
 if Player.PlayerGui.NewsApp.Enabled then
-    local AbsPlay = Player.PlayerGui.NewsApp:WaitForChild("EnclosingFrame"):WaitForChild("MainFrame"):WaitForChild("Contents"):WaitForChild("PlayButton")
-    clickGuiButton(AbsPlay)
+    repeat
+        local AbsPlay = Player.PlayerGui.NewsApp:WaitForChild("EnclosingFrame"):WaitForChild("MainFrame"):WaitForChild("Contents"):WaitForChild("PlayButton")
+        clickGuiButton(AbsPlay)
+        task.wait(1)
+    until not Player.PlayerGui.NewsApp.Enabled
     -- firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
     NewsAppConnection:Disconnect()
 end
+
 -- Disconnect all connections that are not needed anymore
 ThemeColorDialogConnection:Disconnect()
 
