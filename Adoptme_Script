@@ -60,7 +60,8 @@ local normalLure
 UserGameSettings.GraphicsQualityLevel = 1
 UserGameSettings.MasterVolume = 0
 
-repeat task.wait() until Player.PlayerGui.NewsApp.Enabled
+Player.PlayerGui.NewsApp:WaitForChild("EnclosingFrame")
+repeat task.wait() until Player.PlayerGui.NewsApp.EnclosingFrame.Visible
 
 for i, v in pairs(debug.getupvalue(require(ReplicatedStorage.Fsys).load("RouterClient").init, 4)) do
     v.Name = i
@@ -2932,11 +2933,6 @@ game:GetService("Players").LocalPlayer.OnTeleport:Connect(function(State)
     end
 end)
 
-repeat
-    local AbsPlay = Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton
-    clickGuiButton(AbsPlay)
-    task.wait(1)
-until not Player.PlayerGui.NewsApp.Enabled
 
 if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Thanks for subscribing!") then
     FireButton("Okay")
