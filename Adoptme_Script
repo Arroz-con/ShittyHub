@@ -232,6 +232,18 @@ if Player.PlayerGui.NewsApp.Enabled then
     NewsAppConnection:Disconnect()
 end
 
+local isRenderingEnabled = false
+local function onInputBegan(input)
+    if input.KeyCode.Name == "LeftControl" then
+        isRenderingEnabled = not isRenderingEnabled
+        game:GetService("RunService"):Set3dRenderingEnabled(isRenderingEnabled)
+    end
+end
+
+UserInputService.InputBegan:Connect(onInputBegan)
+
+-- runs at false first
+game:GetService("RunService"):Set3dRenderingEnabled(isRenderingEnabled)
 
 banMessageConnection = Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal("Visible"):Connect(function()
     if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
@@ -2957,18 +2969,5 @@ ThemeColorDialogConnection:Disconnect()
 -- 		repeat task.wait() until game:IsLoaded()
 -- 		game:Shutdown()
 -- 		]])
-
-local isRenderingEnabled = false
-local function onInputBegan(input)
-    if input.KeyCode.Name == "LeftControl" then
-        isRenderingEnabled = not isRenderingEnabled
-        game:GetService("RunService"):Set3dRenderingEnabled(isRenderingEnabled)
-    end
-end
-
-UserInputService.InputBegan:Connect(onInputBegan)
-
--- runs at false first
-game:GetService("RunService"):Set3dRenderingEnabled(isRenderingEnabled)
 
 -- game:GetService("RunService"):Set3dRenderingEnabled(false)
