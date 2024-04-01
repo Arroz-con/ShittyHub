@@ -2958,5 +2958,17 @@ ThemeColorDialogConnection:Disconnect()
 -- 		game:Shutdown()
 -- 		]])
 
+local isRenderingEnabled = false
+local function onInputBegan(input)
+    if input.KeyCode.Name == "LeftControl" then
+        isRenderingEnabled = not isRenderingEnabled
+        game:GetService("RunService"):Set3dRenderingEnabled(isRenderingEnabled)
+    end
+end
+
+UserInputService.InputBegan:Connect(onInputBegan)
+
+-- runs at false first
+game:GetService("RunService"):Set3dRenderingEnabled(isRenderingEnabled)
 
 -- game:GetService("RunService"):Set3dRenderingEnabled(false)
