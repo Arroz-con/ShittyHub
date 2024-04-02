@@ -9,19 +9,19 @@ getgenv().SETTINGS = {
     PET_AUTO_FUSION = true,
 
     ENABLE_TRADE_COLLECTOR = true,
-	TRADE_ONLY_LUMINOUS_MEGA = false,
+	TRADE_ONLY_LUMINOUS_MEGA = true,
     TRADE_COLLECTOR_NAME = "dudemyblox", -- your account username (case sensitive) that will collect the pets.
     TRADE_LIST = {
         GIFTS_TABLE = {
-            "rgb_reward_box",
-            "halloween_2023_scarecrow_box",
-            "halloween_2022_wolf_box",
-            "summerfest_2023_hermit_crab_box",
-            "winter_2021_walrus_box",
-            "winter_2022_pony_box",
-            "lny_2023_moon_bear_box",
-            "springfest_2023_duckling_box",
-			"lunar_2024_silk_bag"
+            -- "rgb_reward_box",
+            -- "halloween_2023_scarecrow_box",
+            -- "halloween_2022_wolf_box",
+            -- "summerfest_2023_hermit_crab_box",
+            -- "winter_2021_walrus_box",
+            -- "winter_2022_pony_box",
+            -- "lny_2023_moon_bear_box",
+            -- "springfest_2023_duckling_box",
+			-- "lunar_2024_silk_bag"
         },
     
         TOYS_TABLE = {
@@ -50,8 +50,11 @@ getgenv().SETTINGS = {
     
     PET_ONLY_PRIORITY = true,
     PET_ONLY_PRIORITY_NAMES = {
-        "desert_2024_cactus_friend",
-        --"desert_2024_criosphinx"
+        "desert_2024_sandfish",
+        "desert_2024_armadillo",
+        "desert_2024_coyote",
+        "desert_2024_gila_monster",
+        "desert_2024_rattlesnake",
     },
 }
 
@@ -83,14 +86,14 @@ runTask()
 
 --]]
 
---[[
+---[[
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local howManyToBuy = 16  -- change the number to how many to buy
-local petNameId = "easter_2024_candy_cane_snail" -- change the nameId to the pet/egg you wanna buy
+local howManyToBuy = 100  -- change the number to how many to buy
+local petNameId = "easter_2024_eggy_box" -- change the nameId to the pet/egg you wanna buy
 
 for i = 1, howManyToBuy do
-    local hasMoney = ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", petNameId, {})
+    local hasMoney = ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("gifts", petNameId, {})
     if hasMoney == "too little money" then
         break
     end
