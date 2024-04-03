@@ -50,11 +50,13 @@ getgenv().SETTINGS = {
     
     PET_ONLY_PRIORITY = true,
     PET_ONLY_PRIORITY_NAMES = {
-        "desert_2024_sandfish",
-        "desert_2024_armadillo",
-        "desert_2024_coyote",
-        "desert_2024_gila_monster",
-        "desert_2024_rattlesnake",
+        "desert_2024_cactus_friend",
+        "desert_2024_criosphinx",
+        -- "desert_2024_sandfish",
+        -- "desert_2024_armadillo",
+        -- "desert_2024_coyote",
+        -- "desert_2024_gila_monster",
+        -- "desert_2024_rattlesnake",
     },
 }
 
