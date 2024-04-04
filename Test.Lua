@@ -91,7 +91,7 @@ runTask()
 ---[[
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local howManyToBuy = 100  -- change the number to how many to buy
+local howManyToBuy = 500  -- change the number to how many to buy
 local petNameId = "easter_2024_eggy_box" -- change the nameId to the pet/egg you wanna buy
 
 for i = 1, howManyToBuy do
