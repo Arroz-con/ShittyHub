@@ -35,19 +35,19 @@ local function ExchangeCapuchin(items, Capuchin, tab)
 
     if Counter <= 2 then return false end
 
-    for i = 1, 1 do
-        local canBuy = ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "capuchin_2024_capuchin_monkey", {})
-        task.wait(.1)
-        if canBuy == "too little money" then return false end
+    for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
+        if v.id == "capuchin_2024_capuchin_monkey" then
+            ReplicatedStorage.API["EventAPI/TransformCapuchin"]:InvokeServer(v.unique, Capuchin)
+            task.wait(1)
+            break
 
-        for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
-            if v.id == "capuchin_2024_capuchin_monkey" then
-                ReplicatedStorage.API["EventAPI/TransformCapuchin"]:InvokeServer(v.unique, Capuchin)
-                task.wait(1)
-                break
-            end
+        else 
+            local canBuy = ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "capuchin_2024_capuchin_monkey", {})
+            task.wait(.1)
+            if canBuy == "too little money" then return false end
         end
     end
+
     return true
 end
 
