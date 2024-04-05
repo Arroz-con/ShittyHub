@@ -2,7 +2,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Player = game:GetService("Players").LocalPlayer
 local Bypass = require(game.ReplicatedStorage:WaitForChild("Fsys")).load
 
-local howManyToBuy = 10    -- change to however many you want
 local hasMoney = true  -- DONT CHANGE!
 
 local function buyAndOpen()
