@@ -28,11 +28,13 @@ local function ExchangeCapuchin(items, Capuchin)
         end
     end
     if Counter == 0 then return end
+
     local HowManyToDo = math.abs(Counter / 3)
+
     for i = 1, HowManyToDo do
         for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
             if v.id == "capuchin_2024_capuchin_monkey" then
-                ReplicatedStorage.API["EventAPI/TransformGorilla"]:InvokeServer(v.unique, Capuchin)
+                ReplicatedStorage.API["EventAPI/TransformCapuchin"]:InvokeServer(v.unique, Capuchin)
                 task.wait(1)
                 break
             end
