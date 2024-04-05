@@ -35,9 +35,7 @@ local function ExchangeCapuchin(items, Capuchin, tab)
 
     if Counter <= 2 then return false end
 
-    local HowManyToDo = math.floor(Counter / 3)
-    print(HowManyToDo)
-    for i = 1, HowManyToDo do
+    for i = 1, 1 do
         local canBuy = ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "capuchin_2024_capuchin_monkey", {})
         task.wait(.1)
         if canBuy == "too little money" then return false end
