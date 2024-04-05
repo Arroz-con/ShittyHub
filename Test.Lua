@@ -50,6 +50,12 @@ getgenv().SETTINGS = {
     
     PET_ONLY_PRIORITY = true,
     PET_ONLY_PRIORITY_NAMES = {
+        "capuchin_2024_capuchin_monkey",
+        "capuchin_2024_inmate_capuchin_monkey",
+        "capuchin_2024_preppy_capuchin_monkey",
+        "capuchin_2024_princess_capuchin_monkey",
+        "capuchin_2024_pirate_ghost_capuchin_monkey",
+        "capuchin_2024_royal_capuchin_monkey",
         "desert_2024_cactus_friend",
         "desert_2024_criosphinx",
         -- "desert_2024_sandfish",
@@ -91,11 +97,11 @@ runTask()
 ---[[
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local howManyToBuy = 500  -- change the number to how many to buy
-local petNameId = "easter_2024_eggy_box" -- change the nameId to the pet/egg you wanna buy
+local howManyToBuy = 16  -- change the number to how many to buy
+local petNameId = "capuchin_2024_capuchin_monkey" -- change the nameId to the pet/egg you wanna buy
 
 for i = 1, howManyToBuy do
-    local hasMoney = ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("gifts", petNameId, {})
+    local hasMoney = ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", petNameId, {})
     if hasMoney == "too little money" then
         break
     end
