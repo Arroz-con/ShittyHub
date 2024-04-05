@@ -31,6 +31,10 @@ local function ExchangeCapuchin(items, Capuchin, tab)
     if Counter == 0 then return end
 
     local HowManyToDo = math.abs(Counter / 3)
+    if HowManyToDo == 0 then 
+        hasMoney = false
+        return
+    end
 
     for i = 1, HowManyToDo do
         local canBuy = ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "capuchin_2024_capuchin_monkey", {})
