@@ -12,7 +12,7 @@ local function buyAndOpen()
     for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.gifts do
         if v["id"] == "capuchin_2024_standard_box" then
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("LootBoxAPI/ExchangeItemForReward"):InvokeServer(v["id"], v["unique"])
-            task.wait(.1)
+            task.wait()
             break
         end
     end
