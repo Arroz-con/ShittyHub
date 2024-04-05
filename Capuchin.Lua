@@ -33,7 +33,7 @@ local function ExchangeCapuchin(items, Capuchin, tab)
         return
     end
 
-    local HowManyToDo = Counter / 3
+    local HowManyToDo = math.floor(Counter / 3)
 
     for i = 1, HowManyToDo do
         local canBuy = ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "capuchin_2024_capuchin_monkey", {})
