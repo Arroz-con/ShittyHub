@@ -78,7 +78,6 @@ until not hasMore
 repeat
     local hasMore = ExchangeCapuchin("capuchin_2024_compass", "capuchin_2024_pirate_ghost_capuchin_monkey", "toys")
     task.wait()
-    print(hasMore)
 until not hasMore
 
 print("done, no more pets to transform")

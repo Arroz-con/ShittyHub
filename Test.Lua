@@ -50,7 +50,6 @@ getgenv().SETTINGS = {
     
     PET_ONLY_PRIORITY = true,
     PET_ONLY_PRIORITY_NAMES = {
-        "capuchin_2024_capuchin_monkey",
         "capuchin_2024_inmate_capuchin_monkey",
         "capuchin_2024_preppy_capuchin_monkey",
         "capuchin_2024_princess_capuchin_monkey",
@@ -95,16 +94,7 @@ runTask()
 --]]
 
 ---[[
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+getgenv().howManyToBuy = 200
 
-local howManyToBuy = 16  -- change the number to how many to buy
-local petNameId = "capuchin_2024_capuchin_monkey" -- change the nameId to the pet/egg you wanna buy
-
-for i = 1, howManyToBuy do
-    local hasMoney = ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", petNameId, {})
-    if hasMoney == "too little money" then
-        break
-    end
-    task.wait()
-end
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Capuchin.Lua"))()
 --]]
