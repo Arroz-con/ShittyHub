@@ -2,11 +2,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Player = game:GetService("Players").LocalPlayer
 local Bypass = require(game.ReplicatedStorage:WaitForChild("Fsys")).load
 
-local hasMoney = true  -- DONT CHANGE!
-local hasToysToTransform = true -- DONT CHANGE!
-
-local canExchange
-
 
 local function buyAndOpen()
     local canBuy = ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("gifts", "capuchin_2024_standard_box", {})
@@ -23,6 +18,13 @@ local function buyAndOpen()
     return true
 end
 
+local function hasPetInInventory()
+    for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
+        if v.id == "capuchin_2024_capuchin_monkey" then return true end
+    end
+    return false
+end
+
 local function ExchangeCapuchin(items, Capuchin, tab)
     local Counter = 0
 
@@ -35,33 +37,31 @@ local function ExchangeCapuchin(items, Capuchin, tab)
 
     if Counter <= 2 then return false end
 
-    for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
-        if v.id == "capuchin_2024_capuchin_monkey" then
-            ReplicatedStorage.API["EventAPI/TransformCapuchin"]:InvokeServer(v.unique, Capuchin)
-            task.wait(1)
-            break
-
-        else 
-            local canBuy = ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "capuchin_2024_capuchin_monkey", {})
-            task.wait(.1)
-            if canBuy == "too little money" then return false end
+    if hasPetInInventory() then
+        for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
+            if v.id == "capuchin_2024_capuchin_monkey" then
+                ReplicatedStorage.API["EventAPI/TransformCapuchin"]:InvokeServer(v.unique, Capuchin)
+                task.wait(1)
+                break
+            end
         end
-    end
 
+    else
+        local canBuy = ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "capuchin_2024_capuchin_monkey", {})
+        task.wait(.1)
+        if canBuy == "too little money" then return false end
+    end
+    
     return true
 end
 
 for i = 1, howManyToBuy do
-    if not buyAndOpen() then 
-        hasMoney = false
-        break
-    end
+    if not buyAndOpen() then break end
     task.wait()
 end
 
 repeat
     local hasMore = ExchangeCapuchin("capuchin_2024_handcuffs", "capuchin_2024_inmate_capuchin_monkey", "toys")
-    print(hasMore)
     task.wait()
 until not hasMore
 
@@ -83,6 +83,7 @@ until not hasMore
 repeat
     local hasMore = ExchangeCapuchin("capuchin_2024_royal_capuchin_crown", "capuchin_2024_royal_capuchin_monkey", "pet_accessories")
     task.wait()
+    print(hasMore)
 until not hasMore
 
 print("done, no more pets to transform")
