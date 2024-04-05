@@ -643,7 +643,7 @@ end
 --]]
 
 -- Easter Event 2024
-
+--[[
 local function collectEggHunt()
     for _, v in game:GetService("Workspace").EggHuntEggs:GetChildren() do
         if v:IsA("Model") then
@@ -662,7 +662,7 @@ local function collectEggs()
 
     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))
 end
-
+--]]
 
 local pets_legendary = {}
 local pets_ultrarare = {}
@@ -1643,7 +1643,6 @@ local function autoFarm()
             elseif v["id"] == "beach_party" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
                     TeleportBeachParty()
-                    collectEggHunt()
                     break
                 end
             elseif v["id"] == "camping" then
@@ -1717,10 +1716,10 @@ local function autoFarm()
             Player.PlayerGui.MinigameInGameApp.Body.Middle.Container:WaitForChild("TitleLabel")
             if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("SUNNY SCRAMBLE") then
                 task.wait(1)
-                repeat
-                    collectEggs()
-                    task.wait(.1)
-                until Player.PlayerGui.MinigameInGameApp.Enabled == false
+                -- repeat
+                --     collectEggs()
+                --     task.wait(.1)
+                -- until Player.PlayerGui.MinigameInGameApp.Enabled == false
             end
         end 
     end)
@@ -1818,7 +1817,6 @@ local function autoFarm()
     CompleteBabyAilments()
     CompletePetAilments()
     task.wait(2)
-    collectEggHunt()
 
     -- adopt me code
     -- ReplicatedStorage:WaitForChild("API"):WaitForChild("CodeRedemptionAPI/AttemptRedeemCode"):InvokeServer("2xfire")
