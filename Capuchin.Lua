@@ -50,10 +50,10 @@ end
 
 for i = 1, howManyToBuy do
     if not hasMoney then break end
-    ExchangeCapuchin("capuchin_2024_inmate_cap", "capuchin_2024_inmate_capuchin_monkey")
+    ExchangeCapuchin("capuchin_2024_handcuffs", "capuchin_2024_inmate_capuchin_monkey")
     ExchangeCapuchin("capuchin_2024_cool_sunglasses", "capuchin_2024_preppy_capuchin_monkey")
     ExchangeCapuchin("capuchin_2024_tutu", "capuchin_2024_princess_capuchin_monkey")
-    ExchangeCapuchin("capuchin_2024_ship_wheel_necklace", "capuchin_2024_pirate_ghost_capuchin_monkey")
+    ExchangeCapuchin("capuchin_2024_compass", "capuchin_2024_pirate_ghost_capuchin_monkey")
     ExchangeCapuchin("capuchin_2024_royal_capuchin_crown", "capuchin_2024_royal_capuchin_monkey")
     task.wait()
 end
