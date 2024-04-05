@@ -87,4 +87,4 @@ repeat
     task.wait()
 until not hasMore
 
-
+print("done, no more pets to transform")
