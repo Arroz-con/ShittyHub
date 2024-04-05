@@ -21,17 +21,9 @@ local function buyAndOpen()
 end
 
 local function ExchangeCapuchin(items, Capuchin)
-    local Counter = 0
-    for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.toys do
-        if v.id == items then
-            Counter = Counter + 1
-        end
-    end
-    if Counter == 0 then return end
-
-    local HowManyToDo = math.abs(Counter / 3)
-
-    for i = 1, HowManyToDo do
+    local canBuy = ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("gifts", "capuchin_2024_standard_box", {})
+    if canBuy == "too little money" then return false end
+    for i = 1, 1 do
         for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
             if v.id == "capuchin_2024_capuchin_monkey" then
                 ReplicatedStorage.API["EventAPI/TransformCapuchin"]:InvokeServer(v.unique, Capuchin)
