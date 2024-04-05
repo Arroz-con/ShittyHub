@@ -67,6 +67,11 @@ getgenv().SETTINGS = {
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Adoptme_Script"))()
 
+
+getgenv().howManyToBuy = 200
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Capuchin.Lua"))()
+
 --[[
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = game:GetService("Players").LocalPlayer
@@ -91,10 +96,4 @@ end
    
 runTask()
 
---]]
-
----[[
-getgenv().howManyToBuy = 200
-
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Capuchin.Lua"))()
 --]]
