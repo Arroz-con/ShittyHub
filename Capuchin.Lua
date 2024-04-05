@@ -38,7 +38,10 @@ local function ExchangeCapuchin(items, Capuchin, tab)
     for i = 1, HowManyToDo do
         local canBuy = ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "capuchin_2024_capuchin_monkey", {})
         task.wait(.1)
-        if canBuy == "too little money" then return false end
+        if canBuy == "too little money" then 
+            hasMoney = false
+            return
+        end
 
         for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
             if v.id == "capuchin_2024_capuchin_monkey" then
