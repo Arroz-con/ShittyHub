@@ -13,17 +13,17 @@ getgenv().SETTINGS = {
     TRADE_COLLECTOR_NAME = "dudemyblox", -- your account username (case sensitive) that will collect the pets.
     TRADE_LIST = {
         PET_WEAR_TABLE = {
-            "capuchin_2024_inmate_cap",
-            "capuchin_2024_preppy_sweater",
-            "capuchin_2024_princess_booties",
-            "capuchin_2024_ship_wheel_necklace",
-            "capuchin_2024_royal_capuchin_cape",
-            "capuchin_2024_royal_capuchin_crown",
-            "capuchin_2024_royal_capuchin_saber_pin",
+            -- "capuchin_2024_inmate_cap",
+            -- "capuchin_2024_preppy_sweater",
+            -- "capuchin_2024_princess_booties",
+            -- "capuchin_2024_ship_wheel_necklace",
+            -- "capuchin_2024_royal_capuchin_cape",
+            -- "capuchin_2024_royal_capuchin_crown",
+            -- "capuchin_2024_royal_capuchin_saber_pin",
         },
 
         VEHICLES_TABLE = {
-            "lunar_2024_dragonster",
+            -- "lunar_2024_dragonster",
         },
 
         GIFTS_TABLE = {
