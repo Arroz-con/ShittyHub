@@ -113,7 +113,7 @@ local function completeStarterTutorial()
     ReplicatedStorage.API["LegacyTutorialAPI/AddHungryAilmentToTutorialEgg"]:FireServer()
     local function feedStartEgg(SandwichPassOn)
         local Foodid2
-        for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.food) do
+        for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
             if v.id == SandwichPassOn then
                 Foodid2 = v.unique
                 break
@@ -836,7 +836,7 @@ end
 
 local function findBait(baitPassOn)
     local bait
-    for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.food) do
+    for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
         if v.id == baitPassOn then
             bait = v.unique
             return bait
@@ -876,7 +876,7 @@ local function buyPet()
 end
 
 local function getEgg()   
-    for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+    for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
         if v.id == Egg2Buy and v.id ~= "practice_dog" and v.properties.age ~= 6 and not v.properties.mega_neon then
             ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, {["use_sound_delay"] = true})
             PetCurrentlyFarming = v.unique
@@ -892,7 +892,7 @@ local function getEgg()
 end
 
 local function GetGiftPet() 
-    for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.gifts) do
+    for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.gifts) do
         if v["id"] == Gift2Buy then
             ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, {["use_sound_delay"] = true})
             task.wait(1)
@@ -917,7 +917,7 @@ local function getCommon(number)
     while petFound == false do
         task.wait()
         for _, p in pairs(pets_common) do
-            for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+            for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
                 if p == v.id and v.id ~= "practice_dog" and v.properties.age == PetageCounter and v.properties.neon == isNeon then
                     ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, {["use_sound_delay"] = true})
                     PetCurrentlyFarming = v.unique
@@ -945,7 +945,7 @@ local function getUnCommon(number)
     while petFound == false do
         task.wait()
         for _, p in pairs(pets_uncommon) do
-            for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+            for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
                 if p == v.id and v.id ~= "practice_dog" and  v.properties.age == PetageCounter and v.properties.neon == isNeon then
                     ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, {["use_sound_delay"] = true})
                     PetCurrentlyFarming = v.unique
@@ -974,7 +974,7 @@ local function getRare(number)
     while petFound == false do
         task.wait()
         for _, p in pairs(pets_rare) do
-            for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+            for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
                 if p == v.id and v.id ~= "practice_dog" and v.properties.age == PetageCounter and v.properties.neon == isNeon then
                     ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, {["use_sound_delay"] = true})
                     PetCurrentlyFarming = v.unique
@@ -1004,7 +1004,7 @@ local function getUltraRare(number)
     while petFound == false do
         task.wait()
         for _, p in pairs(pets_ultrarare) do
-            for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+            for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
                 if p == v.id and v.id ~= "practice_dog" and v.properties.age == PetageCounter and v.properties.neon == isNeon then
                     ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, {["use_sound_delay"] = true})
                     PetCurrentlyFarming = v.unique
@@ -1034,7 +1034,7 @@ local function getLegendary(number)
     while FoundLegendaryPet == false do
         task.wait()
         for _, p in pairs(pets_legendary) do
-            for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+            for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
                 if p == v.id and v.id ~= "practice_dog" and v.properties.age == PetageCounter and v.properties.neon == isNeon then
                     ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, {["use_sound_delay"] = true})
                     PetCurrentlyFarming = v.unique
@@ -1061,7 +1061,7 @@ local function priorityEgg()
     while found_pet == false do
         task.wait()
         for _, v in ipairs(SETTINGS.HATCH_EGG_PRIORITY_NAMES) do
-            for i,v2 in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+            for i,v2 in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
                 if v == v2.id and v2.id ~= "practice_dog" then
                     ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v2.unique, {["use_sound_delay"] = true})
                     PetCurrentlyFarming = v2.unique
@@ -1081,7 +1081,7 @@ local function priorityPet()
     while found_pet == false do
         task.wait()
         for i, v in ipairs(SETTINGS.PET_ONLY_PRIORITY_NAMES) do
-            for i2,v2 in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+            for i2,v2 in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
                 if v == v2.id and v2.id ~= "practice_dog" and v2.properties.age == Petage and v2.properties.neon == isNeon then
                     ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v2.unique, {["use_sound_delay"] = true})
                     PetCurrentlyFarming = v2.unique
@@ -1109,7 +1109,7 @@ local function getNeonPet()
     local found_pet = false
     while found_pet == false do
         task.wait()
-        for i, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+        for i, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
             if v.id ~= "practice_dog" and v.properties.age == Petage and v.properties.neon == isNeon then
                 ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, {["use_sound_delay"] = true})
                 PetCurrentlyFarming = v.unique
@@ -1132,7 +1132,7 @@ local petsToAgeTable = {}
 --     local nameCountTable = {}
 --     local has4PetsTable = {}
 
---     for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+--     for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
 --         if v.properties.age <= 5 and not v.properties.neon and not v.properties.mega_neon then
 --             table.insert(randomLowTierTable, v.id)
 --         end
@@ -1150,7 +1150,7 @@ local petsToAgeTable = {}
 --     end
 
 --     local petCounter = 0
---     for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+--     for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
 --         if v.id == has4PetsTable[1] and v.properties.age <= 5 and not v.properties.neon and not v.properties.mega_neon then
 --             table.insert(petsToAgeTable, v.unique)
 --             petCounter += 1
@@ -1234,7 +1234,7 @@ local function MakeNeon()
         table.clear(maketoneonnow)
         local count = 0
 
-        for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+        for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
             if v.properties.age == 6 and not v.properties.neon and not v.properties.mega_neon then
                 table.insert(getFullGrown, v.id)
 
@@ -1257,7 +1257,7 @@ local function MakeNeon()
         end
 
         local fullgrownCounter = 0
-        for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+        for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
             if v.id == maketoneon[1] and v.properties.age == 6 and not v.properties.neon and not v.properties.mega_neon then
                 table.insert(maketoneonnow, v.unique)
                 fullgrownCounter = fullgrownCounter + 1
@@ -1286,7 +1286,7 @@ local function MakeMegaNeon()
         table.clear(nameCount2)
         table.clear(maketoneon2)
         table.clear(maketoneonnow2)
-        for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+        for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
             if v.properties.age == 6 and v.properties.neon then
                 table.insert(getFullGrown2, v.id)
             end
@@ -1304,7 +1304,7 @@ local function MakeMegaNeon()
         end
 
         local fullgrownCounter2 = 0
-        for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+        for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
             if v.id == maketoneon2[1] and v.properties.age == 6 and v.properties.neon then
                 table.insert(maketoneonnow2, v.unique)
                 fullgrownCounter2 = fullgrownCounter2 + 1
@@ -1323,7 +1323,7 @@ end
 
 
 local function agePotion(FoodPassOn)
-    for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.food) do
+    for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
         if v.id == FoodPassOn then
             ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(v.unique)
             return
@@ -1334,7 +1334,7 @@ end
 
 local function FoodAilments(FoodPassOn) --FoodPassOn means "icecream" for this example
     local FoodCounter = 0
-    for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.food) do
+    for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
         if v.id == FoodPassOn then
             FoodCounter += 1
             if FoodCounter >= 2 then
@@ -1348,7 +1348,7 @@ local function FoodAilments(FoodPassOn) --FoodPassOn means "icecream" for this e
 
     if FoodCounter <= 1 then
         ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("food", FoodPassOn, {})
-        for _, f in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.food) do
+        for _, f in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
             if f.id == FoodPassOn then
                 ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(f.unique, {["use_sound_delay"] = true})
                 task.wait(1)
@@ -1937,7 +1937,7 @@ local function autoTradeAllInventory(TabPassOn)
 
     local petCounter = 0
     
-    for _, items in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory[TabPassOn]) do
+    for _, items in pairs(Bypass("ClientData").get_data()[Player.Name].inventory[TabPassOn]) do
         if items.id == "practice_dog" then continue end
         ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(items.unique)
         petCounter = petCounter + 1
@@ -1960,7 +1960,7 @@ end
 
 local function inventoryCount()
     local count
-    for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+    for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
         count += 1
     end
     return count
@@ -1976,7 +1976,7 @@ local function autoTradeAllPets()
         if howManyLeft == 0 then return end
         sendTradeRequest()
 
-        for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+        for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
             if howManyLeft == 0 then break end
             ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
             petCounter += 1
@@ -2012,7 +2012,7 @@ local function autoTradeLegendary()
             if not getgenv().auto_trade_Legendary then return end
             pcall(function()
                 for _, v in pairs(pets_legendary) do
-                    for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+                    for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
                         if v == pet.id then
                             ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
                             petCounter = petCounter + 1
@@ -2048,7 +2048,7 @@ local function autoTradeFullgrownNeonandMega()
         while task.wait(0.1) do
             if not getgenv().auto_trade_fullgrown_neon_and_mega then return end
             pcall(function()
-                for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+                for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
                     if (pet.properties.age == 6 or pet.properties.neon) or pet.properties.mega_neon then
                         ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
                         petCounter = petCounter + 1
@@ -2084,7 +2084,7 @@ local function autoTradeAllNeons()
         while task.wait(0.5) do
             if not getgenv().auto_trade_all_neons then return end
             pcall(function()
-                for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+                for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
                     if pet.properties.neon then
                         ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
                         petCounter = petCounter + 1
@@ -2102,7 +2102,7 @@ local function autoTradeAllNeons()
 end
 
 
--- for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+-- for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
 --     for _, petsDB_lowtierpets in pairs(Pets_commonto_ultrarare) do
 --         if pet.id == petsDB_lowtierpets and pet.properties.age <=4 and not pet.properties.neon and not pet.properties.mega_neon then
 --             ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
@@ -2131,7 +2131,7 @@ local function autoTradeLowTierPets()
                 ClickTradeWindowPopUps()
                 
                 local petCounter = 0   
-                for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+                for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
                     for _, petsDB_lowtierpets in pairs(Pets_commonto_ultrarare) do
                         if pet.id == petsDB_lowtierpets and pet.properties.age <=5 and not pet.properties.neon and not pet.properties.mega_neon then
                             ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
@@ -2171,7 +2171,7 @@ local function autoTradeCustom()
         local petCounter = 0
         while getgenv().auto_trade_custom do
             pcall(function()
-                for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+                for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
                     if pet.id == selectedPet then
                         ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
                         petCounter += 1
@@ -2209,7 +2209,7 @@ local function autoTradeSemiAuto()
         while task.wait(0.5) do
             if not getgenv().auto_trade_semi_auto then return end
             pcall(function()
-                for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+                for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
                     if pet.id then
             --          ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
                         petCounter = petCounter + 1 
@@ -2250,7 +2250,7 @@ local function autoTradeCustomTab(tab: string)
                 stuckCounter = 0
 
                 task.wait(1)
-                for _, item in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory[tab]) do
+                for _, item in pairs(Bypass("ClientData").get_data()[Player.Name].inventory[tab]) do
                     if item.id == selectedItem then
                         ReplicatedStorage.API:FindFirstChild("TradeAPI/AddItemToOffer"):FireServer(item.unique)
                         petCounter = petCounter + 1 
@@ -2276,13 +2276,23 @@ local function checkInventory()
         return false, "false", nil
     end
 
-    for _, gift in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.transport) do
-        if gift.id == "lunar_2024_dragonster" then
-            return true, "transport", {"lunar_2024_dragonster"}
+    for _, accessory in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pet_accessories) do
+        for _, v2 in SETTINGS.TRADE_LIST.PET_WEAR_TABLE do
+            if accessory.id == v2 then
+                return true, "pet_accessories", SETTINGS.TRADE_LIST.PET_WEAR_TABLE
+            end
         end
     end
 
-    for _, gift in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.gifts) do
+    for _, vehicle in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.transport) do
+        for _, v2 in SETTINGS.TRADE_LIST.VEHICLES_TABLE do
+            if vehicle.id == v2 then
+                return true, "transport", SETTINGS.TRADE_LIST.VEHICLES_TABLE
+            end
+        end
+    end
+
+    for _, gift in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.gifts) do
         for _, v2 in SETTINGS.TRADE_LIST.GIFTS_TABLE do
             if gift.id == v2 then
                 return true, "gifts", SETTINGS.TRADE_LIST.GIFTS_TABLE
@@ -2290,7 +2300,7 @@ local function checkInventory()
         end
     end
 
-    for _, toy in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.toys) do
+    for _, toy in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.toys) do
         for _, v2 in SETTINGS.TRADE_LIST.TOYS_TABLE do
             if toy.id == v2 then
                 return true, "toys", SETTINGS.TRADE_LIST.TOYS_TABLE
@@ -2299,7 +2309,7 @@ local function checkInventory()
     end
 
     if SETTINGS.TRADE_ONLY_LUMINOUS_MEGA then
-        for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+        for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
             for _, v2 in SETTINGS.TRADE_LIST.PETS_TABLE do
                 if pet.id == v2 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon == true then
                     return true, "pets", SETTINGS.TRADE_LIST.PETS_TABLE
@@ -2307,7 +2317,7 @@ local function checkInventory()
             end
         end
     else
-        for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+        for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
             for _, v2 in SETTINGS.TRADE_LIST.PETS_TABLE do
                 if pet.id == v2 or pet.properties.age == 6 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon == true then
                     return true, "pets", SETTINGS.TRADE_LIST.PETS_TABLE
@@ -2335,12 +2345,12 @@ local function tradeCollector(namePassOn)
                 task.wait()
             until Player.PlayerGui.TradeApp.Frame.Visible
             ClickTradeWindowPopUps()
-            task.wait(.1)
+            task.wait(1)
             ClickTradeWindowPopUps()
             
             local petCounter = 0
             if SETTINGS.TRADE_ONLY_LUMINOUS_MEGA then
-                for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory[tabName]) do
+                for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory[tabName]) do
                     for _, v2 in tables do
                         if pet.id == v2 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon then
                             ReplicatedStorage.API:FindFirstChild("TradeAPI/AddItemToOffer"):FireServer(pet.unique)
@@ -2354,7 +2364,7 @@ local function tradeCollector(namePassOn)
                 end
         
             else
-                for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory[tabName]) do
+                for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory[tabName]) do
                     for _, v2 in tables do
                         if pet.id == v2 or pet.properties.age == 6 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon then
                             ReplicatedStorage.API:FindFirstChild("TradeAPI/AddItemToOffer"):FireServer(pet.unique)
@@ -2370,7 +2380,7 @@ local function tradeCollector(namePassOn)
             
 
             -- local petCounter = 0   
-            -- for _, pet in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory[tabName]) do
+            -- for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory[tabName]) do
             --     if pet.id ~= "practice_dog" and not pet.properties.neon and pet.properties.age ~= 6 then
             --         ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
             --         petCounter = petCounter + 1
@@ -2487,7 +2497,7 @@ local function refreshInventory(tab: string, dropDownName: string)
     local petOptions = {}
     local petTable = {}
     local addedNames = {}
-    for i, p in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory[tab]) do
+    for i, p in pairs(Bypass("ClientData").get_data()[Player.Name].inventory[tab]) do
         if p and not addedNames[p.id] then
             if not petTable[p.id] then
                 petTable[p.id] = {}
@@ -2851,7 +2861,7 @@ AgeUpPotion:AddButton({
     Name = "Click to Age up Pet",
     Callback = function()
         local function equipPet()
-            for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+            for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
                 if v.id == selectedItem and v.id ~= "practice_dog" and v.properties.age ~= 6 and not v.properties.mega_neon then
                     ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, {["use_sound_delay"] = true})
                     task.wait()
@@ -2862,7 +2872,7 @@ AgeUpPotion:AddButton({
         end
         
         local function feedAgePotion()
-            for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.food) do
+            for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
                 if v.id == "pet_age_potion" then
                     ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(v.unique)
                     return true
