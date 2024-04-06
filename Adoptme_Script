@@ -1875,6 +1875,7 @@ end
 -- game:GetService("Players").dudemyblox.PlayerGui.TradeApp.Frame.NegotiationFrame.Body
 
 local function clickAcceptConfirmation()
+    local timeWaited = 30
     task.wait()
     if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
         ClickTradeWindowPopUps()
@@ -1885,8 +1886,9 @@ local function clickAcceptConfirmation()
         --     clickGuiButton(Player.PlayerGui.TradeApp.Frame.ConfirmationFrame.Accept)
 
         -- end
+        timeWaited -= 1
         task.wait(1)
-    until Player.PlayerGui.TradeApp.Frame.ConfirmationFrame.TradeIcon.Countdown.Visible == false
+    until Player.PlayerGui.TradeApp.Frame.ConfirmationFrame.TradeIcon.Countdown.Visible == false or timeWaited == 0
     
     if Player.PlayerGui.TradeApp.Frame.Visible then
         ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
@@ -1897,6 +1899,7 @@ end
 
 
 local function clickAcceptNegotiation()
+    local timeWaited = 30
     task.wait()
     if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
         ClickTradeWindowPopUps()
@@ -1906,8 +1909,9 @@ local function clickAcceptNegotiation()
         -- if Player.PlayerGui.TradeApp.Frame.Visible then
         --     clickGuiButton(Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.Accept)
         -- end
+        timeWaited -= 1
         task.wait(1)
-    until Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.LockIcon.Visible == false
+    until Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.LockIcon.Visible == false or timeWaited == 0
 
     if Player.PlayerGui.TradeApp.Frame.Visible then
         ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
