@@ -6,22 +6,36 @@ getgenv().SETTINGS = {
     ENABLE_AUTO_FARM = true,
     SET_FPS = 3,
     PET_NEON_PRIORITY = true,
-    PET_AUTO_FUSION = true,
+    PET_AUTO_FUSION = false,
 
     ENABLE_TRADE_COLLECTOR = true,
-	TRADE_ONLY_LUMINOUS_MEGA = true,
+	TRADE_ONLY_LUMINOUS_MEGA = false,
     TRADE_COLLECTOR_NAME = "dudemyblox", -- your account username (case sensitive) that will collect the pets.
     TRADE_LIST = {
+        PET_WEAR_TABLE = {
+            "capuchin_2024_inmate_cap",
+            "capuchin_2024_preppy_sweater",
+            "capuchin_2024_princess_booties",
+            "capuchin_2024_ship_wheel_necklace",
+            "capuchin_2024_royal_capuchin_cape",
+            "capuchin_2024_royal_capuchin_crown",
+            "capuchin_2024_royal_capuchin_saber_pin",
+        },
+
+        VEHICLES_TABLE = {
+            "lunar_2024_dragonster",
+        },
+
         GIFTS_TABLE = {
-            -- "rgb_reward_box",
-            -- "halloween_2023_scarecrow_box",
-            -- "halloween_2022_wolf_box",
-            -- "summerfest_2023_hermit_crab_box",
-            -- "winter_2021_walrus_box",
-            -- "winter_2022_pony_box",
-            -- "lny_2023_moon_bear_box",
-            -- "springfest_2023_duckling_box",
-			-- "lunar_2024_silk_bag"
+            "rgb_reward_box",
+            "halloween_2023_scarecrow_box",
+            "halloween_2022_wolf_box",
+            "summerfest_2023_hermit_crab_box",
+            "winter_2021_walrus_box",
+            "winter_2022_pony_box",
+            "lny_2023_moon_bear_box",
+            "springfest_2023_duckling_box",
+			"lunar_2024_silk_bag"
         },
     
         TOYS_TABLE = {
@@ -68,7 +82,7 @@ getgenv().SETTINGS = {
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Adoptme_Script"))()
 
 
-getgenv().howManyToBuy = 200
+getgenv().howManyToBuy = 10
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Capuchin.Lua"))()
 
