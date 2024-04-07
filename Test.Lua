@@ -39,7 +39,11 @@ getgenv().SETTINGS = {
         },
     
         TOYS_TABLE = {
-        --    "paint_2023_colored_hair_spray_sealer",
+           "paint_2023_colored_hair_spray_sealer",
+        },
+
+        FOOD_TABLE = {
+            "cure_all_potion",
         },
 
         -- the pets in here will be traded no matter what age they are
