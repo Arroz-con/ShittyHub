@@ -2296,6 +2296,14 @@ local function checkInventory()
         end
     end
 
+    for _, food in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
+        for _, v2 in SETTINGS.TRADE_LIST.FOOD_TABLE do
+            if food.id == v2 then
+                return true, "food", SETTINGS.TRADE_LIST.FOOD_TABLE
+            end
+        end
+    end
+
     for _, gift in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.gifts) do
         for _, v2 in SETTINGS.TRADE_LIST.GIFTS_TABLE do
             if gift.id == v2 then
