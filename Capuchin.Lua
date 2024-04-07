@@ -3,6 +3,16 @@ local Player = game:GetService("Players").LocalPlayer
 local Bypass = require(game.ReplicatedStorage:WaitForChild("Fsys")).load
 
 
+local function checkInventory()
+    local count = 0
+    for i, v in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
+        if v.id == "capuchin_2024_capuchin_monkey" then
+            count += 1
+        end
+    end
+    return count
+end
+
 local function buyAndOpen()
     local canBuy = ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("gifts", "capuchin_2024_standard_box", {})
     task.wait(.1)
@@ -53,6 +63,19 @@ local function ExchangeCapuchin(items, Capuchin, tab)
     end
     
     return true
+end
+
+local howMany = checkInventory()
+
+if howMany <= 100 and howMany >= 0 then
+    local count = 100 - howMany
+    for i = 1, count do
+        local hasMoney = ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "capuchin_2024_capuchin_monkey", {})
+        if hasMoney == "too little money" then
+            break
+        end
+        task.wait(.1)
+    end
 end
 
 for i = 1, howManyToBuy do
