@@ -4,9 +4,9 @@ end
 
 if game.PlaceId ~= 920587237 then return end
 
-game.Players.LocalPlayer:WaitForChild("PlayerGui")
-game.Players.LocalPlayer.PlayerGui:WaitForChild("NewsApp")
-repeat task.wait(1) until game.Players.LocalPlayer.PlayerGui.NewsApp.Enabled
+-- game.Players.LocalPlayer:WaitForChild("PlayerGui")
+-- game.Players.LocalPlayer.PlayerGui:WaitForChild("NewsApp")
+-- repeat task.wait(1) until game.Players.LocalPlayer.PlayerGui.NewsApp.Enabled
 
 
 local Players = game:GetService("Players")
