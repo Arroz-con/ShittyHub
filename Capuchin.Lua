@@ -2,6 +2,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Player = game:GetService("Players").LocalPlayer
 local Bypass = require(game.ReplicatedStorage:WaitForChild("Fsys")).load
 
+if SETTINGS.FOCUS_FARM_AGE_POTION then return end
 
 local function checkInventory()
     local count = 0
