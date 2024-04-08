@@ -49,10 +49,10 @@ local ClaimTable = {["hatch_three_eggs"] = {3}, ["fully_age_three_pets"] = {3}, 
 ["play_as_a_baby_for_twenty_five_minutes"] = {1500}, ["play_for_thirty_minutes"] = {1800}}
 
 local Player = Players.LocalPlayer
-Player.PlayerGui:WaitForChild("NewsApp")
-Player.PlayerGui:WaitForChild("DialogApp")
+Player.PlayerGui:WaitForChild("NewsApp", 180)
+Player.PlayerGui:WaitForChild("DialogApp", 180)
 
-local Bypass = require(ReplicatedStorage:WaitForChild("Fsys", 60)).load
+local Bypass = require(ReplicatedStorage:WaitForChild("Fsys", 180)).load
 local inventoryDB = Bypass("InventoryDB")
 local Remote = Bypass("RouterClient").get("HousingAPI/ActivateFurniture")
 local ClaimRemote = Bypass("RouterClient").get("QuestAPI/ClaimQuest")
