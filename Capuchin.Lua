@@ -84,6 +84,8 @@ for i = 1, howManyToBuy do
     task.wait()
 end
 
+if SETTINGS["DONT_TRANSFORM_CAPUCHIN"] then return print("not transforming") end
+
 repeat
     local hasMore = ExchangeCapuchin("capuchin_2024_handcuffs", "capuchin_2024_inmate_capuchin_monkey", "toys")
     task.wait()
@@ -103,5 +105,3 @@ repeat
     local hasMore = ExchangeCapuchin("capuchin_2024_compass", "capuchin_2024_pirate_ghost_capuchin_monkey", "toys")
     task.wait()
 until not hasMore
-
-print("done, no more pets to transform")
