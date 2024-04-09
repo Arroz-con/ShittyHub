@@ -20,6 +20,8 @@ getgenv().SETTINGS = {
             -- "capuchin_2024_royal_capuchin_cape",
             -- "capuchin_2024_royal_capuchin_crown",
             -- "capuchin_2024_royal_capuchin_saber_pin",
+            "capuchin_2024_tutu",
+
         },
 
         VEHICLES_TABLE = {
@@ -40,6 +42,8 @@ getgenv().SETTINGS = {
     
         TOYS_TABLE = {
            "paint_2023_colored_hair_spray_sealer",
+           "capuchin_2024_compass",
+
         },
 
         FOOD_TABLE = {
