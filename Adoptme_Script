@@ -1878,7 +1878,7 @@ end
 -- game:GetService("Players").dudemyblox.PlayerGui.TradeApp.Frame.NegotiationFrame.Body
 
 local function clickAcceptConfirmation()
-    local timeWaited = 30
+    local timeWaited = 20
     task.wait()
     if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
         ClickTradeWindowPopUps()
@@ -1902,7 +1902,7 @@ end
 
 
 local function clickAcceptNegotiation()
-    local timeWaited = 30
+    local timeWaited = 20
     task.wait()
     if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
         ClickTradeWindowPopUps()
@@ -2413,6 +2413,7 @@ local function tradeCollector(namePassOn)
             petCounter = 0
             ClickTradeWindowPopUps()
         end)
+        task.wait(1)
         ClickTradeWindowPopUps()
         task.wait()
     end
