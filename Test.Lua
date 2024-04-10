@@ -1,6 +1,8 @@
 getgenv().SETTINGS = {
     PET_TO_BUY = "desert_2024_egg", -- add pet or egg to buy when bot has no pets/egg left to level
 
+    DONT_TRANSFORM_CAPUCHIN = true,
+
     FOCUS_FARM_AGE_POTION = false,  -- if true, this will only farm 1 pet an keep aging to get aging potions
 
     ENABLE_AUTO_FARM = true,
@@ -90,7 +92,7 @@ getgenv().SETTINGS = {
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Adoptme_Script"))()
 
 
-getgenv().howManyToBuy = 10
+getgenv().howManyToBuy = 100
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Capuchin.Lua"))()
 
