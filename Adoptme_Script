@@ -11,8 +11,6 @@ game.Players.LocalPlayer.PlayerGui:WaitForChild("NewsApp", 300)
 
 if not game.Players.LocalPlayer:FindFirstChild("PlayerGui"):FindFirstChild("NewsApp") then game:Shutdown() end
 
-repeat task.wait(5) until game.Players.LocalPlayer.PlayerGui.NewsApp.Enabled == true
-
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
