@@ -4,14 +4,17 @@ end
 
 if game.PlaceId ~= 920587237 then return end
 
-task.wait(5)
-game.Players.LocalPlayer:WaitForChild("PlayerGui", 300)
-game.Players.LocalPlayer.PlayerGui:WaitForChild("NewsApp", 300)
-
-if not game.Players.LocalPlayer:FindFirstChild("PlayerGui"):FindFirstChild("NewsApp") then game:Shutdown() end
-
-
 local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+
+Player:WaitForChild("PlayerGui", 500)
+Player.PlayerGui:WaitForChild("NewsApp", 500)
+
+
+if not Player:FindFirstChild("PlayerGui"):FindFirstChild("NewsApp") then game:Shutdown() end
+
+
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local VI = game:GetService("VirtualInputManager")
 local UserGameSettings = UserSettings():GetService("UserGameSettings")
@@ -49,7 +52,7 @@ local ClaimTable = {["hatch_three_eggs"] = {3}, ["fully_age_three_pets"] = {3}, 
 ["buy_three_furniture_items_with_friends_coop_budget"] = {3}, ["buy_five_furniture_items"] = {5}, ["buy_fifteen_furniture_items"] = {15},
 ["play_as_a_baby_for_twenty_five_minutes"] = {1500}, ["play_for_thirty_minutes"] = {1800}}
 
-local Player = Players.LocalPlayer
+
 Player.PlayerGui:WaitForChild("NewsApp", 180)
 Player.PlayerGui:WaitForChild("DialogApp", 180)
 
@@ -219,9 +222,9 @@ end)
 --// Main Adopt me Screen (Play! Button)
 NewsAppConnection = Player.PlayerGui.NewsApp:GetPropertyChangedSignal("Enabled"):Connect(function()
     if Player.PlayerGui.NewsApp.Enabled then
-        local AbsPlay = Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton
+        local AbsPlay = Player.PlayerGui.NewsApp:WaitForChild("EnclosingFrame"):WaitForChild("MainFrame"):WaitForChild("Contents"):WaitForChild("PlayButton")
         clickGuiButton(AbsPlay)
-        firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
+        -- firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
         NewsAppConnection:Disconnect()
     end
 end)
@@ -230,7 +233,7 @@ end)
 if Player.PlayerGui.NewsApp.Enabled then
     local AbsPlay = Player.PlayerGui.NewsApp:WaitForChild("EnclosingFrame"):WaitForChild("MainFrame"):WaitForChild("Contents"):WaitForChild("PlayButton")
     clickGuiButton(AbsPlay)
-    firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
+    -- firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
     NewsAppConnection:Disconnect()
 end
 
