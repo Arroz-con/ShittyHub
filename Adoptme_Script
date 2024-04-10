@@ -5,7 +5,6 @@ end
 if game.PlaceId ~= 920587237 then return end
 
 task.wait(5)
-
 game.Players.LocalPlayer:WaitForChild("PlayerGui", 300)
 game.Players.LocalPlayer.PlayerGui:WaitForChild("NewsApp", 300)
 
@@ -222,7 +221,7 @@ NewsAppConnection = Player.PlayerGui.NewsApp:GetPropertyChangedSignal("Enabled")
     if Player.PlayerGui.NewsApp.Enabled then
         local AbsPlay = Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton
         clickGuiButton(AbsPlay)
-        -- firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
+        firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
         NewsAppConnection:Disconnect()
     end
 end)
@@ -231,7 +230,7 @@ end)
 if Player.PlayerGui.NewsApp.Enabled then
     local AbsPlay = Player.PlayerGui.NewsApp:WaitForChild("EnclosingFrame"):WaitForChild("MainFrame"):WaitForChild("Contents"):WaitForChild("PlayButton")
     clickGuiButton(AbsPlay)
-    -- firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
+    firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
     NewsAppConnection:Disconnect()
 end
 
