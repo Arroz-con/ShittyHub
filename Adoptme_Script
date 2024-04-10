@@ -4,6 +4,8 @@ end
 
 if game.PlaceId ~= 920587237 then return end
 
+task.wait(5)
+
 game.Players.LocalPlayer:WaitForChild("PlayerGui", 300)
 game.Players.LocalPlayer.PlayerGui:WaitForChild("NewsApp", 300)
 
@@ -1927,10 +1929,14 @@ local function autoAcceptTrade(bool)
         while getgenv().auto_accept_trade do
             if not bool then return end
             ClickTradeWindowPopUps()
-            clickAcceptNegotiation()
+            if Player.PlayerGui.TradeApp.Frame.Visible then
+                ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
+            end
             ClickTradeWindowPopUps()
-            clickAcceptConfirmation()
-            task.wait()
+            if Player.PlayerGui.TradeApp.Frame.Visible then
+                ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
+            end
+            task.wait(1)
         end
     end)
 end
