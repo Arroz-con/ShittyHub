@@ -4,16 +4,14 @@ end
 
 if game.PlaceId ~= 920587237 then return end
 
+task.wait(5)
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 
-Player:WaitForChild("PlayerGui", 500)
-Player.PlayerGui:WaitForChild("NewsApp", 500)
+Player:WaitForChild("PlayerGui", 300)
+Player.PlayerGui:WaitForChild("NewsApp", 300)
 
-
-if not Player:FindFirstChild("PlayerGui"):FindFirstChild("NewsApp") then game:Shutdown() end
-
-
+if Player:FindFirstChild("PlayerGui"):FindFirstChild("NewsApp") then game:Shutdown() end
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local VI = game:GetService("VirtualInputManager")
@@ -29,8 +27,6 @@ local getreg = getreg or getregistry or debug.getregistry
 local get_thread_identity = get_thread_identity or gti or getthreadidentity or getidentity or syn.get_thread_identity or fluxus.get_thread_identity
 local set_thread_identity = set_thread_context or sti or setthreadcontext or setidentity or syn.set_thread_identity or fluxus.set_thread_identity
 
-
-local ThemeColorDialogConnection
 local NewsAppConnection
 local DialogConnection
 local RoleChooserDialogConnection
@@ -51,7 +47,6 @@ local NeonTable = {["neon_fusion"] = true, ["mega_neon_fusion"] = true}
 local ClaimTable = {["hatch_three_eggs"] = {3}, ["fully_age_three_pets"] = {3}, ["make_two_trades"] = {2}, ["equip_two_accessories"] = {2},
 ["buy_three_furniture_items_with_friends_coop_budget"] = {3}, ["buy_five_furniture_items"] = {5}, ["buy_fifteen_furniture_items"] = {15},
 ["play_as_a_baby_for_twenty_five_minutes"] = {1500}, ["play_for_thirty_minutes"] = {1800}}
-
 
 Player.PlayerGui:WaitForChild("NewsApp", 180)
 Player.PlayerGui:WaitForChild("DialogApp", 180)
@@ -187,27 +182,24 @@ local function buyCrib()
 end
 
 
-ThemeColorDialogConnection = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:GetPropertyChangedSignal("Visible"):Connect(function()
-    if Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
-        task.wait()
-        local colorButton = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Info.Response:FindFirstChild("ColorTemplate")
-        local doneButton = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Buttons.ButtonTemplate
-        if not colorButton then return end
-        clickGuiButton(colorButton)
-        task.wait(1)
-        clickGuiButton(doneButton)
-        task.wait(10)
-        completeStarterTutorial()
-        task.wait(1)
-        getTradeLicense()
-        task.wait(1)
-        buyCrib()
-        task.wait(1)
-        game:Shutdown()
-        ThemeColorDialogConnection:Disconnect()
-    end
-end)
-
+Player.PlayerGui.DialogApp:WaitForChild("Dialog"):WaitForChild("ThemeColorDialog")
+if Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
+    task.wait()
+    local colorButton = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:WaitForChild("Info"):WaitForChild("Response"):WaitForChild("ColorTemplate")
+    local doneButton = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:WaitForChild("Buttons"):WaitForChild("ButtonTemplate")
+    if not colorButton then return end
+    clickGuiButton(colorButton)
+    task.wait(1)
+    clickGuiButton(doneButton)
+    task.wait(10)
+    completeStarterTutorial()
+    task.wait(1)
+    getTradeLicense()
+    task.wait(1)
+    buyCrib()
+    task.wait(1)
+    game:Shutdown()
+end
 
 
 -- ChatConnection = Player.PlayerGui.Chat.Frame.ChatChannelParentFrame["Frame_MessageLogDisplay"].Scroller.DescendantAdded:Connect(function(ChatChild)
@@ -222,9 +214,9 @@ end)
 --// Main Adopt me Screen (Play! Button)
 NewsAppConnection = Player.PlayerGui.NewsApp:GetPropertyChangedSignal("Enabled"):Connect(function()
     if Player.PlayerGui.NewsApp.Enabled then
-        local AbsPlay = Player.PlayerGui.NewsApp:WaitForChild("EnclosingFrame"):WaitForChild("MainFrame"):WaitForChild("Contents"):WaitForChild("PlayButton")
+        local AbsPlay = Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton
         clickGuiButton(AbsPlay)
-        -- firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
+        firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
         NewsAppConnection:Disconnect()
     end
 end)
@@ -233,7 +225,7 @@ end)
 if Player.PlayerGui.NewsApp.Enabled then
     local AbsPlay = Player.PlayerGui.NewsApp:WaitForChild("EnclosingFrame"):WaitForChild("MainFrame"):WaitForChild("Contents"):WaitForChild("PlayButton")
     clickGuiButton(AbsPlay)
-    -- firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
+    firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
     NewsAppConnection:Disconnect()
 end
 
@@ -2992,8 +2984,6 @@ if Player.PlayerGui.NewsApp.Enabled then
     NewsAppConnection:Disconnect()
 end
 
--- Disconnect all connections that are not needed anymore
-ThemeColorDialogConnection:Disconnect()
 
 -- fluxus.queue_on_teleport([[
 -- 		repeat task.wait() until game:IsLoaded()

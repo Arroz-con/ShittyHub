@@ -39,7 +39,8 @@ getgenv().SETTINGS = {
             "winter_2022_pony_box",
             "lny_2023_moon_bear_box",
             "springfest_2023_duckling_box",
-			"lunar_2024_silk_bag"
+			"lunar_2024_silk_bag",
+            "easter_2024_eggy_box"
         },
     
         TOYS_TABLE = {
