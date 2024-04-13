@@ -8,8 +8,8 @@ task.wait(5)
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 
-Player:WaitForChild("PlayerGui", 300)
-Player.PlayerGui:WaitForChild("NewsApp", 300)
+Player:WaitForChild("PlayerGui", 600)
+Player.PlayerGui:WaitForChild("NewsApp", 600)
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local VI = game:GetService("VirtualInputManager")
@@ -46,10 +46,10 @@ local ClaimTable = {["hatch_three_eggs"] = {3}, ["fully_age_three_pets"] = {3}, 
 ["buy_three_furniture_items_with_friends_coop_budget"] = {3}, ["buy_five_furniture_items"] = {5}, ["buy_fifteen_furniture_items"] = {15},
 ["play_as_a_baby_for_twenty_five_minutes"] = {1500}, ["play_for_thirty_minutes"] = {1800}}
 
-Player.PlayerGui:WaitForChild("NewsApp", 180)
-Player.PlayerGui:WaitForChild("DialogApp", 180)
+Player.PlayerGui:WaitForChild("NewsApp", 600)
+Player.PlayerGui:WaitForChild("DialogApp", 600)
 
-local Bypass = require(ReplicatedStorage:WaitForChild("Fsys", 180)).load
+local Bypass = require(ReplicatedStorage:WaitForChild("Fsys", 600)).load
 local inventoryDB = Bypass("InventoryDB")
 local Remote = Bypass("RouterClient").get("HousingAPI/ActivateFurniture")
 local ClaimRemote = Bypass("RouterClient").get("QuestAPI/ClaimQuest")
