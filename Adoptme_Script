@@ -11,8 +11,6 @@ local Player = Players.LocalPlayer
 Player:WaitForChild("PlayerGui", 300)
 Player.PlayerGui:WaitForChild("NewsApp", 300)
 
-if Player:FindFirstChild("PlayerGui"):FindFirstChild("NewsApp") then game:Shutdown() end
-
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local VI = game:GetService("VirtualInputManager")
 local UserGameSettings = UserSettings():GetService("UserGameSettings")
