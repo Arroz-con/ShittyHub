@@ -210,6 +210,27 @@ if Player.PlayerGui.NewsApp.Enabled then
     NewsAppConnection:Disconnect()
 end
 
+Player.PlayerGui.DialogApp:WaitForChild("Dialog"):WaitForChild("ThemeColorDialog")
+if Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
+    task.wait()
+    local colorButton = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:WaitForChild("Info"):WaitForChild("Response"):WaitForChild("ColorTemplate")
+    local doneButton = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:WaitForChild("Buttons"):WaitForChild("ButtonTemplate")
+    if not colorButton then return end
+    clickGuiButton(colorButton)
+    task.wait(1)
+    clickGuiButton(doneButton)
+    task.wait(10)
+    completeStarterTutorial()
+    task.wait(5)
+    getTradeLicense()
+    task.wait(1)
+    buyCrib()
+    task.wait(1)
+    PickColorConn:Disconnect()
+    game:Shutdown()
+end
+
+
 local isRenderingEnabled = false
 local function onInputBegan(input)
     if input.KeyCode.Name == "LeftControl" then
@@ -244,26 +265,6 @@ if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
     end
 end
 
-PickColorConn = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:GetPropertyChangedSignal("Visible"):Connect(function()
-    if Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
-        task.wait()
-        local colorButton = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:WaitForChild("Info"):WaitForChild("Response"):WaitForChild("ColorTemplate")
-        local doneButton = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:WaitForChild("Buttons"):WaitForChild("ButtonTemplate")
-        if not colorButton then return end
-        clickGuiButton(colorButton)
-        task.wait(1)
-        clickGuiButton(doneButton)
-        task.wait(10)
-        completeStarterTutorial()
-        task.wait(5)
-        getTradeLicense()
-        task.wait(1)
-        buyCrib()
-        task.wait(1)
-        PickColorConn:Disconnect()
-        game:Shutdown()
-    end
-end)
 
 -- // Clicks on baby button
 RoleChooserDialogConnection = Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog:GetPropertyChangedSignal("Visible"):Connect(function()
