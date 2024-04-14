@@ -56,6 +56,8 @@ local Remote = Bypass("RouterClient").get("HousingAPI/ActivateFurniture")
 local ClaimRemote = Bypass("RouterClient").get("QuestAPI/ClaimQuest")
 local RerollRemote = Bypass("RouterClient").get("QuestAPI/RerollQuest")
 
+repeat task.wait(1) until Bypass("ClientData").get_data()[Player.Name].loaded_in == true
+
 local Bed
 local Shower
 -- local Piano
@@ -242,7 +244,7 @@ if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
     end
 end
 
-PickColorConn = Player.PlayerGui.DialogApp:WaitForChild("Dialog"):WaitForChild("ThemeColorDialog"):GetPropertyChangedSignal("Visible"):Connect(function()
+PickColorConn = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:GetPropertyChangedSignal("Visible"):Connect(function()
     if Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
         task.wait()
         local colorButton = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:WaitForChild("Info"):WaitForChild("Response"):WaitForChild("ColorTemplate")
