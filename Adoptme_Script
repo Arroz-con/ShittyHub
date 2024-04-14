@@ -26,6 +26,7 @@ local get_thread_identity = get_thread_identity or gti or getthreadidentity or g
 local set_thread_identity = set_thread_context or sti or setthreadcontext or setidentity or syn.set_thread_identity or fluxus.set_thread_identity
 
 local NewsAppConnection
+local PickColorConn
 local DialogConnection
 local RoleChooserDialogConnection
 local RobuxProductDialogConnection
@@ -180,26 +181,6 @@ local function buyCrib()
 end
 
 
-Player.PlayerGui.DialogApp:WaitForChild("Dialog"):WaitForChild("ThemeColorDialog")
-if Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
-    task.wait()
-    local colorButton = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:WaitForChild("Info"):WaitForChild("Response"):WaitForChild("ColorTemplate")
-    local doneButton = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:WaitForChild("Buttons"):WaitForChild("ButtonTemplate")
-    if not colorButton then return end
-    clickGuiButton(colorButton)
-    task.wait(1)
-    clickGuiButton(doneButton)
-    task.wait(10)
-    completeStarterTutorial()
-    task.wait(1)
-    getTradeLicense()
-    task.wait(1)
-    buyCrib()
-    task.wait(1)
-    game:Shutdown()
-end
-
-
 -- ChatConnection = Player.PlayerGui.Chat.Frame.ChatChannelParentFrame["Frame_MessageLogDisplay"].Scroller.DescendantAdded:Connect(function(ChatChild)
 -- 	if ChatChild.Name == "TextButton" then
 -- 		task.wait(1)
@@ -261,6 +242,26 @@ if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
     end
 end
 
+PickColorConn = Player.PlayerGui.DialogApp:WaitForChild("Dialog"):WaitForChild("ThemeColorDialog"):GetPropertyChangedSignal("Visible"):Connect(function()
+    if Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
+        task.wait()
+        local colorButton = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:WaitForChild("Info"):WaitForChild("Response"):WaitForChild("ColorTemplate")
+        local doneButton = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:WaitForChild("Buttons"):WaitForChild("ButtonTemplate")
+        if not colorButton then return end
+        clickGuiButton(colorButton)
+        task.wait(1)
+        clickGuiButton(doneButton)
+        task.wait(10)
+        completeStarterTutorial()
+        task.wait(5)
+        getTradeLicense()
+        task.wait(1)
+        buyCrib()
+        task.wait(1)
+        PickColorConn:Disconnect()
+        game:Shutdown()
+    end
+end)
 
 -- // Clicks on baby button
 RoleChooserDialogConnection = Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog:GetPropertyChangedSignal("Visible"):Connect(function()
