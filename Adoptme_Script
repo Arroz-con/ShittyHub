@@ -220,7 +220,6 @@ PickColorConn = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:GetPropertyCh
         getTradeLicense()
         buyCrib()
         PickColorConn:Disconnect()
-        game:Shutdown()
     end
 end)
 
@@ -235,7 +234,6 @@ if Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
     getTradeLicense()
     buyCrib()
     PickColorConn:Disconnect()
-    game:Shutdown()
 end
 
 local isRenderingEnabled = false
