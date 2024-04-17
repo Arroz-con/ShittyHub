@@ -63,6 +63,8 @@ local function ExchangeCapuchin(items, Capuchin, tab)
         if canBuy == "too little money" then return false end
     end
     
+    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("AvatarAPI/TakeOffEverything"):InvokeServer("pet")
+
     return true
 end
 
