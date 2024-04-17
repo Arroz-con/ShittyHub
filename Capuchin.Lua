@@ -52,7 +52,7 @@ local function ExchangeCapuchin(items, Capuchin, tab)
         for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
             if v.id == "capuchin_2024_capuchin_monkey" then
                 ReplicatedStorage.API["EventAPI/TransformCapuchin"]:InvokeServer(v.unique, Capuchin)
-                task.wait(1)
+                task.wait(.1)
                 break
             end
         end

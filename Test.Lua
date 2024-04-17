@@ -101,7 +101,7 @@ getgenv().SETTINGS = {
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Adoptme_Script"))()
 
 
-getgenv().howManyToBuy = 100
+getgenv().howManyToBuy = 1
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Capuchin.Lua"))()
 

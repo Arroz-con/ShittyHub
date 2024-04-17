@@ -1980,19 +1980,14 @@ end
 
 local function autoTradeAllPets()
     local petCounter = 0
-    local howManyLeft = howManyToTrade
-    local petCount
-    local inventoryLeft
-    while howManyLeft ~= 0 do
+    while getgenv().auto_trade_all_pets do
         if not getgenv().auto_trade_all_pets then return end
-        if howManyLeft == 0 then return end
+
         sendTradeRequest()
 
         for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
-            if howManyLeft == 0 then break end
+            if not pet then getgenv().auto_trade_all_pets = false end
             ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
-            petCounter += 1
-            howManyLeft -= 1
             task.wait(.1)
             if petCounter == 18 then
                 break
