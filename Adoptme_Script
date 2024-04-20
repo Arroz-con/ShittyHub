@@ -236,7 +236,7 @@ if Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
     PickColorConn:Disconnect()
 end
 
-local isRenderingEnabled = false
+local isRenderingEnabled = true
 local function onInputBegan(input)
     if input.KeyCode.Name == "LeftControl" then
         isRenderingEnabled = not isRenderingEnabled
