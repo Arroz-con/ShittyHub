@@ -245,19 +245,6 @@ if not Bypass("ClientData").get_data()[Player.Name].tutorial_v2_completed and no
 end
 
 
-local isRenderingEnabled = true
-local function onInputBegan(input)
-    if input.KeyCode.Name == "LeftControl" then
-        isRenderingEnabled = not isRenderingEnabled
-        game:GetService("RunService"):Set3dRenderingEnabled(isRenderingEnabled)
-    end
-end
-
-UserInputService.InputBegan:Connect(onInputBegan)
-
--- runs at false first
-game:GetService("RunService"):Set3dRenderingEnabled(isRenderingEnabled)
-
 banMessageConnection = Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal("Visible"):Connect(function()
     if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
         Player.PlayerGui.DialogApp.Dialog.NormalDialog:WaitForChild("Info")
@@ -284,22 +271,15 @@ end
 RoleChooserDialogConnection = Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog:GetPropertyChangedSignal("Visible"):Connect(function()
     task.wait()
     if Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
-        if firesignal then
-            firesignal(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby.MouseButton1Click)
-        else
-            clickGuiButton(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby)
-        end
+        clickGuiButton(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby)
         RoleChooserDialogConnection:Disconnect()
     end
 end)
 
+task.wait(1)
 
 if Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
-    if firesignal then
-        firesignal(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby.MouseButton1Click)
-    else
-        clickGuiButton(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby)
-    end
+    clickGuiButton(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby)
     RoleChooserDialogConnection:Disconnect()
 end
 
