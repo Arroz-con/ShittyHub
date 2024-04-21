@@ -216,6 +216,9 @@ PickColorConn = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:GetPropertyCh
         if not colorButton then return end
         clickGuiButton(colorButton)
         clickGuiButton(doneButton)
+        task.wait(1)
+        FireButton("Next")
+        FireButton("Okay")
         PickColorConn:Disconnect()
     end
 end)
@@ -230,6 +233,9 @@ if not Bypass("ClientData").get_data()[Player.Name].tutorial_v2_completed and no
         clickGuiButton(doneButton)
         PickColorConn:Disconnect()
     end
+    task.wait(1)
+    FireButton("Next")
+    FireButton("Okay")
     completeStarterTutorial()
     getTradeLicense()
     buyCrib()
@@ -1819,9 +1825,6 @@ local function autoFarm()
     CompleteBabyAilments()
     CompletePetAilments()
     task.wait(2)
-
-    FireButton("Next")
-    FireButton("Okay")
 
     if not Bypass("ClientData").get_data()[Player.Name].tutorial_v2_completed and not Bypass("ClientData").get_data()[Player.Name].tutorial_v3_completed then
         completeStarterTutorial()
