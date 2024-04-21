@@ -226,7 +226,7 @@ PickColorConn = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:GetPropertyCh
     FireButton("Okay")
 end)
 
-if not Bypass("ClientData").get_data()[Player.Name].tutorial_v2_completed and not Bypass("ClientData").get_data()[Player.Name].tutorial_v3_completed then
+if not Bypass("ClientData").get_data()[Player.Name].tutorial_v2_completed and not Bypass("ClientData").get_data()[Player.Name].tutorial_v3_completed and not Bypass("ClientData").get_data()[Player.Name].starter_egg_given then
     if Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
         task.wait()
         local colorButton = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:WaitForChild("Info"):WaitForChild("Response"):WaitForChild("ColorTemplate")
@@ -239,9 +239,6 @@ if not Bypass("ClientData").get_data()[Player.Name].tutorial_v2_completed and no
     task.wait(1)
     FireButton("Next")
     FireButton("Okay")
-    completeStarterTutorial()
-    getTradeLicense()
-    buyCrib()
 end
 
 
@@ -271,7 +268,7 @@ end
 RoleChooserDialogConnection = Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog:GetPropertyChangedSignal("Visible"):Connect(function()
     task.wait()
     if Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
-        clickGuiButton(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby)
+        firesignal(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby.MouseButton1Click)
         RoleChooserDialogConnection:Disconnect()
     end
 end)
@@ -279,7 +276,7 @@ end)
 task.wait(1)
 
 if Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
-    clickGuiButton(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby)
+    firesignal(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby.MouseButton1Click)
     RoleChooserDialogConnection:Disconnect()
 end
 
@@ -1817,7 +1814,7 @@ local function autoFarm()
     CompletePetAilments()
     task.wait(2)
 
-    if not Bypass("ClientData").get_data()[Player.Name].tutorial_v2_completed and not Bypass("ClientData").get_data()[Player.Name].tutorial_v3_completed then
+    if not Bypass("ClientData").get_data()[Player.Name].tutorial_v2_completed and not Bypass("ClientData").get_data()[Player.Name].tutorial_v3_completed and not Bypass("ClientData").get_data()[Player.Name].starter_egg_given then
         completeStarterTutorial()
     end
 
