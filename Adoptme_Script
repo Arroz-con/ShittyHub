@@ -221,6 +221,9 @@ PickColorConn = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:GetPropertyCh
         FireButton("Okay")
         PickColorConn:Disconnect()
     end
+    task.wait(1)
+    FireButton("Next")
+    FireButton("Okay")
 end)
 
 if not Bypass("ClientData").get_data()[Player.Name].tutorial_v2_completed and not Bypass("ClientData").get_data()[Player.Name].tutorial_v3_completed then
@@ -281,14 +284,22 @@ end
 RoleChooserDialogConnection = Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog:GetPropertyChangedSignal("Visible"):Connect(function()
     task.wait()
     if Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
-        firesignal(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby.MouseButton1Click)
+        if firesignal then
+            firesignal(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby.MouseButton1Click)
+        else
+            clickGuiButton(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby)
+        end
         RoleChooserDialogConnection:Disconnect()
     end
 end)
 
 
 if Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
-    firesignal(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby.MouseButton1Click)
+    if firesignal then
+        firesignal(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby.MouseButton1Click)
+    else
+        clickGuiButton(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby)
+    end
     RoleChooserDialogConnection:Disconnect()
 end
 
