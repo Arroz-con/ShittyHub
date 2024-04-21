@@ -273,7 +273,6 @@ RoleChooserDialogConnection = Player.PlayerGui.DialogApp.Dialog.RoleChooserDialo
     end
 end)
 
-task.wait(1)
 
 if Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
     firesignal(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby.MouseButton1Click)
