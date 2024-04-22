@@ -3,7 +3,7 @@ getgenv().SETTINGS = {
 
     FOCUS_FARM_AGE_POTION = false,  -- if true, this will only farm 1 pet an keep aging to get aging potions
 
-    ENABLE_AUTO_FARM = true,
+    ENABLE_AUTO_FARM = false,
     SET_FPS = 3,
     PET_NEON_PRIORITY = true,
     PET_AUTO_FUSION = false,
@@ -38,7 +38,7 @@ getgenv().SETTINGS = {
             "lny_2023_moon_bear_box",
             "springfest_2023_duckling_box",
 			"lunar_2024_silk_bag",
-            -- "easter_2024_eggy_box"
+            "easter_2024_eggy_box"
         },
     
         TOYS_TABLE = {
