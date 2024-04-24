@@ -196,7 +196,7 @@ NewsAppConnection = Player.PlayerGui.NewsApp:GetPropertyChangedSignal("Enabled")
     if Player.PlayerGui.NewsApp.Enabled then
         local AbsPlay = Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton
         clickGuiButton(AbsPlay)
-        firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
+        -- firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
         NewsAppConnection:Disconnect()
     end
 end)
@@ -204,7 +204,7 @@ end)
 if Player.PlayerGui.NewsApp.Enabled then
     local AbsPlay = Player.PlayerGui.NewsApp:WaitForChild("EnclosingFrame"):WaitForChild("MainFrame"):WaitForChild("Contents"):WaitForChild("PlayButton")
     clickGuiButton(AbsPlay)
-    firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
+    -- firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
     NewsAppConnection:Disconnect()
 end
 
@@ -224,9 +224,13 @@ PickColorConn = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:GetPropertyCh
     task.wait(1)
     FireButton("Next")
     FireButton("Okay")
+    if Bypass("ClientData").get_data()[Player.Name].tutorial_in_progress then
+        getTradeLicense()
+        buyCrib()
+    end
 end)
 
-if not Bypass("ClientData").get_data()[Player.Name].tutorial_v2_completed and not Bypass("ClientData").get_data()[Player.Name].tutorial_v3_completed and not Bypass("ClientData").get_data()[Player.Name].starter_egg_given then
+if Bypass("ClientData").get_data()[Player.Name].tutorial_in_progress then
     if Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
         task.wait()
         local colorButton = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:WaitForChild("Info"):WaitForChild("Response"):WaitForChild("ColorTemplate")
@@ -239,6 +243,7 @@ if not Bypass("ClientData").get_data()[Player.Name].tutorial_v2_completed and no
     task.wait(1)
     FireButton("Next")
     FireButton("Okay")
+    getTradeLicense()
 end
 
 
@@ -1813,7 +1818,7 @@ local function autoFarm()
     CompletePetAilments()
     task.wait(2)
 
-    if not Bypass("ClientData").get_data()[Player.Name].tutorial_v2_completed and not Bypass("ClientData").get_data()[Player.Name].tutorial_v3_completed and not Bypass("ClientData").get_data()[Player.Name].starter_egg_given then
+    if Bypass("ClientData").get_data()[Player.Name].tutorial_in_progress then
         completeStarterTutorial()
     end
 
