@@ -26,6 +26,7 @@ local set_thread_identity = set_thread_context or sti or setthreadcontext or set
 
 local NewsAppConnection
 local PickColorConn
+local WelcomeScreen
 local DialogConnection
 local RoleChooserDialogConnection
 local RobuxProductDialogConnection
@@ -95,13 +96,15 @@ end
 
 --// gets the trade license so you can trade legendarys
 local function getTradeLicense()
-    Bypass("RouterClient").get("SettingsAPI/SetBooleanFlag"):FireServer("has_talked_to_trade_quest_npc", true)
-    task.wait()
-    Bypass("RouterClient").get("TradeAPI/BeginQuiz"):FireServer()
-    task.wait(1)
-    for _, v in pairs(Bypass('ClientData').get("trade_license_quiz_manager")["quiz"]) do
-        Bypass("RouterClient").get("TradeAPI/AnswerQuizQuestion"):FireServer(v["answer"])
-    end
+    pcall(function()
+        Bypass("RouterClient").get("SettingsAPI/SetBooleanFlag"):FireServer("has_talked_to_trade_quest_npc", true)
+        task.wait()
+        Bypass("RouterClient").get("TradeAPI/BeginQuiz"):FireServer()
+        task.wait(1)
+        for _, v in pairs(Bypass('ClientData').get("trade_license_quiz_manager")["quiz"]) do
+            Bypass("RouterClient").get("TradeAPI/AnswerQuizQuestion"):FireServer(v["answer"])
+        end
+    end)
 end
 
 --// completes the starter tutorial
@@ -182,13 +185,23 @@ local function buyCrib()
 end
 
 
--- ChatConnection = Player.PlayerGui.Chat.Frame.ChatChannelParentFrame["Frame_MessageLogDisplay"].Scroller.DescendantAdded:Connect(function(ChatChild)
--- 	if ChatChild.Name == "TextButton" then
--- 		task.wait(1)
--- 		firesignal(Player.PlayerGui.TopbarApp.TopBarContainer.ChatVisible.MouseButton1Click)
--- 		ChatConnection:Disconnect()
--- 	end
--- end)
+WelcomeScreen = Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal("Visible"):Connect(function()
+    if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
+        Player.PlayerGui.DialogApp.Dialog.NormalDialog:WaitForChild("Info")
+        Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info:WaitForChild("TextLabel")
+        Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
+            if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Welcome to Adopt Me!") then
+                FireButton("Next")
+                task.wait(1)
+                FireButton("Start")
+                task.wait(1)
+                completeStarterTutorial()
+                getTradeLicense()
+                WelcomeScreen:Disconnect()
+            end
+        end)
+    end
+end)
 
 
 --// Main Adopt me Screen (Play! Button)
@@ -208,43 +221,37 @@ if Player.PlayerGui.NewsApp.Enabled then
     NewsAppConnection:Disconnect()
 end
 
+local tutorialDebonce = false
 PickColorConn = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:GetPropertyChangedSignal("Visible"):Connect(function()
     if Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
-        task.wait()
+        if tutorialDebonce then return end
+        tutorialDebonce = true
         local colorButton = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:WaitForChild("Info"):WaitForChild("Response"):WaitForChild("ColorTemplate")
         local doneButton = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:WaitForChild("Buttons"):WaitForChild("ButtonTemplate")
         if not colorButton then return end
         clickGuiButton(colorButton)
         clickGuiButton(doneButton)
-        task.wait(1)
-        FireButton("Next")
-        FireButton("Okay")
+    
+        tutorialDebonce = false
         PickColorConn:Disconnect()
-    end
-    task.wait(1)
-    FireButton("Next")
-    FireButton("Okay")
-    if Bypass("ClientData").get_data()[Player.Name].tutorial_in_progress then
-        getTradeLicense()
-        buyCrib()
     end
 end)
 
-if Bypass("ClientData").get_data()[Player.Name].tutorial_in_progress then
-    if Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
-        task.wait()
-        local colorButton = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:WaitForChild("Info"):WaitForChild("Response"):WaitForChild("ColorTemplate")
-        local doneButton = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:WaitForChild("Buttons"):WaitForChild("ButtonTemplate")
-        if not colorButton then return end
-        clickGuiButton(colorButton)
-        clickGuiButton(doneButton)
-        PickColorConn:Disconnect()
-    end
-    task.wait(1)
-    FireButton("Next")
-    FireButton("Okay")
-    getTradeLicense()
+
+if Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
+    if tutorialDebonce then return end
+    tutorialDebonce = true
+    local colorButton = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:WaitForChild("Info"):WaitForChild("Response"):WaitForChild("ColorTemplate")
+    local doneButton = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:WaitForChild("Buttons"):WaitForChild("ButtonTemplate")
+    if not colorButton then return end
+    clickGuiButton(colorButton)
+    clickGuiButton(doneButton)
+
+    tutorialDebonce = false
+    PickColorConn:Disconnect()
 end
+
+
 
 
 banMessageConnection = Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal("Visible"):Connect(function()
@@ -1818,9 +1825,6 @@ local function autoFarm()
     CompletePetAilments()
     task.wait(2)
 
-    if Bypass("ClientData").get_data()[Player.Name].tutorial_in_progress then
-        completeStarterTutorial()
-    end
 
     -- adopt me code
     -- ReplicatedStorage:WaitForChild("API"):WaitForChild("CodeRedemptionAPI/AttemptRedeemCode"):InvokeServer("2xfire")
@@ -2954,16 +2958,22 @@ if Players.LocalPlayer.Name == SETTINGS.TRADE_COLLECTOR_NAME and SETTINGS.ENABLE
     task.wait(1)
 end
 
-if SETTINGS.ENABLE_AUTO_FARM then
-    findFurniture()
-    if Bed then
-        task.wait(math.random(1, 5))
-        FarmToggle:Set(true)
-        task.wait(2)
-    else
-        FarmToggle:Set(false)
+local function startAutoFarm()
+    if SETTINGS.ENABLE_AUTO_FARM then
+        findFurniture()
+        if Bed then
+            task.wait(math.random(1, 5))
+            FarmToggle:Set(true)
+            task.wait(2)
+        else
+            buyCrib()
+            FarmToggle:Set(false)
+            startAutoFarm()
+        end
     end
 end
+
+startAutoFarm()
 
 game:GetService("Players").LocalPlayer.OnTeleport:Connect(function(State)
     if State == Enum.TeleportState.Started then
@@ -2976,17 +2986,8 @@ if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Tha
     FireButton("Okay")
 end
 
-if Player.PlayerGui.NewsApp.Enabled then
-    repeat
-        local AbsPlay = Player.PlayerGui.NewsApp:WaitForChild("EnclosingFrame"):WaitForChild("MainFrame"):WaitForChild("Contents"):WaitForChild("PlayButton")
-        clickGuiButton(AbsPlay)
-        task.wait(1)
-    until not Player.PlayerGui.NewsApp.Enabled
-    -- firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
-    NewsAppConnection:Disconnect()
-end
 
-
+WelcomeScreen:Disconnect()
 -- fluxus.queue_on_teleport([[
 -- 		repeat task.wait() until game:IsLoaded()
 -- 		game:Shutdown()
