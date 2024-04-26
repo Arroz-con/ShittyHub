@@ -2995,11 +2995,11 @@ end
 
 WelcomeScreen:Disconnect()
 
-local tele = fluxus or codex or arceusx
+-- local tele = fluxus or codex or arceusx
 
-tele.queue_on_teleport([[
-		repeat task.wait() until game:IsLoaded()
-		game:Shutdown()
-		]])
+-- tele.queue_on_teleport([[
+-- 		repeat task.wait() until game:IsLoaded()
+-- 		game:Shutdown()
+-- 		]])
 
 -- game:GetService("RunService"):Set3dRenderingEnabled(false)
