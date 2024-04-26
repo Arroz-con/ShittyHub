@@ -1438,7 +1438,6 @@ local function TeleportMainMap()
     Player.Character.Humanoid.WalkSpeed = 0
     task.wait(2)
     subToHouse()
-    
 end
 
 -- local function TeleportWinterShop()
@@ -1621,6 +1620,13 @@ local function autoFarm()
                     ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("School")
                     break 
                 end
+
+                for i, v in Bypass("ClientData").get_data()[Player.Name].fossil_2024_mine_manager.static_blocks do
+                    ReplicatedStorage.API["MiningAPI/MineBlock"]:InvokeServer(i)
+                    task.wait()
+                end
+                
+
             elseif v["id"] == "bored" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
                     TeleportPlayGround()
@@ -2976,7 +2982,7 @@ end
 startAutoFarm()
 
 game:GetService("Players").LocalPlayer.OnTeleport:Connect(function(State)
-    if State == Enum.TeleportState.Started then
+    if State == Enum.TeleportState.InProgress then
         game:Shutdown()
     end
 end)
@@ -2988,9 +2994,12 @@ end
 
 
 WelcomeScreen:Disconnect()
--- fluxus.queue_on_teleport([[
--- 		repeat task.wait() until game:IsLoaded()
--- 		game:Shutdown()
--- 		]])
+
+local tele = fluxus or codex or arceusx
+
+tele.queue_on_teleport([[
+		repeat task.wait() until game:IsLoaded()
+		game:Shutdown()
+		]])
 
 -- game:GetService("RunService"):Set3dRenderingEnabled(false)
