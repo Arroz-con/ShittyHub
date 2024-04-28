@@ -61,7 +61,8 @@ local function mineBlock(blockType)
 end
 
 local function waitingForPickaxe(pickaxeName)
-    if not Player.Character.FossilMiningPickaxe.ModelHandle:FindFirstChild(pickaxeName) then
+    local pickaxe = Player.Character.FossilMiningPickaxe.ModelHandle[pickaxeName]
+    if not pickaxe then
         local count = 0
         repeat
             findButton("Auto Mine: On")
@@ -69,7 +70,8 @@ local function waitingForPickaxe(pickaxeName)
             count += 1
             print("Waiting for Pickaxe")
             task.wait(60)
-        until Player.Character.FossilMiningPickaxe.ModelHandle:FindFirstChild(pickaxeName) or count == 420
+            pickaxe = Player.Character.FossilMiningPickaxe.ModelHandle[pickaxeName]
+        until pickaxe or count == 6
 
         findButton("Auto Mine: Off")
     end
