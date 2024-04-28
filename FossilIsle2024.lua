@@ -52,7 +52,7 @@ local function mineBlock(blockType)
         end
 
         if checkOre("diamond_ore") == 10 then
-            upgradePickaxe("fossil_2024_granite_pickaxe")
+            upgradePickaxe("fossil_2024_diamond_pickaxe")
         end
 
         task.wait(1)
@@ -70,7 +70,7 @@ local function waitingForPickaxe(pickaxeName)
             print("Waiting for Pickaxe")
             task.wait(60)
         until Player.Character.FossilMiningPickaxe.ModelHandle[pickaxeName] or count == 420
-        
+
         findButton("Auto Mine: Off")
     end
 end
@@ -84,7 +84,7 @@ waitingForPickaxe("PickaxeTrail_Iron")
 print("has iron pcikaxe")
 mineBlock("Stone")
 print("finished mining stone")
-waitingForPickaxe("PickaxeTrail_Granite")
+waitingForPickaxe("PickaxeTrail_Diamond")
 print("has Granite pcikaxe")
 
 print("Finished")
