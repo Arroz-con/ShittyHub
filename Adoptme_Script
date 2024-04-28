@@ -673,6 +673,55 @@ local function collectEggs()
 end
 --]]
 
+local function FossilIsleEvent()
+    if not SETTINGS.FOSSIL then return end
+    if SETTINGS.FOCUS_FARM_AGE_POTION then return end
+    print("ran")
+    -- buy fossil 
+    local function buyFossil(fossilName)
+        ReplicatedStorage.API["MiningAPI/PurchaseFossilPack"]:FireServer(fossilName)
+    end
+
+    -- check if 20 fossils is is inventory
+    local function checkFossilInventory(fossilName)
+        local counter = 0
+        for i, v in Bypass("ClientData").get_data()[Player.Name].inventory.toys do
+            if v.id == fossilName then
+                counter += 1
+                if counter >= 20 then
+                    return true
+                end
+            end
+        end
+        return false
+    end
+
+    -- turn fossil into machine
+    local function turnInFossil(fossilName)
+        print(ReplicatedStorage.API["MiningAPI/StartMachineAction"]:InvokeServer("Pet", fossilName))
+    end
+
+    local function getPet()
+        ReplicatedStorage.API["MiningAPI/ClaimMachineAction"]:InvokeServer("Pet")
+    end
+
+
+    for i = 1, 1 do
+        if not checkFossilInventory(SETTINGS.FOSSIL) then
+            local count = 0
+            repeat
+                buyFossil(SETTINGS.FOSSIL)
+                count += 1
+                task.wait(1)
+            until checkFossilInventory(SETTINGS.FOSSIL) or count == 5
+        end
+
+        turnInFossil(SETTINGS.FOSSIL)
+        task.wait(1)
+        getPet()
+    end
+end
+
 local pets_legendary = {}
 local pets_ultrarare = {}
 local pets_rare = {}
@@ -1661,6 +1710,7 @@ local function autoFarm()
             elseif v["id"] == "camping" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
                     TeleportCampSite()
+                    FossilIsleEvent()
                     break
                 end
             end
