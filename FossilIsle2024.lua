@@ -78,13 +78,17 @@ end
 task.wait(3)
 findButton("Auto Mine: Off")
 
+print("mining dirt")
 mineBlock("Dirt")
 print("finished mining dirt")
 waitingForPickaxe("PickaxeTrail_Iron")
 print("has iron pcikaxe")
+print("mining stone")
 mineBlock("Stone")
 print("finished mining stone")
 waitingForPickaxe("PickaxeTrail_Diamond")
 print("has Granite pcikaxe")
+print("mining granite")
+mineBlock("Granite")
 
 print("Finished")
