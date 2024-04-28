@@ -86,4 +86,5 @@ print("mining granite")
 mineBlock("Granite")
 
 findButton("Auto Mine: On")
+Player.Character.HumanoidRootPart.Anchored = false
 print("Finished")
