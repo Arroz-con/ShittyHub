@@ -42,6 +42,7 @@ end
 local function mineBlock(blockType)
     repeat
         local block, hits = findBlock(blockType)
+        print(block, hits)
         if block and hits <= 3 then
             Player.Character.HumanoidRootPart.CFrame = block.MiningBlockRoot.CFrame + Vector3.new(0, 5, 0)
         end
@@ -71,6 +72,9 @@ task.wait(3)
 findButton()
 
 mineBlock("Dirt")
+print("finished mining dirt")
 waitingForPickaxe("PickaxeTrail_Iron")
+print("has iron pcikaxe")
 mineBlock("Stone")
+print("finished mining stone")
 print("ran")
