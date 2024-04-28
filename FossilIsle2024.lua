@@ -24,7 +24,7 @@ local function findBlock(blockType)
             return v, hits
         end
     end
-    return false, 5
+    return false, 99
 end
 
 local function checkIron()
@@ -43,7 +43,7 @@ local function mineBlock(blockType)
     repeat
         local block, hits = findBlock(blockType)
         print(block, hits)
-        if block and hits <= 3 then
+        if block then
             Player.Character.HumanoidRootPart.CFrame = block.MiningBlockRoot.CFrame + Vector3.new(0, 5, 0)
         end
 
