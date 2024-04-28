@@ -51,7 +51,7 @@ local function mineBlock(blockType)
             upgradePickaxe("fossil_2024_iron_pickaxe")
         end
 
-        if checkOre("diamond_ore") == 10 then
+        if checkOre("diamond_ore") == 20 then
             upgradePickaxe("fossil_2024_diamond_pickaxe")
         end
 
