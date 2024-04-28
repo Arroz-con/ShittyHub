@@ -60,22 +60,13 @@ local function mineBlock(blockType)
     until not block
 end
 
-local function waitingForPickaxe(pickaxeName)
-    local pickaxe = Player.Character.FossilMiningPickaxe.ModelHandle[pickaxeName]
-    if not pickaxe then
-        local count = 0
-        repeat
-            findButton("Auto Mine: On")
-            pickupPickaxe()
-            count += 1
-            print("Waiting for Pickaxe")
-            task.wait(60)
-            pickaxe = Player.Character.FossilMiningPickaxe.ModelHandle[pickaxeName]
-        until pickaxe or count == 6
 
-        findButton("Auto Mine: Off")
+Player.Character.ChildAdded:Connect(function(child)
+    if child.Name == "FossilMiningPickaxe" then
+        child:WaitForChild("ModelHandle")
+        pickupPickaxe()
     end
-end
+end)
 
 
 task.wait(3)
@@ -84,22 +75,14 @@ findButton("Auto Mine: Off")
 print("mining dirt")
 mineBlock("Dirt")
 print("finished mining dirt")
-local stage = Bypass("ClientData").get_data()[Player.Name].fossil_2024_mine_manager.layer_progress
-print(stage)
-if stage <= 2 then
-    waitingForPickaxe("PickaxeTrail_Iron")
-end
-print("has iron pickaxe")
+
 print("mining stone")
 mineBlock("Stone")
 print("finished mining stone")
-local stage = Bypass("ClientData").get_data()[Player.Name].fossil_2024_mine_manager.layer_progress
-print(stage)
-if stage == 3 then
-    waitingForPickaxe("PickaxeTrail_Diamond")
-end
+
 print("has Granite pcikaxe")
 print("mining granite")
 mineBlock("Granite")
 
+findButton("Auto Mine: On")
 print("Finished")
