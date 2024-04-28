@@ -44,6 +44,7 @@ local function mineBlock(blockType)
     repeat
         local block, hits = findBlock(blockType)
         if block then
+            Player.Character.HumanoidRootPart.Anchored = true
             Player.Character.HumanoidRootPart.CFrame = block.MiningBlockRoot.CFrame + Vector3.new(0, 7, 0)
         end
 
