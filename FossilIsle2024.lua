@@ -44,7 +44,7 @@ local function mineBlock(blockType)
         local block, hits = findBlock(blockType)
         print(block, hits)
         if block then
-            Player.Character.HumanoidRootPart.CFrame = block.MiningBlockRoot.CFrame + Vector3.new(0, 5, 0)
+            Player.Character.HumanoidRootPart.CFrame = block.MiningBlockRoot.CFrame + Vector3.new(0, 10, 0)
         end
 
         if checkIron() == 10 then
