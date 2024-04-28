@@ -86,7 +86,7 @@ mineBlock("Dirt")
 print("finished mining dirt")
 local stage = Bypass("ClientData").get_data()[Player.Name].fossil_2024_mine_manager.layer_progress
 print(stage)
-if stage == 2 then
+if stage <= 2 then
     waitingForPickaxe("PickaxeTrail_Iron")
 end
 print("has iron pickaxe")
