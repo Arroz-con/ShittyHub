@@ -27,12 +27,13 @@ local function findBlock(blockType)
     return false, 99
 end
 
-local function checkIron()
-    return Bypass("ClientData").get_data()[Player.Name].fossil_2024_mine_manager.iron_ore
+local function checkOre(ore)
+    return Bypass("ClientData").get_data()[Player.Name].fossil_2024_mine_manager[ore]
 end
 
-local function upgradePickaxe()
-    ReplicatedStorage.API["MiningAPI/StartMachineAction"]:InvokeServer("Pickaxe", "fossil_2024_iron_pickaxe")
+
+local function upgradePickaxe(pickaxeId)
+    ReplicatedStorage.API["MiningAPI/StartMachineAction"]:InvokeServer("Pickaxe", pickaxeId)
 end
 
 local function pickupPickaxe()
@@ -42,13 +43,16 @@ end
 local function mineBlock(blockType)
     repeat
         local block, hits = findBlock(blockType)
-        print(block, hits)
         if block then
             Player.Character.HumanoidRootPart.CFrame = block.MiningBlockRoot.CFrame + Vector3.new(0, 7, 0)
         end
 
-        if checkIron() == 10 then
-            upgradePickaxe()
+        if checkOre("iron_ore") == 10 then
+            upgradePickaxe("fossil_2024_iron_pickaxe")
+        end
+
+        if checkOre("diamond_ore") == 10 then
+            upgradePickaxe("fossil_2024_granite_pickaxe")
         end
 
         task.wait(1)
@@ -77,4 +81,7 @@ waitingForPickaxe("PickaxeTrail_Iron")
 print("has iron pcikaxe")
 mineBlock("Stone")
 print("finished mining stone")
-print("ran")
+waitingForPickaxe("PickaxeTrail_Granite")
+print("has Granite pcikaxe")
+
+print("Finished")
