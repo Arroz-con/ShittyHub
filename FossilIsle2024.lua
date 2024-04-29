@@ -61,16 +61,14 @@ local function mineBlock(blockType)
     until not block
 end
 
-
-Player.Character.ChildAdded:Connect(function(child)
-    if child.Name == "FossilMiningPickaxe" then
-        child:WaitForChild("ModelHandle")
+Player.PlayerGui.HintApp.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
+    if Player.PlayerGui.HintApp.TextLabel.Text:match("pickaxe") then
         pickupPickaxe()
     end
 end)
 
 
-task.wait(3)
+task.wait(5)
 findButton("Auto Mine: Off")
 
 print("mining dirt")
