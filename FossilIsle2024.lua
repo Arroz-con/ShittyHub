@@ -2,6 +2,10 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Player = game:GetService("Players").LocalPlayer
 local Bypass = require(ReplicatedStorage:WaitForChild("Fsys")).load
 local VI = game:GetService("VirtualInputManager")
+local camera = workspace.CurrentCamera
+local viewportSize = camera.ViewportSize
+local middleScreen = viewportSize / 2
+
 local ExposedBlocks = game:GetService("Workspace").Interiors.FossilIsleInterior.ExposedBlocks
 
 local function findButton(onOrOff)
@@ -44,6 +48,9 @@ local function mineBlock(blockType)
     repeat
         local block, hits = findBlock(blockType)
         if block then
+            VI:SendMouseButtonEvent(middleScreen.X, middleScreen.Y + 80, 0, true, game, 1)
+            task.wait()
+            VI:SendMouseButtonEvent(middleScreen.X, middleScreen.Y + 80, 0, false, game, 1)
             Player.Character.HumanoidRootPart.Anchored = true
             Player.Character.HumanoidRootPart.CFrame = block.MiningBlockRoot.CFrame + Vector3.new(0, 7, 0)
         end
