@@ -83,12 +83,13 @@ findButton("Auto Mine: Off")
 print("mining dirt")
 mineBlock("Dirt")
 print("finished mining dirt")
+pickupPickaxe()
 
 print("mining stone")
 mineBlock("Stone")
 print("finished mining stone")
+pickupPickaxe()
 
-print("has Granite pcikaxe")
 print("mining granite")
 mineBlock("Granite")
 
