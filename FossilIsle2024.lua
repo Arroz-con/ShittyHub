@@ -6,6 +6,9 @@ local camera = workspace.CurrentCamera
 local viewportSize = camera.ViewportSize
 local middleScreen = viewportSize / 2
 
+if not SETTINGS.FARM_FOSSIL_EVENT then return end 
+if Bypass("ClientData").get_data()[Player.Name].fossil_2024_mine_manager.mine_completed then return end
+
 local ExposedBlocks = game:GetService("Workspace").Interiors.FossilIsleInterior.ExposedBlocks
 
 local function findButton(onOrOff)
