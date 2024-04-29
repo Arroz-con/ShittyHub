@@ -52,7 +52,9 @@ local function mineBlock(blockType)
             task.wait()
             VI:SendMouseButtonEvent(middleScreen.X, middleScreen.Y + 80, 0, false, game, 1)
             Player.Character.HumanoidRootPart.Anchored = true
-            Player.Character.HumanoidRootPart.CFrame = block.MiningBlockRoot.CFrame + Vector3.new(0, 5, 0)
+            local root = block:FindFirstChild("MiningBlockRoot")
+            if not root then continue end
+            Player.Character.HumanoidRootPart.CFrame = root.CFrame + Vector3.new(0, 5, 0)
         end
 
         if checkOre("iron_ore") == 10 then
