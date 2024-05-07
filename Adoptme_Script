@@ -63,6 +63,8 @@ local Shower
 local Piano
 local normalLure
 
+local isDigging = false
+
 UserGameSettings.GraphicsQualityLevel = 1
 UserGameSettings.MasterVolume = 0
 
@@ -674,13 +676,20 @@ end
 --]]
 
 local function FossilIsleEvent()
-    if not SETTINGS.FOSSIL then return end
-    if SETTINGS.FOCUS_FARM_AGE_POTION then return end
-    print("ran")
+    -- if not SETTINGS.FOSSIL then return end
+    -- if SETTINGS.FOCUS_FARM_AGE_POTION then return end
+
+    local fossils = {
+        "fossil_2024_dimorphodon_fossil",
+        "fossil_2024_elasmosaurus_fossil",
+        "fossil_2024_ankylosaurus_fossil",
+        "fossil_2024_velociraptor_fossil",
+        "fossil_2024_brachiosaurus_fossil"
+    }
     -- buy fossil 
-    local function buyFossil(fossilName)
-        ReplicatedStorage.API["MiningAPI/PurchaseFossilPack"]:FireServer(fossilName)
-    end
+    -- local function buyFossil(fossilName)
+    --     ReplicatedStorage.API["MiningAPI/PurchaseFossilPack"]:FireServer(fossilName)
+    -- end
 
     -- check if 20 fossils is is inventory
     local function checkFossilInventory(fossilName)
@@ -698,30 +707,93 @@ local function FossilIsleEvent()
 
     -- turn fossil into machine
     local function turnInFossil(fossilName)
-        print(ReplicatedStorage.API["MiningAPI/StartMachineAction"]:InvokeServer("Pet", fossilName))
+        ReplicatedStorage.API["MiningAPI/StartMachineAction"]:InvokeServer("Pet", fossilName)
     end
 
     local function getPet()
         ReplicatedStorage.API["MiningAPI/ClaimMachineAction"]:InvokeServer("Pet")
     end
 
-
-    local count = 0
-    if not checkFossilInventory(SETTINGS.FOSSIL) then
-        repeat
-            buyFossil(SETTINGS.FOSSIL)
-            count += 1
-            task.wait(1)
-        until checkFossilInventory(SETTINGS.FOSSIL) or count == 5
-    end
-
-    if count <= 4 then
-        turnInFossil(SETTINGS.FOSSIL)
-    end
-    task.wait(1)
     getPet()
-    
+
+    for _, v in ipairs(fossils) do
+        local hasfossils = checkFossilInventory(v)
+        if hasfossils then
+            turnInFossil(v)
+            break
+        end
+        task.wait()
+    end
+
 end
+
+local function FossilDiggingEvent()
+    if not SETTINGS.FARM_FOSSIL_EVENT then return end 
+
+    isDigging = true
+
+    local function findBlocks()
+        local ExposedBlocks = game:GetService("Workspace"):WaitForChild("Interiors"):WaitForChild("FossilIsleInterior"):WaitForChild("ExposedBlocks")
+
+        for _, v in ExposedBlocks:GetChildren() do
+            ReplicatedStorage.API["MiningAPI/MineBlock"]:InvokeServer(v:GetAttribute("key"))
+            v:Destroy()
+            task.wait(.5)
+        end
+    end
+
+    local function checkOre(ore)
+        return Bypass("ClientData").get_data()[Player.Name].fossil_2024_mine_manager[ore]
+    end
+
+
+    local function upgradePickaxe(pickaxeId)
+        ReplicatedStorage.API["MiningAPI/StartMachineAction"]:InvokeServer("Pickaxe", pickaxeId)
+    end
+
+    local function pickupPickaxe()
+        ReplicatedStorage.API["MiningAPI/ClaimMachineAction"]:InvokeServer("Pickaxe")
+    end
+
+    local function mineBlock()
+        findBlocks()
+
+        if checkOre("iron_ore") >= 10 then
+            upgradePickaxe("fossil_2024_iron_pickaxe")
+        end
+
+        if checkOre("diamond_ore") >= 20 then
+            upgradePickaxe("fossil_2024_diamond_pickaxe")
+        end
+
+        pickupPickaxe()
+        task.wait(1)
+    end
+
+    for i, _ in Bypass("ClientData").get_data()[Player.Name].fossil_2024_mine_manager.static_blocks do
+        ReplicatedStorage.API["MiningAPI/MineBlock"]:InvokeServer(i)
+        task.wait(.1)
+    end    
+
+    Bypass("CollisionsClient").set_collidable(false)
+    Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
+    SetLocationFunc("FossilIsleInterior", "MainDoor", {})
+    game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))) -- game:GetService("Workspace").Interiors.FossilIsleInterior.Static.MiningArea.Origin
+    Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:FindFirstChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.MiningArea.Origin.CFrame + Vector3.new(0, 5, 0)
+    Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
+    Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+    Player.Character.Humanoid.WalkSpeed = 0
+    task.wait(5)
+
+    mineBlock()
+
+    Player.Character.HumanoidRootPart.Anchored = false
+    isDigging = false
+    print("Finished")
+end
+
+
+
 
 local pets_legendary = {}
 local pets_ultrarare = {}
@@ -1223,6 +1295,10 @@ local petsToAgeTable = {}
 local function getPet()
     if SETTINGS.FOCUS_FARM_AGE_POTION then
         if getCommon(6) then return end
+        if getLegendary(6) then return end
+        if getUltraRare(6) then return end
+        if getRare(6) then return end
+        if getUnCommon(6) then return end
     end
 
     if SETTINGS.PET_NEON_PRIORITY then
@@ -1477,6 +1553,8 @@ local function floorPart()
 end
 
 local function TeleportMainMap()
+    local isAlreadyOnMainMap = game.Workspace:FindFirstChild("Interiors"):FindFirstChild("center_map_plot", true)
+    if isAlreadyOnMainMap then return end
     Bypass("CollisionsClient").set_collidable(false)
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
     SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
@@ -1490,21 +1568,6 @@ local function TeleportMainMap()
     subToHouse()
 end
 
--- local function TeleportWinterShop()
---     Bypass("CollisionsClient").set_collidable(false)
---     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
---     SetLocationFunc("Winter2023Shop", "MainDoor2", {})
---     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
---     Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:FindFirstChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Event.BuyCurrency.PrimaryPart.CFrame + Vector3.new(10, 5, 10)
---     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
---     Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
---     Player.Character.Humanoid.WalkSpeed = 0
---     for i=1, 20 do
---         game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("WinterEventAPI/AdventCalendarTryTakeReward"):InvokeServer(i)
---         task.wait(.1)
---     end
---     task.wait(2)
--- end
 
 -- local function TeleportPetRescue()
 --     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
@@ -1529,7 +1592,10 @@ end
 
 local function TeleportCampSite()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
-    -- SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
+    local isAlreadyOnMainMap = game.Workspace:FindFirstChild("Interiors"):FindFirstChild("center_map_plot", true)
+    if not isAlreadyOnMainMap then
+        SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
+    end
     task.wait(1)
     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
     Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.Campsite.MarshmallowChair.VintageChair.Union.CFrame + Vector3.new(math.random(1, 20), 10, math.random(1, 20))
@@ -1540,7 +1606,10 @@ end
 
 local function TeleportBeachParty()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
-    -- SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
+    local isAlreadyOnMainMap = game.Workspace:FindFirstChild("Interiors"):FindFirstChild("center_map_plot", true)
+    if not isAlreadyOnMainMap then
+        SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
+    end
     task.wait(1)
     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))) 
     Player.Character.PrimaryPart.CFrame = game:GetService("Workspace").StaticMap.Beach.BeachPartyAilmentTarget.CFrame + Vector3.new(math.random(1, 20), 10, math.random(1, 20))
@@ -1551,7 +1620,10 @@ end
 
 local function TeleportPlayGround()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
-    -- SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
+    local isAlreadyOnMainMap = game.Workspace:FindFirstChild("Interiors"):FindFirstChild("center_map_plot", true)
+    if not isAlreadyOnMainMap then
+        SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
+    end
     task.wait(1)
     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
     Player.Character.PrimaryPart.CFrame = game:GetService("Workspace").StaticMap.Park.Roundabout.SeatsSpinModel.Visual:FindFirstChildWhichIsA("Part").CFrame + Vector3.new(math.random(1, 20), 10, math.random(-20, -1))
@@ -1618,8 +1690,10 @@ local stopEquip = false
 local function autoFarm()
     if not getgenv().auto_farm then return end
     TeleportMainMap()
+    
     local function CompletePetAilments()
         if stopEquip then return end
+        if isDigging then return end
         if Bypass("ClientData").get("pet_char_wrapper") == nil then
             ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {["use_sound_delay"] = true})
             task.wait(1)
@@ -1645,9 +1719,16 @@ local function autoFarm()
                 if not SETTINGS.FOCUS_FARM_AGE_POTION then
                     agePotion("pet_age_potion")
                 end
+
+                FossilIsleEvent()
                 break
             elseif v["id"] == "thirsty" then
                 FoodAilments("water")
+
+                if not Bypass("ClientData").get_data()[Player.Name].fossil_2024_mine_manager.mine_completed then 
+                    FossilDiggingEvent()
+                    CompletePetAilments()
+                end
         
             elseif v["id"] == "sick" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
@@ -1670,13 +1751,7 @@ local function autoFarm()
                     ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("School")
                     break 
                 end
-
-                for i, v in Bypass("ClientData").get_data()[Player.Name].fossil_2024_mine_manager.static_blocks do
-                    ReplicatedStorage.API["MiningAPI/MineBlock"]:InvokeServer(i)
-                    task.wait()
-                end
                 
-
             elseif v["id"] == "bored" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
                     TeleportPlayGround()
@@ -1711,7 +1786,6 @@ local function autoFarm()
             elseif v["id"] == "camping" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
                     TeleportCampSite()
-                    FossilIsleEvent()
                     break
                 end
             end
@@ -1796,9 +1870,8 @@ local function autoFarm()
                     NormalDialogChild:WaitForChild("Info")
                     NormalDialogChild.Info:WaitForChild("TextLabel")
                     NormalDialogChild.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
-                        if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Sunny Scramble") then
-                            task.wait(1)
-                            FireButton("Yes")
+                        if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("A cave-in destroyed") then
+                            FireButton("Okay")
 
                         elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:find("invitation") then
                             game:Shutdown()
@@ -2395,7 +2468,7 @@ local function checkInventory()
     else
         for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
             for _, v2 in SETTINGS.TRADE_LIST.PETS_TABLE do
-                if pet.id == v2 or pet.properties.age == 6 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon then
+                if pet.id == v2 or pet.properties.neon or pet.properties.mega_neon then
                     return true, "pets", SETTINGS.TRADE_LIST.PETS_TABLE
                 end
             end
@@ -2442,7 +2515,7 @@ local function tradeCollector(namePassOn)
             else
                 for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory[tabName]) do
                     for _, v2 in tables do
-                        if pet.id == v2 or pet.properties.age == 6 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon then
+                        if pet.id == v2 or pet.properties.neon or pet.properties.mega_neon then
                             ReplicatedStorage.API:FindFirstChild("TradeAPI/AddItemToOffer"):FireServer(pet.unique)
                             petCounter = petCounter + 1
                             if petCounter >= 18 then
@@ -2939,6 +3012,14 @@ AgeUpPotion:AddButton({
     Callback = function()
         local function equipPet()
             for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
+                if v.id == selectedItem and v.id ~= "practice_dog" and v.properties.neon and v.properties.age ~= 6 and not v.properties.mega_neon then
+                    ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, {["use_sound_delay"] = true})
+                    task.wait()
+                    return true
+                end
+            end
+
+            for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
                 if v.id == selectedItem and v.id ~= "practice_dog" and v.properties.age ~= 6 and not v.properties.mega_neon then
                     ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, {["use_sound_delay"] = true})
                     task.wait()
@@ -3045,6 +3126,8 @@ end
 
 
 WelcomeScreen:Disconnect()
+
+OrionLib:Init()
 
 -- local tele = fluxus or codex or arceusx
 
