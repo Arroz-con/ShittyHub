@@ -1599,6 +1599,7 @@ local function AgeUpPotionLevelUp()
             getgenv().PotionToggle:Set(false)
             return
         end
+        task.wait(.1)
     end
 end
 
