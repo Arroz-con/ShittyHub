@@ -549,7 +549,7 @@ getgenv().auto_trade_custom_gifts = true
 getgenv().auto_trade_all_neons = true
 getgenv().auto_trade_eggs = true
 getgenv().auto_trade_all_inventory = true
-
+getgenv().feedAgeUpPotionToggle = true
 
 -- local selectedPettoFarm
 
@@ -1544,6 +1544,63 @@ end
 --     game.Players.LocalPlayer.Character.Humanoid:MoveTo(Vector3.new(1,0,0))
 -- end
 
+local function AgeUpPotionLevelUp()
+    local function equipPet()
+        -- checks inventory for neon pet
+        for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+            if v.id == selectedItem and v.id ~= "practice_dog" and v.properties.age ~= 6 and v.properties.neon and not v.properties.mega_neon then
+                ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, {["use_sound_delay"] = true})
+                task.wait()
+                return true
+            end
+        end
+
+        for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
+            if v.id == selectedItem and v.id ~= "practice_dog" and v.properties.age ~= 6 and not v.properties.mega_neon then
+                ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, {["use_sound_delay"] = true})
+                task.wait()
+                return true
+            end
+        end
+        return false
+    end
+
+    local function feedAgePotion()
+        for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.food) do
+            if v.id == "pet_age_potion" then
+                ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(v.unique)
+                return true
+            end
+        end
+        return false
+    end
+
+    while getgenv().feedAgeUpPotionToggle do
+        local hasPetEquipped = Bypass("ClientData").get("pet_char_wrapper")
+        if not hasPetEquipped then
+            equipPet()
+            task.wait()
+        end
+
+        local age = Bypass("ClientData").get("pet_char_wrapper")["pet_progression"]["age"]
+        if age >= 6 then
+            local hasPet = equipPet()
+            task.wait() -- wait for pet to equip
+            if not hasPet then
+                print("no more pet to age")
+                getgenv().PotionToggle:Set(false)
+                return
+            end
+        end
+
+        local hasAgeUpPotion = feedAgePotion()
+        if not hasAgeUpPotion then
+            print("no age up potion left")
+            getgenv().PotionToggle:Set(false)
+            return
+        end
+    end
+end
 
 local function floorPart()
     for _, v in workspace:GetChildren() do
@@ -3012,58 +3069,11 @@ AgeUpPotion:AddButton({
 })
 
 
-AgeUpPotion:AddToggle({
+getgenv().PotionToggle = AgeUpPotion:AddToggle({
     Name = "Click to Age up Pet",
     Callback = function(value)
-        local feedAgeUpPotionToggle = value
-        while feedAgeUpPotionToggle do
-            local function equipPet()
-                for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
-                    if v.id == selectedItem and v.id ~= "practice_dog" and v.properties.neon and v.properties.age ~= 6 and not v.properties.mega_neon then
-                        ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, {["use_sound_delay"] = true})
-                        task.wait()
-                        return true
-                    end
-                end
-
-                for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
-                    if v.id == selectedItem and v.id ~= "practice_dog" and v.properties.age ~= 6 and not v.properties.mega_neon then
-                        ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, {["use_sound_delay"] = true})
-                        task.wait()
-                        return true
-                    end
-                end
-                return false
-            end
-            
-            local function feedAgePotion()
-                for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
-                    if v.id == "pet_age_potion" then
-                        ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(v.unique)
-                        return true
-                    end
-                end
-                return false
-            end
-            
-            local run = true
-            
-            while run do
-                if not feedAgeUpPotionToggle then break end
-                if not equipPet() then run = false end
-                if run == false then break end
-                task.wait() -- wait for pet to equip
-                for i = 1, 10 do
-                    local age = Bypass("ClientData").get("pet_char_wrapper")["pet_progression"]["age"]
-                    task.wait()
-                    if age == 6 then break end
-                    if not feedAgePotion() then return end
-                    if not feedAgeUpPotionToggle then return end
-                    task.wait()
-                end
-            end
-            task.wait()
-        end
+        getgenv().feedAgeUpPotionToggle = value
+        AgeUpPotionLevelUp()
     end
 })
 
