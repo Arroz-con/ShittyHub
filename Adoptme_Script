@@ -63,7 +63,7 @@ local Shower
 local Piano
 local normalLure
 
-local isDigging = false
+
 
 UserGameSettings.GraphicsQualityLevel = 1
 UserGameSettings.MasterVolume = 0
@@ -112,10 +112,15 @@ end
 --// completes the starter tutorial
 local function completeStarterTutorial()
     Bypass("LegacyTutorial").cancel_tutorial()
+    task.wait()
     Bypass("TutorialClient").cancel()
+    task.wait()
     ReplicatedStorage.API["LegacyTutorialAPI/EquipTutorialEgg"]:FireServer()
+    task.wait()
     ReplicatedStorage.API["LegacyTutorialAPI/AddTutorialQuest"]:FireServer()
+    task.wait()
     ReplicatedStorage.API["LegacyTutorialAPI/AddHungryAilmentToTutorialEgg"]:FireServer()
+    task.wait()
     local function feedStartEgg(SandwichPassOn)
         local Foodid2
         for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
@@ -584,97 +589,8 @@ local function SetLocationFunc(a, b, c)
     set_thread_identity(k)
 end
 
---[[
--- New Year Event
-local function getThrowables(Id)
-    local args = {
-        [1] = "red_light_green_light",
-        [2] = "attempt_pick_up",
-        [3] = Id
-    }
-    
-    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))
-end    
 
-local function turnInThrowables()
-    local args = {
-        [1] = "red_light_green_light",
-        [2] = "attempt_drop_off",
-        [3] = 1
-    }
-    
-    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))
-end    
-
-local function NewYearEvent2024()
-    local ThrowablesFolder = workspace.Interiors.Lunar2024Shop.Arena.Throwables
-
-    for i, v in ThrowablesFolder:GetChildren() do
-        for k, name in v:GetAttributes() do
-            if k == "Id" then
-                getThrowables(name)
-                task.wait(.1)
-                turnInThrowables()
-                task.wait(.1)
-            end
-        end
-    end
-end
---]]
-
---[[
--- Fire Dimension Event
-local function FireDimensionEvent()
-    SetLocationFunc("FireDimension", "MainDoor", {})
-    task.wait(1)
-    local ingredients = workspace.Interiors.FireDimension.Cooking.IngredientLocations
-
-    local function getIngredients(ingredient)
-        for _, v in ingredients:WaitForChild(ingredient):GetChildren() do
-            ReplicatedStorage.API:FindFirstChild("FireDimensionAPI/PickFruit"):InvokeServer(string.lower(ingredient), tonumber(v.Name))
-            task.wait()
-        end
-    end
-
-    getIngredients("Berry")
-    getIngredients("Mango")
-    getIngredients("Pear")
-
-    for i = 1, 2, 1 do
-        ReplicatedStorage.API:WaitForChild("FireDimensionAPI/CookRecipe"):InvokeServer("daily_recipe")
-        task.wait(1)
-    end
-
-    -- repeat
-    --     local hasMoltenMelon = ReplicatedStorage.API:FindFirstChild("FireDimensionAPI/CookRecipe"):InvokeServer("super_recipe")
-    --     task.wait(1)
-    -- until hasMoltenMelon == nil
-
-end
---]]
-
--- Easter Event 2024
---[[
-local function collectEggHunt()
-    for _, v in game:GetService("Workspace").EggHuntEggs:GetChildren() do
-        if v:IsA("Model") then
-            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("EventAPI/EggHuntCollectEgg"):FireServer(tonumber(v.Name))
-        end
-        task.wait(1)
-    end 
-end
-
-local function collectEggs()
-    local args = {
-        [1] = "egg_catch_minigame",
-        [2] = "candy_collected",
-        [3] = 3
-    }
-
-    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))
-end
---]]
-
+-- Fossil Isle Event 2024
 local function FossilIsleEvent()
     -- if not SETTINGS.FOSSIL then return end
     -- if SETTINGS.FOCUS_FARM_AGE_POTION then return end
@@ -726,73 +642,6 @@ local function FossilIsleEvent()
     end
 
 end
-
-local function FossilDiggingEvent()
-    if not SETTINGS.FARM_FOSSIL_EVENT then return end 
-
-    isDigging = true
-
-    local function findBlocks()
-        local ExposedBlocks = game:GetService("Workspace"):WaitForChild("Interiors"):WaitForChild("FossilIsleInterior"):WaitForChild("ExposedBlocks")
-
-        for _, v in ExposedBlocks:GetChildren() do
-            ReplicatedStorage.API["MiningAPI/MineBlock"]:InvokeServer(v:GetAttribute("key"))
-            v:Destroy()
-            task.wait(.5)
-        end
-    end
-
-    local function checkOre(ore)
-        return Bypass("ClientData").get_data()[Player.Name].fossil_2024_mine_manager[ore]
-    end
-
-
-    local function upgradePickaxe(pickaxeId)
-        ReplicatedStorage.API["MiningAPI/StartMachineAction"]:InvokeServer("Pickaxe", pickaxeId)
-    end
-
-    local function pickupPickaxe()
-        ReplicatedStorage.API["MiningAPI/ClaimMachineAction"]:InvokeServer("Pickaxe")
-    end
-
-    local function mineBlock()
-        findBlocks()
-
-        if checkOre("iron_ore") >= 10 then
-            upgradePickaxe("fossil_2024_iron_pickaxe")
-        end
-
-        if checkOre("diamond_ore") >= 20 then
-            upgradePickaxe("fossil_2024_diamond_pickaxe")
-        end
-
-        pickupPickaxe()
-        task.wait(1)
-    end
-
-    for i, _ in Bypass("ClientData").get_data()[Player.Name].fossil_2024_mine_manager.static_blocks do
-        ReplicatedStorage.API["MiningAPI/MineBlock"]:InvokeServer(i)
-        task.wait(.1)
-    end    
-
-    Bypass("CollisionsClient").set_collidable(false)
-    Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
-    SetLocationFunc("FossilIsleInterior", "MainDoor", {})
-    game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))) -- game:GetService("Workspace").Interiors.FossilIsleInterior.Static.MiningArea.Origin
-    Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:FindFirstChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.MiningArea.Origin.CFrame + Vector3.new(0, 5, 0)
-    Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
-    Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
-    Player.Character.Humanoid.WalkSpeed = 0
-    task.wait(5)
-
-    mineBlock()
-
-    Player.Character.HumanoidRootPart.Anchored = false
-    isDigging = false
-    print("Finished")
-end
-
-
 
 
 local pets_legendary = {}
@@ -1756,7 +1605,6 @@ local function autoFarm()
     
     local function CompletePetAilments()
         if stopEquip then return end
-        if isDigging then return end
         if Bypass("ClientData").get("pet_char_wrapper") == nil then
             ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {["use_sound_delay"] = true})
             task.wait(1)
