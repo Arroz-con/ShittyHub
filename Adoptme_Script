@@ -1632,15 +1632,11 @@ local function autoFarm()
                     agePotion("pet_age_potion")
                 end
 
-                FossilIsleEvent()
                 break
             elseif v["id"] == "thirsty" then
                 FoodAilments("water")
 
-                if not Bypass("ClientData").get_data()[Player.Name].fossil_2024_mine_manager.mine_completed then 
-                    FossilDiggingEvent()
-                    CompletePetAilments()
-                end
+                FossilIsleEvent()
         
             elseif v["id"] == "sick" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
@@ -1715,6 +1711,7 @@ local function autoFarm()
     end
 
     game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildAdded:Connect(function()
+        if getgenv().feedAgeUpPotionToggle then return end
         removeHandHeldItem()
         if not SETTINGS.FOCUS_FARM_AGE_POTION then
             SwitchOutFullyGrown()
@@ -1727,6 +1724,7 @@ local function autoFarm()
     end)
 
     game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildRemoved:Connect(function()
+        if getgenv().feedAgeUpPotionToggle then return end
         task.wait(2)
         if not SETTINGS.FOCUS_FARM_AGE_POTION then
             SwitchOutFullyGrown()
@@ -1738,6 +1736,7 @@ local function autoFarm()
     -- For text that popups on bottom ui
     Player.PlayerGui.HintApp.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
         if Player.PlayerGui.HintApp.TextLabel.Text:match("aged up!") then
+            if getgenv().feedAgeUpPotionToggle then return end
             if SETTINGS.PET_AUTO_FUSION then
                 MakeNeon()
                 MakeMegaNeon()
