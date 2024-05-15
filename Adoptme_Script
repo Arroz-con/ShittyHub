@@ -111,32 +111,34 @@ end
 
 --// completes the starter tutorial
 local function completeStarterTutorial()
-    Bypass("LegacyTutorial").cancel_tutorial()
-    task.wait()
-    Bypass("TutorialClient").cancel()
-    task.wait()
-    ReplicatedStorage.API["LegacyTutorialAPI/EquipTutorialEgg"]:FireServer()
-    task.wait()
-    ReplicatedStorage.API["LegacyTutorialAPI/AddTutorialQuest"]:FireServer()
-    task.wait()
-    ReplicatedStorage.API["LegacyTutorialAPI/AddHungryAilmentToTutorialEgg"]:FireServer()
-    task.wait()
-    local function feedStartEgg(SandwichPassOn)
-        local Foodid2
-        for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
-            if v.id == SandwichPassOn then
-                Foodid2 = v.unique
-                break
+    pcall(function()
+        Bypass("LegacyTutorial").cancel_tutorial()
+        task.wait()
+        Bypass("TutorialClient").cancel()
+        task.wait()
+        ReplicatedStorage.API["LegacyTutorialAPI/EquipTutorialEgg"]:FireServer()
+        task.wait()
+        ReplicatedStorage.API["LegacyTutorialAPI/AddTutorialQuest"]:FireServer()
+        task.wait()
+        ReplicatedStorage.API["LegacyTutorialAPI/AddHungryAilmentToTutorialEgg"]:FireServer()
+        task.wait()
+        local function feedStartEgg(SandwichPassOn)
+            local Foodid2
+            for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
+                if v.id == SandwichPassOn then
+                    Foodid2 = v.unique
+                    break
+                end
             end
+            
+            ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(Foodid2, {["use_sound_delay"] = true})
+            task.wait(1)
+            ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(Foodid2)
         end
-        
-        ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(Foodid2, {["use_sound_delay"] = true})
-        task.wait(1)
-        ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(Foodid2)
-    end
 
-    feedStartEgg("sandwich-default")
-    Bypass("RouterClient").get("TeamAPI/ChooseTeam"):InvokeServer("Babies", true)
+        feedStartEgg("sandwich-default")
+        Bypass("RouterClient").get("TeamAPI/ChooseTeam"):InvokeServer("Babies", true)
+    end)
 end
 
 
@@ -554,7 +556,7 @@ getgenv().auto_trade_custom_gifts = true
 getgenv().auto_trade_all_neons = true
 getgenv().auto_trade_eggs = true
 getgenv().auto_trade_all_inventory = true
-getgenv().feedAgeUpPotionToggle = true
+getgenv().feedAgeUpPotionToggle = false
 
 -- local selectedPettoFarm
 
@@ -1399,7 +1401,6 @@ local function AgeUpPotionLevelUp()
         for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
             if v.id == selectedItem and v.id ~= "practice_dog" and v.properties.age ~= 6 and v.properties.neon and not v.properties.mega_neon then
                 ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, {["use_sound_delay"] = true})
-                task.wait()
                 return true
             end
         end
@@ -1407,7 +1408,6 @@ local function AgeUpPotionLevelUp()
         for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
             if v.id == selectedItem and v.id ~= "practice_dog" and v.properties.age ~= 6 and not v.properties.mega_neon then
                 ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, {["use_sound_delay"] = true})
-                task.wait()
                 return true
             end
         end
@@ -1428,13 +1428,13 @@ local function AgeUpPotionLevelUp()
         local hasPetEquipped = Bypass("ClientData").get("pet_char_wrapper")
         if not hasPetEquipped then
             equipPet()
-            task.wait()
+            task.wait(1)
         end
 
         local age = Bypass("ClientData").get("pet_char_wrapper")["pet_progression"]["age"]
         if age >= 6 then
             local hasPet = equipPet()
-            task.wait() -- wait for pet to equip
+            task.wait(1) -- wait for pet to equip
             if not hasPet then
                 print("no more pet to age")
                 getgenv().PotionToggle:Set(false)
@@ -1448,7 +1448,7 @@ local function AgeUpPotionLevelUp()
             getgenv().PotionToggle:Set(false)
             return
         end
-        task.wait(.1)
+        task.wait(1)
     end
 end
 
@@ -1602,9 +1602,10 @@ local stopEquip = false
 local function autoFarm()
     if not getgenv().auto_farm then return end
     TeleportMainMap()
-    
+
     local function CompletePetAilments()
         if stopEquip then return end
+        if getgenv().feedAgeUpPotionToggle then return end
         if Bypass("ClientData").get("pet_char_wrapper") == nil then
             ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {["use_sound_delay"] = true})
             task.wait(1)
