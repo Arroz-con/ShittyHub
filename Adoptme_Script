@@ -1635,8 +1635,6 @@ local function autoFarm()
                 break
             elseif v["id"] == "thirsty" then
                 FoodAilments("water")
-
-                FossilIsleEvent()
         
             elseif v["id"] == "sick" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
@@ -1678,7 +1676,6 @@ local function autoFarm()
                     placeBait(baitId)
                     task.wait(1)
                     placeBait(baitId)
-                    --FireDimensionEvent()
                     break
                 end
             elseif v["id"] == "dirty" then
