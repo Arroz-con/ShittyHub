@@ -40,9 +40,9 @@ local function TeleportGardenObby()
 end
 
 local function getSunDrops()
-    local Sundrop = workspace:WaitForChild("SundropPickup", 6)
-    Sundrop:WaitForChild("Collider", 6)
+    local Sundrop = workspace:FindFirstChild("SundropPickup")
     if not Sundrop then return false end
+    Sundrop:WaitForChild("Collider", 6)
 
     firetouchinterest(Player.Character.HumanoidRootPart, Sundrop.Collider, 0)
     task.wait()
@@ -56,5 +56,7 @@ repeat
     local hasSunDrop = getSunDrops()
     task.wait(1)
 until not hasSunDrop
+
+Player.Character.HumanoidRootPart.CFrame = workspace.Interiors.Garden2024ChaseMap1.Programmed.Skip.FinishSpawn.CFrame
 
 print("done")
