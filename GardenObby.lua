@@ -40,12 +40,12 @@ local function TeleportGardenObby()
 end
 
 local function getSunDrops()
-    local Sundrop = workspace:FindFirstChild("SundropPickup")
+    local Sundrop = workspace:FindFirstChild("Collider", true)
     if not Sundrop then return false end
 
-    firetouchinterest(Player.Character.HumanoidRootPart, Sundrop.Collider, 0)
+    firetouchinterest(Player.Character.HumanoidRootPart, Sundrop, 0)
     task.wait()
-    firetouchinterest(Player.Character.HumanoidRootPart, Sundrop.Collider, 1)
+    firetouchinterest(Player.Character.HumanoidRootPart, Sundrop, 1)
     return true
 end
 
