@@ -41,7 +41,7 @@ end
 
 local function getSunDrops()
     local Sundrop = workspace:WaitForChild("SundropPickup", 6)
-    local Collider = Sundrop:WaitForChild("Collider", 6)
+    Sundrop:WaitForChild("Collider", 6)
     if not Sundrop then return false end
 
     firetouchinterest(Player.Character.HumanoidRootPart, Sundrop.Collider, 0)
