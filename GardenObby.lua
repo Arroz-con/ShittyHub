@@ -53,7 +53,7 @@ TeleportGardenObby()
 
 repeat
     local hasSunDrop = getSunDrops()
-
+    task.wait(1)
 until not hasSunDrop
 
 print("done")
