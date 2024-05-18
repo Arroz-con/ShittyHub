@@ -39,6 +39,20 @@ local function TeleportGardenObby()
     Player.Character.Humanoid.WalkSpeed = 0
 end
 
+local function TeleportMainObby()
+    Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
+    local isAlreadyOnObby = game.Workspace:FindFirstChild("Interiors"):FindFirstChild("Obbies", true)
+    if not isAlreadyOnObby then
+        SetLocationFunc("Obbies", "Garden2024ChaseMap1", {})
+    end
+    task.wait(1)
+    game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))                           -- game:GetService("Workspace").HouseInteriors.furniture["nil/nil/Obbies/false/f-1"].Garden2024Sunflower.CollectionZone
+    Player.Character.PrimaryPart.CFrame = game.Workspace.HouseInteriors:FindFirstChild("CollectionZone", true).CFrame + Vector3.new(0, 5, 0)
+    Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
+    Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+    Player.Character.Humanoid.WalkSpeed = 0
+end
+
 local function getSunDrops()
     local Sundrop = workspace:FindFirstChild("SundropPickup")
     if not Sundrop then return false end
@@ -57,6 +71,7 @@ repeat
     task.wait(1)
 until not hasSunDrop
 
-Player.Character.HumanoidRootPart.CFrame = workspace.Interiors.Garden2024ChaseMap1.Programmed.Skip.FinishSpawn.CFrame
+-- Player.Character.HumanoidRootPart.CFrame = workspace.Interiors.Garden2024ChaseMap1.Programmed.Skip.FinishSpawn.CFrame
+TeleportMainObby()
 
 print("done")
