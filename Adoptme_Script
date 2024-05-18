@@ -1438,7 +1438,6 @@ local function AgeUpPotionLevelUp()
             local hasPet = equipPet()
             task.wait(1) -- wait for pet to equip
             if not hasPet then
-                print("no more pet to age")
                 getgenv().PotionToggle:Set(false)
                 return
             end
@@ -1446,7 +1445,6 @@ local function AgeUpPotionLevelUp()
 
         local hasAgeUpPotion = feedAgePotion()
         if not hasAgeUpPotion then
-            print("no age up potion left")
             getgenv().PotionToggle:Set(false)
             return
         end
@@ -2330,6 +2328,7 @@ local function checkInventory()
     end
 
     for _, accessory in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pet_accessories) do
+        if not SETTINGS.TRADE_LIST.PET_WEAR_TABLE[1] then break end
         for _, v2 in SETTINGS.TRADE_LIST.PET_WEAR_TABLE do
             if accessory.id == v2 then
                 return true, "pet_accessories", SETTINGS.TRADE_LIST.PET_WEAR_TABLE
@@ -2338,6 +2337,7 @@ local function checkInventory()
     end
 
     for _, vehicle in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.transport) do
+        if not SETTINGS.TRADE_LIST.VEHICLES_TABLE[1] then break end
         for _, v2 in SETTINGS.TRADE_LIST.VEHICLES_TABLE do
             if vehicle.id == v2 then
                 return true, "transport", SETTINGS.TRADE_LIST.VEHICLES_TABLE
@@ -2346,6 +2346,7 @@ local function checkInventory()
     end
 
     for _, food in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
+        if not SETTINGS.TRADE_LIST.FOOD_TABLE[1] then break end
         for _, v2 in SETTINGS.TRADE_LIST.FOOD_TABLE do
             if food.id == v2 then
                 return true, "food", SETTINGS.TRADE_LIST.FOOD_TABLE
@@ -2354,6 +2355,7 @@ local function checkInventory()
     end
 
     for _, gift in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.gifts) do
+        if not SETTINGS.TRADE_LIST.GIFTS_TABLE[1] then break end
         for _, v2 in SETTINGS.TRADE_LIST.GIFTS_TABLE do
             if gift.id == v2 then
                 return true, "gifts", SETTINGS.TRADE_LIST.GIFTS_TABLE
@@ -2362,6 +2364,7 @@ local function checkInventory()
     end
 
     for _, toy in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.toys) do
+        if not SETTINGS.TRADE_LIST.TOYS_TABLE[1] then break end
         for _, v2 in SETTINGS.TRADE_LIST.TOYS_TABLE do
             if toy.id == v2 then
                 return true, "toys", SETTINGS.TRADE_LIST.TOYS_TABLE
