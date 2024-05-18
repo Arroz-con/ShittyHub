@@ -64,14 +64,14 @@ local function getSunDrops()
     return true
 end
 
-TeleportGardenObby()
+while true do
+    TeleportGardenObby()
 
-repeat
-    local hasSunDrop = getSunDrops()
-    task.wait(1)
-until not hasSunDrop
+    repeat
+        local hasSunDrop = getSunDrops()
+        task.wait(1)
+    until not hasSunDrop
 
--- Player.Character.HumanoidRootPart.CFrame = workspace.Interiors.Garden2024ChaseMap1.Programmed.Skip.FinishSpawn.CFrame
-TeleportMainObby()
-
-print("done")
+    TeleportMainObby()
+    task.wait(10)
+end
