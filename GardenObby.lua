@@ -67,8 +67,7 @@ local function getSunDrops()
     Sundrop:WaitForChild("Collider", 6)
 
     firetouchinterest(Player.Character.HumanoidRootPart, Sundrop.Collider, 0)
-    task.wait()
-    firetouchinterest(Player.Character.HumanoidRootPart, Sundrop.Collider, 1)
+
     return true
 end
 
