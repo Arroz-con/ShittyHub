@@ -50,15 +50,38 @@ local function TeleportMainObby()
     Player.Character.Humanoid.WalkSpeed = 0
 end
 
-local function ObbyNextStage()
-    local args = {
-        [1] = "f-1",
-        [2] = "UseBlock",
-        [3] = true,
-        [4] = Player.Character
-    }
+local function findFurniture()
+    for _, v in pairs(game:GetService("Workspace").HouseInteriors.furniture:GetDescendants()) do
+        if v.Name == "BasicCrib" then
+            Bed = v.Parent.Name:match("%a+-%d+")
 
-    ReplicatedStorage.API["HousingAPI/ActivateInteriorFurniture"]:InvokeServer(unpack(args))
+        elseif v.Name == "StylishShower" or v.Name == "ModernShower" then
+            Shower = v.Parent.Name:match("%a+-%d+")
+
+        elseif v.Name == "Piano" then
+            Piano = v.Parent.Name:match("%a+-%d+")
+
+        elseif v.Name == "Lures2023NormalLure" then
+            normalLure = v.Parent.Name:match("%a+-%d+")
+
+        end
+    end
+end
+
+local function ObbyNextStage()
+
+    local door = workspace.HouseInteriors.furniture:FindFirstChild("Door", true)
+
+    firetouchinterest(Player.Character.HumanoidRootPart, door, 0)
+
+    -- local args = {
+    --     [1] = "f-1",
+    --     [2] = "UseBlock",
+    --     [3] = true,
+    --     [4] = Player.Character
+    -- }
+
+    -- ReplicatedStorage.API["HousingAPI/ActivateInteriorFurniture"]:InvokeServer(unpack(args))
 end
 
 local function getSunDrops()
