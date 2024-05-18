@@ -27,10 +27,7 @@ end
 
 local function TeleportGardenObby(name)
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
-    local isAlreadyOnObby = game.Workspace:FindFirstChild("Interiors"):FindFirstChild("FinishSpawn", true)
-    if not isAlreadyOnObby then
-        SetLocationFunc(name, "MainDoor", {})
-    end
+    SetLocationFunc(name, "MainDoor", {})
     task.wait(1)
     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))                           -- game:GetService("Workspace").Interiors.Garden2024ChaseMap1.Programmed.Skip.FinishSpawn
     Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Programmed.Skip.FinishSpawn.CFrame + Vector3.new(0, 10, 0)
@@ -69,7 +66,7 @@ while true do
 
     repeat
         local hasSunDrop = getSunDrops()
-        task.wait(1)
+        task.wait(.1)
     until not hasSunDrop
 
     TeleportGardenObby("Garden2024ChaseMap2")
