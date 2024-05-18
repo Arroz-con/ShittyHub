@@ -77,14 +77,17 @@ local function ObbyNextStage()
     repeat
         task.wait(1)
     until workspace:FindFirstChild("SundropPickup")
-    -- local args = {
-    --     [1] = "f-1",
-    --     [2] = "UseBlock",
-    --     [3] = true,
-    --     [4] = Player.Character
-    -- }
+end
 
-    -- ReplicatedStorage.API["HousingAPI/ActivateInteriorFurniture"]:InvokeServer(unpack(args))
+local function ClaimSundrops()
+    local args = {
+        [1] = "f-1",
+        [2] = "UseBlock",
+        [3] = true,
+        [4] = Player.Character
+    }
+
+    ReplicatedStorage.API["HousingAPI/ActivateInteriorFurniture"]:InvokeServer(unpack(args))
 end
 
 local function getSunDrops()
@@ -113,5 +116,7 @@ while true do
     until not hasSunDrop
 
     TeleportMainObby()
-    task.wait(10)
+    task.wait(6)
+    ClaimSundrops()
+    task.wait(1)
 end
