@@ -50,6 +50,17 @@ local function TeleportMainObby()
     Player.Character.Humanoid.WalkSpeed = 0
 end
 
+local function ObbyNextStage()
+    local args = {
+        [1] = "f-1",
+        [2] = "UseBlock",
+        [3] = true,
+        [4] = Player.Character
+    }
+
+    ReplicatedStorage.API["HousingAPI/ActivateInteriorFurniture"]:InvokeServer(unpack(args))
+end
+
 local function getSunDrops()
     local Sundrop = workspace:FindFirstChild("SundropPickup")
     if not Sundrop then return false end
@@ -69,11 +80,11 @@ while true do
         task.wait(.1)
     until not hasSunDrop
 
-    TeleportGardenObby("Garden2024ChaseMap2")
+    ObbyNextStage()
 
     repeat
         local hasSunDrop = getSunDrops()
-        task.wait(1)
+        task.wait(.1)
     until not hasSunDrop
 
     TeleportMainObby()
