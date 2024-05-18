@@ -74,6 +74,9 @@ local function ObbyNextStage()
 
     firetouchinterest(Player.Character.HumanoidRootPart, door, 0)
 
+    repeat
+        task.wait(1)
+    until workspace:FindFirstChild("SundropPickup")
     -- local args = {
     --     [1] = "f-1",
     --     [2] = "UseBlock",
