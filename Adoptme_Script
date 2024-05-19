@@ -1863,6 +1863,10 @@ local function autoFarm()
     CompletePetAilments()
     task.wait(2)
 
+    if not Bypass("ClientData").get_data()[Player.Name].inventory.toys.trade_license then
+        getTradeLicense()
+        FireButton("Okay")
+    end
     -- ReplicatedStorage.API["EventAPI/ClaimObbyReward"]:InvokeServer(1)
     
 
