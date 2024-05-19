@@ -108,12 +108,13 @@ while true do
         task.wait(.1)
     until not hasSunDrop
 
-    ObbyNextStage()
-
-    repeat
-        local hasSunDrop = getSunDrops()
-        task.wait(.1)
-    until not hasSunDrop
+    for _ = 1, 2, 1 do
+        ObbyNextStage()
+        repeat
+            local hasSunDrop = getSunDrops()
+            task.wait(.1)
+        until not hasSunDrop
+    end
 
     TeleportMainObby()
     task.wait(6)
