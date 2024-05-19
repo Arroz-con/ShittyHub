@@ -2383,7 +2383,7 @@ local function checkInventory()
     else
         for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
             for _, v2 in SETTINGS.TRADE_LIST.PETS_TABLE do
-                if pet.id == v2 or pet.properties.neon or pet.properties.mega_neon then
+                if pet.id == v2 or pet.properties.neon or pet.properties.mega_neon == true then
                     return true, "pets", SETTINGS.TRADE_LIST.PETS_TABLE
                 end
             end
@@ -2416,7 +2416,7 @@ local function tradeCollector(namePassOn)
             if SETTINGS.TRADE_ONLY_LUMINOUS_MEGA then
                 for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory[tabName]) do
                     for _, v2 in tables do
-                        if pet.id == v2 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon then
+                        if pet.id == v2 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon == true then
                             ReplicatedStorage.API:FindFirstChild("TradeAPI/AddItemToOffer"):FireServer(pet.unique)
                             petCounter = petCounter + 1
                             if petCounter >= 18 then
@@ -2430,7 +2430,7 @@ local function tradeCollector(namePassOn)
             else
                 for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory[tabName]) do
                     for _, v2 in tables do
-                        if pet.id == v2 or pet.properties.neon or pet.properties.mega_neon then
+                        if pet.id == v2 or pet.properties.neon or pet.properties.mega_neon == true then
                             ReplicatedStorage.API:FindFirstChild("TradeAPI/AddItemToOffer"):FireServer(pet.unique)
                             petCounter = petCounter + 1
                             if petCounter >= 18 then
