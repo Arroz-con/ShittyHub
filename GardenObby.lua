@@ -100,6 +100,11 @@ local function getSunDrops()
     return true
 end
 
+for i = 1, 8, 1 do
+    ReplicatedStorage.API["EventAPI/ClaimObbyReward"]:InvokeServer(i)
+    task.wait(.5)
+end
+
 while true do
     TeleportGardenObby("Garden2024ChaseMap1")
 
