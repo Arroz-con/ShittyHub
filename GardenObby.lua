@@ -69,14 +69,19 @@ local function findFurniture()
 end
 
 local function ObbyNextStage()
-
     local door = workspace.HouseInteriors.furniture:FindFirstChild("Door", true)
+    local counter = 0
 
     firetouchinterest(Player.Character.HumanoidRootPart, door, 0)
 
     repeat
+        counter += 1
         task.wait(1)
-    until workspace:FindFirstChild("SundropPickup")
+    until workspace:FindFirstChild("SundropPickup") or counter == 10
+
+    if counter == 10 then
+        TeleportMainObby()
+    end
 end
 
 local function ClaimSundrops()
@@ -113,7 +118,7 @@ while true do
         task.wait(.1)
     until not hasSunDrop
 
-    for _ = 1, 4, 1 do
+    for _ = 2, 4, 1 do
         ObbyNextStage()
         repeat
             local hasSunDrop = getSunDrops()
