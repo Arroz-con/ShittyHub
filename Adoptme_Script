@@ -2426,7 +2426,7 @@ local function tradeCollector(namePassOn)
                             if petCounter >= 18 then
                                 break 
                             end
-                            task.wait(.1)
+                            task.wait()
                         end
                     end
                 end
@@ -2440,7 +2440,7 @@ local function tradeCollector(namePassOn)
                             if petCounter >= 18 then
                                 break 
                             end
-                            task.wait(.1)
+                            task.wait()
                         end
                     end
                 end
