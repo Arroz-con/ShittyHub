@@ -2121,7 +2121,7 @@ local function autoTradeFullgrownNeonandMega()
     end)
 end
 
-local function autoTradeAllNeons()
+local function autoTradeAllNeons(version)
     task.spawn(function()
         while task.wait(0.5) do
             if not getgenv().auto_trade_all_neons then return end
@@ -2140,7 +2140,7 @@ local function autoTradeAllNeons()
             if not getgenv().auto_trade_all_neons then return end
             pcall(function()
                 for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
-                    if pet.properties.neon then
+                    if pet.properties[version] then
                         ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
                         petCounter = petCounter + 1
                         if petCounter >= 18 then
@@ -2688,12 +2688,19 @@ Auto:AddToggle({
     end    
 })
 
+Auto:AddToggle({
+    Name = "Auto Trade All Megas",
+    Callback = function(value)
+        getgenv().auto_trade_all_neons = value
+        autoTradeAllNeons("mega_neon")
+    end    
+})
 
 Auto:AddToggle({
     Name = "Auto Trade All Neons",
     Callback = function(value)
         getgenv().auto_trade_all_neons = value
-        autoTradeAllNeons()
+        autoTradeAllNeons("neon")
     end    
 })
 
