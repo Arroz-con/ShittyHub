@@ -111,20 +111,20 @@ for i = 1, 8, 1 do
 end
 
 while true do
-    TeleportGardenObby("Garden2024ChaseMap1")
+    TeleportGardenObby("Garden2024ChaseMap7")
 
     repeat
         local hasSunDrop = getSunDrops()
         task.wait(.1)
     until not hasSunDrop
 
-    for _ = 2, 7, 1 do
-        ObbyNextStage()
-        repeat
-            local hasSunDrop = getSunDrops()
-            task.wait(.1)
-        until not hasSunDrop
-    end
+    -- for _ = 2, 7, 1 do
+    --     ObbyNextStage()
+    --     repeat
+    --         local hasSunDrop = getSunDrops()
+    --         task.wait(.1)
+    --     until not hasSunDrop
+    -- end
 
     TeleportMainObby()
     task.wait(6)
