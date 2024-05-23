@@ -118,7 +118,7 @@ while true do
         task.wait(.1)
     until not hasSunDrop
 
-    for _ = 2, 4, 1 do
+    for _ = 2, 7, 1 do
         ObbyNextStage()
         repeat
             local hasSunDrop = getSunDrops()
