@@ -420,8 +420,8 @@ Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal("Visible
                 task.wait(1)
                 FireButton("Start")
 
-            -- elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("start the day off right") then
-            --     FireButton("Start")
+            elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Welcome to the Classic Roblox") then
+                FireButton("Cancel")
 
             -- elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Any items lost to scams") then
             --     FireButton("I understand")
@@ -1902,6 +1902,39 @@ end
 
 
 
+Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(NormalDialogChild)
+    if NormalDialogChild.Name == "NormalDialog" then
+        NormalDialogChild:GetPropertyChangedSignal("Visible"):Connect(function()
+            if NormalDialogChild.Visible then
+                NormalDialogChild:WaitForChild("Info")
+                NormalDialogChild.Info:WaitForChild("TextLabel")
+                NormalDialogChild.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
+                    if NormalDialogChild.Info.TextLabel.Text:match("This trade seems unbalanced") then
+                        FireButton("Next")
+        
+                    elseif NormalDialogChild.Info.TextLabel.Text:match("Any items lost to scams") then
+                        FireButton("I understand")
+        
+                    end
+                end)
+            end
+        end)
+    end
+end)
+
+Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal("Visible"):Connect(function()
+    if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
+        Player.PlayerGui.DialogApp.Dialog.NormalDialog:WaitForChild("Info")
+        Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info:WaitForChild("TextLabel")
+        Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
+            if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Be careful when trading") then
+                FireButton("Okay")
+
+            end
+        end)
+    end
+end)
+
 
 
 local function ClickTradeWindowPopUps()
@@ -1971,22 +2004,18 @@ local function clickAcceptNegotiation()
     ClickTradeWindowPopUps()
 end
 
-local function autoAcceptTrade(bool)
-    pcall(function()
-        while getgenv().auto_accept_trade do
-            if not bool then return end
-            ClickTradeWindowPopUps()
-            if Player.PlayerGui.TradeApp.Frame.Visible then
-                ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
-            end
-            ClickTradeWindowPopUps()
-            if Player.PlayerGui.TradeApp.Frame.Visible then
-                ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
-            end
-            task.wait(1)
-        end
-    end)
+local function AcceptNegotiationAndConfirm(toggle)
+    ClickTradeWindowPopUps()
+    if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items == 0 then
+        getgenv()[toggle]:Set(false)
+        ReplicatedStorage.API:FindFirstChild("TradeAPI/DeclineTrade"):FireServer()
+        task.wait(1)
+    end
+    ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
+    task.wait(2)
+    ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
 end
+
 
 local function autoTradeAllInventory(TabPassOn)
     if not Player.PlayerGui.TradeApp.Frame.Visible then
@@ -2013,9 +2042,10 @@ local function sendTradeRequest()
     if not Player.PlayerGui.TradeApp.Frame.Visible then
         repeat
             ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(selectedPlayer)
-            task.wait(1)
+            task.wait(5)
         until Player.PlayerGui.TradeApp.Frame.Visible
     end
+    task.wait()
 end
 
 local function inventoryCount()
@@ -2024,101 +2054,6 @@ local function inventoryCount()
         count += 1
     end
     return count
-end
-
-local function autoTradeAllPets()
-    local petCounter = 0
-    while getgenv().auto_trade_all_pets do
-        if not getgenv().auto_trade_all_pets then return end
-
-        sendTradeRequest()
-
-        for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
-            if not pet then getgenv().auto_trade_all_pets = false end
-            ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
-            task.wait(.1)
-            if petCounter == 18 then
-                break
-            end
-        end
-        clickAcceptNegotiation()
-        clickAcceptConfirmation()
-        petCounter = 0
-        task.wait(1)
-    end 
-end
-
-local function autoTradeLegendary()
-    task.spawn(function()
-        while task.wait(0.5) do
-            if not getgenv().auto_trade_Legendary then return end
-            pcall(function()
-                if not Player.PlayerGui.TradeApp.Frame.Visible then
-                    ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(selectedPlayer)
-                end
-                ClickTradeWindowPopUps() 
-            end)
-        end
-    end)
-
-    task.spawn(function()
-        local petCounter = 0
-        while task.wait(0.5) do
-            if not getgenv().auto_trade_Legendary then return end
-            pcall(function()
-                for _, v in pairs(pets_legendary) do
-                    for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
-                        if v == pet.id then
-                            ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
-                            petCounter = petCounter + 1
-                            if petCounter >= 18 then
-                                break 
-                            end
-                        end
-                    end
-                end
-                ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
-                ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
-                petCounter = 0
-            end)
-        end
-    end)
-end
-
-local function autoTradeFullgrownNeonandMega()
-    task.spawn(function()
-        while task.wait(0.1) do
-            if not getgenv().auto_trade_fullgrown_neon_and_mega then return end
-            pcall(function()
-                if not Player.PlayerGui.TradeApp.Frame.Visible then
-                    ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(selectedPlayer)
-                end
-                ClickTradeWindowPopUps()
-            end)
-        end
-    end)
-
-    task.spawn(function()
-        local petCounter = 0
-        while task.wait(0.1) do
-            if not getgenv().auto_trade_fullgrown_neon_and_mega then return end
-            pcall(function()
-                for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
-                    if (pet.properties.age == 6 or pet.properties.neon) or pet.properties.mega_neon then
-                        ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
-                        petCounter = petCounter + 1
-                        if petCounter >= 18 then
-                            break 
-                        end
-                    end
-                end
-                ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
-                task.wait()
-                ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
-                petCounter = 0
-            end)
-        end
-    end)
 end
 
 local function autoTradeAllNeons(version)
@@ -2597,7 +2532,19 @@ local AutoTradeToggle = Auto:AddToggle({
     Name = "Auto Accept Trade ",
     Callback = function(value)
         getgenv().auto_accept_trade = value
-        autoAcceptTrade(value)
+        while getgenv().auto_accept_trade do
+            if Bypass("ClientData").get_data()[Player.Name].in_active_trade then
+                if Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.negotiated then
+                    ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
+                end
+        
+                if Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.confirmed then
+                    ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
+                end
+            end
+            ClickTradeWindowPopUps()
+            task.wait(1)
+        end
     end    
 })
 
@@ -2655,36 +2602,76 @@ Auto:AddToggle({
     end    
 })
 
-Auto:AddTextbox({
-    Name = "Enter how many to trade",
-    TextDisappear = false,
-    Callback = function(value)
-        howManyToTrade = value
-    end  
-})
 
-Auto:AddToggle({
+getgenv().allPetsToggle = Auto:AddToggle({
     Name = "Auto Trade All Pets",
     Callback = function(value)
         getgenv().auto_trade_all_pets = value
-        autoTradeAllPets()
+        while getgenv().auto_trade_all_pets do
+    
+            sendTradeRequest()
+    
+            for _, pet in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
+                if pet.id == "practice_dog" then continue end
+                ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
+                if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items >= 18 then
+                    break
+                end
+                task.wait(0.1)
+            end
+
+            AcceptNegotiationAndConfirm("allPetsToggle")
+            task.wait()
+        end 
     end    
 })
 
-Auto:AddToggle({
+getgenv().legendaryToggle = Auto:AddToggle({
     Name = "Auto Trade Only Legendary's",
     Callback = function(value)
         getgenv().auto_trade_Legendary = value
-        autoTradeLegendary()
+        while getgenv().auto_trade_Legendary do
+
+            sendTradeRequest()
+
+            for _, pet in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
+                if table.find(pets_legendary, pet.id) then
+                    ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
+                    if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items >= 18 then
+                        break
+                    end
+                    task.wait(0.1)
+                end
+            end
+
+            AcceptNegotiationAndConfirm("legendaryToggle")
+            task.wait()
+        end
     end    
 })
 
-
-Auto:AddToggle({
+-- if (pet.properties.age == 6 or pet.properties.neon) or pet.properties.mega_neon then
+getgenv().fullgrownToggle = Auto:AddToggle({
     Name = "Auto Trade FullGrown, luminous Neons and Megas",
     Callback = function(value)
         getgenv().auto_trade_fullgrown_neon_and_mega = value
-        autoTradeFullgrownNeonandMega()
+        while getgenv().auto_trade_fullgrown_neon_and_mega do
+
+            sendTradeRequest()
+
+            for _, pet in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
+                if (pet.properties.age == 6 or pet.properties.neon) or pet.properties.mega_neon then
+                    ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
+                    if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items >= 18 then
+                        break
+                    end
+                    task.wait(0.1)
+                end
+            end
+
+            AcceptNegotiationAndConfirm("fullgrownToggle")
+            task.wait()
+        end
     end    
 })
 
