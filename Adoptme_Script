@@ -1871,7 +1871,7 @@ local function autoFarm()
     
 
     -- adopt me code
-    -- ReplicatedStorage:WaitForChild("API"):WaitForChild("CodeRedemptionAPI/AttemptRedeemCode"):InvokeServer("2xfire")
+    ReplicatedStorage.API["CodeRedemptionAPI/AttemptRedeemCode"]:InvokeServer("2xGARDEN")
 
     -- setfpscap(SETTINGS.SET_FPS)
 
