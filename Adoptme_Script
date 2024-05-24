@@ -1628,7 +1628,7 @@ local function autoFarm()
             if v["id"] == "hungry" then
                 FoodAilments("icecream")
                 task.wait(2)
-                if not SETTINGS.FOCUS_FARM_AGE_POTION or not SETTINGS.HATCH_EGG_PRIORITY then
+                if not SETTINGS.FOCUS_FARM_AGE_POTION and not SETTINGS.HATCH_EGG_PRIORITY then
                     agePotion("pet_age_potion")
                 end
 
