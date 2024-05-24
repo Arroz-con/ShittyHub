@@ -2336,7 +2336,7 @@ end
 local function tradeCollector(namePassOn)
     while SETTINGS.ENABLE_TRADE_COLLECTOR and SETTINGS.TRADE_COLLECTOR_NAME and Players[namePassOn] do
         local tabBoolean, tabName, tables = checkInventory()
-        if not tabBoolean or tabName == "false" then return end
+        if not tabBoolean then return end
         pcall(function()
             repeat
                 if not Player.PlayerGui.TradeApp.Frame.Visible then
