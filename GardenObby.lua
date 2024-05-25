@@ -106,7 +106,7 @@ local function getSunDrops()
 end
 
 for i = 1, 8, 1 do
-    ReplicatedStorage.API["EventAPI/ClaimObbyReward"]:InvokeServer(i)
+    game.ReplicatedStorage.API["EventAPI/ClaimObbyReward"]:InvokeServer(i)
     task.wait(.5)
 end
 

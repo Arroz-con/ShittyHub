@@ -1316,7 +1316,16 @@ end
 local function agePotion(FoodPassOn)
     for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
         if v.id == FoodPassOn then
-            ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(v.unique)
+            local args = {
+                [1] = "__Enum_PetObjectCreatorType_2",
+                [2] = {
+                    ["unique_id"] = v.unique,
+                    ["possible_grabber_pet_unique"] = Bypass("ClientData").get("pet_char_wrapper")["pet_unique"],
+                    ["grab_immediately"] = false
+                }
+            }
+            
+            ReplicatedStorage.API["PetObjectAPI/CreatePetObject"]:InvokeServer(unpack(args))
             return
         end
     end
