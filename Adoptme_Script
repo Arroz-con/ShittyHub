@@ -1957,6 +1957,9 @@ Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal("Visible
             if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Be careful when trading") then
                 FireButton("Okay")
 
+            elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("This trade seems unbalanced") then
+                FireButton("Next")
+
             end
         end)
     end
