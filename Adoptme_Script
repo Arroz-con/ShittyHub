@@ -1398,6 +1398,7 @@ end
 -- end
 
 local function AgeUpPotionLevelUp()
+    local sameUnqiue
     local function equipPet()
         -- checks inventory for neon pet
         for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
@@ -1419,7 +1420,19 @@ local function AgeUpPotionLevelUp()
     local function feedAgePotion()
         for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.food) do
             if v.id == "pet_age_potion" then
-                ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(v.unique)
+                if sameUnqiue == v.unique then return true end
+                sameUnqiue = v.unique
+                local args = {
+                    [1] = "__Enum_PetObjectCreatorType_2",
+                    [2] = {
+                        ["unique_id"] = v.unique,
+                        ["possible_grabber_pet_unique"] = Bypass("ClientData").get("pet_char_wrapper")["pet_unique"],
+                        ["grab_immediately"] = false
+                    }
+                }
+                
+                ReplicatedStorage.API["PetObjectAPI/CreatePetObject"]:InvokeServer(unpack(args))
+                
                 return true
             end
         end
@@ -1429,6 +1442,11 @@ local function AgeUpPotionLevelUp()
     while getgenv().feedAgeUpPotionToggle do
         local hasPetEquipped = Bypass("ClientData").get("pet_char_wrapper")
         if not hasPetEquipped then
+            equipPet()
+            task.wait(1)
+        end
+
+        if selectedItem ~= Bypass("ClientData").get("pet_char_wrapper")["pet_id"] then
             equipPet()
             task.wait(1)
         end
