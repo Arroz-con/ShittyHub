@@ -1316,16 +1316,7 @@ end
 local function agePotion(FoodPassOn)
     for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
         if v.id == FoodPassOn then
-            local args = {
-                [1] = "__Enum_PetObjectCreatorType_2",
-                [2] = {
-                    ["unique_id"] = v.unique,
-                    ["possible_grabber_pet_unique"] = Bypass("ClientData").get("pet_char_wrapper")["pet_unique"],
-                    ["grab_immediately"] = false
-                }
-            }
-            
-            ReplicatedStorage.API["PetObjectAPI/CreatePetObject"]:InvokeServer(unpack(args))
+            ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(v.unique)
             return
         end
     end
@@ -1431,17 +1422,7 @@ local function AgeUpPotionLevelUp()
             if v.id == "pet_age_potion" then
                 if sameUnqiue == v.unique then return true end
                 sameUnqiue = v.unique
-                local args = {
-                    [1] = "__Enum_PetObjectCreatorType_2",
-                    [2] = {
-                        ["unique_id"] = v.unique,
-                        ["possible_grabber_pet_unique"] = Bypass("ClientData").get("pet_char_wrapper")["pet_unique"],
-                        ["grab_immediately"] = false
-                    }
-                }
-                
-                ReplicatedStorage.API["PetObjectAPI/CreatePetObject"]:InvokeServer(unpack(args))
-                
+                ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(v.unique)
                 return true
             end
         end
@@ -1475,7 +1456,7 @@ local function AgeUpPotionLevelUp()
             getgenv().PotionToggle:Set(false)
             return
         end
-        task.wait(1)
+        task.wait(.1)
     end
 end
 
@@ -1898,7 +1879,7 @@ local function autoFarm()
     
 
     -- adopt me code
-    ReplicatedStorage.API["CodeRedemptionAPI/AttemptRedeemCode"]:InvokeServer("2xGARDEN")
+    -- ReplicatedStorage.API["CodeRedemptionAPI/AttemptRedeemCode"]:InvokeServer("2xGARDEN")
 
     -- setfpscap(SETTINGS.SET_FPS)
 
