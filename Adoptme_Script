@@ -1879,7 +1879,7 @@ local function autoFarm()
     
 
     -- adopt me code
-    ReplicatedStorage.API["CodeRedemptionAPI/AttemptRedeemCode"]:InvokeServer("2xmoss")
+    ReplicatedStorage.API["CodeRedemptionAPI/AttemptRedeemCode"]:InvokeServer("2xross")
 
     -- setfpscap(SETTINGS.SET_FPS)
 
