@@ -1879,7 +1879,7 @@ local function autoFarm()
     
 
     -- adopt me code
-    ReplicatedStorage.API["CodeRedemptionAPI/AttemptRedeemCode"]:InvokeServer("2xross")
+    -- ReplicatedStorage.API["CodeRedemptionAPI/AttemptRedeemCode"]:InvokeServer("2xGARDEN")
 
     -- setfpscap(SETTINGS.SET_FPS)
 
@@ -2393,22 +2393,17 @@ local function tradeCollector(namePassOn)
                 end
             end
             
-
-            -- local petCounter = 0   
-            -- for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory[tabName]) do
-            --     if pet.id ~= "practice_dog" and not pet.properties.neon and pet.properties.age ~= 6 then
-            --         ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
-            --         petCounter = petCounter + 1
-            --         if petCounter >= 19 then
-            --             break 
-            --         end
-            --     end
-            -- end
+            repeat
+                local lock = Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.LockIcon.Visible
+                task.wait(1)
+                
+            until not lock
+            -- wait for timer to hit 0
 
             ClickTradeWindowPopUps()
             task.wait(1)
             ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
-            task.wait(1)
+            task.wait(2)
             ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
             petCounter = 0
             ClickTradeWindowPopUps()
