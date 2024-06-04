@@ -3010,7 +3010,7 @@ WelcomeScreen:Disconnect()
 
 OrionLib:Init()
 
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/BeetleTradeIn.lua"))()
+-- loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/BeetleTradeIn.lua"))()
 
 -- local tele = fluxus or codex or arceusx
 
