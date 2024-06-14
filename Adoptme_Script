@@ -1768,11 +1768,11 @@ local function autoFarm()
             Player.PlayerGui.MinigameInGameApp.Body:WaitForChild("Left")
             Player.PlayerGui.MinigameInGameApp.Body.Middle:WaitForChild("Container")
             Player.PlayerGui.MinigameInGameApp.Body.Middle.Container:WaitForChild("TitleLabel")
-            if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("SUNNY SCRAMBLE") then
+            if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("RODEO RALLY") then
                 task.wait(1)
+                Player.Character.HumanoidRootPart.Anchored = true
                 -- repeat
-                --     collectEggs()
-                --     task.wait(.1)
+                --     task.wait(1)
                 -- until Player.PlayerGui.MinigameInGameApp.Enabled == false
             end
         end 
@@ -1786,8 +1786,8 @@ local function autoFarm()
                     NormalDialogChild:WaitForChild("Info")
                     NormalDialogChild.Info:WaitForChild("TextLabel")
                     NormalDialogChild.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
-                        if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("A cave-in destroyed") then
-                            FireButton("Okay")
+                        if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Rodeo Rally is starting") then
+                            FireButton("Yes")
 
                         elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:find("invitation") then
                             game:Shutdown()
@@ -1805,12 +1805,10 @@ local function autoFarm()
             Player.PlayerGui.DialogApp.Dialog.NormalDialog:WaitForChild("Info")
             Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info:WaitForChild("TextLabel")
             Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
-                if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Sunny Scramble") then
-                    task.wait()
+                if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Rodeo Rally is starting") then
                     FireButton("Yes")
 
                 elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:find("invitation") then
-                   
                     game:Shutdown()
 
                 end
@@ -1850,7 +1848,7 @@ local function autoFarm()
             if Player.PlayerGui.MinigameRewardsApp.Body.Button.Face.TextLabel.Text:match("NICE!") then
                 Player.Character.HumanoidRootPart.Anchored = false
                 RemoveGameOverButton()
-                Player.PlayerGui.MinigameRewardsApp.Body.Visible = false
+                -- Player.PlayerGui.MinigameRewardsApp.Body.Visible = false
                 TeleportMainMap()
                 task.wait(2)
             end
