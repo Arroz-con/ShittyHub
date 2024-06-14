@@ -62,13 +62,15 @@ getgenv().SETTINGS = {
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Adoptme_Script"))()
 
-local howManyToBuy = 16  -- change the number to how many to buy
-local petNameId = "summerfest_2024_kid_goat" -- change the nameId to the pet/egg you wanna buy
-
-for i = 1, howManyToBuy do
-    local hasMoney = game.ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", petNameId, {})
-    if hasMoney == "too little money" then
-        break
+local function buyPet(petNameId: string, howManyToBuy: number)
+    for i = 1, howManyToBuy do
+        local hasMoney = game.ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", petNameId, {})
+        if hasMoney == "too little money" then
+            break
+        end
+        task.wait(.1)
     end
-    task.wait(.1)
 end
+
+buyPet("summerfest_2024_cow_calf", 1)
+buyPet("summerfest_2024_kid_goat", 4)
