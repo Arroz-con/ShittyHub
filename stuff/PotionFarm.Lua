@@ -82,5 +82,5 @@ local function buyPet(petNameId: string, howManyToBuy: number)
     end
 end
 
-buyPet("summerfest_2024_cow_calf", 1)
+buyPet("summerfest_2024_cow_calf", 2)
 buyPet("summerfest_2024_kid_goat", 4)
