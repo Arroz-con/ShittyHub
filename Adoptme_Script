@@ -62,7 +62,7 @@ local Bed
 local Shower
 local Piano
 local normalLure
-
+local isMainMap = false
 
 
 UserGameSettings.GraphicsQualityLevel = 1
@@ -1484,6 +1484,7 @@ local function TeleportMainMap()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
     Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
     Player.Character.Humanoid.WalkSpeed = 0
+    isMainMap = true
     task.wait(2)
     subToHouse()
 end
@@ -1765,11 +1766,10 @@ local function autoFarm()
     Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(function()
         if Player.PlayerGui.MinigameInGameApp.Enabled then
             Player.PlayerGui.MinigameInGameApp:WaitForChild("Body")
-            Player.PlayerGui.MinigameInGameApp.Body:WaitForChild("Left")
+            Player.PlayerGui.MinigameInGameApp.Body:WaitForChild("Middle")
             Player.PlayerGui.MinigameInGameApp.Body.Middle:WaitForChild("Container")
             Player.PlayerGui.MinigameInGameApp.Body.Middle.Container:WaitForChild("TitleLabel")
             if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("RODEO RALLY") then
-                task.wait(1)
                 Player.Character.HumanoidRootPart.Anchored = true
                 -- repeat
                 --     task.wait(1)
@@ -1787,7 +1787,11 @@ local function autoFarm()
                     NormalDialogChild.Info:WaitForChild("TextLabel")
                     NormalDialogChild.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
                         if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Rodeo Rally is starting") then
-                            FireButton("Yes")
+                            if isMainMap then
+                                FireButton("Yes")
+                            else
+                                FireButton("No")
+                            end
 
                         elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:find("invitation") then
                             game:Shutdown()
@@ -1806,7 +1810,11 @@ local function autoFarm()
             Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info:WaitForChild("TextLabel")
             Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
                 if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Rodeo Rally is starting") then
-                    FireButton("Yes")
+                    if isMainMap then
+                        FireButton("Yes")
+                    else
+                        FireButton("No")
+                    end
 
                 elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:find("invitation") then
                     game:Shutdown()
