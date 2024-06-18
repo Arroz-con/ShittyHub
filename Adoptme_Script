@@ -1771,6 +1771,13 @@ local function autoFarm()
             Player.PlayerGui.MinigameInGameApp.Body.Middle.Container:WaitForChild("TitleLabel")
             if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("RODEO RALLY") then
                 Player.Character.HumanoidRootPart.Anchored = true
+                workspace.StaticMap["bull_ride_minigame_minigame_state"].countdown:GetPropertyChangedSignal("Value"):Connect(function()
+                    if workspace.StaticMap["bull_ride_minigame_minigame_state"].countdown.Value == "GO!" then
+                        workspace.Interiors:WaitForChild("BullRideMinigame"):WaitForChild("Minigame"):WaitForChild("BullRideCowboyHat").Parent = Player.Character
+                        task.wait()
+                        ReplicatedStorage.API["MinigameAPI/MessageServer"]:FireServer("bull_ride_minigame", "hat_picked_up")
+                    end
+                end)
                 -- repeat
                 --     task.wait(1)
                 -- until Player.PlayerGui.MinigameInGameApp.Enabled == false
@@ -1842,6 +1849,7 @@ local function autoFarm()
         for i, v in pairs(Player.PlayerGui.MinigameRewardsApp.Body.Button:GetDescendants()) do
             if v.Name == "TextLabel" then
                 if v.Text == "NICE!" then
+                    task.wait(10)
                     clickGuiButton(v.Parent.Parent)
                     break
                 end
