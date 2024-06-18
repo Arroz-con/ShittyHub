@@ -1761,7 +1761,7 @@ local function autoFarm()
         end
     end)
 
-
+    local countdownConn
     --// Fires when inside the minigame
     Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(function()
         if Player.PlayerGui.MinigameInGameApp.Enabled then
@@ -1771,7 +1771,8 @@ local function autoFarm()
             Player.PlayerGui.MinigameInGameApp.Body.Middle.Container:WaitForChild("TitleLabel")
             if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("RODEO RALLY") then
                 Player.Character.HumanoidRootPart.Anchored = true
-                workspace.StaticMap["bull_ride_minigame_minigame_state"].countdown:GetPropertyChangedSignal("Value"):Connect(function()
+                countdownConn = workspace.StaticMap["bull_ride_minigame_minigame_state"].countdown:GetPropertyChangedSignal("Value"):Connect(function()
+                    print(workspace.StaticMap["bull_ride_minigame_minigame_state"].countdown.Value)
                     if workspace.StaticMap["bull_ride_minigame_minigame_state"].countdown.Value == "GO!" then
                         workspace.Interiors:WaitForChild("BullRideMinigame"):WaitForChild("Minigame"):WaitForChild("BullRideCowboyHat").Parent = Player.Character
                         task.wait()
@@ -1849,7 +1850,8 @@ local function autoFarm()
         for i, v in pairs(Player.PlayerGui.MinigameRewardsApp.Body.Button:GetDescendants()) do
             if v.Name == "TextLabel" then
                 if v.Text == "NICE!" then
-                    task.wait(10)
+                    countdownConn:Disconnect()
+                    task.wait(1)
                     clickGuiButton(v.Parent.Parent)
                     break
                 end
@@ -3026,7 +3028,7 @@ WelcomeScreen:Disconnect()
 
 OrionLib:Init()
 
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/BeetleTradeIn.lua"))()
+-- loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/BeetleTradeIn.lua"))()
 
 -- local tele = fluxus or codex or arceusx
 
