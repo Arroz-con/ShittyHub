@@ -732,8 +732,9 @@ local function clipBoardInventory()
         local potions = getAgeupPotionInfo()
         local potionAmount = potions * 0.04
 
+        local tickets = Bypass("ClientData").get_data()[Player.Name].tickets_2024
         local bucks = Bypass("ClientData").get_data()[Player.Name].money
-        allInventory = allInventory..`{potions} Age-up Potions + {addComma(bucks)} Bucks | Adopt me\n`
+        allInventory = allInventory..`{potions} Age-up Potions + {addComma(tickets)} Tickets + {addComma(bucks)} Bucks | Adopt me\n`
 
         -- local cash = tonumber(bucks) * 0.000037
 
