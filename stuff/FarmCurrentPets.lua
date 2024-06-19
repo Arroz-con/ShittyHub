@@ -51,15 +51,13 @@ getgenv().SETTINGS = {
     },
 
     HATCH_EGG_PRIORITY = true,
-    HATCH_EGG_PRIORITY_NAMES = {"garden_2024_egg"},
+    HATCH_EGG_PRIORITY_NAMES = {"summerfest_2024_cow_calf"},
     
     PET_ONLY_PRIORITY = true,
     PET_ONLY_PRIORITY_NAMES = {
         "garden_2024_rosy_maple_moth",
         "garden_2024_mushroom_friend",
-        -- "garden_2024_skunk",
-        -- "garden_2024_praying_mantis"
-
+        "summerfest_2024_cow_calf"
     },
 }
 
