@@ -2,6 +2,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Player = game:GetService("Players").LocalPlayer
 local Bypass = require(game.ReplicatedStorage:WaitForChild("Fsys")).load
 
+local testing = true
+
 local function getId()
     local ModelName = tostring(workspace.Interiors:FindFirstChildWhichIsA("Model"))
     if not ModelName then
@@ -24,16 +26,18 @@ local function hasStableToken()
     return false
 end
 
-if hasStableToken() then
+if hasStableToken() or testing then
     local stuckTimer = 0
-    -- bring up lobby popup window
-    ReplicatedStorage.API["MinigameAPI/LobbyCreate"]:InvokeServer("showhorse")
-    task.wait()
+    if testing then
+        -- bring up lobby popup window
+        ReplicatedStorage.API["MinigameAPI/LobbyCreate"]:InvokeServer("showhorse")
+        task.wait()
 
-    -- start minigame
-    ReplicatedStorage.API["MinigameAPI/LobbyStart"]:FireServer()
-    task.wait()
-    -- wait till minigame loads up
+        -- start minigame
+        ReplicatedStorage.API["MinigameAPI/LobbyStart"]:FireServer()
+        task.wait()
+        -- wait till minigame loads up
+    end
 
     repeat
         stuckTimer += 1
