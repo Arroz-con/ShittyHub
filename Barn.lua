@@ -52,12 +52,15 @@ if hasStableToken() or testing then
     print("loaded in minigame")
     task.wait(5)
     local minigameId = tostring(getId())
-    local args = {
-        [1] = "showhorse::"..minigameId,
-        [2] = "attempt_interact_with_hay_pile"
-    } 
-    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))
-    task.wait()
+    local function getFoodForHorse()
+        local args = {
+            [1] = "showhorse::"..minigameId,
+            [2] = "attempt_interact_with_hay_pile"
+        } 
+        game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))
+        task.wait()
+    end
+    
     local function dropOff(num: number)
         local args = {
             [1] = "showhorse::"..minigameId,
@@ -70,6 +73,7 @@ if hasStableToken() or testing then
     end
 
     for i = 1, 10, 1 do
+        getFoodForHorse()
         dropOff(i)
         task.wait(1)
     end
