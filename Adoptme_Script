@@ -45,7 +45,7 @@ local NewClaimBool = true
 local NeonTable = {["neon_fusion"] = true, ["mega_neon_fusion"] = true}
 local ClaimTable = {["hatch_three_eggs"] = {3}, ["fully_age_three_pets"] = {3}, ["make_two_trades"] = {2}, ["equip_two_accessories"] = {2},
 ["buy_three_furniture_items_with_friends_coop_budget"] = {3}, ["buy_five_furniture_items"] = {5}, ["buy_fifteen_furniture_items"] = {15},
-["play_as_a_baby_for_twenty_five_minutes"] = {1500}, ["play_for_thirty_minutes"] = {1800}}
+["play_as_a_baby_for_twenty_five_minutes"] = {1500}, ["play_for_thirty_minutes"] = {1800}, ["summerfest_2024_playtime"] = {2400}}
 
 Player.PlayerGui:WaitForChild("NewsApp", 600)
 Player.PlayerGui:WaitForChild("DialogApp", 600)
@@ -263,8 +263,6 @@ if Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
 end
 
 
-
-
 banMessageConnection = Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal("Visible"):Connect(function()
     if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
         Player.PlayerGui.DialogApp.Dialog.NormalDialog:WaitForChild("Info")
@@ -273,6 +271,8 @@ banMessageConnection = Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropert
             if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("ban") then
                 FireButton("Okay")
                 banMessageConnection:Disconnect()
+            elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("You have been awarded") then
+                FireButton("Awesome!")
             end
         end)
     end
