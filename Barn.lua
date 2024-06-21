@@ -2,7 +2,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Player = game:GetService("Players").LocalPlayer
 local Bypass = require(game.ReplicatedStorage:WaitForChild("Fsys")).load
 
-local usingOwnToken = true
 local minigameId
 
 local function getId()
@@ -65,7 +64,7 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
         if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("SPEEDY STABLES") then
             print("Loaded into minigame")
             minigameId = tostring(getId())
-            
+
             repeat
                 minigameLoop("attempt_interact_with_hay_pile", 1)
                 minigameLoop("attempt_interact_with_carrots_pile", 2)
@@ -78,17 +77,16 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
 end)
 
 
-if hasStableToken() or usingOwnToken then
-    if usingOwnToken then
-        -- bring up lobby popup window
-        ReplicatedStorage.API["MinigameAPI/LobbyCreate"]:InvokeServer("showhorse")
-        task.wait()
+if hasStableToken() then
+    -- bring up lobby popup window
+    ReplicatedStorage.API["MinigameAPI/LobbyCreate"]:InvokeServer("showhorse")
+    task.wait()
 
-        -- start minigame
-        ReplicatedStorage.API["MinigameAPI/LobbyStart"]:FireServer()
-        task.wait()
-        -- wait till minigame loads up
-    end
+    -- start minigame
+    ReplicatedStorage.API["MinigameAPI/LobbyStart"]:FireServer()
+    task.wait()
+    -- wait till minigame loads up
+    
 
     -- repeat
     --     stuckTimer += 1
