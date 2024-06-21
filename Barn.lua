@@ -29,10 +29,9 @@ end
 local function getFoodForHorse(foodId)
     local args = {
         [1] = "showhorse::"..minigameId,
-        [2] = "attempt_interact_with_hay_pile"
+        [2] = foodId
     } 
     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))
-    task.wait()
 end
 
 local function dropOff(stableNumber: number, leftOrRight: number)
@@ -50,6 +49,7 @@ end
 local function minigameLoop(foodId: string, leftOrRight: number)
     for i = 1, 6, 1 do
         getFoodForHorse(foodId)
+        task.wait(1)
         dropOff(i, leftOrRight)
         task.wait(1)
     end
