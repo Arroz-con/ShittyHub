@@ -67,9 +67,11 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
 
             repeat
                 minigameLoop("attempt_interact_with_hay_pile", 1)
+                task.wait(5)
                 minigameLoop("attempt_interact_with_carrots_pile", 2)
+                task.wait(5)
                 minigameLoop("attempt_interact_with_faucet", 1)
-                task.wait()
+                task.wait(5)
             until Player.PlayerGui.MinigameInGameApp.Enabled == false
             
         end
