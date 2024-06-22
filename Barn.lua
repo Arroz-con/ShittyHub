@@ -59,12 +59,12 @@ end
 local function minigameLoop(foodId: string, leftOrRight: number)
     for i = 1, 6, 1 do
         getFoodForHorse(foodId)
-        task.wait(1)
+        task.wait(.1)
         dropOff(i, leftOrRight)
         getFoodForHorse("attempt_interact_with_faucet")
-        pickUpBucket(1)
+        pickUpBucket(.1)
         dropOff(i, 2)
-        task.wait(1)
+        task.wait(.1)
     end
 end
 
