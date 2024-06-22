@@ -26,6 +26,16 @@ local function hasStableToken()
     return false
 end
 
+local function pickUpBucket(whichSide: number)
+    local args = {
+        [1] = "showhorse::"..minigameId,
+        [2] = "attempt_interact_with_dropoff_point",
+        [3] = 7,
+        [4] = whichSide
+    }
+    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))
+end
+
 local function getFoodForHorse(foodId)
     local args = {
         [1] = "showhorse::"..minigameId,
@@ -51,9 +61,14 @@ local function minigameLoop(foodId: string, leftOrRight: number)
         getFoodForHorse(foodId)
         task.wait(1)
         dropOff(i, leftOrRight)
+        getFoodForHorse("attempt_interact_with_faucet")
+        pickUpBucket(1)
+        dropOff(i, 2)
         task.wait(1)
     end
 end
+
+
 
 Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(function()
     if Player.PlayerGui.MinigameInGameApp.Enabled then
@@ -67,11 +82,9 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
 
             repeat
                 minigameLoop("attempt_interact_with_hay_pile", 1)
-                task.wait(5)
-                minigameLoop("attempt_interact_with_carrots_pile", 2)
-                task.wait(5)
-                minigameLoop("attempt_interact_with_faucet", 1)
-                task.wait(5)
+                task.wait(1)
+                minigameLoop("attempt_interact_with_carrots_pile", 1)
+                task.wait(1)
             until Player.PlayerGui.MinigameInGameApp.Enabled == false
             
         end
