@@ -12,7 +12,6 @@ local function getId()
         until ModelName
     end
 
-    print(ModelName:match("::(.+)"))
     return ModelName:match("::(.+)")
 end
 
@@ -45,7 +44,6 @@ local function feedHorse(stable: number, leftOrRight: number)
     }
     
     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))
-    print("placed food on ground")
 end
 
 
@@ -76,7 +74,7 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
                             if template.Name == "HayTemplate" then
                                 if not template:FindFirstChild("Complete") then continue end
                                 if template.Complete.Visible then continue end
-                                print("doing hay task")
+                
                                 pickUpFoodForHorse("attempt_interact_with_hay_pile")
                                 task.wait(.1)
                                 feedHorse(i, 1)
@@ -84,7 +82,7 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
                             elseif template.Name =="CarrotsTemplate" then
                                 if not template:FindFirstChild("Complete") then continue end
                                 if template.Complete.Visible then continue end
-                                print("doing carrot task")
+                           
                                 pickUpFoodForHorse("attempt_interact_with_carrots_pile")
                                 task.wait(.1)
                                 feedHorse(i, 1)
@@ -92,13 +90,13 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
                             elseif template.Name == "WaterTemplate" then
                                 if not template:FindFirstChild("Complete") then continue end
                                 if template.Complete.Visible then continue end
-                                print("doing water task")
+                           
                                 if bucketPosition then
                                     pickUpBucketOrDrop(bucketPosition[1], bucketPosition[2])
                                     task.wait(1)
                                     pickUpBucketOrDrop(7, math.random(1, 2))
                                 end
-                                
+
                                 pickUpFoodForHorse("attempt_interact_with_faucet") -- turns on faucet to fill bucket
                                 task.wait(1)
                                 pickUpBucketOrDrop(7, math.random(1, 2))
