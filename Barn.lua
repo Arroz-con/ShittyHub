@@ -67,7 +67,9 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
             minigameId = tostring(getId())
 
             repeat
-                for _, area in workspace.Interiors["ShowhorseMinigame::"..minigameId].DropoffAreas:GetChildern() do
+                local dropOffAreas = workspace.Interiors:FindFirstChildWhichIsA("DropoffAreas", true)
+
+                for _, area in dropOffAreas:GetChildern() do
                     print(area)
                     if area:FindFirstChild("horse") then
                         local needs = area.horse:FindFirstChild("Needs", true)
