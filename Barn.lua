@@ -76,11 +76,11 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
                     until showhorseFolder
                 end
 
-                for _, area in showhorseFolder:WaitForChild("DropoffAreas"):GetChildren() do
+                for i, area in ipairs(showhorseFolder:WaitForChild("DropoffAreas"):GetChildren()) do
                     if area:FindFirstChild("horse") then
                         local needs = area.horse:FindFirstChild("Needs", true)
                         local stableNumber = tonumber(area)
-            
+                        print(stableNumber, i)
                         if needs:FindFirstChild("HayTemplate") then
                             print("doing hay task")
                             pickUpFoodForHorse("attempt_interact_with_hay_pile")
