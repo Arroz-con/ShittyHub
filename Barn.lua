@@ -78,21 +78,20 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
                 for _, area in showhorseFolder:WaitForChild("DropoffAreas"):GetChildren() do
                     if area:FindFirstChild("horse") then
                         local needs = area.horse:FindFirstChild("Needs", true)
-                        if not needs then continue end
-
-                        if needs:FindFirstChild("HayTemplate"):FindFirstChild("Incomplete").Visible then
+            
+                        if needs:FindFirstChild("HayTemplate") then
                             print("doing hay task")
                             pickUpFoodForHorse("attempt_interact_with_hay_pile")
                             task.wait()
                             feedHorse(area, 1)
 
-                        elseif needs:FindFirstChild("CarrotsTemplate"):FindFirstChild("Incomplete").Visible then
+                        elseif needs:FindFirstChild("CarrotsTemplate") then
                             print("doing carrot task")
                             pickUpFoodForHorse("attempt_interact_with_carrots_pile")
                             task.wait()
                             feedHorse(area, 1)
 
-                        elseif needs:FindFirstChild("WaterTemplate"):FindFirstChild("Incomplete").Visible then
+                        elseif needs:FindFirstChild("WaterTemplate") then
                             print("doing water task")
                             pickUpFoodForHorse("attempt_interact_with_faucet") -- turns on faucet to fill bucket
                             task.wait(1)
