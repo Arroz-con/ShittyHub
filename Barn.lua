@@ -26,11 +26,11 @@ local function hasStableToken()
     return false
 end
 
-local function pickUpBucket(whichSide: number)
+local function pickUpBucket(stable: number, whichSide: number)
     local args = {
         [1] = "showhorse::"..minigameId,
         [2] = "attempt_interact_with_dropoff_point",
-        [3] = 7,
+        [3] = stable,
         [4] = whichSide
     }
     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))
@@ -103,8 +103,12 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
                                 print("doing water task")
                                 pickUpFoodForHorse("attempt_interact_with_faucet") -- turns on faucet to fill bucket
                                 task.wait(1)
-                                pickUpBucket(1)
+                                pickUpBucket(7, 1)
                                 feedHorse(i, 2)
+                                task.wait(2)
+                                pickUpBucket(i, 2)
+                                task.wait(1)
+                                feedHorse(7, 1)
                             end
                         end
                     end
