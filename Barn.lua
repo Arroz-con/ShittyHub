@@ -104,7 +104,7 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
                                 print("doing water task")
                                 pickUpFoodForHorse("attempt_interact_with_faucet") -- turns on faucet to fill bucket
                                 task.wait(1)
-                                pickUpBucketOrDrop(7, 1)
+                                pickUpBucketOrDrop(7, math.random(1, 2))
                                 task.wait(.1)
                                 pickUpBucketOrDrop(i, 2)
 
