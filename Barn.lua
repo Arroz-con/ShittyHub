@@ -67,7 +67,7 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
         Player.PlayerGui.MinigameInGameApp.Body.Middle.Container:WaitForChild("TitleLabel")
         if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("SPEEDY STABLES") then
             minigameId = tostring(getId())
-
+            local bucketPostion
             repeat
                 local showhorseFolder = workspace.Interiors:FindFirstChildWhichIsA("Model")
                 if not showhorseFolder then
@@ -78,6 +78,7 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
                 end
                 -- DropoffAreas.1.horse.PetModel.Head.ShowhorseMinigameNeedsGui.Container.Bubble.Needs.HayTemplate.Incomplete.Visible
                 for i, area in ipairs(showhorseFolder:WaitForChild("DropoffAreas"):GetChildren()) do
+                    print(i)
                     if area:FindFirstChild("horse") then
                         local needs = area.horse:FindFirstChild("Needs", true)
                         if not needs then continue end
@@ -107,7 +108,7 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
                                 pickUpBucketOrDrop(7, math.random(1, 2))
                                 task.wait(.1)
                                 pickUpBucketOrDrop(i, 2)
-
+                                
                                 -- task.wait(1)
                                 -- pickUpBucket(i, 2)
                                 -- task.wait(.1)
