@@ -75,29 +75,34 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
                         showhorseFolder = workspace.Interiors:FindFirstChildWhichIsA("Model")
                     until showhorseFolder
                 end
-
+                -- DropoffAreas.1.horse.PetModel.Head.ShowhorseMinigameNeedsGui.Container.Bubble.Needs.HayTemplate.Incomplete.Visible
                 for i, area in ipairs(showhorseFolder:WaitForChild("DropoffAreas"):GetChildren()) do
                     if area:FindFirstChild("horse") then
                         local needs = area.horse:FindFirstChild("Needs", true)
                         print(area.Name)
-                        if needs:FindFirstChild("HayTemplate") then
-                            print("doing hay task")
-                            pickUpFoodForHorse("attempt_interact_with_hay_pile")
-                            task.wait(1)
-                            feedHorse(i, 1)
+                        for key, template in needs:GetChildren() do
+                            if template.Name == "HayTemplate" then
+                                if not template:FindFirstChild("Incomplete").Visible then continue end
+                                print("doing hay task")
+                                pickUpFoodForHorse("attempt_interact_with_hay_pile")
+                                task.wait(1)
+                                feedHorse(i, 1)
 
-                        elseif needs:FindFirstChild("CarrotsTemplate") then
-                            print("doing carrot task")
-                            pickUpFoodForHorse("attempt_interact_with_carrots_pile")
-                            task.wait(1)
-                            feedHorse(i, 1)
+                            elseif template.Name =="CarrotsTemplate" then
+                                if not template:FindFirstChild("Incomplete").Visible then continue end
+                                print("doing carrot task")
+                                pickUpFoodForHorse("attempt_interact_with_carrots_pile")
+                                task.wait(1)
+                                feedHorse(i, 1)
 
-                        elseif needs:FindFirstChild("WaterTemplate") then
-                            print("doing water task")
-                            pickUpFoodForHorse("attempt_interact_with_faucet") -- turns on faucet to fill bucket
-                            task.wait(1)
-                            pickUpBucket(1)
-                            feedHorse(i, 2)
+                            elseif template.Name == "WaterTemplate" then
+                                if not template:FindFirstChild("Incomplete").Visible then continue end
+                                print("doing water task")
+                                pickUpFoodForHorse("attempt_interact_with_faucet") -- turns on faucet to fill bucket
+                                task.wait(1)
+                                pickUpBucket(1)
+                                feedHorse(i, 2)
+                            end
                         end
                     end
                     task.wait(1)
