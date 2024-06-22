@@ -77,6 +77,8 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
 
                 for _, area in showhorseFolder:WaitForChild("DropoffAreas"):GetChildren() do
                     if area:FindFirstChild("horse") then
+                        print(area, type(area))
+                        
                         local needs = area.horse:FindFirstChild("Needs", true)
             
                         if needs:FindFirstChild("HayTemplate") then
