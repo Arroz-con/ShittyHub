@@ -102,10 +102,11 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
                                 if template.Complete.Visible then continue end
                                 print("doing water task")
                                 pickUpFoodForHorse("attempt_interact_with_faucet") -- turns on faucet to fill bucket
-                                task.wait(.1)
+                                task.wait(1)
                                 pickUpBucket(7, 1)
+                                task.wait(.1)
                                 feedHorse(i, 2)
-                                task.wait(.2)
+                                task.wait(1)
                                 pickUpBucket(i, 2)
                                 task.wait(.1)
                                 feedHorse(7, 1)
