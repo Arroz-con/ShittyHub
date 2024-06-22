@@ -54,6 +54,7 @@ local function feedHorse(stable: number, leftOrRight: number)
     }
     
     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))
+    print("placed food on ground")
 end
 
 
@@ -79,6 +80,7 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
                     if area:FindFirstChild("horse") then
                         local needs = area.horse:FindFirstChild("Needs", true)
                         local stableNumber = tonumber(area)
+            
                         if needs:FindFirstChild("HayTemplate") then
                             print("doing hay task")
                             pickUpFoodForHorse("attempt_interact_with_hay_pile")
