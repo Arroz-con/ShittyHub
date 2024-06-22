@@ -78,7 +78,7 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
                 end
                 -- DropoffAreas.1.horse.PetModel.Head.ShowhorseMinigameNeedsGui.Container.Bubble.Needs.HayTemplate.Incomplete.Visible
                 for i, area in ipairs(showhorseFolder:WaitForChild("DropoffAreas"):GetChildren()) do
-                    print(i)
+                    if i >= 7 then continue end
                     if area:FindFirstChild("horse") then
                         local needs = area.horse:FindFirstChild("Needs", true)
                         if not needs then continue end
