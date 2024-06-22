@@ -44,12 +44,12 @@ local function pickUpFoodForHorse(foodId)
     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))
 end
 
-local function feedHorse(stableNumber: number, leftOrRight: number)
+local function feedHorse(stable: number, leftOrRight: number)
     -- left = 1, right = 2
     local args = {
         [1] = "showhorse::"..minigameId,
         [2] = "attempt_interact_with_dropoff_point",
-        [3] = stableNumber,
+        [3] = stable,
         [4] = leftOrRight
     }
     
