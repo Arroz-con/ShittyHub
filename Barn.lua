@@ -1,6 +1,7 @@
 local Player = game:GetService("Players").LocalPlayer
 
 local minigameId
+local bucketPosition = {}
 
 local function getId()
     local ModelName = tostring(workspace.Interiors:FindFirstChildWhichIsA("Model"))
@@ -92,12 +93,18 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
                                 if not template:FindFirstChild("Complete") then continue end
                                 if template.Complete.Visible then continue end
                                 print("doing water task")
+                                if bucketPosition then
+                                    pickUpBucketOrDrop(bucketPosition[1], bucketPosition[2])
+                                    task.wait(1)
+                                    pickUpBucketOrDrop(7, math.random(1, 2))
+                                end
+                                
                                 pickUpFoodForHorse("attempt_interact_with_faucet") -- turns on faucet to fill bucket
                                 task.wait(1)
                                 pickUpBucketOrDrop(7, math.random(1, 2))
                                 task.wait(.1)
                                 pickUpBucketOrDrop(i, 2)
-                                
+                                bucketPosition = {i,2}
                                 -- task.wait(1)
                                 -- pickUpBucket(i, 2)
                                 -- task.wait(.1)
