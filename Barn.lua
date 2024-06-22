@@ -1,6 +1,4 @@
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Player = game:GetService("Players").LocalPlayer
-local Bypass = require(game.ReplicatedStorage:WaitForChild("Fsys")).load
 
 local minigameId
 
@@ -15,15 +13,6 @@ local function getId()
 
     print(ModelName:match("::(.+)"))
     return ModelName:match("::(.+)")
-end
-
-local function hasStableToken()
-    for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.toys do
-        if v.id == "summerfest_2024_stable_token" then
-            return true
-        end
-    end
-    return false
 end
 
 local function pickUpBucketOrDrop(stable: number, whichSide: number)
@@ -67,7 +56,7 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
         Player.PlayerGui.MinigameInGameApp.Body.Middle.Container:WaitForChild("TitleLabel")
         if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("SPEEDY STABLES") then
             minigameId = tostring(getId())
-            local bucketPostion
+
             repeat
                 local showhorseFolder = workspace.Interiors:FindFirstChildWhichIsA("Model")
                 if not showhorseFolder then
@@ -124,26 +113,3 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
         end
     end 
 end)
-
-
-if hasStableToken() then
-    -- bring up lobby popup window
-    ReplicatedStorage.API["MinigameAPI/LobbyCreate"]:InvokeServer("showhorse")
-    task.wait()
-
-    -- start minigame
-    ReplicatedStorage.API["MinigameAPI/LobbyStart"]:FireServer()
-    task.wait()
-    -- wait till minigame loads up
-    
-
-    -- repeat
-    --     stuckTimer += 1
-    --     task.wait(1) 
-    -- until workspace.StaticMap["showhorse_minigame_state"]["is_game_active"].Value == true or stuckTimer >= 30
-    
-    -- print(stuckTimer)
-    -- if stuckTimer >= 30 then
-    --     print("player is stuck, teleporting to main map")
-    -- end
-end
