@@ -36,7 +36,7 @@ local function pickUpBucket(whichSide: number)
     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))
 end
 
-local function getFoodForHorse(foodId)
+local function pickUpFoodForHorse(foodId)
     local args = {
         [1] = "showhorse::"..minigameId,
         [2] = foodId
@@ -44,7 +44,7 @@ local function getFoodForHorse(foodId)
     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))
 end
 
-local function dropOff(stableNumber: number, leftOrRight: number)
+local function feedHorse(stableNumber: number, leftOrRight: number)
     -- left = 1, right = 2
     local args = {
         [1] = "showhorse::"..minigameId,
@@ -56,19 +56,6 @@ local function dropOff(stableNumber: number, leftOrRight: number)
     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))
 end
 
-local function minigameLoop(foodId: string, leftOrRight: number)
-    for i = 1, 6, 1 do
-        getFoodForHorse(foodId)
-        task.wait(.1)
-        dropOff(i, leftOrRight)
-        getFoodForHorse("attempt_interact_with_faucet")
-        pickUpBucket(.1)
-        dropOff(i, 2)
-        task.wait(.1)
-    end
-end
-
-
 
 Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(function()
     if Player.PlayerGui.MinigameInGameApp.Enabled then
@@ -77,15 +64,34 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
         Player.PlayerGui.MinigameInGameApp.Body.Middle:WaitForChild("Container")
         Player.PlayerGui.MinigameInGameApp.Body.Middle.Container:WaitForChild("TitleLabel")
         if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("SPEEDY STABLES") then
-            print("Loaded into minigame")
             minigameId = tostring(getId())
 
             repeat
-                minigameLoop("attempt_interact_with_hay_pile", 1)
+                for _, area in workspace.Interiors["ShowhorseMinigame::"..minigameId].DropoffAreas:GetChildern() do
+                    print(area)
+                    if area:FindFirstChild("horse") then
+                        local needs = area.horse:FindFirstChild("Needs", true)
+
+                        if needs["HayTemplate"].Incomplete.Visible then
+                            pickUpFoodForHorse("attempt_interact_with_hay_pile")
+                            task.wait()
+                            feedHorse(area, 1)
+
+                        elseif needs["CarrotsTemplate"].Incomplete.Visible then
+                            pickUpFoodForHorse("attempt_interact_with_carrots_pile")
+                            task.wait()
+                            feedHorse(area, 1)
+
+                        elseif needs["WaterTemplate"].Incomplete.Visible then
+                            pickUpFoodForHorse("attempt_interact_with_faucet") -- turns on faucet to fill bucket
+                            task.wait(1)
+                            pickUpBucket(1)
+                            feedHorse(area, 2)
+                        end
+                    end
+                end
                 task.wait(1)
-                minigameLoop("attempt_interact_with_carrots_pile", 1)
-                task.wait(1)
-            until Player.PlayerGui.MinigameInGameApp.Enabled == false
+            until not Player.PlayerGui.MinigameInGameApp.Enabled
             
         end
     end 
