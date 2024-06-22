@@ -69,7 +69,7 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
             repeat
                 local dropOffAreas = workspace.Interiors:FindFirstChildWhichIsA("DropoffAreas", true)
 
-                for _, area in dropOffAreas:GetChildern() do
+                for _, area in dropOffAreas:GetChildren() do
                     print(area)
                     if area:FindFirstChild("horse") then
                         local needs = area.horse:FindFirstChild("Needs", true)
