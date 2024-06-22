@@ -82,21 +82,21 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
                         print(area.Name)
                         for key, template in needs:GetChildren() do
                             if template.Name == "HayTemplate" then
-                                if template:FindFirstChild("Complete").Visible then continue end
+                                if template:WaitForChild("Complete").Visible then continue end
                                 print("doing hay task")
                                 pickUpFoodForHorse("attempt_interact_with_hay_pile")
                                 task.wait(1)
                                 feedHorse(i, 1)
 
                             elseif template.Name =="CarrotsTemplate" then
-                                if template:FindFirstChild("Complete").Visible then continue end
+                                if template:WaitForChild("Complete").Visible then continue end
                                 print("doing carrot task")
                                 pickUpFoodForHorse("attempt_interact_with_carrots_pile")
                                 task.wait(1)
                                 feedHorse(i, 1)
 
                             elseif template.Name == "WaterTemplate" then
-                                if template:FindFirstChild("Complete").Visible then continue end
+                                if template:WaitForChild("Complete").Visible then continue end
                                 print("doing water task")
                                 pickUpFoodForHorse("attempt_interact_with_faucet") -- turns on faucet to fill bucket
                                 task.wait(1)
