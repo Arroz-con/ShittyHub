@@ -86,7 +86,7 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
                                 if template.Complete.Visible then continue end
                                 print("doing hay task")
                                 pickUpFoodForHorse("attempt_interact_with_hay_pile")
-                                task.wait(1)
+                                task.wait(.1)
                                 feedHorse(i, 1)
 
                             elseif template.Name =="CarrotsTemplate" then
@@ -94,7 +94,7 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
                                 if template.Complete.Visible then continue end
                                 print("doing carrot task")
                                 pickUpFoodForHorse("attempt_interact_with_carrots_pile")
-                                task.wait(1)
+                                task.wait(.1)
                                 feedHorse(i, 1)
 
                             elseif template.Name == "WaterTemplate" then
@@ -102,19 +102,19 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
                                 if template.Complete.Visible then continue end
                                 print("doing water task")
                                 pickUpFoodForHorse("attempt_interact_with_faucet") -- turns on faucet to fill bucket
-                                task.wait(1)
+                                task.wait(.1)
                                 pickUpBucket(7, 1)
                                 feedHorse(i, 2)
-                                task.wait(2)
+                                task.wait(.2)
                                 pickUpBucket(i, 2)
-                                task.wait(1)
+                                task.wait(.1)
                                 feedHorse(7, 1)
                             end
                         end
                     end
-                    task.wait(1)
+                    task.wait(.1)
                 end
-                task.wait(1)
+                task.wait(.1)
             until not Player.PlayerGui.MinigameInGameApp.Enabled
             
         end
