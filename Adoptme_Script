@@ -63,7 +63,7 @@ local Shower
 local Piano
 local normalLure
 local isMainMap = false
-
+local stopDoingTasks = false
 
 UserGameSettings.GraphicsQualityLevel = 1
 UserGameSettings.MasterVolume = 0
@@ -1724,6 +1724,7 @@ local function autoFarm()
 
     game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildAdded:Connect(function()
         if getgenv().feedAgeUpPotionToggle then return end
+        if stopDoingTasks then return end
         removeHandHeldItem()
         if not SETTINGS.FOCUS_FARM_AGE_POTION then
             SwitchOutFullyGrown()
@@ -1737,6 +1738,7 @@ local function autoFarm()
 
     game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildRemoved:Connect(function()
         if getgenv().feedAgeUpPotionToggle then return end
+        if stopDoingTasks then return end
         task.wait(2)
         if not SETTINGS.FOCUS_FARM_AGE_POTION then
             SwitchOutFullyGrown()
@@ -1884,6 +1886,7 @@ local function autoFarm()
                 end
                 
                 if hasStableToken() then
+                    stopDoingTasks = true
                     -- bring up lobby popup window
                     ReplicatedStorage.API["MinigameAPI/LobbyCreate"]:InvokeServer("showhorse")
                     task.wait(1)
@@ -1892,7 +1895,9 @@ local function autoFarm()
                     ReplicatedStorage.API["MinigameAPI/LobbyStart"]:FireServer()
                     
                 end
-
+                
+                task.wait(3)
+                stopDoingTasks = false
                 -- Player.PlayerGui.MinigameRewardsApp.Body.Visible = false
                 -- TeleportMainMap()
                 -- task.wait(2)
