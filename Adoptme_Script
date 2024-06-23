@@ -72,11 +72,13 @@ for i, v in pairs(debug.getupvalue(require(ReplicatedStorage.Fsys).load("RouterC
     v.Name = i
 end
 
-local function clickGuiButton(button)
+local function clickGuiButton(button: Instance, xOffset: number, yOffset: number)
+    local xOffset = xOffset or 60
+    local yOffset = yOffset or 60
     task.wait()
-    VI:SendMouseButtonEvent(button.AbsolutePosition.X + 60, button.AbsolutePosition.Y + 60, 0, true, game, 1)
+    VI:SendMouseButtonEvent(button.AbsolutePosition.X + xOffset, button.AbsolutePosition.Y + yOffset, 0, true, game, 1)
     task.wait()
-    VI:SendMouseButtonEvent(button.AbsolutePosition.X + 60, button.AbsolutePosition.Y + 60, 0, false, game, 1)
+    VI:SendMouseButtonEvent(button.AbsolutePosition.X + xOffset, button.AbsolutePosition.Y + yOffset, 0, false, game, 1)
     task.wait()
 end
 
@@ -1521,6 +1523,7 @@ local function TeleportCampSite()
     task.wait(1)
     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
     Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.Campsite.MarshmallowChair.VintageChair.Union.CFrame + Vector3.new(math.random(1, 20), 10, math.random(1, 20))
+    floorPart()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
     Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
     Player.Character.Humanoid.WalkSpeed = 0
@@ -1535,6 +1538,7 @@ local function TeleportBeachParty()
     task.wait(1)
     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))) 
     Player.Character.PrimaryPart.CFrame = game:GetService("Workspace").StaticMap.Beach.BeachPartyAilmentTarget.CFrame + Vector3.new(math.random(1, 20), 10, math.random(1, 20))
+    floorPart()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
     Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
     Player.Character.Humanoid.WalkSpeed = 0
@@ -1549,6 +1553,7 @@ local function TeleportPlayGround()
     task.wait(1)
     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
     Player.Character.PrimaryPart.CFrame = game:GetService("Workspace").StaticMap.Park.Roundabout.SeatsSpinModel.Visual:FindFirstChildWhichIsA("Part").CFrame + Vector3.new(math.random(1, 20), 10, math.random(-20, -1))
+    floorPart()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
     Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
     Player.Character.Humanoid.WalkSpeed = 0
@@ -1773,7 +1778,6 @@ local function autoFarm()
             if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("RODEO RALLY") then
                 Player.Character.HumanoidRootPart.Anchored = true
                 countdownConn = workspace.StaticMap["bull_ride_minigame_minigame_state"].countdown:GetPropertyChangedSignal("Value"):Connect(function()
-                    print(workspace.StaticMap["bull_ride_minigame_minigame_state"].countdown.Value)
                     if workspace.StaticMap["bull_ride_minigame_minigame_state"].countdown.Value == "GO!" then
                         workspace.Interiors:WaitForChild("BullRideMinigame"):WaitForChild("Minigame"):WaitForChild("BullRideCowboyHat").Parent = Player.Character
                         task.wait()
@@ -1786,6 +1790,22 @@ local function autoFarm()
             end
         end 
     end)
+
+    local function RemoveGameOverButton()
+        Player.PlayerGui.MinigameRewardsApp.Body.Button:WaitForChild("Face")
+        for i, v in pairs(Player.PlayerGui.MinigameRewardsApp.Body.Button:GetDescendants()) do
+            if v.Name == "TextLabel" then
+                if v.Text == "NICE!" then
+                    if countdownConn then
+                        countdownConn:Disconnect()
+                    end
+                    task.wait(1)
+                    clickGuiButton(v.Parent.Parent, 30, 60)
+                    break
+                end
+            end
+        end
+    end
     
     -- fires when it ask you if you want to join minigame
     Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(NormalDialogChild)
@@ -1846,21 +1866,6 @@ local function autoFarm()
     -- end
     
 
-    local function RemoveGameOverButton()
-        Player.PlayerGui.MinigameRewardsApp.Body.Button:WaitForChild("Face")
-        for i, v in pairs(Player.PlayerGui.MinigameRewardsApp.Body.Button:GetDescendants()) do
-            if v.Name == "TextLabel" then
-                if v.Text == "NICE!" then
-                    countdownConn:Disconnect()
-                    task.wait(1)
-                    clickGuiButton(v.Parent.Parent)
-                    break
-                end
-            end
-        end
-    end
-
-
     Player.PlayerGui.MinigameRewardsApp.Body:GetPropertyChangedSignal("Visible"):Connect(function()
         if Player.PlayerGui.MinigameRewardsApp.Body.Visible then
             Player.PlayerGui.MinigameRewardsApp.Body:WaitForChild("Button")
@@ -1869,13 +1874,56 @@ local function autoFarm()
             if Player.PlayerGui.MinigameRewardsApp.Body.Button.Face.TextLabel.Text:match("NICE!") then
                 Player.Character.HumanoidRootPart.Anchored = false
                 RemoveGameOverButton()
+                local function hasStableToken()
+                    for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.toys do
+                        if v.id == "summerfest_2024_stable_token" then
+                            return true
+                        end
+                    end
+                    return false
+                end
+                
+                if hasStableToken() then
+                    -- bring up lobby popup window
+                    ReplicatedStorage.API["MinigameAPI/LobbyCreate"]:InvokeServer("showhorse")
+                    task.wait(1)
+                    
+                    -- start minigame
+                    ReplicatedStorage.API["MinigameAPI/LobbyStart"]:FireServer()
+                    
+                end
+
                 -- Player.PlayerGui.MinigameRewardsApp.Body.Visible = false
-                TeleportMainMap()
-                task.wait(2)
+                -- TeleportMainMap()
+                -- task.wait(2)
             end
         end
     end)
 
+    -- Player.PlayerGui.BattlePassApp.Body.Header.Title.Title.Text:match("Pony Pass")
+    Player.PlayerGui.BattlePassApp.Body:GetPropertyChangedSignal("Visible"):Connect(function()
+        if Player.PlayerGui.BattlePassApp.Body.Visible then
+            Player.PlayerGui.BattlePassApp.Body:WaitForChild("InnerBody")
+            Player.PlayerGui.BattlePassApp.Body.InnerBody:WaitForChild("ScrollingFrame")
+            Player.PlayerGui.BattlePassApp.Body.InnerBody.ScrollingFrame:WaitForChild("51")
+            if Player.PlayerGui.BattlePassApp.Body.InnerBody.ScrollingFrame[51] then
+                for _, v in Player.PlayerGui.BattlePassApp.Body.InnerBody.ScrollingFrame:GetChildren() do
+                    if not v:FindFirstChild("ButtonFrame") then continue end
+                    if v.ButtonFrame:FindFirstChild("ClaimButton") then
+                        ReplicatedStorage.API["BattlePassAPI/ClaimReward"]:InvokeServer("show_horse", tonumber(v.Name) - 1)
+                        task.wait(1)
+                        ReplicatedStorage.API["BattlePassAPI/ClaimReward"]:InvokeServer("show_horse", tonumber(v.Name))
+                    end
+                end
+
+                -- Player.PlayerGui.BattlePassApp.Body.Header.ExitFrame.ExitButton
+                Player.PlayerGui.BattlePassApp.Body:WaitForChild("Header")
+                Player.PlayerGui.BattlePassApp.Body.Header:WaitForChild("ExitFrame")
+                Player.PlayerGui.BattlePassApp.Body.Header.ExitFrame:WaitForChild("ExitButton")
+                clickGuiButton(Player.PlayerGui.BattlePassApp.Body.Header.ExitFrame.ExitButton, 30, 60)
+            end
+        end
+    end)
 
     --// Code below runs once when auto farm is enabled
     if SETTINGS.PET_AUTO_FUSION then
@@ -2353,7 +2401,6 @@ local function checkInventory()
         for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
             for _, v2 in SETTINGS.TRADE_LIST.PETS_TABLE do
                 if pet.id == v2 or pet.properties.age == 6 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon == true then
-                    print(pet.id)
                     return true, "pets", SETTINGS.TRADE_LIST.PETS_TABLE
                 end
             end
@@ -3029,7 +3076,8 @@ WelcomeScreen:Disconnect()
 
 OrionLib:Init()
 
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/BeetleTradeIn.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Barn.lua"))()
+-- loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/BeetleTradeIn.lua"))()
 
 -- local tele = fluxus or codex or arceusx
 
