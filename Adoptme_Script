@@ -425,8 +425,8 @@ Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal("Visible
             elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Welcome to the Classic Roblox") then
                 FireButton("Cancel")
 
-            -- elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Any items lost to scams") then
-            --     FireButton("I understand")
+            elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("You have been awarded") then
+                FireButton("Awesome!")
 
             end
         end)
@@ -1738,7 +1738,6 @@ local function autoFarm()
 
     game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildRemoved:Connect(function()
         if getgenv().feedAgeUpPotionToggle then return end
-        if stopDoingTasks then return end
         task.wait(2)
         if not SETTINGS.FOCUS_FARM_AGE_POTION then
             SwitchOutFullyGrown()
@@ -1895,7 +1894,7 @@ local function autoFarm()
                     ReplicatedStorage.API["MinigameAPI/LobbyStart"]:FireServer()
                     
                 end
-                
+
                 task.wait(3)
                 stopDoingTasks = false
                 -- Player.PlayerGui.MinigameRewardsApp.Body.Visible = false
