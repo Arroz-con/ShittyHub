@@ -3075,6 +3075,10 @@ if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Tha
     FireButton("Okay")
 end
 
+if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("You have been awarded") then
+    FireButton("Awesome!")
+end
+
 
 WelcomeScreen:Disconnect()
 
