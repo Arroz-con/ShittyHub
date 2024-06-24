@@ -76,7 +76,7 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
                                 if template.Complete.Visible then continue end
                 
                                 pickUpFoodForHorse("attempt_interact_with_hay_pile")
-                                task.wait(.1)
+                                task.wait()
                                 feedHorse(i, 1)
 
                             elseif template.Name =="CarrotsTemplate" then
@@ -84,7 +84,7 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
                                 if template.Complete.Visible then continue end
                            
                                 pickUpFoodForHorse("attempt_interact_with_carrots_pile")
-                                task.wait(.1)
+                                task.wait()
                                 feedHorse(i, 1)
 
                             elseif template.Name == "WaterTemplate" then
@@ -93,14 +93,14 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
                            
                                 if bucketPosition then
                                     pickUpBucketOrDrop(bucketPosition[1], bucketPosition[2])
-                                    task.wait(1)
+                                    task.wait()
                                     pickUpBucketOrDrop(7, math.random(1, 2))
                                 end
 
                                 pickUpFoodForHorse("attempt_interact_with_faucet") -- turns on faucet to fill bucket
-                                task.wait(1)
+                                task.wait()
                                 pickUpBucketOrDrop(7, math.random(1, 2))
-                                task.wait(.1)
+                                task.wait()
                                 pickUpBucketOrDrop(i, 2)
                                 bucketPosition = {i,2}
                                 -- task.wait(1)
@@ -110,9 +110,9 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
                             end
                         end
                     end
-                    task.wait(.1)
+                    task.wait()
                 end
-                task.wait(.1)
+                task.wait()
             until not Player.PlayerGui.MinigameInGameApp.Enabled
             
         end
