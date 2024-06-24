@@ -1,15 +1,15 @@
 getgenv().SETTINGS = {
-    PET_TO_BUY = "garden_2024_egg", -- add pet or egg to buy when bot has no pets/egg left to level
+    PET_TO_BUY = "summerfest_2024_cow_calf", -- add pet or egg to buy when bot has no pets/egg left to level
 
     FOCUS_FARM_AGE_POTION = false,  -- if true, this will only farm 1 pet an keep aging to get aging potions
 
     ENABLE_AUTO_FARM = true,
     SET_FPS = 1,
-    PET_NEON_PRIORITY = false,
-    PET_AUTO_FUSION = false,
+    PET_NEON_PRIORITY = true,
+    PET_AUTO_FUSION = true,
 
     ENABLE_TRADE_COLLECTOR = true,
-    TRADE_ONLY_LUMINOUS_MEGA = false,
+    TRADE_ONLY_LUMINOUS_MEGA = true,
     TRADE_COLLECTOR_NAME = "SoaveCorsa099", -- your account username (case sensitive) that will collect the pets.
     TRADE_LIST = {
         PET_WEAR_TABLE = {
@@ -47,8 +47,8 @@ getgenv().SETTINGS = {
         },
     },
 
-    HATCH_EGG_PRIORITY = true,
-    HATCH_EGG_PRIORITY_NAMES = {"summerfest_2024_cow_calf"},
+    HATCH_EGG_PRIORITY = false,
+    HATCH_EGG_PRIORITY_NAMES = {"garden_2024_egg"},
     
     PET_ONLY_PRIORITY = true,
     PET_ONLY_PRIORITY_NAMES = {
@@ -60,7 +60,7 @@ getgenv().SETTINGS = {
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Adoptme_Script"))()
 
---[[
+---[[
 local function buyPet(petNameId: string, howManyToBuy: number)
     for i = 1, howManyToBuy do
         local hasMoney = game.ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", petNameId, {})
@@ -71,6 +71,6 @@ local function buyPet(petNameId: string, howManyToBuy: number)
     end
 end
 
-buyPet("summerfest_2024_cow_calf", 2)
-buyPet("summerfest_2024_kid_goat", 4)
+buyPet("summerfest_2024_cow_calf", 100)
+
 --]]
