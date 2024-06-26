@@ -394,6 +394,13 @@ Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(NormalDialogChild)
 
                     elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Thanks for subscribing!") then
                         FireButton("Okay")
+
+                    elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("You've completed") then
+                        FireButton("Okay")
+
+                    elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("The Pony Pass") then
+                        FireButton("Okay")
+
                     end
                 end)
             end
@@ -427,6 +434,12 @@ Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal("Visible
 
             elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("You have been awarded") then
                 FireButton("Awesome!")
+
+            elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("You've completed") then
+                FireButton("Okay")
+
+            elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("The Pony Pass") then
+                FireButton("Okay")
 
             end
         end)
