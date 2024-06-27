@@ -54,9 +54,9 @@ getgenv().SETTINGS = {
 			"fire_dimension_2024_flaming_fox",
 			"fire_dimension_2024_burning_bunny",
 			"fire_dimension_2024_wildfire_hawk",
-            "summerfest_2024_kid_goat",
-            "summerfest_2024_cow_calf",
-            "summerfest_2024_show_pony",
+            -- "summerfest_2024_kid_goat",
+            -- "summerfest_2024_cow_calf",
+            -- "summerfest_2024_show_pony",
             "summerfest_2024_punk_pony",
             "summerfest_2024_pretty_pony",
             "summerfest_2024_majestic_pony"
