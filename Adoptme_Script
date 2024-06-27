@@ -401,6 +401,11 @@ Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(NormalDialogChild)
                     elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("The Pony Pass") then
                         FireButton("Okay")
 
+                    elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("You've been invited to") then
+                            FireButton("Accept")
+
+                    elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("lobby no longer exists.") then
+                        FireButton("Okay")
                     end
                 end)
             end
@@ -441,6 +446,11 @@ Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal("Visible
             elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("The Pony Pass") then
                 FireButton("Okay")
 
+            elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("You've been invited to") then
+                FireButton("Accept")
+
+            elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("lobby no longer exists.") then
+                FireButton("Okay")
             end
         end)
     end
@@ -754,9 +764,10 @@ local function clipBoardInventory()
         local potions = getAgeupPotionInfo()
         local potionAmount = potions * 0.04
 
+        local ponyPassLevel = Bypass("ClientData").get_data()[Player.Name].battle_pass_manager.show_horse.rewards_claimed
         local tickets = Bypass("ClientData").get_data()[Player.Name].tickets_2024
         local bucks = Bypass("ClientData").get_data()[Player.Name].money
-        allInventory = allInventory..`{potions} Age-up Potions + {addComma(tickets)} Tickets + {addComma(bucks)} Bucks | Adopt me\n`
+        allInventory = allInventory..`{potions} Age-up Potions + {addComma(tickets)} Tickets + {addComma(bucks)} Bucks + Pony Pass Level:{ponyPassLevel} | Adopt me\n`
 
         -- local cash = tonumber(bucks) * 0.000037
 
@@ -1909,10 +1920,8 @@ local function autoFarm()
                     -- bring up lobby popup window
                     ReplicatedStorage.API["MinigameAPI/LobbyCreate"]:InvokeServer("showhorse")
                     task.wait(1)
-                    
-                    -- start minigame
+
                     ReplicatedStorage.API["MinigameAPI/LobbyStart"]:FireServer()
-                    
                 end
 
                 task.wait(3)
