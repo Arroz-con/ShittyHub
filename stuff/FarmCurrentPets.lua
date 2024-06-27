@@ -34,11 +34,11 @@ getgenv().SETTINGS = {
         },
 
         FOOD_TABLE = {
-            "cure_all_potion",
+            -- "cure_all_potion",
         },
     
         TOYS_TABLE = {
-            "paint_2023_colored_hair_spray_sealer",
+            -- "paint_2023_colored_hair_spray_sealer",
         },
 
         -- the pets in here will be traded no matter what age they are
@@ -57,7 +57,11 @@ getgenv().SETTINGS = {
     PET_ONLY_PRIORITY_NAMES = {
         "garden_2024_rosy_maple_moth",
         "garden_2024_mushroom_friend",
-        "summerfest_2024_cow_calf"
+        "summerfest_2024_cow_calf",
+        "lures_2023_blazing_lion",
+        "summerfest_2024_punk_pony",
+        "summerfest_2024_pretty_pony",
+        "summerfest_2024_majestic_pony"
     },
 }
 
