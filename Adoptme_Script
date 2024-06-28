@@ -1888,7 +1888,14 @@ local function autoFarm()
 
                 elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:find("invitation") then
                     game:Shutdown()
-
+                    
+                elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Balloon Pop is starting") then
+                    if getgenv().feedAgeUpPotionToggle then FireButton("No") return end
+                    if isMainMap then
+                        FireButton("Yes")
+                    else
+                        FireButton("No")
+                    end
                 end
             end)
         end
