@@ -1,5 +1,5 @@
 getgenv().SETTINGS = {
-    PET_TO_BUY = "summerfest_2024_cow_calf", -- add pet or egg to buy when bot has no pets/egg left to level
+    PET_TO_BUY = "garden_2024_egg", -- add pet or egg to buy when bot has no pets/egg left to level
 
     FOCUS_FARM_AGE_POTION = false,  -- if true, this will only farm 1 pet an keep aging to get aging potions
 
@@ -44,20 +44,21 @@ getgenv().SETTINGS = {
         -- the pets in here will be traded no matter what age they are
         PETS_TABLE = { 
             "lures_2023_blazing_lion",
-            "summerfest_2024_punk_pony",
-            "summerfest_2024_pretty_pony",
-            "summerfest_2024_majestic_pony"
+            -- "summerfest_2024_punk_pony",
+            -- "summerfest_2024_pretty_pony",
+            -- "summerfest_2024_majestic_pony"
         },
     },
 
-    HATCH_EGG_PRIORITY = false,
+    HATCH_EGG_PRIORITY = true,
     HATCH_EGG_PRIORITY_NAMES = {"garden_2024_egg"},
     
     PET_ONLY_PRIORITY = true,
     PET_ONLY_PRIORITY_NAMES = {
         "garden_2024_rosy_maple_moth",
         "garden_2024_mushroom_friend",
-        "summerfest_2024_cow_calf",
+        "garden_2024_mole",
+        -- "summerfest_2024_cow_calf",
         "lures_2023_blazing_lion",
         "summerfest_2024_punk_pony",
         "summerfest_2024_pretty_pony",
