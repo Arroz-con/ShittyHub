@@ -618,6 +618,14 @@ local function SetLocationFunc(a, b, c)
     set_thread_identity(k)
 end
 
+local function isMuleInGame()
+    for _, player in Players:GetPlayers() do
+        if player.Name == getgenv().SETTINGS.TRADE_COLLECTOR_NAME then
+            return true
+        end
+    end
+    return false
+end
 
 -- Fossil Isle Event 2024
 -- local function FossilIsleEvent()
@@ -1769,6 +1777,7 @@ local function autoFarm()
 
     game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildRemoved:Connect(function()
         if getgenv().feedAgeUpPotionToggle then return end
+        if stopDoingTasks then return end
         task.wait(2)
         if not SETTINGS.FOCUS_FARM_AGE_POTION then
             SwitchOutFullyGrown()
@@ -1848,8 +1857,11 @@ local function autoFarm()
                     NormalDialogChild.Info:WaitForChild("TextLabel")
                     NormalDialogChild.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
                         if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Rodeo Rally is starting") then
+                            if isMuleInGame() then FireButton("No") return end
                             if getgenv().feedAgeUpPotionToggle then FireButton("No") return end
+
                             if isMainMap then
+                                stopDoingTasks = true
                                 FireButton("Yes")
                             else
                                 FireButton("No")
@@ -1859,8 +1871,11 @@ local function autoFarm()
                             game:Shutdown()
                             
                         elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Balloon Pop is starting") then
+                            if isMuleInGame() then FireButton("No") return end
                             if getgenv().feedAgeUpPotionToggle then FireButton("No") return end
+
                             if isMainMap then
+                                stopDoingTasks = true
                                 FireButton("Yes")
                             else
                                 FireButton("No")
@@ -1879,8 +1894,11 @@ local function autoFarm()
             Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info:WaitForChild("TextLabel")
             Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
                 if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Rodeo Rally is starting") then
-                    if getgenv().feedAgeUpPotionToggle then return end
+                    if isMuleInGame() then FireButton("No") return end
+                    if getgenv().feedAgeUpPotionToggle then FireButton("No") return end
+
                     if isMainMap then
+                        stopDoingTasks = true
                         FireButton("Yes")
                     else
                         FireButton("No")
@@ -1890,12 +1908,16 @@ local function autoFarm()
                     game:Shutdown()
                     
                 elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Balloon Pop is starting") then
+                    if isMuleInGame() then FireButton("No") return end
                     if getgenv().feedAgeUpPotionToggle then FireButton("No") return end
+
                     if isMainMap then
+                        stopDoingTasks = true
                         FireButton("Yes")
                     else
                         FireButton("No")
                     end
+
                 end
             end)
         end
@@ -3110,6 +3132,12 @@ startAutoFarm()
 game:GetService("Players").LocalPlayer.OnTeleport:Connect(function(State)
     if State == Enum.TeleportState.InProgress then
         game:Shutdown()
+    end
+end)
+
+game.Players.PlayerRemoving:Connect(function(player)
+    if player.Name == getgenv().SETTINGS.TRADE_COLLECTOR_NAME then
+        stopDoingTasks = false
     end
 end)
 
