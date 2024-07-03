@@ -1828,6 +1828,26 @@ local function autoFarm()
                 -- repeat
                 --     task.wait(1)
                 -- until Player.PlayerGui.MinigameInGameApp.Enabled == false
+            elseif Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("BALLOON POP") then
+                Player.Character.HumanoidRootPart.Anchored = true
+                repeat
+                    for columm = -7, 7 do
+                        for row = -7, 7 do
+                            local args = {
+                                [1] = "balloon_pop_minigame",
+                                [2] = "balloon_popped",
+                                [3] = columm,
+                                [4] = row
+                            }
+
+                            if Player.PlayerGui.MinigameInGameApp.Enabled == false then return end
+                            if tonumber(Player.PlayerGui.MinigameInGameApp.Body.Right.Container.ValueLabel.Text) >= 300 then return end
+                            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))
+                            task.wait()
+                        end
+                    end
+                until Player.PlayerGui.MinigameInGameApp.Enabled == false
+                Player.Character.HumanoidRootPart.Anchored = false
             end
         end 
     end)
