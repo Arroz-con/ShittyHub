@@ -1830,6 +1830,7 @@ local function autoFarm()
                 -- until Player.PlayerGui.MinigameInGameApp.Enabled == false
             elseif Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("BALLOON POP") then
                 Player.Character.HumanoidRootPart.Anchored = true
+                task.wait(math.random(0.01, 5))
                 repeat
                     for columm = -7, 7 do
                         for row = -7, 7 do
