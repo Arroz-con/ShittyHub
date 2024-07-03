@@ -57,9 +57,13 @@ getgenv().SETTINGS = {
     PET_ONLY_PRIORITY_NAMES = {
         "garden_2024_rosy_maple_moth",
         "garden_2024_mushroom_friend",
+        "garden_2024_praying_mantis",
+        "garden_2024_skunk",
+        "garden_2024_weevil",
+        "garden_2024_blue_jay",
         "garden_2024_mole",
         -- "summerfest_2024_cow_calf",
-        "lures_2023_blazing_lion",
+        -- "lures_2023_blazing_lion",
         "summerfest_2024_punk_pony",
         "summerfest_2024_pretty_pony",
         "summerfest_2024_majestic_pony"
