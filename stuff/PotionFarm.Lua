@@ -9,7 +9,7 @@ getgenv().SETTINGS = {
     PET_AUTO_FUSION = false,
 
     ENABLE_TRADE_COLLECTOR = true,
-	TRADE_ONLY_LUMINOUS_MEGA = true,
+	TRADE_ONLY_LUMINOUS_MEGA = false,
     TRADE_COLLECTOR_NAME = "SoaveCorsa099", -- your account username (case sensitive) that will collect the pets.
     TRADE_LIST = {
 		PET_WEAR_TABLE = {
@@ -56,7 +56,10 @@ getgenv().SETTINGS = {
 			"fire_dimension_2024_wildfire_hawk",
             -- "summerfest_2024_kid_goat",
             -- "summerfest_2024_cow_calf",
-            "summerfest_2024_show_pony",
+            -- "summerfest_2024_orange_betta_fish",
+            "summerfest_2024_pink_betta_fish",
+            "summerfest_2024_blue_betta_fish",
+            -- "summerfest_2024_show_pony",
             "summerfest_2024_punk_pony",
             "summerfest_2024_pretty_pony",
             "summerfest_2024_majestic_pony",
