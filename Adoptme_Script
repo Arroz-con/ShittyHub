@@ -2777,7 +2777,7 @@ getgenv().allPetsToggle = Auto:AddToggle({
             for _, pet in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
                 if pet.id == "practice_dog" then continue end
                 ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
-                if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items >= 18 then
+                if #Bypass("ClientData").get_data()[Player.Name]:FindFirstChild("trade"):FindFirstChild("sender_offer"):FindFirstChild("items") >= 18 then
                     break
                 end
                 task.wait(0.1)
