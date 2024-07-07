@@ -2697,11 +2697,11 @@ local AutoTradeToggle = Auto:AddToggle({
         getgenv().auto_accept_trade = value
         while getgenv().auto_accept_trade do
             if Bypass("ClientData").get_data()[Player.Name].in_active_trade then
-                if Bypass("ClientData").get_data()[Player.Name].trade:FindFirstChild("sender_offer").negotiated then
+                if Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.negotiated then
                     ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
                 end
         
-                if Bypass("ClientData").get_data()[Player.Name].trade:FindFirstChild("sender_offer").confirmed then
+                if Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.confirmed then
                     ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
                 end
             end
@@ -2777,7 +2777,7 @@ getgenv().allPetsToggle = Auto:AddToggle({
             for _, pet in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
                 if pet.id == "practice_dog" then continue end
                 ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
-                if #Bypass("ClientData").get_data()[Player.Name].trade:FindFirstChild("sender_offer"):FindFirstChild("items") >= 18 then
+                if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer:FindFirstChild("items") >= 18 then
                     break
                 end
                 task.wait(0.1)
