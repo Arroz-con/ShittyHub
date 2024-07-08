@@ -2176,10 +2176,12 @@ end
 
 local function AcceptNegotiationAndConfirm(toggle)
     ClickTradeWindowPopUps()
-    if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items == 0 then
-        getgenv()[toggle]:Set(false)
-        ReplicatedStorage.API:FindFirstChild("TradeAPI/DeclineTrade"):FireServer()
-        task.wait(1)
+    if Bypass("ClientData").get_data()[Player.Name].in_active_trade then
+        if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items == 0 then
+            getgenv()[toggle]:Set(false)
+            ReplicatedStorage.API:FindFirstChild("TradeAPI/DeclineTrade"):FireServer()
+            return
+        end
     end
     ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
     task.wait(2)
@@ -2778,9 +2780,12 @@ getgenv().allPetsToggle = Auto:AddToggle({
     
             for _, pet in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
                 if pet.id == "practice_dog" then continue end
-                ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
-                if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items >= 18 then
-                    break
+
+                if Bypass("ClientData").get_data()[Player.Name].in_active_trade then
+                    ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
+                    if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items >= 18 then
+                        break
+                    end
                 end
                 task.wait(0.1)
             end
