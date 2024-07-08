@@ -1667,6 +1667,9 @@ local function autoFarm()
             return -- return because when pet gets requipped it will call this function anyway
         end
 
+        if not Bypass("ClientData").get("pet_char_wrapper")["ailments_monitor"] then return end
+        if #Bypass("ClientData").get("pet_char_wrapper")["ailments_monitor"]["ailments"] == 0 then return end
+
         if #Bypass("ClientData").get("pet_char_wrapper")["ailments_monitor"]["ailments"] >= 4 then
             if not stopEquip then
                 stopEquip = true
@@ -1677,7 +1680,6 @@ local function autoFarm()
             end
         end
 
-        if #Bypass("ClientData").get("pet_char_wrapper")["ailments_monitor"]["ailments"] == 0 then return end
         for _, v in pairs(Bypass("ClientData").get("pet_char_wrapper")["ailments_monitor"]["ailments"]) do
             if v["id"] == "hungry" then
                 FoodAilments("icecream")
