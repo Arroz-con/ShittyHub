@@ -80,7 +80,7 @@ getgenv().SETTINGS = {
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Adoptme_Script"))()
 
---[[
+---[[
 local function buyPet(petNameId: string, howManyToBuy: number)
     for i = 1, howManyToBuy do
         local hasMoney = game.ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", petNameId, {})
@@ -91,6 +91,5 @@ local function buyPet(petNameId: string, howManyToBuy: number)
     end
 end
 
-buyPet("summerfest_2024_cow_calf", 2)
-buyPet("summerfest_2024_kid_goat", 4)
+buyPet("summerfest_2024_corn_doggo", 100)
 --]]
