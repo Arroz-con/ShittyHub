@@ -91,5 +91,8 @@ local function buyPet(petNameId: string, howManyToBuy: number)
     end
 end
 
+
 buyPet("summerfest_2024_corn_doggo", 100)
+buyPet("summerfest_2024_cow_calf", 100)
+buyPet("summerfest_2024_kid_goat", 100)
 --]]
