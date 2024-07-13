@@ -2513,7 +2513,7 @@ local function tradeCollector(namePassOn)
             repeat
                 if not Player.PlayerGui.TradeApp.Frame.Visible then
                     ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(Players[namePassOn])
-                    task.wait(10)
+                    task.wait(math.random(8, 15))
                 end
 
                 ClickTradeWindowPopUps()
@@ -2552,12 +2552,13 @@ local function tradeCollector(namePassOn)
                     end
                 end
             end
-            
+            local stuck = 30
             repeat
                 local lock = Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.LockIcon.Visible
+                stuck -= 1
                 task.wait(1)
                 
-            until not lock
+            until not lock or stuck <= 0
             -- wait for timer to hit 0
 
             ClickTradeWindowPopUps()
