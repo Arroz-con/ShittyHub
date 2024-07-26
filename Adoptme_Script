@@ -45,7 +45,7 @@ local NewClaimBool = true
 local NeonTable = {["neon_fusion"] = true, ["mega_neon_fusion"] = true}
 local ClaimTable = {["hatch_three_eggs"] = {3}, ["fully_age_three_pets"] = {3}, ["make_two_trades"] = {2}, ["equip_two_accessories"] = {2},
 ["buy_three_furniture_items_with_friends_coop_budget"] = {3}, ["buy_five_furniture_items"] = {5}, ["buy_fifteen_furniture_items"] = {15},
-["play_as_a_baby_for_twenty_five_minutes"] = {1500}, ["play_for_thirty_minutes"] = {1800}, ["summerfest_2024_playtime"] = {2400}}
+["play_as_a_baby_for_twenty_five_minutes"] = {1500}, ["play_for_thirty_minutes"] = {1800}, ["sunshine_2024_playtime"] = {2400}}
 
 Player.PlayerGui:WaitForChild("NewsApp", 600)
 Player.PlayerGui:WaitForChild("DialogApp", 600)
@@ -1502,6 +1502,28 @@ local function AgeUpPotionLevelUp()
     end
 end
 
+
+local function joinMiniGame()
+    local function hasStableToken()
+        for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.toys do
+            if v.id == "sunshine_2024_sunshine_token" then
+                return true
+            end
+        end
+        return false
+    end
+    
+    if hasStableToken() then
+        stopDoingTasks = true
+        -- bring up lobby popup window
+        ReplicatedStorage.API["MinigameAPI/LobbyCreate"]:InvokeServer("sunshine")
+        task.wait(1)
+    
+        ReplicatedStorage.API["MinigameAPI/LobbyStart"]:FireServer()
+    end
+end
+
+
 local function floorPart()
     for _, v in workspace:GetChildren() do
         if v.Name == "FloorPart1" then return end
@@ -1691,6 +1713,8 @@ local function autoFarm()
                 break
             elseif v["id"] == "thirsty" then
                 FoodAilments("water")
+                task.wait()
+                joinMiniGame()
         
             elseif v["id"] == "sick" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
@@ -1810,7 +1834,6 @@ local function autoFarm()
         end
     end)
 
-    local countdownConn
     --// Fires when inside the minigame
     Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(function()
         if Player.PlayerGui.MinigameInGameApp.Enabled then
@@ -1818,51 +1841,19 @@ local function autoFarm()
             Player.PlayerGui.MinigameInGameApp.Body:WaitForChild("Middle")
             Player.PlayerGui.MinigameInGameApp.Body.Middle:WaitForChild("Container")
             Player.PlayerGui.MinigameInGameApp.Body.Middle.Container:WaitForChild("TitleLabel")
-            if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("RODEO RALLY") then
-                Player.Character.HumanoidRootPart.Anchored = true
-                countdownConn = workspace.StaticMap["bull_ride_minigame_minigame_state"].countdown:GetPropertyChangedSignal("Value"):Connect(function()
-                    if workspace.StaticMap["bull_ride_minigame_minigame_state"].countdown.Value == "GO!" then
-                        workspace.Interiors:WaitForChild("BullRideMinigame"):WaitForChild("Minigame"):WaitForChild("BullRideCowboyHat").Parent = Player.Character
-                        task.wait()
-                        ReplicatedStorage.API["MinigameAPI/MessageServer"]:FireServer("bull_ride_minigame", "hat_picked_up")
-                    end
-                end)
-                -- repeat
-                --     task.wait(1)
-                -- until Player.PlayerGui.MinigameInGameApp.Enabled == false
-            elseif Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("BALLOON POP") then
-                Player.Character.HumanoidRootPart.Anchored = true
-                task.wait(math.random(0.01, 5))
-                repeat
-                    for columm = -7, 7 do
-                        for row = -7, 7 do
-                            local args = {
-                                [1] = "balloon_pop_minigame",
-                                [2] = "balloon_popped",
-                                [3] = columm,
-                                [4] = row
-                            }
-
-                            if Player.PlayerGui.MinigameInGameApp.Enabled == false then return end
-                            if tonumber(Player.PlayerGui.MinigameInGameApp.Body.Right.Container.ValueLabel.Text) >= 300 then return end
-                            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))
-                            task.wait()
-                        end
-                    end
-                until Player.PlayerGui.MinigameInGameApp.Enabled == false
-                Player.Character.HumanoidRootPart.Anchored = false
+            if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("nothing") then
+                -- Player.Character.HumanoidRootPart.Anchored = true
+            -- elseif Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("BALLOON POP") then
+                
             end
         end 
     end)
 
     local function RemoveGameOverButton()
         Player.PlayerGui.MinigameRewardsApp.Body.Button:WaitForChild("Face")
-        for i, v in pairs(Player.PlayerGui.MinigameRewardsApp.Body.Button:GetDescendants()) do
+        for _, v in pairs(Player.PlayerGui.MinigameRewardsApp.Body.Button:GetDescendants()) do
             if v.Name == "TextLabel" then
                 if v.Text == "NICE!" then
-                    if countdownConn then
-                        countdownConn:Disconnect()
-                    end
                     task.wait(1)
                     clickGuiButton(v.Parent.Parent, 30, 60)
                     break
@@ -1965,24 +1956,7 @@ local function autoFarm()
             if Player.PlayerGui.MinigameRewardsApp.Body.Button.Face.TextLabel.Text:match("NICE!") then
                 Player.Character.HumanoidRootPart.Anchored = false
                 RemoveGameOverButton()
-                local function hasStableToken()
-                    for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.toys do
-                        if v.id == "summerfest_2024_stable_token" then
-                            return true
-                        end
-                    end
-                    return false
-                end
-                
-                if hasStableToken() then
-                    stopDoingTasks = true
-                    -- bring up lobby popup window
-                    ReplicatedStorage.API["MinigameAPI/LobbyCreate"]:InvokeServer("showhorse")
-                    task.wait(1)
-
-                    ReplicatedStorage.API["MinigameAPI/LobbyStart"]:FireServer()
-                end
-
+                joinMiniGame()
                 task.wait(3)
                 stopDoingTasks = false
                 -- Player.PlayerGui.MinigameRewardsApp.Body.Visible = false
@@ -1997,14 +1971,14 @@ local function autoFarm()
         if Player.PlayerGui.BattlePassApp.Body.Visible then
             Player.PlayerGui.BattlePassApp.Body:WaitForChild("InnerBody")
             Player.PlayerGui.BattlePassApp.Body.InnerBody:WaitForChild("ScrollingFrame")
-            Player.PlayerGui.BattlePassApp.Body.InnerBody.ScrollingFrame:WaitForChild("51")
-            if Player.PlayerGui.BattlePassApp.Body.InnerBody.ScrollingFrame[51] then
+            Player.PlayerGui.BattlePassApp.Body.InnerBody.ScrollingFrame:WaitForChild("41")
+            if Player.PlayerGui.BattlePassApp.Body.InnerBody.ScrollingFrame[41] then
                 for _, v in Player.PlayerGui.BattlePassApp.Body.InnerBody.ScrollingFrame:GetChildren() do
                     if not v:FindFirstChild("ButtonFrame") then continue end
                     if v.ButtonFrame:FindFirstChild("ClaimButton") then
-                        ReplicatedStorage.API["BattlePassAPI/ClaimReward"]:InvokeServer("show_horse", tonumber(v.Name) - 1)
+                        ReplicatedStorage.API["BattlePassAPI/ClaimReward"]:InvokeServer("sunshine_games", tonumber(v.Name) - 1)
                         task.wait(1)
-                        ReplicatedStorage.API["BattlePassAPI/ClaimReward"]:InvokeServer("show_horse", tonumber(v.Name))
+                        ReplicatedStorage.API["BattlePassAPI/ClaimReward"]:InvokeServer("sunshine_games", tonumber(v.Name))
                     end
                 end
 
@@ -3186,6 +3160,7 @@ OrionLib:Init()
 
 -- loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Barn.lua"))()
 -- loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/BeetleTradeIn.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Sunshine.lua"))()
 
 -- local tele = fluxus or codex or arceusx
 
