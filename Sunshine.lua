@@ -41,10 +41,12 @@ end
 
 Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(function()
     if Player.PlayerGui.MinigameInGameApp.Enabled then
+        print("Enabled")
         Player.PlayerGui.MinigameInGameApp:WaitForChild("Body")
         Player.PlayerGui.MinigameInGameApp.Body:WaitForChild("Middle")
         Player.PlayerGui.MinigameInGameApp.Body.Middle:WaitForChild("Container")
         Player.PlayerGui.MinigameInGameApp.Body.Middle.Container:WaitForChild("TitleLabel")
+        print("title")
         if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("SUNSHINE GAMES") then
             minigameId = tostring(getId())
             print(minigameId)
