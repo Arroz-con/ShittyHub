@@ -1956,8 +1956,6 @@ local function autoFarm()
             if Player.PlayerGui.MinigameRewardsApp.Body.Button.Face.TextLabel.Text:match("NICE!") then
                 Player.Character.HumanoidRootPart.Anchored = false
                 RemoveGameOverButton()
-                joinMiniGame()
-                task.wait(3)
                 stopDoingTasks = false
                 -- Player.PlayerGui.MinigameRewardsApp.Body.Visible = false
                 -- TeleportMainMap()
@@ -1987,6 +1985,10 @@ local function autoFarm()
                 Player.PlayerGui.BattlePassApp.Body.Header:WaitForChild("ExitFrame")
                 Player.PlayerGui.BattlePassApp.Body.Header.ExitFrame:WaitForChild("ExitButton")
                 clickGuiButton(Player.PlayerGui.BattlePassApp.Body.Header.ExitFrame.ExitButton, 30, 60)
+                
+                stopDoingTasks = false
+                CompleteBabyAilments()
+                CompletePetAilments()
             end
         end
     end)
