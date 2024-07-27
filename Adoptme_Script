@@ -1713,7 +1713,7 @@ local function autoFarm()
                 break
             elseif v["id"] == "thirsty" then
                 FoodAilments("water")
-                if not SETTINGS.FOCUS_FARM_AGE_POTION then
+                if SETTINGS.DO_SUNSHINE_EVENT then
                     task.wait()
                     joinMiniGame()
                 end
