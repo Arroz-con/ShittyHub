@@ -1781,6 +1781,7 @@ local function autoFarm()
     end
 
     local function CompleteBabyAilments()
+        if not Bypass("ClientData").get("char_wrapper") then return end
         if #Bypass("ClientData").get("char_wrapper")["ailments_monitor"]["ailments"] == 0 then return end
         for _, m in pairs(Bypass("ClientData").get("char_wrapper")["ailments_monitor"]["ailments"]) do
             if m["id"] == m["id"] then
@@ -1799,7 +1800,7 @@ local function autoFarm()
         if SETTINGS.FOCUS_FARM_AGE_POTION then
             getPet()
         end
-        CompleteBabyAilments()
+        
         CompletePetAilments()
     end)
 
