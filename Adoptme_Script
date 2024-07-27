@@ -1713,9 +1713,11 @@ local function autoFarm()
                 break
             elseif v["id"] == "thirsty" then
                 FoodAilments("water")
-                task.wait()
-                joinMiniGame()
-        
+                if not SETTINGS.FOCUS_FARM_AGE_POTION then
+                    task.wait()
+                    joinMiniGame()
+                end
+                break
             elseif v["id"] == "sick" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
                     Bypass("RouterClient").get("MonitorAPI/HealWithDoctor"):FireServer()
