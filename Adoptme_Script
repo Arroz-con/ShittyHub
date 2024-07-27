@@ -756,6 +756,16 @@ local function clipBoardInventory()
         return count
     end
 
+    local function getTokenInfo()
+        local count = 0
+        for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.toys) do
+            if v.id == "sunshine_2024_sunshine_token" then
+                count += 1
+            end
+        end
+        return count
+    end
+
     local function addComma(amount)
         local formatted = amount
         local k
@@ -770,12 +780,13 @@ local function clipBoardInventory()
 
     local function getBucksInfo()
         local potions = getAgeupPotionInfo()
+        local tokens = getTokenInfo() or 0
         local potionAmount = potions * 0.04
 
         -- local ponyPassLevel = Bypass("ClientData").get_data()[Player.Name].battle_pass_manager.show_horse.rewards_claimed
         -- local tickets = Bypass("ClientData").get_data()[Player.Name].tickets_2024
         local bucks = Bypass("ClientData").get_data()[Player.Name].money
-        allInventory = allInventory..`{potions} Age-up Potions + {addComma(bucks)} Bucks | Adopt me\n`
+        allInventory = allInventory..`{potions} Age-up Potions + {addComma(bucks)} Bucks + {tokens} Sunshine Tokens | Adopt me\n`
 
         -- local cash = tonumber(bucks) * 0.000037
 
