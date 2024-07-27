@@ -1514,7 +1514,7 @@ local function joinMiniGame()
     end
     
     if hasStableToken() then
-        -- stopDoingTasks = true
+        stopDoingTasks = true
         -- bring up lobby popup window
         ReplicatedStorage.API["MinigameAPI/LobbyCreate"]:InvokeServer("sunshine")
         task.wait(1)
@@ -1878,7 +1878,7 @@ local function autoFarm()
                             if getgenv().feedAgeUpPotionToggle then FireButton("No") return end
 
                             if isMainMap then
-                                -- stopDoingTasks = true
+                                stopDoingTasks = true
                                 FireButton("Yes")
                             else
                                 FireButton("No")
@@ -1892,7 +1892,7 @@ local function autoFarm()
                             if getgenv().feedAgeUpPotionToggle then FireButton("No") return end
 
                             if isMainMap then
-                                -- stopDoingTasks = true
+                                stopDoingTasks = true
                                 FireButton("Yes")
                             else
                                 FireButton("No")
@@ -1915,7 +1915,7 @@ local function autoFarm()
                     if getgenv().feedAgeUpPotionToggle then FireButton("No") return end
 
                     if isMainMap then
-                        -- stopDoingTasks = true
+                        stopDoingTasks = true
                         FireButton("Yes")
                     else
                         FireButton("No")
@@ -1929,7 +1929,7 @@ local function autoFarm()
                     if getgenv().feedAgeUpPotionToggle then FireButton("No") return end
 
                     if isMainMap then
-                        -- stopDoingTasks = true
+                        stopDoingTasks = true
                         FireButton("Yes")
                     else
                         FireButton("No")
@@ -1958,8 +1958,8 @@ local function autoFarm()
             Player.PlayerGui.MinigameRewardsApp.Body.Button.Face:WaitForChild("TextLabel")
             if Player.PlayerGui.MinigameRewardsApp.Body.Button.Face.TextLabel.Text:match("NICE!") then
                 Player.Character.HumanoidRootPart.Anchored = false
-                -- stopDoingTasks = false
                 RemoveGameOverButton()
+                stopDoingTasks = false
                 -- Player.PlayerGui.MinigameRewardsApp.Body.Visible = false
                 -- TeleportMainMap()
                 -- task.wait(2)
@@ -1989,7 +1989,7 @@ local function autoFarm()
                 Player.PlayerGui.BattlePassApp.Body.Header.ExitFrame:WaitForChild("ExitButton")
                 clickGuiButton(Player.PlayerGui.BattlePassApp.Body.Header.ExitFrame.ExitButton, 30, 60)
                 
-                -- stopDoingTasks = false
+                stopDoingTasks = false
                 CompleteBabyAilments()
                 CompletePetAilments()
             end
