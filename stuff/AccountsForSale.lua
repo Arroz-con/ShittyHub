@@ -65,7 +65,9 @@ getgenv().SETTINGS = {
             "summerfest_2024_pretty_pony",
             "summerfest_2024_majestic_pony",
             "summerfest_2024_corn_doggo",
-            "summerfest_2024_bull"
+            "summerfest_2024_bull",
+            "garden_2024_rosy_maple_moth",
+            "garden_2024_mushroom_friend"
         },
     },
 
