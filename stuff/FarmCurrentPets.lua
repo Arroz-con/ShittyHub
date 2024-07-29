@@ -45,6 +45,7 @@ getgenv().SETTINGS = {
         -- the pets in here will be traded no matter what age they are
         PETS_TABLE = { 
             "lures_2023_blazing_lion",
+            "sunshine_2024_cheetah",
             -- "summerfest_2024_punk_pony",
             -- "summerfest_2024_pretty_pony",
             -- "summerfest_2024_majestic_pony"
