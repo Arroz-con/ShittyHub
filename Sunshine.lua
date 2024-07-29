@@ -53,7 +53,7 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
             SetPointsEarned("Trampoline", 100)
             task.wait()
             SetPointsEarned("Tennis", 100)
-            task.wait(1)
+            task.wait(5)
             exitEvent()
             -- task.wait(10)
             -- if Player.PlayerGui.MinigameInGameApp.Enabled then
