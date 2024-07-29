@@ -2016,9 +2016,8 @@ local function autoFarm()
                     task.wait(1)
                 until not Player.PlayerGui.BattlePassApp.Body.Visible or count >= 10
             
-                
-                stopDoingTasks = false
                 joinMiniGame()
+                stopDoingTasks = false
             end 
         end
     end)
