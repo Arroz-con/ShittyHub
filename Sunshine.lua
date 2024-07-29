@@ -47,18 +47,18 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
         Player.PlayerGui.MinigameInGameApp.Body.Middle.Container:WaitForChild("TitleLabel")
         if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("SUNSHINE GAMES") then
             minigameId = tostring(getId())
-            task.wait(5)
+            task.wait(10)
             SetPointsEarned("RockThrow", 100)
             task.wait()
             SetPointsEarned("Trampoline", 100)
             task.wait()
             SetPointsEarned("Tennis", 100)
-            task.wait()
+            task.wait(1)
             exitEvent()
-            task.wait(10)
-            if Player.PlayerGui.MinigameInGameApp.Enabled then
-                exitEvent()
-            end
+            -- task.wait(10)
+            -- if Player.PlayerGui.MinigameInGameApp.Enabled then
+            --     exitEvent()
+            -- end
 
         end
     end 
