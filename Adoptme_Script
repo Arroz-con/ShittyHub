@@ -409,6 +409,9 @@ Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(NormalDialogChild)
 
                     elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("lobby no longer exists.") then
                         FireButton("Okay")
+
+                    elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Welcome to The Games") then
+                        FireButton("Cancel")
                     end
                 end)
             end
@@ -457,6 +460,9 @@ Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal("Visible
 
             elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("lobby no longer exists.") then
                 FireButton("Okay")
+                
+            elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Welcome to The Games") then
+                FireButton("Cancel")
             end
         end)
     end
@@ -1697,7 +1703,7 @@ local function autoFarm()
     TeleportMainMap()
 
     local function CompletePetAilments()
-        if stopEquip then return end
+        -- if stopEquip then return end
         if getgenv().feedAgeUpPotionToggle then return end
         if Bypass("ClientData").get("pet_char_wrapper") == nil then
             ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {["use_sound_delay"] = true})
@@ -1709,15 +1715,10 @@ local function autoFarm()
         if not Bypass("ClientData").get("pet_char_wrapper")["ailments_monitor"] then return end
         if #Bypass("ClientData").get("pet_char_wrapper")["ailments_monitor"]["ailments"] == 0 then return end
 
-        if #Bypass("ClientData").get("pet_char_wrapper")["ailments_monitor"]["ailments"] >= 4 then
-            if not stopEquip then
-                stopEquip = true
-                ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {["use_sound_delay"] = true})
-                task.wait()
-                ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(PetCurrentlyFarming, {["use_sound_delay"] = true})
-                task.wait(10)
-            end
-        end
+        -- if #Bypass("ClientData").get("pet_char_wrapper")["ailments_monitor"]["ailments"] >= 3 then
+        --     -- bot is stuck with too many task so crash
+        --     game:Shutdown()
+        -- end
 
         for _, v in pairs(Bypass("ClientData").get("pet_char_wrapper")["ailments_monitor"]["ailments"]) do
             if v["id"] == "hungry" then
@@ -1794,7 +1795,6 @@ local function autoFarm()
                 end
             end
         end
-        stopEquip = false
     end
 
     local function CompleteBabyAilments()
@@ -3150,7 +3150,7 @@ local function startAutoFarm()
     if SETTINGS.ENABLE_AUTO_FARM then
         findFurniture()
         if Bed then
-            task.wait(math.random(1, 5))
+            -- task.wait(math.random(1, 5))
             FarmToggle:Set(true)
             task.wait(2)
         else
