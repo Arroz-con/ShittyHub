@@ -45,7 +45,7 @@ Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(f
         Player.PlayerGui.MinigameInGameApp.Body:WaitForChild("Middle")
         Player.PlayerGui.MinigameInGameApp.Body.Middle:WaitForChild("Container")
         Player.PlayerGui.MinigameInGameApp.Body.Middle.Container:WaitForChild("TitleLabel")
-        if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("SUNSHINE GAMES") then
+        if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("THE GAMES") then
             minigameId = tostring(getId())
             task.wait(10)
             SetPointsEarned("RockThrow", 100)
