@@ -135,7 +135,7 @@ local function completeStarterTutorial()
             
             ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(Foodid2, {["use_sound_delay"] = true})
             task.wait(1)
-            ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(Foodid2)
+            ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(Foodid2, Bypass("ClientData").get("pet_char_wrappers")[1].pet_unique)
         end
 
         feedStartEgg("sandwich-default")
@@ -1381,7 +1381,7 @@ end
 local function agePotion(FoodPassOn)
     for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
         if v.id == FoodPassOn then
-            ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(v.unique)
+            ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(v.unique, Bypass("ClientData").get("pet_char_wrappers")[1].pet_unique)
             return
         end
     end
@@ -1389,29 +1389,23 @@ end
 
 
 local function FoodAilments(FoodPassOn) --FoodPassOn means "icecream" for this example
-    local FoodCounter = 0
+    local hasFood = false
+    -- checks inventory to see if it has food
     for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
         if v.id == FoodPassOn then
-            FoodCounter += 1
-            if FoodCounter >= 2 then
-                ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, {["use_sound_delay"] = true})
-                task.wait(1)
-                ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(v.unique)
-                return
-            end
+            hasFood = true
+            ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, {["use_sound_delay"] = true})
+            task.wait(1)
+            ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(v.unique, Bypass("ClientData").get("pet_char_wrappers")[1].pet_unique)
+            break
         end
     end
 
-    if FoodCounter <= 1 then
+    -- if it doesnt have have then buy it and feed it
+    if not hasFood then
         ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("food", FoodPassOn, {})
-        for _, f in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
-            if f.id == FoodPassOn then
-                ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(f.unique, {["use_sound_delay"] = true})
-                task.wait(1)
-                ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(f.unique)
-                return
-            end
-        end
+        task.wait()
+        FoodAilments(FoodPassOn)
     end
 end
 
@@ -1487,7 +1481,7 @@ local function AgeUpPotionLevelUp()
             if v.id == "pet_age_potion" then
                 if sameUnqiue == v.unique then return true end
                 sameUnqiue = v.unique
-                ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(v.unique)
+                ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(v.unique, Bypass("ClientData").get("pet_char_wrappers")[1].pet_unique)
                 return true
             end
         end
