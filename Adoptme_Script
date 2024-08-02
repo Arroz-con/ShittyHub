@@ -831,6 +831,12 @@ local function clipBoardInventory()
     setclipboard(allInventory)
 end
 
+UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+    if input.KeyCode == Enum.KeyCode.Q then
+        print("copied")
+        clipBoardInventory()
+    end
+end)
 --[[
 local kites = {}
 
