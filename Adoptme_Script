@@ -1700,17 +1700,15 @@ local function autoFarm()
         -- if stopEquip then return end
         if getgenv().feedAgeUpPotionToggle then return end
         if Bypass("ClientData").get("pet_char_wrappers")[1] == nil then
-            ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {["use_sound_delay"] = true})
-            task.wait(1)
-            ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(PetCurrentlyFarming, {["use_sound_delay"] = true})
+            ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(PetCurrentlyFarming, {})
             return -- return because when pet gets requipped it will call this function anyway
         end
 
         if not Bypass("ClientData").get("pet_char_wrappers")[1]["ailments_monitor"] then return end
         if #Bypass("ClientData").get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"] == 0 then return end
 
-        -- if #Bypass("ClientData").get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"] >= 3 then
-        --     -- bot is stuck with too many task so crash
+        -- if #Bypass("ClientData").get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"] >= 4 then
+        --     -- bot is stuck with too many task. so crash
         --     game:Shutdown()
         -- end
 
