@@ -1531,7 +1531,7 @@ local function joinMiniGame()
     end
     
     if hasStableToken() then
-        stopDoingTasks = true
+        -- stopDoingTasks = true
         -- bring up lobby popup window
         ReplicatedStorage.API["MinigameAPI/LobbyCreate"]:InvokeServer("sunshine")
         task.wait(1)
@@ -1790,7 +1790,8 @@ local function autoFarm()
     end
 
     local function CompleteBabyAilments()
-        if #Bypass("ClientData").get("char_wrapper")["ailments_monitor"]["ailments"] == 0 then return end
+        local ailments = #Bypass("ClientData").get("char_wrapper")["ailments_monitor"]["ailments"]
+        if ailments == 0 then return end
         for _, m in pairs(Bypass("ClientData").get("char_wrapper")["ailments_monitor"]["ailments"]) do
             if m["id"] == m["id"] then
                 Bypass("RouterClient").get("MonitorAPI/AddRate"):InvokeServer(m["id"], 100)
@@ -1800,7 +1801,7 @@ local function autoFarm()
 
     game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildAdded:Connect(function()
         if getgenv().feedAgeUpPotionToggle then return end
-        if stopDoingTasks then return end
+        -- if stopDoingTasks then return end
         removeHandHeldItem()
         if not SETTINGS.FOCUS_FARM_AGE_POTION then
             SwitchOutFullyGrown()
@@ -1814,7 +1815,7 @@ local function autoFarm()
 
     game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildRemoved:Connect(function()
         if getgenv().feedAgeUpPotionToggle then return end
-        if stopDoingTasks then return end
+        -- if stopDoingTasks then return end
         task.wait(2)
         if not SETTINGS.FOCUS_FARM_AGE_POTION then
             SwitchOutFullyGrown()
