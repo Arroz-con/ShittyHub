@@ -1387,6 +1387,9 @@ end
 local function agePotion(FoodPassOn)
     for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
         if v.id == FoodPassOn then
+            local isEgg = if table.find(pets_eggs, Bypass("ClientData").get("pet_char_wrappers")[1]["pet_id"]) then true else false
+            local petAge = Bypass("ClientData").get("pet_char_wrappers")[1]["pet_progression"]["age"]
+            if isEgg or petAge >= 6 then return end
             ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(v.unique, Bypass("ClientData").get("pet_char_wrappers")[1].pet_unique)
             return
         end
@@ -1722,8 +1725,8 @@ local function autoFarm()
             if v["id"] == "hungry" then
                 FoodAilments("icecream")
                 task.wait(2)
-                if not SETTINGS.FOCUS_FARM_AGE_POTION and not SETTINGS.HATCH_EGG_PRIORITY then
-                    -- agePotion("pet_age_potion")
+                if not SETTINGS.FOCUS_FARM_AGE_POTION then
+                    agePotion("pet_age_potion")
                 end
 
                 break
@@ -1796,11 +1799,14 @@ local function autoFarm()
     end
 
     local function CompleteBabyAilments()
-        local ailments = #Bypass("ClientData").get("char_wrapper")["ailments_monitor"]["ailments"]
-        if ailments == 0 then return end
+        if not Bypass("ClientData").get("char_wrapper") then return end
+        if not Bypass("ClientData").get("char_wrapper")["ailments_monitor"] then return end
+        
+        if #Bypass("ClientData").get("char_wrapper")["ailments_monitor"]["ailments"] == 0 then return end
         for _, m in pairs(Bypass("ClientData").get("char_wrapper")["ailments_monitor"]["ailments"]) do
             if m["id"] == m["id"] then
                 Bypass("RouterClient").get("MonitorAPI/AddRate"):InvokeServer(m["id"], 100)
+                return
             end
         end
     end
