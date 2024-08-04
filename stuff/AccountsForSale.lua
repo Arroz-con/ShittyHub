@@ -76,6 +76,7 @@ getgenv().SETTINGS = {
     
     PET_ONLY_PRIORITY = true,
     PET_ONLY_PRIORITY_NAMES = {
+        "starter_egg",
         "dog",
         "cat"
     },
