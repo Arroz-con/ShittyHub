@@ -52,10 +52,10 @@ getgenv().SETTINGS = {
         },
     },
 
-    HATCH_EGG_PRIORITY = true,
+    HATCH_EGG_PRIORITY = false,
     HATCH_EGG_PRIORITY_NAMES = {"garden_2024_egg"},
     
-    PET_ONLY_PRIORITY = true,
+    PET_ONLY_PRIORITY = false,
     PET_ONLY_PRIORITY_NAMES = {
         "garden_2024_rosy_maple_moth",
         "garden_2024_mushroom_friend",
