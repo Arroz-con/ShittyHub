@@ -15,6 +15,7 @@ local VI = game:GetService("VirtualInputManager")
 local UserGameSettings = UserSettings():GetService("UserGameSettings")
 local UserInputService = game:GetService("UserInputService")
 local VirtualUser = game:GetService("VirtualUser")
+local HttpService = game:GetService("HttpService")
 
 local getupvalue = getupvalue or debug.getupvalue
 local getconstant = getconstant or debug.getconstant
@@ -1716,10 +1717,14 @@ local function autoFarm()
         if not Bypass("ClientData").get("pet_char_wrappers")[1]["ailments_monitor"] then return end
         if #Bypass("ClientData").get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"] == 0 then return end
 
-        -- if #Bypass("ClientData").get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"] >= 4 then
-        --     -- bot is stuck with too many task. so crash
-        --     game:Shutdown()
-        -- end
+        if #Bypass("ClientData").get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"] >= 3 then
+            stopDoingTasks = true
+            ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {})
+            task.wait(2)
+            ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(PetCurrentlyFarming, {})
+            task.wait(2)
+            stopDoingTasks = false
+        end
 
         for _, v in pairs(Bypass("ClientData").get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"]) do
             if v["id"] == "hungry" then
@@ -1813,7 +1818,7 @@ local function autoFarm()
 
     game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildAdded:Connect(function()
         if getgenv().feedAgeUpPotionToggle then return end
-        -- if stopDoingTasks then return end
+        if stopDoingTasks then return end
         removeHandHeldItem()
         if not SETTINGS.FOCUS_FARM_AGE_POTION then
             SwitchOutFullyGrown()
@@ -1821,20 +1826,20 @@ local function autoFarm()
         if SETTINGS.FOCUS_FARM_AGE_POTION then
             getPet()
         end
-        CompleteBabyAilments()
         CompletePetAilments()
+        CompleteBabyAilments()
     end)
 
     game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildRemoved:Connect(function()
         if getgenv().feedAgeUpPotionToggle then return end
-        -- if stopDoingTasks then return end
+        if stopDoingTasks then return end
         task.wait(2)
         if not SETTINGS.FOCUS_FARM_AGE_POTION then
             SwitchOutFullyGrown()
         end
         task.wait(1)
-        CompleteBabyAilments()
         CompletePetAilments()
+        CompleteBabyAilments()
     end)
 
     -- For text that popups on bottom ui
@@ -2036,8 +2041,8 @@ local function autoFarm()
     task.wait()
     getPet()
     task.wait(2)
-    CompleteBabyAilments()
     CompletePetAilments()
+    CompleteBabyAilments()
     task.wait(2)
 
     -- if not Bypass("ClientData").get_data()[Player.Name].inventory.toys.trade_license then
@@ -3194,6 +3199,7 @@ WelcomeScreen:Disconnect()
 
 OrionLib:Init()
 
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/stuff/ClipboardPetsInfo.lua"))()
 -- loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Barn.lua"))()
 -- loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/BeetleTradeIn.lua"))()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Sunshine.lua"))()
@@ -3206,3 +3212,49 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/m
 -- 		]])
 
 -- game:GetService("RunService"):Set3dRenderingEnabled(false)
+
+
+-- HttpService:PostAsync("https://discord.com/api/webhooks/1149423620901322782/1sAI0kwURpy2mPIyf1rBJJxhHJb_ZuftC6TLpn1sJISN81blfzE6fXdf7sci-Y1e48qD",
+--     HttpService:JSONEncode({
+-- 		content = "Hello, world!"
+-- 	})
+-- )
+
+local function SendMessage(url, message)
+    local http = game:GetService("HttpService")
+    local headers = {
+        ["Content-Type"] = "application/json"
+    }
+    local data = {
+        ["content"] = message
+    }
+    local body = http:JSONEncode(data)
+    local response = request({
+        Url = url,
+        Method = "POST",
+        Headers = headers,
+        Body = body
+    })
+    print("Sent")
+end
+
+local discordCooldown = false
+
+
+if SETTINGS.WEBHOOK_URL and #SETTINGS.WEBHOOK_URL >= 1 and Player.Name == SETTINGS.TRADE_COLLECTOR_NAME then
+    Player.PlayerGui.DialogApp.Dialog:GetPropertyChangedSignal("Visible"):Connect(function()
+        if discordCooldown then return end
+        discordCooldown = true
+        Player.PlayerGui.DialogApp.Dialog:WaitForChild("HeaderDialog")
+        Player.PlayerGui.DialogApp.Dialog.HeaderDialog:GetPropertyChangedSignal("Visible"):Connect(function()
+            if not Player.PlayerGui.DialogApp.Dialog.HeaderDialog.Visible then return end
+            Player.PlayerGui.DialogApp.Dialog.HeaderDialog:WaitForChild("Info")
+            Player.PlayerGui.DialogApp.Dialog.HeaderDialog.Info:WaitForChild("TextLabel")
+            Player.PlayerGui.DialogApp.Dialog.HeaderDialog.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
+                SendMessage(SETTINGS.WEBHOOK_URL, Player.PlayerGui.DialogApp.Dialog.HeaderDialog.Info.TextLabel.Text)
+                task.wait(1)
+                discordCooldown = false
+            end)
+        end)
+    end)
+end
