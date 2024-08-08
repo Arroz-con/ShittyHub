@@ -54,7 +54,7 @@ end
 local debounce = false
 
 UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
-    if input.KeyCode == Enum.KeyCode.W then
+    if input.KeyCode == Enum.KeyCode.G then
         if debounce then return end
         debounce = true
         getPetInfoMega("[MEGA NEON] ")
