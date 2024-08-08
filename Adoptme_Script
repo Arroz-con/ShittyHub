@@ -3220,13 +3220,13 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/m
 -- 	})
 -- )
 
-local function SendMessage(url, message)
+local function SendMessage(url, message, userId)
     local http = game:GetService("HttpService")
     local headers = {
         ["Content-Type"] = "application/json"
     }
     local data = {
-        ["content"] = message
+        ["content"] = `<@{userId}> {message}`
     }
     local body = http:JSONEncode(data)
     local response = request({
@@ -3241,7 +3241,7 @@ end
 local discordCooldown = false
 
 
-if SETTINGS.WEBHOOK_URL and #SETTINGS.WEBHOOK_URL >= 1 and Player.Name == SETTINGS.TRADE_COLLECTOR_NAME then
+if SETTINGS.WEBHOOK.URL and #SETTINGS.WEBHOOK.URL >= 1 and Player.Name == SETTINGS.TRADE_COLLECTOR_NAME then
     Player.PlayerGui.DialogApp.Dialog:GetPropertyChangedSignal("Visible"):Connect(function()
         if discordCooldown then return end
         discordCooldown = true
@@ -3251,7 +3251,7 @@ if SETTINGS.WEBHOOK_URL and #SETTINGS.WEBHOOK_URL >= 1 and Player.Name == SETTIN
             Player.PlayerGui.DialogApp.Dialog.HeaderDialog:WaitForChild("Info")
             Player.PlayerGui.DialogApp.Dialog.HeaderDialog.Info:WaitForChild("TextLabel")
             Player.PlayerGui.DialogApp.Dialog.HeaderDialog.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
-                SendMessage(SETTINGS.WEBHOOK_URL, Player.PlayerGui.DialogApp.Dialog.HeaderDialog.Info.TextLabel.Text)
+                SendMessage(SETTINGS.WEBHOOK.URL, Player.PlayerGui.DialogApp.Dialog.HeaderDialog.Info.TextLabel.Text, SETTINGS.WEBHOOK.USER_ID)
                 task.wait(1)
                 discordCooldown = false
             end)
