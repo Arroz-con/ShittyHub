@@ -2022,7 +2022,6 @@ local function autoFarm()
 
     task.wait()
     getPet()
-    Bypass("RouterClient").get("TeamAPI/ChooseTeam"):InvokeServer("Babies", {["dont_send_back_home"] = true})
     task.wait(2)
     CompletePetAilments()
     CompleteBabyAilments()
@@ -3154,6 +3153,7 @@ local function startAutoFarm()
     end
 end
 
+Bypass("RouterClient").get("TeamAPI/ChooseTeam"):InvokeServer("Babies", {["dont_send_back_home"] = true})
 startAutoFarm()
 
 game:GetService("Players").LocalPlayer.OnTeleport:Connect(function(State)
