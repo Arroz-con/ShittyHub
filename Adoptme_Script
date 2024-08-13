@@ -30,7 +30,7 @@ local PickColorConn
 local WelcomeScreen
 local DialogConnection
 local RoleChooserDialogConnection
-local RobuxProductDialogConnection
+-- local RobuxProductDialogConnection
 local banMessageConnection
 local DailyClaimConnection
 -- local ChatConnection
@@ -307,7 +307,7 @@ end
 
 
 --// Clicks no robux product button
-RobuxProductDialogConnection = Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog:GetPropertyChangedSignal("Visible"):Connect(function()
+Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog:GetPropertyChangedSignal("Visible"):Connect(function()
     task.wait()
     if Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Visible then
         for i, v in pairs(Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Buttons:GetDescendants()) do
@@ -3178,7 +3178,7 @@ end
 
 
 WelcomeScreen:Disconnect()
-RobuxProductDialogConnection:Disconnect()
+-- RobuxProductDialogConnection:Disconnect()
 
 OrionLib:Init()
 
