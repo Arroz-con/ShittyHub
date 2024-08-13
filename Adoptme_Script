@@ -3235,7 +3235,7 @@ end
 local discordCooldown = false
 
 
-if SETTINGS.WEBHOOK.URL and #SETTINGS.WEBHOOK.URL >= 1 and Player.Name == SETTINGS.TRADE_COLLECTOR_NAME then
+if SETTINGS.WEBHOOK and SETTINGS.WEBHOOK.URL and #SETTINGS.WEBHOOK.URL >= 1 and Player.Name == SETTINGS.TRADE_COLLECTOR_NAME then
     Player.PlayerGui.DialogApp.Dialog:GetPropertyChangedSignal("Visible"):Connect(function()
         if discordCooldown then return end
         discordCooldown = true
