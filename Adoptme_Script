@@ -140,7 +140,7 @@ local function completeStarterTutorial()
         end
 
         feedStartEgg("sandwich-default")
-        Bypass("RouterClient").get("TeamAPI/ChooseTeam"):InvokeServer("Babies", true)
+        Bypass("RouterClient").get("TeamAPI/ChooseTeam"):InvokeServer("Babies", {["dont_send_back_home"] = true})
     end)
 end
 
@@ -376,7 +376,7 @@ local Char = Player.Character or Player.CharacterAdded:Wait()
 CharConn = Char.ChildAdded:Connect(function(HRPChild)
     if HRPChild.Name == "HumanoidRootPart" then
         repeat task.wait() until not DailyBoolean
-        Bypass("RouterClient").get("TeamAPI/ChooseTeam"):InvokeServer("Babies", true)
+        Bypass("RouterClient").get("TeamAPI/ChooseTeam"):InvokeServer("Babies", {["dont_send_back_home"] = true})
         CharConn:Disconnect()
     end
 end)
@@ -2022,6 +2022,7 @@ local function autoFarm()
 
     task.wait()
     getPet()
+    Bypass("RouterClient").get("TeamAPI/ChooseTeam"):InvokeServer("Babies", {["dont_send_back_home"] = true})
     task.wait(2)
     CompletePetAilments()
     CompleteBabyAilments()
