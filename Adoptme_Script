@@ -315,7 +315,6 @@ RobuxProductDialogConnection = Player.PlayerGui.DialogApp.Dialog.RobuxProductDia
                 if  v.Text == "No Thanks" then
                     clickGuiButton(v.Parent.Parent) -- no thanks button
                     DailyBoolean = false
-                    RobuxProductDialogConnection:Disconnect()
                 end
             end
         end     			
@@ -3179,6 +3178,7 @@ end
 
 
 WelcomeScreen:Disconnect()
+RobuxProductDialogConnection:Disconnect()
 
 OrionLib:Init()
 
