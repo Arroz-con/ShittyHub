@@ -307,18 +307,22 @@ end
 
 
 --// Clicks no robux product button
-Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog:GetPropertyChangedSignal("Visible"):Connect(function()
-    task.wait()
-    if Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Visible then
-        for i, v in pairs(Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Buttons:GetDescendants()) do
-            if v.Name == "TextLabel" then
-                if  v.Text == "No Thanks" then
-                    clickGuiButton(v.Parent.Parent) -- no thanks button
-                    DailyBoolean = false
+Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(robuxChild)
+    if robuxChild.Name ~= "RobuxProductDialog" then return end
+    Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog:GetPropertyChangedSignal("Visible"):Connect(function()
+        task.wait()
+        if Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Visible then
+            for i, v in pairs(Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Buttons:GetDescendants()) do
+                if v.Name == "TextLabel" then
+                    if  v.Text == "No Thanks" then
+                        print("clicked")
+                        clickGuiButton(v.Parent.Parent) -- no thanks button
+                        DailyBoolean = false
+                    end
                 end
-            end
-        end     			
-    end
+            end     			
+        end
+    end)
 end)
 
 
