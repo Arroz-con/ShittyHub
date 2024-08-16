@@ -1,6 +1,8 @@
 getgenv().SETTINGS = {
     PET_TO_BUY = "garden_2024_egg", -- add pet or egg to buy when bot has no pets/egg left to level
 
+    CELESTIAL_SUMMER_EVENT = true,
+    
     FOCUS_FARM_AGE_POTION = false,  -- if true, this will only farm 1 pet an keep aging to get aging potions
 
     DO_SUNSHINE_EVENT = true,
