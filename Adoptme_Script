@@ -491,6 +491,16 @@ Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(Celestial2024Child
     end
 end)
 
+Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog:GetPropertyChangedSignal("Visible"):Connect(function()
+    if Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog.Visible then
+        Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog:WaitForChild("Info")
+        Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog.Info:WaitForChild("TextLabel")
+        if Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog.Info.TextLabel.Text:match("Sean's UFO") then
+            FireButton("Okay", "Celestial2024Dialog")
+        end
+    end
+end)
+
 ---\\Auto taskboard Quest
 local function QuestCount()
     local Count = 0
@@ -1265,7 +1275,7 @@ local function getPet()
             elseif v["entry_name"]:match("celestial_2024_large_ailments_common") then
                 if getCommon() then return end
                 if getEgg() then return end
-                
+
             elseif v["entry_name"]:match("celestial_2024_large_ailments_uncommon") then
                 if getUnCommon() then return end
                 if getEgg() then return end
