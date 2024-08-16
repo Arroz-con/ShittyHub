@@ -50,7 +50,7 @@ local ClaimTable = {["hatch_three_eggs"] = {3}, ["fully_age_three_pets"] = {3}, 
 ["celestial_2024_medium_ailments"] = {15}, ["celestial_2024_large_ailments_rare"] = {30}, ["celestial_2024_large_ailments_ultra_rare"] = {30},
 ["celestial_2024_small_hatch_egg"] = {1}, ["celestial_2024_large_buy_gumball_egg"] = {1}, ["celestial_2024_medium_ailment_salon_dirty"] ={2},
 ["celestial_2024_large_ailments_legendary"] = {30}, ["celestial_2024_medium_ailment_beach_party_camping_bored"] = {3}, ["celestial_2024_large_ailments_common"] = {30},
-["celestial_2024_large_ailments_uncommon"] = {30}}
+["celestial_2024_large_ailments_uncommon"] = {30}, ["celestial_2024_large_ailments"] = {30}, ["celestial_2024_small_age_potion_drink"] = {1}}
 
 Player.PlayerGui:WaitForChild("NewsApp", 600)
 Player.PlayerGui:WaitForChild("DialogApp", 600)
