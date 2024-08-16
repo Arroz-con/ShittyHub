@@ -49,7 +49,8 @@ local ClaimTable = {["hatch_three_eggs"] = {3}, ["fully_age_three_pets"] = {3}, 
 ["celestial_2024_small_ailments"] = {5}, ["celestial_2024_small_open_gift"] = {1}, ["celestial_2024_medium_ailment_hungry_thirsty"] = {6},
 ["celestial_2024_medium_ailments"] = {15}, ["celestial_2024_large_ailments_rare"] = {30}, ["celestial_2024_large_ailments_ultra_rare"] = {30},
 ["celestial_2024_small_hatch_egg"] = {1}, ["celestial_2024_large_buy_gumball_egg"] = {1}, ["celestial_2024_medium_ailment_salon_dirty"] ={2},
-["celestial_2024_large_ailments_legendary"] = {30}, ["celestial_2024_medium_ailment_beach_party_camping_bored"] = {3}}
+["celestial_2024_large_ailments_legendary"] = {30}, ["celestial_2024_medium_ailment_beach_party_camping_bored"] = {3}, ["celestial_2024_large_ailments_common"] = {30},
+["celestial_2024_large_ailments_uncommon"] = {30}}
 
 Player.PlayerGui:WaitForChild("NewsApp", 600)
 Player.PlayerGui:WaitForChild("DialogApp", 600)
@@ -1261,6 +1262,14 @@ local function getPet()
                 print("Getting egg")
                 if getEgg() then return end
     
+            elseif v["entry_name"]:match("celestial_2024_large_ailments_common") then
+                if getCommon() then return end
+                if getEgg() then return end
+                
+            elseif v["entry_name"]:match("celestial_2024_large_ailments_uncommon") then
+                if getUnCommon() then return end
+                if getEgg() then return end
+
             elseif v["entry_name"]:match("celestial_2024_large_ailments_rare") then
                 print("getting rare pet")
                 if getRare() then return end
