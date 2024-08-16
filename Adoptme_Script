@@ -15,7 +15,6 @@ local VI = game:GetService("VirtualInputManager")
 local UserGameSettings = UserSettings():GetService("UserGameSettings")
 local UserInputService = game:GetService("UserInputService")
 local VirtualUser = game:GetService("VirtualUser")
-local HttpService = game:GetService("HttpService")
 
 local getupvalue = getupvalue or debug.getupvalue
 local getconstant = getconstant or debug.getconstant
@@ -46,7 +45,11 @@ local NewClaimBool = true
 local NeonTable = {["neon_fusion"] = true, ["mega_neon_fusion"] = true}
 local ClaimTable = {["hatch_three_eggs"] = {3}, ["fully_age_three_pets"] = {3}, ["make_two_trades"] = {2}, ["equip_two_accessories"] = {2},
 ["buy_three_furniture_items_with_friends_coop_budget"] = {3}, ["buy_five_furniture_items"] = {5}, ["buy_fifteen_furniture_items"] = {15},
-["play_as_a_baby_for_twenty_five_minutes"] = {1500}, ["play_for_thirty_minutes"] = {1800}, ["sunshine_2024_playtime"] = {2400}}
+["play_as_a_baby_for_twenty_five_minutes"] = {1500}, ["play_for_thirty_minutes"] = {1800}, ["sunshine_2024_playtime"] = {2400},
+["celestial_2024_small_ailments"] = {5}, ["celestial_2024_small_open_gift"] = {1}, ["celestial_2024_medium_ailment_hungry_thirsty"] = {6},
+["celestial_2024_medium_ailments"] = {15}, ["celestial_2024_large_ailments_rare"] = {30}, ["celestial_2024_large_ailments_ultra_rare"] = {30},
+["celestial_2024_small_hatch_egg"] = {1}, ["celestial_2024_large_buy_gumball_egg"] = {1}, ["celestial_2024_medium_ailment_salon_dirty"] ={2},
+["celestial_2024_large_ailments_legendary"] = {30}, ["celestial_2024_medium_ailment_beach_party_camping_bored"] = {3}}
 
 Player.PlayerGui:WaitForChild("NewsApp", 600)
 Player.PlayerGui:WaitForChild("DialogApp", 600)
@@ -84,10 +87,10 @@ local function clickGuiButton(button: Instance, xOffset: number, yOffset: number
 end
 
 
-local function FireButton(PassOn)
+local function FireButton(PassOn, dialogFrame)
     task.wait() -- gives it time for button
-    -- if not Player.PlayerGui.DialogApp.Dialog.NormalDialog.Buttons.ButtonTemplate then return end
-    for i, v in pairs(Player.PlayerGui.DialogApp.Dialog.NormalDialog.Buttons:GetDescendants()) do
+    local dialogFrame = dialogFrame or "NormalDialog"
+    for i, v in pairs(Player.PlayerGui.DialogApp.Dialog[dialogFrame].Buttons:GetDescendants()) do
         if v.Name == "TextLabel" then
             if v.Text == PassOn then
                 clickGuiButton(v.Parent.Parent)
@@ -372,14 +375,15 @@ DailyClaimConnection = Player.PlayerGui.DailyLoginApp:GetPropertyChangedSignal("
 end)
 
 
-local Char = Player.Character or Player.CharacterAdded:Wait()
-CharConn = Char.ChildAdded:Connect(function(HRPChild)
-    if HRPChild.Name == "HumanoidRootPart" then
-        repeat task.wait() until not DailyBoolean
-        Bypass("RouterClient").get("TeamAPI/ChooseTeam"):InvokeServer("Babies", {["dont_send_back_home"] = true})
-        CharConn:Disconnect()
-    end
-end)
+-- local Char = Player.Character or Player.CharacterAdded:Wait()
+-- CharConn = Char.ChildAdded:Connect(function(HRPChild)
+--     if HRPChild.Name == "HumanoidRootPart" then
+--         repeat task.wait() until not DailyBoolean
+--         print("turn to baby")
+--         Bypass("RouterClient").get("TeamAPI/ChooseTeam"):InvokeServer("Babies", {["dont_send_back_home"] = true})
+--         CharConn:Disconnect()
+--     end
+-- end)
 
 
 Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(NormalDialogChild)
@@ -410,8 +414,6 @@ Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(NormalDialogChild)
                     elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("lobby no longer exists.") then
                         FireButton("Okay")
 
-                    elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Welcome to The Games") then
-                        FireButton("Cancel")
                     end
                 end)
             end
@@ -461,8 +463,6 @@ Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal("Visible
             elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("lobby no longer exists.") then
                 FireButton("Okay")
 
-            elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Welcome to The Games") then
-                FireButton("Cancel")
             end
         end)
     end
@@ -475,6 +475,20 @@ if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
     end
 end
 
+
+Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(Celestial2024Child)
+    if Celestial2024Child.Name == "Celestial2024Dialog" then
+        Celestial2024Child:GetPropertyChangedSignal("Visible"):Connect(function()
+            if Celestial2024Child.Visible then
+                Celestial2024Child:WaitForChild("Info")
+                Celestial2024Child.Info:WaitForChild("TextLabel")
+                if Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog.Info.TextLabel.Text:match("Sean's UFO") then
+                    FireButton("Okay", "Celestial2024Dialog")
+                end
+            end
+        end)
+    end
+end)
 
 ---\\Auto taskboard Quest
 local function QuestCount()
@@ -502,10 +516,21 @@ end
 local function NewTask()
     NewTaskBool = false
     for _, v in pairs(Bypass("ClientData").get("quest_manager")["quests_cached"]) do
-        if v["entry_name"]:match("teleport") or v["entry_name"]:match("navigate") or v["entry_name"]:match("nav") or v["entry_name"]:match("gosh_2022_sick") then
+        if v["entry_name"]:match("teleport") then
             task.wait()
         elseif v["entry_name"]:match("tutorial") then
             ClaimRemote:InvokeServer(v["unique_id"])
+            task.wait()
+        elseif v["entry_name"]:match("celestial_2024_small_open_gift") then
+            -- open small gift
+            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("gifts", "smallgift", {})
+            task.wait(1)
+            for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.gifts do
+                if v["id"] == "smallgift" then
+                    Bypass("RouterClient").get("ShopAPI/OpenGift"):InvokeServer(v["unique"])
+                    break
+                end
+            end
             task.wait()
         else
             if QuestCount() == 1 then
@@ -1230,6 +1255,30 @@ local function getPet()
         if getUnCommon(6) then return end
     end
 
+    if SETTINGS.CELESTIAL_SUMMER_EVENT then
+        for _, v in Bypass("ClientData").get("quest_manager")["quests_cached"] do
+            if v["entry_name"]:match("celestial_2024_small_hatch_egg") or v["entry_name"]:match("celestial_2024_large_buy_gumball_egg") then
+                print("Getting egg")
+                if getEgg() then return end
+    
+            elseif v["entry_name"]:match("celestial_2024_large_ailments_rare") then
+                print("getting rare pet")
+                if getRare() then return end
+                if getEgg() then return end
+            elseif v["entry_name"]:match("celestial_2024_large_ailments_ultra_rare") then
+                print("getting ultra rare pet")
+                if getUltraRare() then return end
+                if getEgg() then return end
+
+            elseif v["entry_name"]:match("celestial_2024_large_ailments_legendary") then
+                print("getting legendary pet")
+                if getLegendary() then return end
+                if getEgg() then return end
+                
+            end
+        end 
+    end
+
     if SETTINGS.PET_NEON_PRIORITY then
         if getNeonPet() then return end
     end
@@ -1719,10 +1768,9 @@ local function autoFarm()
                 break
             elseif v["id"] == "thirsty" then
                 FoodAilments("water")
-                if SETTINGS.DO_SUNSHINE_EVENT then
-                    task.wait()
-                    joinMiniGame()
-                end
+                local rewards_claimed = Bypass("ClientData").get_data()[Player.Name].battle_pass_manager.celestial_2024_pass_1.rewards_claimed
+                ReplicatedStorage.API["BattlePassAPI/ClaimReward"]:InvokeServer("celestial_2024_pass_1", tonumber(rewards_claimed) + 1)
+                print("claimed")
                 break
             elseif v["id"] == "sick" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
@@ -1802,12 +1850,7 @@ local function autoFarm()
         if getgenv().feedAgeUpPotionToggle then return end
         if stopDoingTasks then return end
         removeHandHeldItem()
-        if not SETTINGS.FOCUS_FARM_AGE_POTION then
-            SwitchOutFullyGrown()
-        end
-        if SETTINGS.FOCUS_FARM_AGE_POTION then
-            getPet()
-        end
+
         CompletePetAilments()
         CompleteBabyAilments()
     end)
@@ -1819,7 +1862,16 @@ local function autoFarm()
         if not SETTINGS.FOCUS_FARM_AGE_POTION then
             SwitchOutFullyGrown()
         end
-        task.wait(1)
+
+        -- if SETTINGS.FOCUS_FARM_AGE_POTION then
+        --     getPet()
+        -- end
+
+        if SETTINGS.CELESTIAL_SUMMER_EVENT then
+            getPet()
+        end
+
+        task.wait(3)
         CompletePetAilments()
         CompleteBabyAilments()
     end)
@@ -1986,29 +2038,29 @@ local function autoFarm()
         if Player.PlayerGui.BattlePassApp.Body.Visible then
             Player.PlayerGui.BattlePassApp.Body:WaitForChild("InnerBody")
             Player.PlayerGui.BattlePassApp.Body.InnerBody:WaitForChild("ScrollingFrame")
-            Player.PlayerGui.BattlePassApp.Body.InnerBody.ScrollingFrame:WaitForChild("41")
-            if Player.PlayerGui.BattlePassApp.Body.InnerBody.ScrollingFrame[41] then
+            Player.PlayerGui.BattlePassApp.Body.InnerBody.ScrollingFrame:WaitForChild("21")
+            if Player.PlayerGui.BattlePassApp.Body.InnerBody.ScrollingFrame[21] then
                 for _, v in Player.PlayerGui.BattlePassApp.Body.InnerBody.ScrollingFrame:GetChildren() do
                     if not v:FindFirstChild("ButtonFrame") then continue end
                     if v.ButtonFrame:FindFirstChild("ClaimButton") then
-                        ReplicatedStorage.API["BattlePassAPI/ClaimReward"]:InvokeServer("sunshine_games", tonumber(v.Name) - 1)
+                        ReplicatedStorage.API["BattlePassAPI/ClaimReward"]:InvokeServer("celestial_2024_pass_1", tonumber(v.Name) - 1)
                         task.wait(1)
-                        ReplicatedStorage.API["BattlePassAPI/ClaimReward"]:InvokeServer("sunshine_games", tonumber(v.Name))
+                        ReplicatedStorage.API["BattlePassAPI/ClaimReward"]:InvokeServer("celestial_2024_pass_1", tonumber(v.Name))
                     end
                 end
 
                 -- Player.PlayerGui.BattlePassApp.Body.Header.ExitFrame.ExitButton
-                Player.PlayerGui.BattlePassApp.Body:WaitForChild("Header")
-                Player.PlayerGui.BattlePassApp.Body.Header:WaitForChild("ExitFrame")
-                Player.PlayerGui.BattlePassApp.Body.Header.ExitFrame:WaitForChild("ExitButton")
-                local count = 0
-                repeat
-                    clickGuiButton(Player.PlayerGui.BattlePassApp.Body.Header.ExitFrame.ExitButton, 30, 60)
-                    count += 1
-                    task.wait(1)
-                until not Player.PlayerGui.BattlePassApp.Body.Visible or count >= 10
+                -- Player.PlayerGui.BattlePassApp.Body:WaitForChild("Header")
+                -- Player.PlayerGui.BattlePassApp.Body.Header:WaitForChild("ExitFrame")
+                -- Player.PlayerGui.BattlePassApp.Body.Header.ExitFrame:WaitForChild("ExitButton")
+                -- local count = 0
+                -- repeat
+                --     clickGuiButton(Player.PlayerGui.BattlePassApp.Body.Header.ExitFrame.ExitButton, 30, 60)
+                --     count += 1
+                --     task.wait(1)
+                -- until not Player.PlayerGui.BattlePassApp.Body.Visible or count >= 10
             
-                joinMiniGame()
+                -- joinMiniGame()
                 stopDoingTasks = false
             end 
         end
@@ -3154,6 +3206,7 @@ local function startAutoFarm()
 end
 
 Bypass("RouterClient").get("TeamAPI/ChooseTeam"):InvokeServer("Babies", {["dont_send_back_home"] = true})
+
 startAutoFarm()
 
 game:GetService("Players").LocalPlayer.OnTeleport:Connect(function(State)
@@ -3188,6 +3241,10 @@ if Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Visible then
     end     			
 end
 
+if Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog.Info.TextLabel.Text:match("Sean's UFO") then
+    FireButton("Okay", "Celestial2024Dialog")
+end
+
 WelcomeScreen:Disconnect()
 -- RobuxProductDialogConnection:Disconnect()
 
@@ -3207,12 +3264,6 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/m
 
 -- game:GetService("RunService"):Set3dRenderingEnabled(false)
 
-
--- HttpService:PostAsync("https://discord.com/api/webhooks/1149423620901322782/1sAI0kwURpy2mPIyf1rBJJxhHJb_ZuftC6TLpn1sJISN81blfzE6fXdf7sci-Y1e48qD",
---     HttpService:JSONEncode({
--- 		content = "Hello, world!"
--- 	})
--- )
 
 local function SendMessage(url, message, userId)
     local http = game:GetService("HttpService")
@@ -3252,3 +3303,5 @@ if SETTINGS.WEBHOOK and SETTINGS.WEBHOOK.URL and #SETTINGS.WEBHOOK.URL >= 1 and 
         end)
     end)
 end
+
+print("finish")
