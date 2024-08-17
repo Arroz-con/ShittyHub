@@ -50,7 +50,8 @@ local ClaimTable = {["hatch_three_eggs"] = {3}, ["fully_age_three_pets"] = {3}, 
 ["celestial_2024_medium_ailments"] = {15}, ["celestial_2024_large_ailments_rare"] = {30}, ["celestial_2024_large_ailments_ultra_rare"] = {30},
 ["celestial_2024_small_hatch_egg"] = {1}, ["celestial_2024_large_buy_gumball_egg"] = {1}, ["celestial_2024_medium_ailment_salon_dirty"] ={2},
 ["celestial_2024_large_ailments_legendary"] = {30}, ["celestial_2024_medium_ailment_beach_party_camping_bored"] = {3}, ["celestial_2024_large_ailments_common"] = {30},
-["celestial_2024_large_ailments_uncommon"] = {30}, ["celestial_2024_large_ailments"] = {30}, ["celestial_2024_small_age_potion_drink"] = {1}}
+["celestial_2024_large_ailments_uncommon"] = {30}, ["celestial_2024_large_ailments"] = {30}, ["celestial_2024_small_age_potion_drink"] = {1},
+["celestial_2024_large_small_ailment_orange"] = {1}}
 
 Player.PlayerGui:WaitForChild("NewsApp", 600)
 Player.PlayerGui:WaitForChild("DialogApp", 600)
@@ -403,8 +404,8 @@ Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(NormalDialogChild)
                     elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("You've completed") then
                         FireButton("Okay")
 
-                    elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("The Sunshine Games Pass") then
-                        FireButton("Okay")
+                    elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Pay off Sean") then
+                        FireButton("Yes")
 
                     elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("You have 2 reset chances") then
                         FireButton("Okay")
@@ -452,8 +453,8 @@ Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal("Visible
             elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("You've completed") then
                 FireButton("Okay")
 
-            elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("The Sunshine Games Pass") then
-                FireButton("Okay")
+            elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Pay off Sean") then
+                FireButton("Yes")
 
             elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("You have 2 reset chances") then
                 FireButton("Okay")
@@ -1428,7 +1429,7 @@ end
 
 local function agePotion(FoodPassOn)
     for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
-        if v.id == FoodPassOn then
+        if v.id == FoodPassOn or v.id == "tiny_pet_age_potion" then
             local isEgg = if table.find(pets_eggs, Bypass("ClientData").get("pet_char_wrappers")[1]["pet_id"]) then true else false
             local petAge = Bypass("ClientData").get("pet_char_wrappers")[1]["pet_progression"]["age"]
             if isEgg or petAge >= 6 then return end
@@ -1770,7 +1771,7 @@ local function autoFarm()
         for _, v in pairs(Bypass("ClientData").get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"]) do
             if v["id"] == "hungry" then
                 FoodAilments("icecream")
-                task.wait(2)
+                task.wait()
                 if not SETTINGS.FOCUS_FARM_AGE_POTION then
                     agePotion("pet_age_potion")
                 end
