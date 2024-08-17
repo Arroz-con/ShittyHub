@@ -479,10 +479,10 @@ end
 
 Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(Celestial2024Child)
     if Celestial2024Child.Name == "Celestial2024Dialog" then
-        Celestial2024Child:GetPropertyChangedSignal("Visible"):Connect(function()
-            if Celestial2024Child.Visible then
-                Celestial2024Child:WaitForChild("Info")
-                Celestial2024Child.Info:WaitForChild("TextLabel")
+        Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog:GetPropertyChangedSignal("Visible"):Connect(function()
+            if Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog.Visible then
+                Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog:WaitForChild("Info")
+                Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog.Info:WaitForChild("TextLabel")
                 if Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog.Info.TextLabel.Text:match("Sean's UFO") then
                     FireButton("Okay", "Celestial2024Dialog")
                 end
@@ -491,15 +491,6 @@ Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(Celestial2024Child
     end
 end)
 
-Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog:GetPropertyChangedSignal("Visible"):Connect(function()
-    if Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog.Visible then
-        Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog:WaitForChild("Info")
-        Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog.Info:WaitForChild("TextLabel")
-        if Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog.Info.TextLabel.Text:match("Sean's UFO") then
-            FireButton("Okay", "Celestial2024Dialog")
-        end
-    end
-end)
 
 ---\\Auto taskboard Quest
 local function QuestCount()
@@ -3259,6 +3250,16 @@ if Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Visible then
         end
     end     			
 end
+
+-- Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog:GetPropertyChangedSignal("Visible"):Connect(function()
+--     if Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog.Visible then
+--         Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog:WaitForChild("Info")
+--         Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog.Info:WaitForChild("TextLabel")
+--         if Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog.Info.TextLabel.Text:match("Sean's UFO") then
+--             FireButton("Okay", "Celestial2024Dialog")
+--         end
+--     end
+-- end)
 
 if Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog.Info.TextLabel.Text:match("Sean's UFO") then
     FireButton("Okay", "Celestial2024Dialog")
