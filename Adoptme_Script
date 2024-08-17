@@ -1249,6 +1249,21 @@ local petsToAgeTable = {}
 --     return false
 -- end
 
+local function TeleportNursery()
+    Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
+    local isAlreadyOnMainMap = game.Workspace:FindFirstChild("Interiors"):FindFirstChild("center_map_plot", true)
+    if not isAlreadyOnMainMap then
+        SetLocationFunc("Nursery", "MainDoor", {})
+    end
+    task.wait(1)
+    game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
+    Player.Character.PrimaryPart.CFrame = game:GetService("Workspace").Interiors.Nursery:WaitForChild("InteriorOrigin").CFrame + Vector3.new(0, 10, 0)
+    Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
+    Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+    Player.Character.Humanoid.WalkSpeed = 0
+end
+
+
 local function getPet()
     if SETTINGS.FOCUS_FARM_AGE_POTION then
         if getCommon(6) then return end
@@ -1260,10 +1275,13 @@ local function getPet()
 
     if SETTINGS.CELESTIAL_SUMMER_EVENT then
         for _, v in Bypass("ClientData").get("quest_manager")["quests_cached"] do
-            if v["entry_name"]:match("celestial_2024_small_hatch_egg") or v["entry_name"]:match("celestial_2024_large_buy_gumball_egg") then
-                print("Getting egg")
+            if v["entry_name"]:match("celestial_2024_small_hatch_egg") then
                 if getEgg() then return end
-    
+                
+            elseif v["entry_name"]:match("celestial_2024_large_buy_gumball_egg") then
+                TeleportNursery()
+                if getEgg() then return end
+
             elseif v["entry_name"]:match("celestial_2024_large_ailments_common") then
                 if getCommon() then return end
                 if getEgg() then return end
@@ -1273,16 +1291,13 @@ local function getPet()
                 if getEgg() then return end
 
             elseif v["entry_name"]:match("celestial_2024_large_ailments_rare") then
-                print("getting rare pet")
                 if getRare() then return end
                 if getEgg() then return end
             elseif v["entry_name"]:match("celestial_2024_large_ailments_ultra_rare") then
-                print("getting ultra rare pet")
                 if getUltraRare() then return end
                 if getEgg() then return end
 
             elseif v["entry_name"]:match("celestial_2024_large_ailments_legendary") then
-                print("getting legendary pet")
                 if getLegendary() then return end
                 if getEgg() then return end
                 
@@ -1689,6 +1704,19 @@ local function TeleportPlayGround()
     Player.Character.Humanoid.WalkSpeed = 0
 end
 
+local function TeleportNursery()
+    Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
+    local isAlreadyOnMainMap = game.Workspace:FindFirstChild("Interiors"):FindFirstChild("center_map_plot", true)
+    if not isAlreadyOnMainMap then
+        SetLocationFunc("Nursery", "MainDoor", {})
+    end
+    task.wait(1)
+    game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
+    Player.Character.PrimaryPart.CFrame = game:GetService("Workspace").Interiors.Nursery:WaitForChild("InteriorOrigin").CFrame + Vector3.new(0, 10, 0)
+    Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
+    Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+    Player.Character.Humanoid.WalkSpeed = 0
+end
 
 ------------------------------- Auto Farming ------------------------
 
