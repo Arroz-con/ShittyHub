@@ -51,7 +51,7 @@ local ClaimTable = {["hatch_three_eggs"] = {3}, ["fully_age_three_pets"] = {3}, 
 ["celestial_2024_small_hatch_egg"] = {1}, ["celestial_2024_large_buy_gumball_egg"] = {1}, ["celestial_2024_medium_ailment_salon_dirty"] ={2},
 ["celestial_2024_large_ailments_legendary"] = {30}, ["celestial_2024_medium_ailment_beach_party_camping_bored"] = {3}, ["celestial_2024_large_ailments_common"] = {30},
 ["celestial_2024_large_ailments_uncommon"] = {30}, ["celestial_2024_large_ailments"] = {30}, ["celestial_2024_small_age_potion_drink"] = {1},
-["celestial_2024_large_small_ailment_orange"] = {1}, ["celestial_2024_small_ailment_hungry_thirsty"] = {2}}
+["celestial_2024_large_small_ailment_orange"] = {1}, ["celestial_2024_small_ailment_hungry_thirsty"] = {2}, ["celestial_2024_medium_ailment_hungry_sleepy_bored"] = {3}}
 
 Player.PlayerGui:WaitForChild("NewsApp", 600)
 Player.PlayerGui:WaitForChild("DialogApp", 600)
@@ -1251,10 +1251,7 @@ local petsToAgeTable = {}
 
 local function TeleportNursery()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
-    local isAlreadyOnMainMap = game.Workspace:FindFirstChild("Interiors"):FindFirstChild("center_map_plot", true)
-    if not isAlreadyOnMainMap then
-        SetLocationFunc("Nursery", "MainDoor", {})
-    end
+    SetLocationFunc("Nursery", "MainDoor", {})
     task.wait(1)
     game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
     Player.Character.PrimaryPart.CFrame = game:GetService("Workspace").Interiors.Nursery:WaitForChild("InteriorOrigin").CFrame + Vector3.new(0, 10, 0)
@@ -1280,7 +1277,8 @@ local function getPet()
                 
             elseif v["entry_name"]:match("celestial_2024_large_buy_gumball_egg") then
                 TeleportNursery()
-                if getEgg() then return end
+                task.wait(1)
+                ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", Egg2Buy, {})
 
             elseif v["entry_name"]:match("celestial_2024_large_ailments_common") then
                 if getCommon() then return end
@@ -1302,6 +1300,7 @@ local function getPet()
                 if getEgg() then return end
                 
             end
+            task.wait()
         end 
     end
 
@@ -1704,19 +1703,6 @@ local function TeleportPlayGround()
     Player.Character.Humanoid.WalkSpeed = 0
 end
 
-local function TeleportNursery()
-    Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
-    local isAlreadyOnMainMap = game.Workspace:FindFirstChild("Interiors"):FindFirstChild("center_map_plot", true)
-    if not isAlreadyOnMainMap then
-        SetLocationFunc("Nursery", "MainDoor", {})
-    end
-    task.wait(1)
-    game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
-    Player.Character.PrimaryPart.CFrame = game:GetService("Workspace").Interiors.Nursery:WaitForChild("InteriorOrigin").CFrame + Vector3.new(0, 10, 0)
-    Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
-    Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
-    Player.Character.Humanoid.WalkSpeed = 0
-end
 
 ------------------------------- Auto Farming ------------------------
 
@@ -1884,6 +1870,7 @@ local function autoFarm()
         end
     end
 
+
     game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildAdded:Connect(function()
         if getgenv().feedAgeUpPotionToggle then return end
         if stopDoingTasks then return end
@@ -1896,9 +1883,10 @@ local function autoFarm()
     game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildRemoved:Connect(function()
         if getgenv().feedAgeUpPotionToggle then return end
         if stopDoingTasks then return end
-        task.wait(2)
+
         if not SETTINGS.FOCUS_FARM_AGE_POTION then
             SwitchOutFullyGrown()
+            task.wait(2)
         end
 
         -- if SETTINGS.FOCUS_FARM_AGE_POTION then
@@ -1907,11 +1895,15 @@ local function autoFarm()
 
         if SETTINGS.CELESTIAL_SUMMER_EVENT then
             getPet()
+            task.wait(2)
         end
 
-        task.wait(3)
         CompletePetAilments()
         CompleteBabyAilments()
+
+        if Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog.Info.TextLabel.Text:match("Sean's UFO") then
+            FireButton("Okay", "Celestial2024Dialog")
+        end
     end)
 
     -- For text that popups on bottom ui
@@ -3279,15 +3271,15 @@ if Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Visible then
     end     			
 end
 
--- Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog:GetPropertyChangedSignal("Visible"):Connect(function()
---     if Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog.Visible then
---         Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog:WaitForChild("Info")
---         Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog.Info:WaitForChild("TextLabel")
---         if Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog.Info.TextLabel.Text:match("Sean's UFO") then
---             FireButton("Okay", "Celestial2024Dialog")
---         end
---     end
--- end)
+Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog:GetPropertyChangedSignal("Visible"):Connect(function()
+    if Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog.Visible then
+        Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog:WaitForChild("Info")
+        Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog.Info:WaitForChild("TextLabel")
+        if Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog.Info.TextLabel.Text:match("Sean's UFO") then
+            FireButton("Okay", "Celestial2024Dialog")
+        end
+    end
+end)
 
 if Player.PlayerGui.DialogApp.Dialog.Celestial2024Dialog.Info.TextLabel.Text:match("Sean's UFO") then
     FireButton("Okay", "Celestial2024Dialog")
