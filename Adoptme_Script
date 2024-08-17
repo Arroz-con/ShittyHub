@@ -107,6 +107,11 @@ end
 
 --// gets the trade license so you can trade legendarys
 local function getTradeLicense()
+
+    for i, v in Bypass("ClientData").get_data()[Player.Name].inventory.toys do
+        if v.id == "trade_license" then return end
+    end
+
     pcall(function()
         Bypass("RouterClient").get("SettingsAPI/SetBooleanFlag"):FireServer("has_talked_to_trade_quest_npc", true)
         task.wait()
@@ -1317,7 +1322,7 @@ local function getPet()
                 
             elseif v["entry_name"]:match("celestial_2024_medium_hatch_egg") then
                 if getEgg() then return end
-                
+
             end
             task.wait()
         end 
@@ -2107,7 +2112,8 @@ local function autoFarm()
         MakeNeon()
         MakeMegaNeon()
     end
-
+    
+    getTradeLicense()
     task.wait()
     getPet()
     task.wait(2)
