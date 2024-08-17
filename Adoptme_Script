@@ -948,6 +948,18 @@ local function subToHouse()
     game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/SubscribeToHouse"):FireServer(Player)   
 end
 
+local function agePotion(FoodPassOn)
+    for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
+        if v.id == FoodPassOn then
+            local isEgg = if table.find(pets_eggs, Bypass("ClientData").get("pet_char_wrappers")[1]["pet_id"]) then true else false
+            local petAge = Bypass("ClientData").get("pet_char_wrappers")[1]["pet_progression"]["age"]
+            if isEgg or petAge >= 6 then return end
+            ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(v.unique, Bypass("ClientData").get("pet_char_wrappers")[1].pet_unique)
+            return
+        end
+    end
+end
+
 
 --local Pet_Farming
 local PetCurrentlyFarming
@@ -1275,6 +1287,9 @@ local function getPet()
             if v["entry_name"]:match("celestial_2024_small_hatch_egg") then
                 if getEgg() then return end
                 
+            elseif v["entry_name"]:match("celestial_2024_small_age_potion_drink") then
+                agePotion("tiny_pet_age_potion")
+        
             elseif v["entry_name"]:match("celestial_2024_large_buy_gumball_egg") then
                 TeleportNursery()
                 task.wait(1)
@@ -1438,19 +1453,6 @@ local function MakeMegaNeon()
         task.wait(.1)        
     until
         #maketoneon2 == 0  
-end
-
-
-local function agePotion(FoodPassOn)
-    for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
-        if v.id == FoodPassOn or v.id == "tiny_pet_age_potion" then
-            local isEgg = if table.find(pets_eggs, Bypass("ClientData").get("pet_char_wrappers")[1]["pet_id"]) then true else false
-            local petAge = Bypass("ClientData").get("pet_char_wrappers")[1]["pet_progression"]["age"]
-            if isEgg or petAge >= 6 then return end
-            ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(v.unique, Bypass("ClientData").get("pet_char_wrappers")[1].pet_unique)
-            return
-        end
-    end
 end
 
 
