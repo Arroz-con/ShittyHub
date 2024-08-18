@@ -1806,6 +1806,11 @@ local function autoFarm()
                 FoodAilments("water")
                 local rewards_claimed = Bypass("ClientData").get_data()[Player.Name].battle_pass_manager.celestial_2024_pass_1.rewards_claimed
                 ReplicatedStorage.API["BattlePassAPI/ClaimReward"]:InvokeServer("celestial_2024_pass_1", tonumber(rewards_claimed) + 1)
+                task.wait(1)
+                if rewards_claimed >= 20 then
+                    ReplicatedStorage.API["BattlePassAPI/AttemptBattlePassReset"]:InvokeServer("celestial_2024_pass_1")
+                end
+                
                 break
             elseif v["id"] == "sick" then
                 if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
