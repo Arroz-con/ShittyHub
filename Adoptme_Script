@@ -2113,13 +2113,13 @@ local function autoFarm()
         MakeMegaNeon()
     end
     
-    getTradeLicense()
     task.wait()
     getPet()
     task.wait(2)
     CompletePetAilments()
     CompleteBabyAilments()
     task.wait(2)
+    getTradeLicense()
 
     -- if not Bypass("ClientData").get_data()[Player.Name].inventory.toys.trade_license then
     --     getTradeLicense()
