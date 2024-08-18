@@ -232,9 +232,11 @@ end)
 --// Main Adopt me Screen (Play! Button)
 NewsAppConnection = Player.PlayerGui.NewsApp:GetPropertyChangedSignal("Enabled"):Connect(function()
     if Player.PlayerGui.NewsApp.Enabled then
-        local AbsPlay = Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton
+        local AbsPlay = Player.PlayerGui.NewsApp:WaitForChild("EnclosingFrame"):WaitForChild("MainFrame"):WaitForChild("Contents"):WaitForChild("PlayButton")
         clickGuiButton(AbsPlay)
-        -- firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
+        -- firesignal(AbsPlay.MouseButton1Click)
+        -- firesignal(AbsPlay.Activated)
+        -- print("play1")
         NewsAppConnection:Disconnect()
     end
 end)
@@ -242,7 +244,9 @@ end)
 if Player.PlayerGui.NewsApp.Enabled then
     local AbsPlay = Player.PlayerGui.NewsApp:WaitForChild("EnclosingFrame"):WaitForChild("MainFrame"):WaitForChild("Contents"):WaitForChild("PlayButton")
     clickGuiButton(AbsPlay)
-    -- firesignal(Player.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Contents.PlayButton.MouseButton1Click)
+    -- firesignal(AbsPlay.MouseButton1Click)
+    -- firesignal(AbsPlay.Activated)
+    -- print("play2")
     NewsAppConnection:Disconnect()
 end
 
@@ -306,6 +310,7 @@ RoleChooserDialogConnection = Player.PlayerGui.DialogApp.Dialog.RoleChooserDialo
     task.wait()
     if Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
         firesignal(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby.MouseButton1Click)
+        print("fired baby button")
         RoleChooserDialogConnection:Disconnect()
     end
 end)
@@ -313,6 +318,7 @@ end)
 
 if Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
     firesignal(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby.MouseButton1Click)
+    print("fired baby button")
     RoleChooserDialogConnection:Disconnect()
 end
 
@@ -323,7 +329,7 @@ Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog:GetPropertyChangedSignal("V
     if Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Visible then
         for i, v in pairs(Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Buttons:GetDescendants()) do
             if v.Name == "TextLabel" then
-                if  v.Text == "No Thanks" then
+                if v.Text == "No Thanks" then
                     clickGuiButton(v.Parent.Parent) -- no thanks button
                     DailyBoolean = false
                 end
@@ -369,6 +375,7 @@ DailyClaimConnection = Player.PlayerGui.DailyLoginApp:GetPropertyChangedSignal("
                         DailyClaimConnection:Disconnect()
                     elseif v.Text == "CLAIM!" then
                         clickGuiButton(v.Parent.Parent) -- claim button
+                        task.wait(1)
                         clickGuiButton(v.Parent.Parent) -- close button
                         -- firesignal(v.Parent.Parent.MouseButton1Click) --claim button
                         -- firesignal(v.Parent.Parent.MouseButton1Click) --close button
@@ -383,15 +390,15 @@ DailyClaimConnection = Player.PlayerGui.DailyLoginApp:GetPropertyChangedSignal("
 end)
 
 
--- local Char = Player.Character or Player.CharacterAdded:Wait()
--- CharConn = Char.ChildAdded:Connect(function(HRPChild)
---     if HRPChild.Name == "HumanoidRootPart" then
---         repeat task.wait() until not DailyBoolean
---         print("turn to baby")
---         Bypass("RouterClient").get("TeamAPI/ChooseTeam"):InvokeServer("Babies", {["dont_send_back_home"] = true})
---         CharConn:Disconnect()
---     end
--- end)
+local Char = Player.Character or Player.CharacterAdded:Wait()
+CharConn = Char.ChildAdded:Connect(function(HRPChild)
+    if HRPChild.Name == "HumanoidRootPart" then
+        repeat task.wait() until not DailyBoolean
+        print("turn to baby")
+        Bypass("RouterClient").get("TeamAPI/ChooseTeam"):InvokeServer("Babies", {["dont_send_back_home"] = true})
+        CharConn:Disconnect()
+    end
+end)
 
 
 Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(NormalDialogChild)
@@ -420,6 +427,12 @@ Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(NormalDialogChild)
                             FireButton("Accept")
 
                     elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("lobby no longer exists.") then
+                        FireButton("Okay")
+
+                    elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("You can't spawn") then
+                        FireButton("Okay")
+
+                    elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("The Galactic Pass") then
                         FireButton("Okay")
 
                     end
@@ -469,6 +482,12 @@ Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal("Visible
                 FireButton("Accept")
 
             elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("lobby no longer exists.") then
+                FireButton("Okay")
+
+            elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("You can't spawn") then
+                FireButton("Okay")
+
+            elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("The Galactic Pass") then
                 FireButton("Okay")
 
             end
@@ -2117,7 +2136,7 @@ local function autoFarm()
         MakeNeon()
         MakeMegaNeon()
     end
-    
+
     task.wait()
     getPet()
     task.wait(2)
