@@ -3248,7 +3248,7 @@ local function startAutoFarm()
 end
 
 Bypass("RouterClient").get("TeamAPI/ChooseTeam"):InvokeServer("Babies", {["dont_send_back_home"] = true})
-
+task.wait(3)
 startAutoFarm()
 
 game:GetService("Players").LocalPlayer.OnTeleport:Connect(function(State)
