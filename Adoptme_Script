@@ -235,8 +235,6 @@ NewsAppConnection = Player.PlayerGui.NewsApp:GetPropertyChangedSignal("Enabled")
         local AbsPlay = Player.PlayerGui.NewsApp:WaitForChild("EnclosingFrame"):WaitForChild("MainFrame"):WaitForChild("Contents"):WaitForChild("PlayButton")
         clickGuiButton(AbsPlay)
         -- firesignal(AbsPlay.MouseButton1Click)
-        -- firesignal(AbsPlay.Activated)
-        -- print("play1")
         NewsAppConnection:Disconnect()
     end
 end)
@@ -245,8 +243,6 @@ if Player.PlayerGui.NewsApp.Enabled then
     local AbsPlay = Player.PlayerGui.NewsApp:WaitForChild("EnclosingFrame"):WaitForChild("MainFrame"):WaitForChild("Contents"):WaitForChild("PlayButton")
     clickGuiButton(AbsPlay)
     -- firesignal(AbsPlay.MouseButton1Click)
-    -- firesignal(AbsPlay.Activated)
-    -- print("play2")
     NewsAppConnection:Disconnect()
 end
 
@@ -1299,14 +1295,6 @@ end
 
 
 local function getPet()
-    if SETTINGS.FOCUS_FARM_AGE_POTION then
-        if getCommon(6) then return end
-        if getLegendary(6) then return end
-        if getUltraRare(6) then return end
-        if getRare(6) then return end
-        if getUnCommon(6) then return end
-    end
-
     if SETTINGS.CELESTIAL_SUMMER_EVENT then
         for _, v in Bypass("ClientData").get("quest_manager")["quests_cached"] do
             if v["entry_name"]:match("celestial_2024_small_hatch_egg") then
@@ -1346,6 +1334,16 @@ local function getPet()
             task.wait()
         end 
     end
+
+    
+    if SETTINGS.FOCUS_FARM_AGE_POTION then
+        if getCommon(6) then return end
+        if getLegendary(6) then return end
+        if getUltraRare(6) then return end
+        if getRare(6) then return end
+        if getUnCommon(6) then return end
+    end
+
 
     if SETTINGS.PET_NEON_PRIORITY then
         if getNeonPet() then return end
