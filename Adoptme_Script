@@ -841,13 +841,14 @@ local function clipBoardInventory()
 
     local function getBucksInfo()
         local potions = getAgeupPotionInfo()
-        local tokens = getTokenInfo() or 0
+        -- local tokens = getTokenInfo() or 0
         local potionAmount = potions * 0.04
 
         -- local ponyPassLevel = Bypass("ClientData").get_data()[Player.Name].battle_pass_manager.show_horse.rewards_claimed
         -- local tickets = Bypass("ClientData").get_data()[Player.Name].tickets_2024
-        local bucks = Bypass("ClientData").get_data()[Player.Name].money
-        allInventory = allInventory..`{potions} Age-up Potions + {addComma(bucks)} Bucks + {tokens} Sunshine Tokens | Adopt me\n`
+        local bucks = Bypass("ClientData").get_data()[Player.Name].money or 0
+        local shards = Bypass("ClientData").get_data()[Player.Name].galactic_shards_2024 or 0
+        allInventory = allInventory..`{potions} Age-up Potions + {addComma(bucks)} Bucks + {shards} Galactic Shards | Adopt me\n`
 
         -- local cash = tonumber(bucks) * 0.000037
 
@@ -878,14 +879,16 @@ local function clipBoardInventory()
 
 
     setclipboard(allInventory)
+    print("copied")
 end
 
-UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
-    if input.KeyCode == Enum.KeyCode.Q then
-        print("copied")
-        clipBoardInventory()
-    end
-end)
+-- UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+--     if input.KeyCode == Enum.KeyCode.Q then
+--         print("copied")
+--         clipBoardInventory()
+--     end
+-- end)
+
 --[[
 local kites = {}
 
@@ -1335,7 +1338,7 @@ local function getPet()
         end 
     end
 
-    
+
     if SETTINGS.FOCUS_FARM_AGE_POTION then
         if getCommon(6) then return end
         if getLegendary(6) then return end
@@ -3377,5 +3380,3 @@ if SETTINGS.WEBHOOK and SETTINGS.WEBHOOK.URL and #SETTINGS.WEBHOOK.URL >= 1 and 
         end)
     end)
 end
-
-print("finish")
