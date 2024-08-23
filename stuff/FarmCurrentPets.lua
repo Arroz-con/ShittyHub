@@ -13,7 +13,7 @@ getgenv().SETTINGS = {
 
     ENABLE_TRADE_COLLECTOR = true,
     TRADE_ONLY_LUMINOUS_MEGA = true,
-    TRADE_COLLECTOR_NAME = "notdudemyblox", -- your account username (case sensitive) that will collect the pets.
+    TRADE_COLLECTOR_NAME = "elmo8372", -- your account username (case sensitive) that will collect the pets.
     TRADE_LIST = {
         PET_WEAR_TABLE = {
 
@@ -47,7 +47,7 @@ getgenv().SETTINGS = {
         -- the pets in here will be traded no matter what age they are
         PETS_TABLE = { 
             "lures_2023_blazing_lion",
-            -- "sunshine_2024_cheetah",
+            "celestial_2024_glormy_hound",
             -- "summerfest_2024_punk_pony",
             -- "summerfest_2024_pretty_pony",
             -- "summerfest_2024_majestic_pony"
