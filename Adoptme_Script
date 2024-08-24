@@ -1303,7 +1303,7 @@ local function getPet()
             if v["entry_name"]:match("celestial_2024_small_hatch_egg") then
                 if getEgg() then return end
                 
-            elseif v["entry_name"]:match("celestial_2024_small_age_potion_drink") then
+            elseif v["entry_name"]:match("celestial_2024_small_age_potion_drank") then
                 agePotion("tiny_pet_age_potion")
         
             elseif v["entry_name"]:match("celestial_2024_large_buy_gumball_egg") then
@@ -1824,11 +1824,12 @@ local function autoFarm()
                 break
             elseif v["id"] == "thirsty" then
                 FoodAilments("water")
-                local rewards_claimed = Bypass("ClientData").get_data()[Player.Name].battle_pass_manager.celestial_2024_pass_1.rewards_claimed
-                ReplicatedStorage.API["BattlePassAPI/ClaimReward"]:InvokeServer("celestial_2024_pass_1", tonumber(rewards_claimed) + 1)
+                -- change every week celestial_2024_pass_2
+                local rewards_claimed = Bypass("ClientData").get_data()[Player.Name].battle_pass_manager.celestial_2024_pass_2.rewards_claimed
+                ReplicatedStorage.API["BattlePassAPI/ClaimReward"]:InvokeServer("celestial_2024_pass_2", tonumber(rewards_claimed) + 1)
                 task.wait(1)
                 if rewards_claimed >= 20 then
-                    ReplicatedStorage.API["BattlePassAPI/AttemptBattlePassReset"]:InvokeServer("celestial_2024_pass_1")
+                    ReplicatedStorage.API["BattlePassAPI/AttemptBattlePassReset"]:InvokeServer("celestial_2024_pass_2")
                 end
                 
                 break
@@ -2109,9 +2110,9 @@ local function autoFarm()
                 for _, v in Player.PlayerGui.BattlePassApp.Body.InnerBody.ScrollingFrame:GetChildren() do
                     if not v:FindFirstChild("ButtonFrame") then continue end
                     if v.ButtonFrame:FindFirstChild("ClaimButton") then
-                        ReplicatedStorage.API["BattlePassAPI/ClaimReward"]:InvokeServer("celestial_2024_pass_1", tonumber(v.Name) - 1)
+                        ReplicatedStorage.API["BattlePassAPI/ClaimReward"]:InvokeServer("celestial_2024_pass_2", tonumber(v.Name) - 1)
                         task.wait(1)
-                        ReplicatedStorage.API["BattlePassAPI/ClaimReward"]:InvokeServer("celestial_2024_pass_1", tonumber(v.Name))
+                        ReplicatedStorage.API["BattlePassAPI/ClaimReward"]:InvokeServer("celestial_2024_pass_2", tonumber(v.Name))
                     end
                 end
 
