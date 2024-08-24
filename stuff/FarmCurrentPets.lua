@@ -78,7 +78,7 @@ getgenv().SETTINGS = {
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Adoptme_Script"))()
 
----[[
+--[[
 local petToBuyId = "celestial_2024_glormy_hound"
 local howMany = 10
 
