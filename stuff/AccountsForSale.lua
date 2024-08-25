@@ -139,6 +139,7 @@ local function feedAgePotion()
 end
 
 while true do
+    getgenv().feedAgeUpPotionToggle = true
     local hasPetEquipped = Bypass("ClientData").get("pet_char_wrappers")[1]
     if not hasPetEquipped then
         equipPet()
@@ -155,6 +156,7 @@ while true do
         local hasPet = equipPet()
         task.wait(1) -- wait for pet to equip
         if not hasPet then
+            getgenv().feedAgeUpPotionToggle = false
             print("no more pet available")
             return
         end
@@ -162,6 +164,7 @@ while true do
 
     local hasAgeUpPotion = feedAgePotion()
     if not hasAgeUpPotion then
+        getgenv().feedAgeUpPotionToggle = false
         print("no more age up potions")
         return
     end
