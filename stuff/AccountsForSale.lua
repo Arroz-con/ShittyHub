@@ -11,8 +11,8 @@ getgenv().SETTINGS = {
     PET_AUTO_FUSION = false,
 
     ENABLE_TRADE_COLLECTOR = true,
-	TRADE_ONLY_LUMINOUS_MEGA = true,
-    TRADE_COLLECTOR_NAME = "notdudemyblox", -- your account username (case sensitive) that will collect the pets.
+	TRADE_ONLY_LUMINOUS_MEGA = false,
+    TRADE_COLLECTOR_NAME = "elmo8372", -- your account username (case sensitive) that will collect the pets.
     TRADE_LIST = {
 		PET_WEAR_TABLE = {
 
