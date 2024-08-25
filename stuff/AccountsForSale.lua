@@ -85,9 +85,9 @@ getgenv().SETTINGS = {
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Adoptme_Script"))()
 
---[[
+---[[
 local petToBuyId = "celestial_2024_glormy_hound"
-local howMany = 10
+local howMany = 20
 
 local function buyPet(petNameId: string, howManyToBuy: number)
     for _ = 1, howManyToBuy do
