@@ -2904,8 +2904,17 @@ local Window = Rayfield:CreateWindow({
     }
 })
 
+-- Rayfield:Minimise()
+Rayfield:Hide()
 
 local FarmTab = Window:CreateTab("Auto Farm", 4483362458)
+
+FarmTab:CreateButton({
+    Name = "Copy All Inventory to clipboard",
+    Callback = function()
+        clipBoardInventory()
+    end,
+})
 
 -- local FarmToggle = FarmTab:CreateToggle({
 --     Name = "Auto Farm",
@@ -3131,181 +3140,107 @@ local PetsDropdown = TradeTab:CreateDropdown({
     end,
 })
 
--- Auto:AddToggle({
---     Name = "Auto Trade Custom Pet",
---     Callback = function(value)
---         getgenv().auto_trade_custom = value
---         autoTradeCustomTab("pets")
---     end    
--- })
+TradeTab:CreateToggle({
+    Name = "Auto Trade Custom Pet",
+    CurrentValue = false,
+    Flag = "Toggle1",
+    Callback = function(Value)
+        getgenv().auto_trade_custom = Value
+        autoTradeCustomTab("pets")
+    end,
+})
 
--- Auto:AddSection({
---     Name = "Send Gifts"
--- })
+local GiftsDropdown = TradeTab:CreateDropdown({
+    Name = "Select gift",
+    Options = petsTable,
+    CurrentOption = {petsTable[1]},
+    MultipleOptions = false,
+    Flag = "Dropdown1",
+    Callback = function(Option)
+        selectedItem = Option[1]
+    end,
+})
 
+TradeTab:CreateToggle({
+    Name = "Auto Trade Custom Gift",
+    CurrentValue = false,
+    Flag = "Toggle1",
+    Callback = function(Value)
+        getgenv().auto_trade_custom = Value
+        autoTradeCustomTab("gifts")
+    end,
+})
 
--- local GiftsDropdown = Auto:AddDropdown({
---     Name = "Select gift",
---     Callback = function(value)
---         selectedItem = value
---     end
--- })
+-- TradeTab:CreateSection("Send Toys")
 
+local ToysDropdown = TradeTab:CreateDropdown({
+    Name = "Select toys",
+    Options = petsTable,
+    CurrentOption = {petsTable[1]}, -- need to change to toys table
+    MultipleOptions = false,
+    Flag = "Dropdown1",
+    Callback = function(Option)
+        selectedItem = Option[1]
+    end,
+})
 
--- Auto:AddButton({
---     Name = "Refresh Gift List",
---     Callback = function()
---         refreshInventory("gifts", GiftsDropdown)
---     end
--- })
+TradeTab:CreateToggle({
+    Name = "Auto Trade Custom Toy",
+    CurrentValue = false,
+    Flag = "Toggle1",
+    Callback = function(Value)
+        getgenv().auto_trade_custom = Value
+        autoTradeCustomTab("toys")
+    end,
+})
 
+local ToysDropdown = TradeTab:CreateDropdown({
+    Name = "Select food",
+    Options = petsTable,
+    CurrentOption = {petsTable[1]}, -- need to change to food table
+    MultipleOptions = false,
+    Flag = "Dropdown1",
+    Callback = function(Option)
+        selectedItem = Option[1]
+        -- refreshInventory("food", ToysDropdown)
+    end,
+})
 
--- Auto:AddToggle({
---     Name = "Auto Trade Custom Gift",
---     Callback = function(value)
---         getgenv().auto_trade_custom = value
---         autoTradeCustomTab("gifts")
---     end    
--- })
+TradeTab:CreateToggle({
+    Name = "Auto Trade Custom Food",
+    CurrentValue = false,
+    Flag = "Toggle1",
+    Callback = function(Value)
+        getgenv().auto_trade_custom = Value
+        autoTradeCustomTab("food")
+    end,
+})
 
+--[[ things needed when joining game for the first time ]]
 
--- Auto:AddSection({
---     Name = "Send Toys"
--- })
+local NewAltTab = Window:CreateTab("Auto Trade", 4483362458)
 
+NewAltTab:CreateButton({
+    Name = "Complete Starter Tutorial",
+    Callback = function()
+        completeStarterTutorial()
+    end,
+})
 
--- local ToysDropdown = Auto:AddDropdown({
---     Name = "Select toys",
---     Callback = function(value)
---         selectedItem = value
---     end
--- })
+NewAltTab:CreateButton({
+    Name = "Get Trade License",
+    Callback = function()
+        getTradeLicense()
+    end,
+})
 
+NewAltTab:CreateButton({
+    Name = "Buy Basic Crib",
+    Callback = function()
+        buyCrib()
+    end,
+})
 
--- Auto:AddButton({
---     Name = "Refresh toys List",
---     Callback = function()
---         refreshInventory("toys", ToysDropdown)
---     end
--- })
-
-
--- Auto:AddToggle({
---     Name = "Auto Trade Custom Toy",
---     Callback = function(value)
---         getgenv().auto_trade_custom = value
---         autoTradeCustomTab("toys")
---     end    
--- })
-
-
--- Auto:AddSection({
---     Name = "Send food"
--- })
-
-
--- local ToysDropdown = Auto:AddDropdown({
---     Name = "Select food",
---     Callback = function(value)
---         selectedItem = value
---     end
--- })
-
-
--- Auto:AddButton({
---     Name = "Refresh food List",
---     Callback = function()
---         refreshInventory("food", ToysDropdown)
---     end
--- })
-
-
--- Auto:AddToggle({
---     Name = "Auto Trade Custom Food",
---     Callback = function(value)
---         getgenv().auto_trade_custom = value
---         autoTradeCustomTab("food")
---     end    
--- })
-
--- --// Buying Tabs //--
-
--- local Buy = Window:MakeTab({
---     Name = "Auto Buy",
---     Icon = "rbxassetid://259820115",
---     PremiumOnly = false
--- })
-
-
--- Buy:AddTextbox({
---     Name = "Enter How many to buy",
---     TextDisappear = false,
---     Callback = function(value)
---         howmany = value
---     end  
--- })
-
-
--- local egg1 = "desert_2024_egg"
--- Buy:AddButton({
---     Name = tostring(inventoryDB.pets[egg1].name.." - "..inventoryDB.pets[egg1].cost.." - "..(inventoryDB.pets[egg1].currency_id or "bucks")),
---     Callback = function()
---         for i = 1, (howmany or 1) do
---             ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", egg1, {})
---             task.wait()
---         end
---     end
--- })
-
-
--- --// things needed when joining game for the first time
-
--- local NewAlt = Window:MakeTab({
---     Name = "New alt",
---     Icon = "rbxassetid://259820115",
---     PremiumOnly = false
--- })
-
-
--- NewAlt:AddButton({
---     Name = "Complete Starter Tutorial",
---     Callback = function()
---         completeStarterTutorial()
---     end
--- })
-
-
--- NewAlt:AddButton({
---     Name = "Get Trade License",
---     Callback = function()
---         getTradeLicense()
---     end
--- })
-
-
--- NewAlt:AddButton({
---     Name = "Buy Basic Crib",
---     Callback = function()
---         buyCrib()
---     end
--- })
-
-
--- local ClipBoard = Window:MakeTab({
---     Name = "ClipBoard",
---     Icon = "rbxassetid://259820115",
---     PremiumOnly = false
--- })
-
-
--- ClipBoard:AddButton({
---     Name = "Copy All Inventory to clipboard",
---     Callback = function()
---         task.spawn(function()
---             clipBoardInventory()
---         end)
---     end
--- })
 
 -- -- AGE UP POTIONS TAB
 
@@ -3339,7 +3274,26 @@ local PetsDropdown = TradeTab:CreateDropdown({
 --     end
 -- })
 
-Rayfield:Minimise()
+local function refreshInventory(tab: string, dropDownName: string)
+    local petOptions = {}
+    local petTable = {}
+    local addedNames = {}
+    for _, value in Bypass("ClientData").get_data()[Player.Name].inventory[tab] do
+        if value and not addedNames[value.id] then
+            if not petTable[value.id] then
+                petTable[value.id] = {}
+            end
+            table.insert(petTable[value.id], value.id)
+            addedNames[value.id] = true
+        end
+    end
+    for name, ids in pairs(petTable) do
+        table.insert(petOptions, name)
+    end
+    table.sort(petOptions)
+    dropDownName:Refresh(petOptions, true)
+end
+
 
 if Players.LocalPlayer.Name == SETTINGS.TRADE_COLLECTOR_NAME and SETTINGS.ENABLE_TRADE_COLLECTOR == true then
     getgenv().AutoTradeToggle:Set(true)
