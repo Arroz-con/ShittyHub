@@ -89,7 +89,6 @@ local function clickGuiButton(button: Instance, xOffset: number, yOffset: number
     task.wait()
 end
 
-
 local function FireButton(PassOn, dialogFrame)
     task.wait() -- gives it time for button
     local dialogFrame = dialogFrame or "NormalDialog"
@@ -103,7 +102,6 @@ local function FireButton(PassOn, dialogFrame)
         end
     end
 end
-
 
 --// gets the trade license so you can trade legendarys
 local function getTradeLicense()
