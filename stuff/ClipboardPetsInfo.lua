@@ -1,5 +1,4 @@
 local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
 
 local Bypass = require(game.ReplicatedStorage:WaitForChild("Fsys")).load
 local InventoryDB = Bypass("InventoryDB")
