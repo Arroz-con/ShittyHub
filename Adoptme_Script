@@ -2161,10 +2161,10 @@ local function autoFarm()
 
     task.wait()
     getPet()
-    task.wait(2)
+    task.wait()
     CompletePetAilments()
     CompleteBabyAilments()
-    task.wait(2)
+    task.wait()
     getTradeLicense()
 
     -- if not Bypass("ClientData").get_data()[Player.Name].inventory.toys.trade_license then
@@ -2748,10 +2748,6 @@ game.Players.PlayerAdded:Connect(function(player: Player)
     end)
 end)
 
-if Players.LocalPlayer.Name == SETTINGS.TRADE_COLLECTOR_NAME and SETTINGS.ENABLE_TRADE_COLLECTOR == true then
-    AutoTradeToggle:Set(true)
-    task.wait(1)
-end
 
 local function startAutoFarm()
     if SETTINGS.ENABLE_AUTO_FARM then
@@ -2943,7 +2939,7 @@ local TradeTab = Window:CreateTab("Auto Trade", 4483362458)
 
 TradeTab:CreateSection("only enable Auto Accept trade on alt getting the items")
 
-local AutoTradeToggle = TradeTab:CreateToggle({
+getgenv().AutoTradeToggle = TradeTab:CreateToggle({
     Name = "Auto Accept Trade",
     CurrentValue = false,
     Flag = "Toggle1",
@@ -2960,6 +2956,7 @@ local AutoTradeToggle = TradeTab:CreateToggle({
                 end
             end
             ClickTradeWindowPopUps()
+            print("clicking")
             task.wait(1)
         end
     end,
@@ -3343,3 +3340,8 @@ local PetsDropdown = TradeTab:CreateDropdown({
 -- })
 
 Rayfield:Minimise()
+
+if Players.LocalPlayer.Name == SETTINGS.TRADE_COLLECTOR_NAME and SETTINGS.ENABLE_TRADE_COLLECTOR == true then
+    getgenv().AutoTradeToggle:Set(true)
+    task.wait(1)
+end
