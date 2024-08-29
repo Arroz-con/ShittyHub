@@ -15,6 +15,7 @@ local VI = game:GetService("VirtualInputManager")
 local UserGameSettings = UserSettings():GetService("UserGameSettings")
 local UserInputService = game:GetService("UserInputService")
 local VirtualUser = game:GetService("VirtualUser")
+local CoreGui = game:GetService("CoreGui")
 
 local getupvalue = getupvalue or debug.getupvalue
 local getconstant = getconstant or debug.getconstant
@@ -65,12 +66,43 @@ local RerollRemote = Bypass("RouterClient").get("QuestAPI/RerollQuest")
 
 repeat task.wait(1) until Bypass("ClientData").get_data()[Player.Name].loaded_in == true
 
+local TestGui = Instance.new("ScreenGui")
+local TextButton = Instance.new("TextButton")
+
+if gethui then
+	TestGui.Parent = gethui()
+elseif syn.protect_gui then 
+	syn.protect_gui(TestGui)
+	TestGui.Parent = CoreGui
+elseif CoreGui:FindFirstChild("RobloxGui") then
+	TestGui.Parent = CoreGui:FindFirstChild("RobloxGui")
+else
+	TestGui.Parent = CoreGui
+end
+
+TestGui.Name = "TestGui"
+TestGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+TextButton.Parent = TestGui
+TextButton.AnchorPoint = Vector2.new(0.5, 0.5)
+TextButton.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+TextButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+TextButton.BorderSizePixel = 0
+TextButton.Position = UDim2.new(0.82, 0, 0.93, 0)
+TextButton.Size = UDim2.new(0.100000001, 0, 0.100000001, 0)
+TextButton.Font = Enum.Font.SourceSans
+TextButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+TextButton.TextScaled = true
+TextButton.TextSize = 14.000
+TextButton.TextWrapped = true
+
 local Bed
 local Shower
 local Piano
 local normalLure
 local isMainMap = false
 local stopDoingTasks = false
+local guiCooldown = false
 
 UserGameSettings.GraphicsQualityLevel = 1
 UserGameSettings.MasterVolume = 0
@@ -89,6 +121,7 @@ local function clickGuiButton(button: Instance, xOffset: number, yOffset: number
     task.wait()
 end
 
+
 local function FireButton(PassOn, dialogFrame)
     task.wait() -- gives it time for button
     local dialogFrame = dialogFrame or "NormalDialog"
@@ -102,6 +135,7 @@ local function FireButton(PassOn, dialogFrame)
         end
     end
 end
+
 
 --// gets the trade license so you can trade legendarys
 local function getTradeLicense()
@@ -2903,7 +2937,16 @@ local Window = Rayfield:CreateWindow({
 })
 
 -- Rayfield:Minimise()
-Rayfield:Hide()
+TextButton.MouseButton1Click:Connect(function()
+    if guiCooldown then return end
+    
+    guiCooldown = true
+    Rayfield:Unhide()
+    task.wait()
+    guiCooldown = false
+end)
+
+-- Rayfield:Hide()
 
 local FarmTab = Window:CreateTab("Auto Farm", 4483362458)
 
