@@ -741,7 +741,7 @@ end
 
 -- end
 
-
+local petsTable = {}
 local pets_legendary = {}
 local pets_ultrarare = {}
 local pets_rare = {}
@@ -778,6 +778,25 @@ for _, pettable in pairs({pets_legendary, pets_ultrarare, pets_rare, pets_uncomm
     for _, petlist in pairs(pettable) do
         table.insert(pets_legendary_to_common, petlist)
     end
+end
+
+local function getPlayersInGame()
+    local playerTable = {}
+    for _, player in Players:GetPlayers() do
+        if player.Name == Player.Name then continue end
+        table.insert(playerTable, player.Name)
+    end
+    table.sort(playerTable)
+    return playerTable
+end
+
+local function getPetsName()
+    local petsTable = {}
+    for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
+        if v.id == "practice_dog" then continue end
+        table.insert(petsTable, v.id)
+    end
+    return petsTable
 end
 
 local function clipBoardInventory()
@@ -1609,6 +1628,7 @@ local function AgeUpPotionLevelUp()
 
         local hasAgeUpPotion = feedAgePotion()
         if not hasAgeUpPotion then
+            print("no more age up potions")
             getgenv().PotionToggle:Set(false)
             return
         end
@@ -2692,531 +2712,6 @@ local function tradeCollector(namePassOn)
     end
 end
 
------------          UI  Functions           ------------------
-
-local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/Arroz-con/Orion/main/source')))()
-local Window = OrionLib:MakeWindow({Name = "Adopt me", HidePremium = false, SaveConfig = false, ConfigFolder = "Bakane_Adoptme", IntroEnabled = false})
-
-local Farm = Window:MakeTab({
-    Name = "Auto Farm",
-    Icon = "rbxassetid://259820115",
-    PremiumOnly = false
-})
-
-local FarmToggle = Farm:AddToggle({
-    Name = "Auto Farm ",
-    Callback = function(value)
-        getgenv().auto_farm = value
-        autoFarm()
-    end    
-})
-
-Farm:AddSection({
-    Name = "1 Click = ALL Neon/Mega"
-})
-
-Farm:AddButton({
-    Name = "Make Neon",
-    Callback = function(value)
-        MakeNeon()
-    end    
-})
-
-Farm:AddButton({
-    Name = "Make Mega-neon",
-    Callback = function(value)
-        MakeMegaNeon()
-    end    
-})
-
-
-local CashRegisterID
-local CashRegisterIDFound = false
-
-local playerDropdown2 = Farm:AddDropdown({
-    Name = "Select a player",
-    Callback = function(selectedPlayer_input2)
-        selectedPlayer2 = Players[selectedPlayer_input2]
-        Bypass("RouterClient").get("HousingAPI/SubscribeToHouse"):FireServer(selectedPlayer2)
-        task.wait(3)
-        game.Workspace.HouseInteriors.furniture:WaitForChild(tostring(game.Workspace.HouseInteriors.furniture:FindFirstChildWhichIsA("Folder")))
-        for i, v in pairs(game.Workspace.HouseInteriors.furniture:GetDescendants()) do
-            if v.Name == "CashRegister" or v.Name == "GoldenCashRegister" then
-                CashRegisterID = v.Parent.Name:match("%a+-%d+")
-                CashRegisterIDFound = true
-            end
-        end
-    end
-})
-
-Farm:AddButton({
-    Name = "Refresh Players",
-    Callback = function()
-        local playerOptions = {}
-        for i, p in pairs(game.Players:GetPlayers()) do
-            if p ~= Player then
-                table.insert(playerOptions, p.Name)
-                table.sort(playerOptions)
-            end
-        end
-        playerDropdown2:Refresh(playerOptions, true)
-    end
-})
-
-local function PayPlayer()
-    task.spawn(function()
-        while CashRegisterIDFound do
-            Remote:InvokeServer(selectedPlayer2, CashRegisterID, 'UseBlock', 50, Player.Character)
-            FireButton("Okay")
-            task.wait(30)
-        end
-    end)
-end
-
-Farm:AddToggle({
-    Name = "Auto Transfer Bucks",
-    Callback = function(value)
-        if value then
-            PayPlayer()
-        end
-    end    
-})
-
-local function refreshInventory(tab: string, dropDownName: string)
-    local petOptions = {}
-    local petTable = {}
-    local addedNames = {}
-    for i, p in pairs(Bypass("ClientData").get_data()[Player.Name].inventory[tab]) do
-        if p and not addedNames[p.id] then
-            if not petTable[p.id] then
-                petTable[p.id] = {}
-            end
-            table.insert(petTable[p.id], p.id)
-            addedNames[p.id] = true
-        end
-    end
-    for name, ids in pairs(petTable) do
-        table.insert(petOptions, name)
-        table.sort(petOptions)
-    end
-    dropDownName:Refresh(petOptions, true)
-end
-
---################ Auto Trade Tab #################################################################################
-local Auto = Window:MakeTab({
-    Name = "Auto Trade",
-    Icon = "rbxassetid://259820115",
-    PremiumOnly = false
-})
-
-Auto:AddSection({
-    Name = "only enable Auto Accept trade on alt getting the items"
-})
-
-local AutoTradeToggle = Auto:AddToggle({
-    Name = "Auto Accept Trade ",
-    Callback = function(value)
-        getgenv().auto_accept_trade = value
-        while getgenv().auto_accept_trade do
-            if Bypass("ClientData").get_data()[Player.Name].in_active_trade then
-                if Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.negotiated then
-                    ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
-                end
-        
-                if Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.confirmed then
-                    ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
-                end
-            end
-            ClickTradeWindowPopUps()
-            task.wait(1)
-        end
-    end    
-})
-
-Auto:AddToggle({
-    Name = "Semi-Auto Trade (manually choose items)",
-    Callback = function(value)
-        getgenv().auto_trade_semi_auto = value
-        autoTradeSemiAuto()
-    end
-})
-
-
-local playerDropdown = Auto:AddDropdown({
-    Name = "Select a player",
-    Callback = function(value)
-        selectedPlayer = Players[value]
-    end
-})
-
-Auto:AddButton({
-    Name = "Refresh Players",
-    Callback = function()
-        local playerOptions = {}
-        for i, p in pairs(game.Players:GetPlayers()) do
-            if p ~= Player then
-                table.insert(playerOptions, p.Name)
-                table.sort(playerOptions)
-            end
-        end
-        playerDropdown:Refresh(playerOptions, true)
-    end
-})
-
-Auto:AddSection({
-    Name = "vvv Only turn 1 of them on at a time vvv"
-})
-
-
-Auto:AddToggle({
-    Name = "Auto Trade EVERYTHING",
-    Callback = function(value)
-        getgenv().auto_trade_all_inventory = value
-        while task.wait(1) do
-            if not getgenv().auto_trade_all_inventory then break end
-            autoTradeAllInventory("pets")
-            autoTradeAllInventory("pet_accessories") -- pet wear and wings
-            autoTradeAllInventory("strollers")
-            autoTradeAllInventory("food")
-            autoTradeAllInventory("transport") -- vehicle
-            autoTradeAllInventory("toys")
-            autoTradeAllInventory("gifts")
-            clickAcceptNegotiation()
-            clickAcceptConfirmation()
-        end 
-    end    
-})
-
-
-getgenv().allPetsToggle = Auto:AddToggle({
-    Name = "Auto Trade All Pets",
-    Callback = function(value)
-        getgenv().auto_trade_all_pets = value
-        while getgenv().auto_trade_all_pets do
-    
-            sendTradeRequest()
-    
-            for _, pet in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
-                if pet.id == "practice_dog" then continue end
-
-                if Bypass("ClientData").get_data()[Player.Name].in_active_trade then
-                    ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
-                    if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items >= 18 then
-                        break
-                    end
-                end
-                task.wait(0.1)
-            end
-
-            AcceptNegotiationAndConfirm("allPetsToggle")
-            task.wait()
-        end 
-    end    
-})
-
-getgenv().legendaryToggle = Auto:AddToggle({
-    Name = "Auto Trade Only Legendary's",
-    Callback = function(value)
-        getgenv().auto_trade_Legendary = value
-        while getgenv().auto_trade_Legendary do
-
-            sendTradeRequest()
-
-            for _, pet in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
-                if table.find(pets_legendary, pet.id) then
-                    ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
-                    if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items >= 18 then
-                        break
-                    end
-                    task.wait(0.1)
-                end
-            end
-
-            AcceptNegotiationAndConfirm("legendaryToggle")
-            task.wait()
-        end
-    end    
-})
-
--- if (pet.properties.age == 6 or pet.properties.neon) or pet.properties.mega_neon then
-getgenv().fullgrownToggle = Auto:AddToggle({
-    Name = "Auto Trade FullGrown, luminous Neons and Megas",
-    Callback = function(value)
-        getgenv().auto_trade_fullgrown_neon_and_mega = value
-        while getgenv().auto_trade_fullgrown_neon_and_mega do
-
-            sendTradeRequest()
-
-            for _, pet in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
-                if (pet.properties.age == 6 or pet.properties.neon) or pet.properties.mega_neon then
-                    ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
-                    if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items >= 18 then
-                        break
-                    end
-                    task.wait(0.1)
-                end
-            end
-
-            AcceptNegotiationAndConfirm("fullgrownToggle")
-            task.wait()
-        end
-    end    
-})
-
-Auto:AddToggle({
-    Name = "Auto Trade All Megas",
-    Callback = function(value)
-        getgenv().auto_trade_all_neons = value
-        autoTradeAllNeons("mega_neon")
-    end    
-})
-
-Auto:AddToggle({
-    Name = "Auto Trade All Neons",
-    Callback = function(value)
-        getgenv().auto_trade_all_neons = value
-        autoTradeAllNeons("neon")
-    end    
-})
-
-
-Auto:AddToggle({
-    Name = "Auto Trade Common to Ultra-rare and Newborn to Post-Teen ",
-    Callback = function(value)
-        getgenv().auto_trade_lowtier_pets = value
-        autoTradeLowTierPets()
-    end    
-})
-
-
-Auto:AddSection({
-    Name = "Send Custom Pet, sends ALL ages of selected pet"
-})
-
-
-local PetsDropdown = Auto:AddDropdown({
-    Name = "Select a Pet",
-    Callback = function(value)
-        selectedItem = value
-    end
-})
-
-
-Auto:AddButton({
-    Name = "Refresh Pet List",
-    Callback = function()
-        refreshInventory("pets", PetsDropdown)
-    end
-})
-
-
-Auto:AddToggle({
-    Name = "Auto Trade Custom Pet",
-    Callback = function(value)
-        getgenv().auto_trade_custom = value
-        autoTradeCustomTab("pets")
-    end    
-})
-
-Auto:AddSection({
-    Name = "Send Gifts"
-})
-
-
-local GiftsDropdown = Auto:AddDropdown({
-    Name = "Select gift",
-    Callback = function(value)
-        selectedItem = value
-    end
-})
-
-
-Auto:AddButton({
-    Name = "Refresh Gift List",
-    Callback = function()
-        refreshInventory("gifts", GiftsDropdown)
-    end
-})
-
-
-Auto:AddToggle({
-    Name = "Auto Trade Custom Gift",
-    Callback = function(value)
-        getgenv().auto_trade_custom = value
-        autoTradeCustomTab("gifts")
-    end    
-})
-
-
-Auto:AddSection({
-    Name = "Send Toys"
-})
-
-
-local ToysDropdown = Auto:AddDropdown({
-    Name = "Select toys",
-    Callback = function(value)
-        selectedItem = value
-    end
-})
-
-
-Auto:AddButton({
-    Name = "Refresh toys List",
-    Callback = function()
-        refreshInventory("toys", ToysDropdown)
-    end
-})
-
-
-Auto:AddToggle({
-    Name = "Auto Trade Custom Toy",
-    Callback = function(value)
-        getgenv().auto_trade_custom = value
-        autoTradeCustomTab("toys")
-    end    
-})
-
-
-Auto:AddSection({
-    Name = "Send food"
-})
-
-
-local ToysDropdown = Auto:AddDropdown({
-    Name = "Select food",
-    Callback = function(value)
-        selectedItem = value
-    end
-})
-
-
-Auto:AddButton({
-    Name = "Refresh food List",
-    Callback = function()
-        refreshInventory("food", ToysDropdown)
-    end
-})
-
-
-Auto:AddToggle({
-    Name = "Auto Trade Custom Food",
-    Callback = function(value)
-        getgenv().auto_trade_custom = value
-        autoTradeCustomTab("food")
-    end    
-})
-
---// Buying Tabs //--
-
-local Buy = Window:MakeTab({
-    Name = "Auto Buy",
-    Icon = "rbxassetid://259820115",
-    PremiumOnly = false
-})
-
-
-Buy:AddTextbox({
-    Name = "Enter How many to buy",
-    TextDisappear = false,
-    Callback = function(value)
-        howmany = value
-    end  
-})
-
-
-local egg1 = "desert_2024_egg"
-Buy:AddButton({
-    Name = tostring(inventoryDB.pets[egg1].name.." - "..inventoryDB.pets[egg1].cost.." - "..(inventoryDB.pets[egg1].currency_id or "bucks")),
-    Callback = function()
-        for i = 1, (howmany or 1) do
-            ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", egg1, {})
-            task.wait()
-        end
-    end
-})
-
-
---// things needed when joining game for the first time
-
-local NewAlt = Window:MakeTab({
-    Name = "New alt",
-    Icon = "rbxassetid://259820115",
-    PremiumOnly = false
-})
-
-
-NewAlt:AddButton({
-    Name = "Complete Starter Tutorial",
-    Callback = function()
-        completeStarterTutorial()
-    end
-})
-
-
-NewAlt:AddButton({
-    Name = "Get Trade License",
-    Callback = function()
-        getTradeLicense()
-    end
-})
-
-
-NewAlt:AddButton({
-    Name = "Buy Basic Crib",
-    Callback = function()
-        buyCrib()
-    end
-})
-
-
-local ClipBoard = Window:MakeTab({
-    Name = "ClipBoard",
-    Icon = "rbxassetid://259820115",
-    PremiumOnly = false
-})
-
-
-ClipBoard:AddButton({
-    Name = "Copy All Inventory to clipboard",
-    Callback = function()
-        task.spawn(function()
-            clipBoardInventory()
-        end)
-    end
-})
-
--- AGE UP POTIONS TAB
-
-local AgeUpPotion = Window:MakeTab({
-    Name = "Age Up Potion",
-    Icon = "rbxassetid://259820115",
-    PremiumOnly = false
-})
-
-local PetsDropdown3 = AgeUpPotion:AddDropdown({
-    Name = "Select a Pet",
-    Callback = function(value)
-        selectedItem = value
-    end
-})
-
-
-AgeUpPotion:AddButton({
-    Name = "Refresh Pet List",
-    Callback = function()
-        refreshInventory("pets", PetsDropdown3)
-    end
-})
-
-
-getgenv().PotionToggle = AgeUpPotion:AddToggle({
-    Name = "Click to Age up Pet",
-    Callback = function(value)
-        getgenv().feedAgeUpPotionToggle = value
-        AgeUpPotionLevelUp()
-    end
-})
 
 
 buyLure()
@@ -3263,11 +2758,13 @@ local function startAutoFarm()
         findFurniture()
         if Bed then
             -- task.wait(math.random(1, 5))
-            FarmToggle:Set(true)
+            -- FarmToggle:Set(true)
+            getgenv().auto_farm = true
+            autoFarm()
             task.wait(2)
         else
             buyCrib()
-            FarmToggle:Set(false)
+            -- FarmToggle:Set(false)
             startAutoFarm()
         end
     end
@@ -3326,7 +2823,6 @@ end
 WelcomeScreen:Disconnect()
 -- RobuxProductDialogConnection:Disconnect()
 
-OrionLib:Init()
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/stuff/ClipboardPetsInfo.lua"))()
 -- loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Barn.lua"))()
@@ -3381,3 +2877,469 @@ if SETTINGS.WEBHOOK and SETTINGS.WEBHOOK.URL and #SETTINGS.WEBHOOK.URL >= 1 and 
         end)
     end)
 end
+
+
+-----------          UI  Functions           ------------------
+
+local Rayfield = loadstring(game:HttpGet('https://raw.githubusercontent.com/Arroz-con/Rayfield/main/source'))()
+local Window = Rayfield:CreateWindow({
+    Name = "Rayfield Example Window",
+    LoadingTitle = "Rayfield Interface Suite",
+    LoadingSubtitle = "by Sirius",
+    ConfigurationSaving = {
+       Enabled = false,
+       FolderName = nil, -- Create a custom folder for your hub/game
+       FileName = "Big Hub"
+    },
+    Discord = {
+       Enabled = false,
+       Invite = "noinvitelink", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ABCD would be ABCD
+       RememberJoins = true -- Set this to false to make them join the discord every time they load it up
+    },
+    KeySystem = false, -- Set this to true to use our key system
+    KeySettings = {
+       Title = "Untitled",
+       Subtitle = "Key System",
+       Note = "No method of obtaining the key is provided",
+       FileName = "Key", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
+       SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
+       GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
+       Key = {"Hello"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
+    }
+})
+
+
+local FarmTab = Window:CreateTab("Auto Farm", 4483362458)
+
+-- local FarmToggle = FarmTab:CreateToggle({
+--     Name = "Auto Farm",
+--     CurrentValue = false,
+--     Flag = "Toggle1",
+--     Callback = function(Value)
+--         getgenv().auto_farm = Value
+--         autoFarm()
+--     end,
+-- })
+
+-- FarmTab:CreateSection("1 Click = ALL Neon/Mega")
+FarmTab:CreateButton({
+    Name = "Make Neons",
+    Callback = function()
+        MakeNeon()
+    end,
+})
+
+FarmTab:CreateButton({
+    Name = "Make Megas",
+    Callback = function()
+        MakeMegaNeon()
+    end,
+})
+
+
+--[[ Auto Trade Tab ]]
+
+local TradeTab = Window:CreateTab("Auto Trade", 4483362458)
+
+TradeTab:CreateSection("only enable Auto Accept trade on alt getting the items")
+
+local AutoTradeToggle = TradeTab:CreateToggle({
+    Name = "Auto Accept Trade",
+    CurrentValue = false,
+    Flag = "Toggle1",
+    Callback = function(Value)
+        getgenv().auto_accept_trade = Value
+        while getgenv().auto_accept_trade do
+            if Bypass("ClientData").get_data()[Player.Name].in_active_trade then
+                if Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.negotiated then
+                    ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
+                end
+        
+                if Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.confirmed then
+                    ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
+                end
+            end
+            ClickTradeWindowPopUps()
+            task.wait(1)
+        end
+    end,
+})
+
+-- dont forget to add a refresh when players join game
+local playerDropdown = TradeTab:CreateDropdown({
+    Name = "Select a player",
+    Options = getPlayersInGame(),
+    CurrentOption = {(getPlayersInGame()[1] or "")},
+    MultipleOptions = false,
+    Flag = "Dropdown1",
+    Callback = function(Option)
+        selectedPlayer = Option[1]
+    end,
+})
+
+TradeTab:CreateToggle({
+    Name = "Semi-Auto Trade (manually choose items)",
+    CurrentValue = false,
+    Flag = "Toggle1",
+    Callback = function(Value)
+        getgenv().auto_trade_semi_auto = Value
+        autoTradeSemiAuto()
+    end,
+})
+
+TradeTab:CreateToggle({
+    Name = "Auto Trade EVERYTHING",
+    CurrentValue = false,
+    Flag = "Toggle1",
+    Callback = function(Value)
+        getgenv().auto_trade_all_inventory = Value
+        while true do
+            if not getgenv().auto_trade_all_inventory then return end
+            autoTradeAllInventory("pets")
+            autoTradeAllInventory("pet_accessories") -- pet wear and wings
+            autoTradeAllInventory("strollers")
+            autoTradeAllInventory("food")
+            autoTradeAllInventory("transport") -- vehicle
+            autoTradeAllInventory("toys")
+            autoTradeAllInventory("gifts")
+            clickAcceptNegotiation()
+            clickAcceptConfirmation()
+            task.wait(1)
+        end
+    end,
+})
+
+getgenv().allPetsToggle = TradeTab:CreateToggle({
+    Name = "Auto Trade All Pets",
+    CurrentValue = false,
+    Flag = "Toggle1",
+    Callback = function(Value)
+        getgenv().auto_trade_all_pets = Value
+        while getgenv().auto_trade_all_pets do
+    
+            sendTradeRequest()
+    
+            for _, pet in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
+                if pet.id == "practice_dog" then continue end
+
+                if Bypass("ClientData").get_data()[Player.Name].in_active_trade then
+                    ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
+                    if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items >= 18 then
+                        break
+                    end
+                end
+                task.wait(0.1)
+            end
+
+            AcceptNegotiationAndConfirm("allPetsToggle")
+            task.wait()
+        end
+    end,
+})
+
+getgenv().legendaryToggle = TradeTab:CreateToggle({
+    Name = "Auto Trade Only Legendary's",
+    CurrentValue = false,
+    Flag = "Toggle1",
+    Callback = function(Value)
+        getgenv().auto_trade_Legendary = Value
+        while getgenv().auto_trade_Legendary do
+            sendTradeRequest()
+
+            for _, pet in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
+                if table.find(pets_legendary, pet.id) then
+                    ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
+                    if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items >= 18 then
+                        break
+                    end
+                    task.wait(0.1)
+                end
+            end
+
+            AcceptNegotiationAndConfirm("legendaryToggle")
+            task.wait()
+        end
+    end,
+})
+
+getgenv().fullgrownToggle = TradeTab:CreateToggle({
+    Name = "Auto Trade FullGrown, luminous Neons and Megas",
+    CurrentValue = false,
+    Flag = "Toggle1",
+    Callback = function(Value)
+        getgenv().auto_trade_fullgrown_neon_and_mega = Value
+        while getgenv().auto_trade_fullgrown_neon_and_mega do
+            sendTradeRequest()
+
+            for _, pet in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
+                if (pet.properties.age == 6 or pet.properties.neon) or pet.properties.mega_neon then
+                    ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
+                    if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items >= 18 then
+                        break
+                    end
+                    task.wait(0.1)
+                end
+            end
+
+            AcceptNegotiationAndConfirm("fullgrownToggle")
+            task.wait()
+        end
+    end,
+})
+
+-- (pet.properties.age == 6 or pet.properties.neon) or pet.properties.mega_neon
+TradeTab:CreateToggle({
+    Name = "Auto Trade All Megas",
+    CurrentValue = false,
+    Flag = "Toggle1",
+    Callback = function(Value)
+        getgenv().auto_trade_all_neons = Value
+        autoTradeAllNeons("mega_neon")
+    end,
+})
+
+TradeTab:CreateToggle({
+    Name = "Auto Trade All Neons",
+    CurrentValue = false,
+    Flag = "Toggle1",
+    Callback = function(Value)
+        getgenv().auto_trade_all_neons = Value
+        autoTradeAllNeons("neon")
+    end,
+})
+
+TradeTab:CreateToggle({
+    Name = "Auto Trade Common to Ultra-rare and Newborn to Post-Teen",
+    CurrentValue = false,
+    Flag = "Toggle1",
+    Callback = function(Value)
+        getgenv().auto_trade_lowtier_pets = Value
+        autoTradeLowTierPets()
+    end,
+})
+
+TradeTab:CreateSection("Send Custom Pet, sends ALL ages of selected pet")
+
+
+petsTable = getPetsName()
+
+local PetsDropdown = TradeTab:CreateDropdown({
+    Name = "Select a Pet",
+    Options = petsTable,
+    CurrentOption = {petsTable[1]},
+    MultipleOptions = false,
+    Flag = "Dropdown1",
+    Callback = function(Option)
+        selectedItem = Option[1]
+    end,
+})
+
+-- Auto:AddToggle({
+--     Name = "Auto Trade Custom Pet",
+--     Callback = function(value)
+--         getgenv().auto_trade_custom = value
+--         autoTradeCustomTab("pets")
+--     end    
+-- })
+
+-- Auto:AddSection({
+--     Name = "Send Gifts"
+-- })
+
+
+-- local GiftsDropdown = Auto:AddDropdown({
+--     Name = "Select gift",
+--     Callback = function(value)
+--         selectedItem = value
+--     end
+-- })
+
+
+-- Auto:AddButton({
+--     Name = "Refresh Gift List",
+--     Callback = function()
+--         refreshInventory("gifts", GiftsDropdown)
+--     end
+-- })
+
+
+-- Auto:AddToggle({
+--     Name = "Auto Trade Custom Gift",
+--     Callback = function(value)
+--         getgenv().auto_trade_custom = value
+--         autoTradeCustomTab("gifts")
+--     end    
+-- })
+
+
+-- Auto:AddSection({
+--     Name = "Send Toys"
+-- })
+
+
+-- local ToysDropdown = Auto:AddDropdown({
+--     Name = "Select toys",
+--     Callback = function(value)
+--         selectedItem = value
+--     end
+-- })
+
+
+-- Auto:AddButton({
+--     Name = "Refresh toys List",
+--     Callback = function()
+--         refreshInventory("toys", ToysDropdown)
+--     end
+-- })
+
+
+-- Auto:AddToggle({
+--     Name = "Auto Trade Custom Toy",
+--     Callback = function(value)
+--         getgenv().auto_trade_custom = value
+--         autoTradeCustomTab("toys")
+--     end    
+-- })
+
+
+-- Auto:AddSection({
+--     Name = "Send food"
+-- })
+
+
+-- local ToysDropdown = Auto:AddDropdown({
+--     Name = "Select food",
+--     Callback = function(value)
+--         selectedItem = value
+--     end
+-- })
+
+
+-- Auto:AddButton({
+--     Name = "Refresh food List",
+--     Callback = function()
+--         refreshInventory("food", ToysDropdown)
+--     end
+-- })
+
+
+-- Auto:AddToggle({
+--     Name = "Auto Trade Custom Food",
+--     Callback = function(value)
+--         getgenv().auto_trade_custom = value
+--         autoTradeCustomTab("food")
+--     end    
+-- })
+
+-- --// Buying Tabs //--
+
+-- local Buy = Window:MakeTab({
+--     Name = "Auto Buy",
+--     Icon = "rbxassetid://259820115",
+--     PremiumOnly = false
+-- })
+
+
+-- Buy:AddTextbox({
+--     Name = "Enter How many to buy",
+--     TextDisappear = false,
+--     Callback = function(value)
+--         howmany = value
+--     end  
+-- })
+
+
+-- local egg1 = "desert_2024_egg"
+-- Buy:AddButton({
+--     Name = tostring(inventoryDB.pets[egg1].name.." - "..inventoryDB.pets[egg1].cost.." - "..(inventoryDB.pets[egg1].currency_id or "bucks")),
+--     Callback = function()
+--         for i = 1, (howmany or 1) do
+--             ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", egg1, {})
+--             task.wait()
+--         end
+--     end
+-- })
+
+
+-- --// things needed when joining game for the first time
+
+-- local NewAlt = Window:MakeTab({
+--     Name = "New alt",
+--     Icon = "rbxassetid://259820115",
+--     PremiumOnly = false
+-- })
+
+
+-- NewAlt:AddButton({
+--     Name = "Complete Starter Tutorial",
+--     Callback = function()
+--         completeStarterTutorial()
+--     end
+-- })
+
+
+-- NewAlt:AddButton({
+--     Name = "Get Trade License",
+--     Callback = function()
+--         getTradeLicense()
+--     end
+-- })
+
+
+-- NewAlt:AddButton({
+--     Name = "Buy Basic Crib",
+--     Callback = function()
+--         buyCrib()
+--     end
+-- })
+
+
+-- local ClipBoard = Window:MakeTab({
+--     Name = "ClipBoard",
+--     Icon = "rbxassetid://259820115",
+--     PremiumOnly = false
+-- })
+
+
+-- ClipBoard:AddButton({
+--     Name = "Copy All Inventory to clipboard",
+--     Callback = function()
+--         task.spawn(function()
+--             clipBoardInventory()
+--         end)
+--     end
+-- })
+
+-- -- AGE UP POTIONS TAB
+
+-- local AgeUpPotion = Window:MakeTab({
+--     Name = "Age Up Potion",
+--     Icon = "rbxassetid://259820115",
+--     PremiumOnly = false
+-- })
+
+-- local PetsDropdown3 = AgeUpPotion:AddDropdown({
+--     Name = "Select a Pet",
+--     Callback = function(value)
+--         selectedItem = value
+--     end
+-- })
+
+
+-- AgeUpPotion:AddButton({
+--     Name = "Refresh Pet List",
+--     Callback = function()
+--         refreshInventory("pets", PetsDropdown3)
+--     end
+-- })
+
+
+-- getgenv().PotionToggle = AgeUpPotion:AddToggle({
+--     Name = "Click to Age up Pet",
+--     Callback = function(value)
+--         getgenv().feedAgeUpPotionToggle = value
+--         AgeUpPotionLevelUp()
+--     end
+-- })
+
+Rayfield:Minimise()
