@@ -1254,9 +1254,9 @@ local function getPet()
                 agePotion("tiny_pet_age_potion")
         
             elseif v["entry_name"]:match("celestial_2024_large_buy_gumball_egg") then
-                TeleportNursery()
-                task.wait(1)
-                ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", Egg2Buy, {})
+                -- TeleportNursery()
+                -- task.wait(1)
+                -- ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", Egg2Buy, {})
 
             elseif v["entry_name"]:match("celestial_2024_large_ailments_common") then
                 if getCommon() then return end
@@ -2805,6 +2805,7 @@ end
 
 -----------          UI  Functions           ------------------
 
+local Rayfield = loadstring(game:HttpGet('https://raw.githubusercontent.com/Arroz-con/Rayfield/main/source'))()
 local Window = Rayfield:CreateWindow({
     Name = "Rayfield Example Window",
     LoadingTitle = "Rayfield Interface Suite",
