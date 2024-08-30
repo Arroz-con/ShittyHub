@@ -64,7 +64,7 @@ local Remote = Bypass("RouterClient").get("HousingAPI/ActivateFurniture")
 local ClaimRemote = Bypass("RouterClient").get("QuestAPI/ClaimQuest")
 local RerollRemote = Bypass("RouterClient").get("QuestAPI/RerollQuest")
 
-local Clipboard = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/stuff/ClipboardPetsInfo.lua"))()
+local Clipboard = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/ClipboardPetsInfo.lua"))()
 
 repeat task.wait(1) until Bypass("ClientData").get_data()[Player.Name].loaded_in == true
 
@@ -2754,9 +2754,9 @@ WelcomeScreen:Disconnect()
 
 
 
--- loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Barn.lua"))()
--- loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/BeetleTradeIn.lua"))()
--- loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Sunshine.lua"))()
+-- loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Barn.lua"))()
+-- loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/BeetleTradeIn.lua"))()
+-- loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Sunshine.lua"))()
 
 -- local tele = fluxus or codex or arceusx
 
