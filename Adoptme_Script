@@ -64,6 +64,8 @@ local Remote = Bypass("RouterClient").get("HousingAPI/ActivateFurniture")
 local ClaimRemote = Bypass("RouterClient").get("QuestAPI/ClaimQuest")
 local RerollRemote = Bypass("RouterClient").get("QuestAPI/RerollQuest")
 
+local Clipboard = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/stuff/ClipboardPetsInfo.lua"))()
+
 repeat task.wait(1) until Bypass("ClientData").get_data()[Player.Name].loaded_in == true
 
 local TestGui = Instance.new("ScreenGui")
@@ -88,8 +90,8 @@ TextButton.AnchorPoint = Vector2.new(0.5, 0.5)
 TextButton.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
 TextButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
 TextButton.BorderSizePixel = 0
-TextButton.Position = UDim2.new(0.82, 0, 0.93, 0)
-TextButton.Size = UDim2.new(0.100000001, 0, 0.100000001, 0)
+TextButton.Position = UDim2.new(0.65, 0, 0.91, 0)
+TextButton.Size = UDim2.new(0.1, 0, 0.1, 0)
 TextButton.Font = Enum.Font.SourceSans
 TextButton.TextColor3 = Color3.fromRGB(0, 0, 0)
 TextButton.TextScaled = true
@@ -831,107 +833,6 @@ local function getPetsName()
     return petsTable
 end
 
-local function clipBoardInventory()
-    local petsTable = {}
-    local petAccessoriesTable = {}
-    local strollersTable = {}
-    local foodTable = {}
-    local transportTable = {}
-    local toysTable = {}
-    local giftsTable = {}
-    local allInventory = ""
-
-    local function getInventoryInfo(tab, tablePassOn)
-        for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory[tab]) do
-            if v.id == "practice_dog" then continue end
-            tablePassOn[v.id] = (tablePassOn[v.id] or 0) + 1
-        end
-    end
-
-    local function getTable(inventoryPassOn, tablePassOn, namePassOn)
-        for i, v in tablePassOn do
-            for _, v2 in inventoryDB[inventoryPassOn] do
-                if i == tostring(v2.id) then
-                    allInventory = allInventory.."["..namePassOn.."] "..v2.name.." x"..v.."\n"
-                end
-            end
-        end
-    end
-
-    local function getAgeupPotionInfo()
-        local count = 0
-        for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
-            if v.id == "pet_age_potion" then
-                count += 1
-            end
-        end
-        return count
-    end
-
-    local function getTokenInfo()
-        local count = 0
-        for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.toys) do
-            if v.id == "sunshine_2024_sunshine_token" then
-                count += 1
-            end
-        end
-        return count
-    end
-
-    local function addComma(amount)
-        local formatted = amount
-        local k
-        while true do
-            formatted, k = string.gsub(formatted, "^(-?%d+)(%d%d%d)", '%1,%2')
-            if k == 0 then
-                break
-            end
-        end
-        return formatted
-    end
-
-    local function getBucksInfo()
-        local potions = getAgeupPotionInfo()
-        -- local tokens = getTokenInfo() or 0
-        local potionAmount = potions * 0.04
-
-        -- local ponyPassLevel = Bypass("ClientData").get_data()[Player.Name].battle_pass_manager.show_horse.rewards_claimed
-        -- local tickets = Bypass("ClientData").get_data()[Player.Name].tickets_2024
-        local bucks = Bypass("ClientData").get_data()[Player.Name].money or 0
-        local shards = Bypass("ClientData").get_data()[Player.Name].galactic_shards_2024 or 0
-        allInventory = allInventory..`{potions} Age-up Potions + {addComma(bucks)} Bucks + {shards} Galactic Shards | Adopt me\n`
-
-        -- local cash = tonumber(bucks) * 0.000037
-
-        -- local currency = string.gsub(Player.PlayerGui.AltCurrencyIndicatorApp.CurrencyIndicator.Container.Amount.Text, ",", "")
-        -- local eventCurrency = tonumber(currency) * 0.0000035714  -- $0.05 each box at 14,000 currency per box
-        local formatNumber = string.format("%.2f", (potionAmount))
-
-        allInventory = allInventory..`sell for ${tostring(formatNumber)}  {Player.Name}\n\n`
-    end
-    
-
-    getInventoryInfo("pets", petsTable)
-    getInventoryInfo("pet_accessories", petAccessoriesTable)
-    getInventoryInfo("strollers", strollersTable)
-    getInventoryInfo("food", foodTable)
-    getInventoryInfo("transport", transportTable)
-    getInventoryInfo("toys", toysTable)
-    getInventoryInfo("gifts", giftsTable)
-
-    getBucksInfo()
-    getTable("pets", petsTable, "PET")
-    getTable("pet_accessories", petAccessoriesTable, "PET_ACCESSORIE")
-    getTable("strollers", strollersTable, "STROLLER")
-    getTable("food", foodTable, "FOOD")
-    getTable("transport", transportTable, "TRANSPORT")
-    getTable("toys", toysTable, "TOY")
-    getTable("gifts", giftsTable, "GIFT")
-
-
-    setclipboard(allInventory)
-    print("copied")
-end
 
 -- UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
 --     if input.KeyCode == Enum.KeyCode.Q then
@@ -1579,9 +1480,9 @@ end
 -- end
 
 local function removeHandHeldItem()
-    local tool = Player.Character:FindFirstChild("PotionTool") or Player.Character:FindFirstChild("MessageTool")
+    local tool = Player.Character:FindFirstChildOfClass("Tool")
     if tool then
-        ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(tool.unique.Value, {["use_sound_delay"] = true})
+        ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(tool.unique.Value, {})
     end
 end
 
@@ -2852,7 +2753,7 @@ WelcomeScreen:Disconnect()
 -- RobuxProductDialogConnection:Disconnect()
 
 
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/stuff/ClipboardPetsInfo.lua"))()
+
 -- loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Barn.lua"))()
 -- loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/BeetleTradeIn.lua"))()
 -- loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Sunshine.lua"))()
@@ -2948,14 +2849,23 @@ end)
 
 -- Rayfield:Hide()
 
-local FarmTab = Window:CreateTab("Auto Farm", 4483362458)
+--[[ First Tab ]]
+local FarmTab = Window:CreateTab("Misc", 4483362458)
 
 FarmTab:CreateButton({
     Name = "Copy All Inventory to clipboard",
     Callback = function()
-        clipBoardInventory()
+        Clipboard:CopyAllInventory()
     end,
 })
+
+FarmTab:CreateButton({
+    Name = "Detailed Pet Inventory clipboard",
+    Callback = function()
+        Clipboard:CopyPetInfo()
+    end,
+})
+
 
 -- local FarmToggle = FarmTab:CreateToggle({
 --     Name = "Auto Farm",
@@ -3016,11 +2926,11 @@ getgenv().AutoTradeToggle = TradeTab:CreateToggle({
 local playerDropdown = TradeTab:CreateDropdown({
     Name = "Select a player",
     Options = getPlayersInGame(),
-    CurrentOption = {(getPlayersInGame()[1] or "")},
+    CurrentOption = {""},
     MultipleOptions = false,
     Flag = "Dropdown1",
     Callback = function(Option)
-        selectedPlayer = Option[1]
+        selectedPlayer = Players[Option[1]]
     end,
 })
 
@@ -3259,7 +3169,7 @@ TradeTab:CreateToggle({
 
 --[[ things needed when joining game for the first time ]]
 
-local NewAltTab = Window:CreateTab("Auto Trade", 4483362458)
+local NewAltTab = Window:CreateTab("New Alts", 4483362458)
 
 NewAltTab:CreateButton({
     Name = "Complete Starter Tutorial",
