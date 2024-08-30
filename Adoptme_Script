@@ -51,7 +51,7 @@ local ClaimTable = {["hatch_three_eggs"] = {3}, ["fully_age_three_pets"] = {3}, 
 ["celestial_2024_medium_ailments"] = {15}, ["celestial_2024_large_ailments_rare"] = {30}, ["celestial_2024_large_ailments_ultra_rare"] = {30},
 ["celestial_2024_small_hatch_egg"] = {1}, ["celestial_2024_large_buy_gumball_egg"] = {1}, ["celestial_2024_medium_ailment_salon_dirty"] ={2},
 ["celestial_2024_large_ailments_legendary"] = {30}, ["celestial_2024_medium_ailment_beach_party_camping_bored"] = {3}, ["celestial_2024_large_ailments_common"] = {30},
-["celestial_2024_large_ailments_uncommon"] = {30}, ["celestial_2024_large_ailments"] = {30}, ["celestial_2024_small_age_potion_drink"] = {1},
+["celestial_2024_large_ailments_uncommon"] = {30}, ["celestial_2024_large_ailments"] = {30}, ["celestial_2024_small_age_potion_drank"] = {1},
 ["celestial_2024_large_small_ailment_orange"] = {1}, ["celestial_2024_small_ailment_hungry_thirsty"] = {2}, ["celestial_2024_medium_ailment_hungry_sleepy_bored"] = {3},
 ["celestial_2024_medium_hatch_egg"] = {3}}
 
@@ -189,21 +189,16 @@ local function completeStarterTutorial()
     end)
 end
 
-
 local function findFurniture()
-    for _, v in pairs(game:GetService("Workspace").HouseInteriors.furniture:GetDescendants()) do
-        if v.Name == "BasicCrib" then
-            Bed = v.Parent.Name:match("%a+-%d+")
-
-        elseif v.Name == "StylishShower" or v.Name == "ModernShower" then
-            Shower = v.Parent.Name:match("%a+-%d+")
-
-        elseif v.Name == "Piano" then
-            Piano = v.Parent.Name:match("%a+-%d+")
-
-        elseif v.Name == "Lures2023NormalLure" then
-            normalLure = v.Parent.Name:match("%a+-%d+")
-
+    for key, value in Bypass("ClientData").get_data()[Player.Name].house_interior.furniture do
+        if value.id == "basiccrib" then
+            Bed = key
+        elseif value.id == "stylishshower" or value.id == "modernshower" then
+            Shower = key
+        elseif value.id == "piano" then
+            Piano = key
+        elseif value.id == "lures2023normallure" then
+            normalLure = key
         end
     end
 end
@@ -825,12 +820,12 @@ local function getPlayersInGame()
 end
 
 local function getPetsName()
-    local petsTable = {}
-    for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
+    petsTable = {}
+    for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
         if v.id == "practice_dog" then continue end
+        if table.find(petsTable, v.id) then continue end
         table.insert(petsTable, v.id)
     end
-    return petsTable
 end
 
 
@@ -1241,8 +1236,8 @@ local function TeleportNursery()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
     SetLocationFunc("Nursery", "MainDoor", {})
     task.wait(1)
-    game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
-    Player.Character.PrimaryPart.CFrame = game:GetService("Workspace").Interiors.Nursery:WaitForChild("InteriorOrigin").CFrame + Vector3.new(0, 10, 0)
+    game.Workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
+    Player.Character.PrimaryPart.CFrame = workspace.Interiors.Nursery:WaitForChild("GumballSignOrigin").CFrame + Vector3.new(0, 10, 0)
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
     Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
     Player.Character.Humanoid.WalkSpeed = 0
@@ -2810,7 +2805,6 @@ end
 
 -----------          UI  Functions           ------------------
 
-local Rayfield = loadstring(game:HttpGet('https://raw.githubusercontent.com/Arroz-con/Rayfield/main/source'))()
 local Window = Rayfield:CreateWindow({
     Name = "Rayfield Example Window",
     LoadingTitle = "Rayfield Interface Suite",
@@ -3078,7 +3072,7 @@ TradeTab:CreateToggle({
 TradeTab:CreateSection("Send Custom Pet, sends ALL ages of selected pet")
 
 
-petsTable = getPetsName()
+getPetsName()
 
 local PetsDropdown = TradeTab:CreateDropdown({
     Name = "Select a Pet",
@@ -3193,21 +3187,20 @@ NewAltTab:CreateButton({
 })
 
 
--- -- AGE UP POTIONS TAB
+--[[ AGE UP POTIONS TAB ]]
 
--- local AgeUpPotion = Window:MakeTab({
---     Name = "Age Up Potion",
---     Icon = "rbxassetid://259820115",
---     PremiumOnly = false
--- })
+local AgeUpPotionTab = Window:CreateTab("Age Potion", 4483362458)
 
--- local PetsDropdown3 = AgeUpPotion:AddDropdown({
---     Name = "Select a Pet",
---     Callback = function(value)
---         selectedItem = value
---     end
--- })
-
+local PetsDropdown3 = AgeUpPotionTab:CreateDropdown({
+    Name = "Select a Pet",
+    Options = petsTable,
+    CurrentOption = {""}, -- need to change to food table
+    MultipleOptions = false,
+    Flag = "Dropdown1",
+    Callback = function(Option)
+        selectedItem = Option[1]
+    end,
+})
 
 -- AgeUpPotion:AddButton({
 --     Name = "Refresh Pet List",
@@ -3216,14 +3209,15 @@ NewAltTab:CreateButton({
 --     end
 -- })
 
-
--- getgenv().PotionToggle = AgeUpPotion:AddToggle({
---     Name = "Click to Age up Pet",
---     Callback = function(value)
---         getgenv().feedAgeUpPotionToggle = value
---         AgeUpPotionLevelUp()
---     end
--- })
+getgenv().PotionToggle = AgeUpPotionTab:CreateToggle({
+    Name = "Click to Age up Pet",
+    CurrentValue = false,
+    Flag = "Toggle1",
+    Callback = function(Value)
+        getgenv().feedAgeUpPotionToggle = Value
+        AgeUpPotionLevelUp()
+    end,
+})
 
 local function refreshInventory(tab: string, dropDownName: string)
     local petOptions = {}
