@@ -1777,12 +1777,12 @@ local function autoFarm()
                 break
             elseif v["id"] == "thirsty" then
                 FoodAilments("water")
-                -- change every week celestial_2024_pass_2
-                local rewards_claimed = Bypass("ClientData").get_data()[Player.Name].battle_pass_manager.celestial_2024_pass_2.rewards_claimed
-                ReplicatedStorage.API["BattlePassAPI/ClaimReward"]:InvokeServer("celestial_2024_pass_2", tonumber(rewards_claimed) + 1)
+                -- change every week celestial_2024_pass_3
+                local rewards_claimed = Bypass("ClientData").get_data()[Player.Name].battle_pass_manager.celestial_2024_pass_3.rewards_claimed
+                ReplicatedStorage.API["BattlePassAPI/ClaimReward"]:InvokeServer("celestial_2024_pass_3", tonumber(rewards_claimed) + 1)
                 task.wait(1)
                 if rewards_claimed >= 20 then
-                    ReplicatedStorage.API["BattlePassAPI/AttemptBattlePassReset"]:InvokeServer("celestial_2024_pass_2")
+                    ReplicatedStorage.API["BattlePassAPI/AttemptBattlePassReset"]:InvokeServer("celestial_2024_pass_3")
                 end
                 
                 break
@@ -2063,9 +2063,9 @@ local function autoFarm()
                 for _, v in Player.PlayerGui.BattlePassApp.Body.InnerBody.ScrollingFrame:GetChildren() do
                     if not v:FindFirstChild("ButtonFrame") then continue end
                     if v.ButtonFrame:FindFirstChild("ClaimButton") then
-                        ReplicatedStorage.API["BattlePassAPI/ClaimReward"]:InvokeServer("celestial_2024_pass_2", tonumber(v.Name) - 1)
+                        ReplicatedStorage.API["BattlePassAPI/ClaimReward"]:InvokeServer("celestial_2024_pass_3", tonumber(v.Name) - 1)
                         task.wait(1)
-                        ReplicatedStorage.API["BattlePassAPI/ClaimReward"]:InvokeServer("celestial_2024_pass_2", tonumber(v.Name))
+                        ReplicatedStorage.API["BattlePassAPI/ClaimReward"]:InvokeServer("celestial_2024_pass_3", tonumber(v.Name))
                     end
                 end
 
