@@ -1237,7 +1237,7 @@ local function TeleportNursery()
     SetLocationFunc("Nursery", "MainDoor", {})
     task.wait(1)
     game.Workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
-    Player.Character.PrimaryPart.CFrame = workspace.Interiors.Nursery:WaitForChild("GumballSignOrigin").CFrame + Vector3.new(0, 10, 0)
+    Player.Character.PrimaryPart.CFrame = workspace.Interiors.Nursery:WaitForChild("GumballMachine"):WaitForChild("Root").CFrame + Vector3.new(-8, 10, 0)
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
     Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
     Player.Character.Humanoid.WalkSpeed = 0
@@ -1252,12 +1252,12 @@ local function getPet()
                 
             elseif v["entry_name"]:match("celestial_2024_small_age_potion_drank") then
                 agePotion("tiny_pet_age_potion")
-        
+                break
             elseif v["entry_name"]:match("celestial_2024_large_buy_gumball_egg") then
-                -- TeleportNursery()
-                -- task.wait(1)
-                -- ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", Egg2Buy, {})
-
+                TeleportNursery()
+                task.wait(1)
+                ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", Egg2Buy, {})
+                break
             elseif v["entry_name"]:match("celestial_2024_large_ailments_common") then
                 if getCommon() then return end
                 if getEgg() then return end
@@ -1502,6 +1502,8 @@ end
 
 local function AgeUpPotionLevelUp()
     local sameUnqiue
+    local count = 0
+
     local function equipPet()
         -- checks inventory for neon pet
         for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.pets) do
@@ -1523,7 +1525,7 @@ local function AgeUpPotionLevelUp()
     local function feedAgePotion()
         for _, v in pairs(require(ReplicatedStorage.ClientModules.Core.ClientData).get_data()[Player.Name].inventory.food) do
             if v.id == "pet_age_potion" then
-                if sameUnqiue == v.unique then return true end
+                if sameUnqiue == v.unique then return true end -- means the same age potion is still in inventory
                 sameUnqiue = v.unique
                 ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(v.unique, Bypass("ClientData").get("pet_char_wrappers")[1].pet_unique)
                 return true
