@@ -1256,7 +1256,7 @@ local function getPet()
             elseif v["entry_name"]:match("celestial_2024_large_buy_gumball_egg") then
                 TeleportNursery()
                 task.wait(1)
-                ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", Egg2Buy, {})
+                ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", "garden_2024_egg", {})
                 break
             elseif v["entry_name"]:match("celestial_2024_large_ailments_common") then
                 if getCommon() then return end
