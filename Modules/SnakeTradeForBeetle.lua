@@ -28,7 +28,7 @@ local function turnInPet()
     ReplicatedStorage.API["HousingAPI/ActivateInteriorFurniture"]:InvokeServer(unpack(args))
 end
 
-ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("Garden2024SecretGarden")
+-- ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("Garden2024SecretGarden")
 
 -- repeat
 --     local hasUnique = getSnakeUnique()
