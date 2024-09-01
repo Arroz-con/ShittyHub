@@ -28,18 +28,15 @@ local function turnInPet()
     ReplicatedStorage.API["HousingAPI/ActivateInteriorFurniture"]:InvokeServer(unpack(args))
 end
 
+-- main
 ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("Garden2024SecretGarden")
 
--- repeat
---     local hasUnique = getSnakeUnique()
---     if hasUnique then
---         turnInPet()
---     end
---     task.wait(1)
--- until not hasUnique
-
-local hasUnique = getSnakeUnique()
-if hasUnique then
-    turnInPet()
-end
 task.wait(1)
+
+repeat
+    local hasUnique = getSnakeUnique()
+    if hasUnique then
+        turnInPet()
+    end
+    task.wait(1)
+until not hasUnique
