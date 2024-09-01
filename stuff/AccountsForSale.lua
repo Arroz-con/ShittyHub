@@ -85,7 +85,7 @@ getgenv().SETTINGS = {
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Adoptme_Script"))()
 
----[[
+--[[
 local petToBuyId = "celestial_2024_glormy_leo"
 local howMany = 8
 
@@ -102,6 +102,7 @@ end
 buyPet(petToBuyId, howMany)
 --]]
 
+--[[
 local Bypass = require(game.ReplicatedStorage:WaitForChild("Fsys", 600)).load
 local Player = game:GetService("Players").LocalPlayer
 local selectedItem = "celestial_2024_glormy_leo"
@@ -170,3 +171,5 @@ while true do
     end
     task.wait(1)
 end
+
+]]
