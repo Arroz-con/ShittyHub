@@ -44,6 +44,7 @@ function Teleport.MainMap()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
     Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
     Player.Character.Humanoid.WalkSpeed = 0
+    task.wait(2)
 end
 
 function Teleport.Nursery()
