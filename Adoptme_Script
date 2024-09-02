@@ -2342,6 +2342,43 @@ end
 --         end
 --     end
 -- end
+local function autoTradeLowTierLegendary()
+    task.spawn(function()
+        while task.wait(0.5) do
+            if not getgenv().auto_trade_lowtier_pets then return end
+            pcall(function()
+                repeat
+                    if not Player.PlayerGui.TradeApp.Frame.Visible then
+                        ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(selectedPlayer)
+                    end
+
+                    ClickTradeWindowPopUps()
+                    task.wait(1)
+                until Player.PlayerGui.TradeApp.Frame.Visible
+                ClickTradeWindowPopUps()
+                
+                local petCounter = 0   
+                for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
+                    for _, petsDB_lowtierpets in pairs(Pets_commonto_ultrarare) do
+                        if pet.id == petsDB_lowtierpets and pet.properties.age <=5 and not pet.properties.neon and not pet.properties.mega_neon then
+                            ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
+                            petCounter = petCounter + 1
+                            if petCounter >= 18 then
+                                break
+                            end
+                        end
+                    end
+                end
+
+                ClickTradeWindowPopUps()
+                ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
+                task.wait()
+                ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
+                petCounter = 0
+            end)
+        end
+    end)
+end
 
 
 local function autoTradeLowTierPets()
@@ -3059,6 +3096,16 @@ TradeTab:CreateToggle({
     Callback = function(Value)
         getgenv().auto_trade_all_neons = Value
         autoTradeAllNeons("neon")
+    end,
+})
+
+TradeTab:CreateToggle({
+    Name = "Auto Trade Legendary from Newborn to Post-Teen",
+    CurrentValue = false,
+    Flag = "Toggle1",
+    Callback = function(Value)
+        getgenv().auto_trade_lowtier_pets = Value
+        autoTradeLowTierLegendary()
     end,
 })
 
