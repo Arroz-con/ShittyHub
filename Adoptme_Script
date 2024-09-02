@@ -2359,7 +2359,7 @@ local function autoTradeLowTierLegendary()
                 
                 local petCounter = 0   
                 for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
-                    for _, petsDB_lowtierpets in pairs(Pets_commonto_ultrarare) do
+                    for _, petsDB_lowtierpets in pairs(pets_legendary) do
                         if pet.id == petsDB_lowtierpets and pet.properties.age <=5 and not pet.properties.neon and not pet.properties.mega_neon then
                             ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
                             petCounter = petCounter + 1
