@@ -51,8 +51,7 @@ function Fusion:MakeNeon()
 
     for i, v in fullgrownTable do
         for k, v2 in v.unique do
-            print(k, v2)
-            print("---")
+            print(v, k, v2)
         end
     end
     -- for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
