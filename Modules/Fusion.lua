@@ -1,7 +1,7 @@
-local ReplicatedStorage = game:getservice("ReplicatedStorage")
-local Players = game:getservice("Players")
-local Bypass = require(ReplicatedStorage:WaitForChild("Fsys", 600)).load
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
 
+local Bypass = require(ReplicatedStorage:WaitForChild("Fsys", 600)).load
 local Player = Players.LocalPlayer
 
 local Fusion = {}
