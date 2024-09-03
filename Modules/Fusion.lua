@@ -29,13 +29,12 @@ local function getFullgrownPets(mega: boolean): table
         for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
             if v.properties.age == 6 and not v.properties.neon and not v.properties.mega_neon then
                 if not fullgrownTable[v.id] then
-                    fullgrownTable[v.id] = {["count"] = 0, ["unique"] = v.unique}
-                else
-                    table.insert(fullgrownTable[v.id]["unique"], v.unique)
-                    fullgrownTable[v.id]["count"] += 1
-                    if fullgrownTable[v.id]["count"] >= 4 then
-                        break
-                    end
+                    fullgrownTable[v.id] = {["count"] = 0, ["unique"] = {}}
+                end
+                table.insert(fullgrownTable[v.id]["unique"], v.unique)
+                fullgrownTable[v.id]["count"] += 1
+                if fullgrownTable[v.id]["count"] >= 4 then
+                    break
                 end
             end
         end
