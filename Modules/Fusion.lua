@@ -51,8 +51,9 @@ function Fusion:MakeNeon()
     local fullgrownTable = getFullgrownPets(false)
 
     for i, v in fullgrownTable do
-        for k, v2 in v do
+        for k, v2 in v.unique do
             print(k, v2)
+            print("---")
         end
     end
     -- for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
