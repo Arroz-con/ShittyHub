@@ -48,8 +48,12 @@ function Fusion:MakeNeon()
 
     local fullgrownTable = getFullgrownPets(true)
 
-    for i, v in fullgrownTable do
-        print(i, v)
+    for nameId, valueTable in fullgrownTable do
+        if valueTable.count >= 4 then
+            print(valueTable.unique)
+            print(valueTable.unique[1])
+            print(valueTable.unique[2])
+        end
     end
 
     -- if #fusionReady >= 4 then
