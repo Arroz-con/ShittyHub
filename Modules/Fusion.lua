@@ -44,17 +44,27 @@ end
 
 
 function Fusion:MakeNeon()
+    local fusionReady = {}
     local fullgrownTable = getFullgrownPets(true)
 
 
 
     for _, v in fullgrownTable do
-        print(v.id)
-        for k, v2 in v.unique do
-            print(v.id, k, v2)
+        for count, _ in v.unique do
+            if tonumber(count) >= 4 then
+                table.insert(v.unique[1])
+                table.insert(v.unique[2])
+                table.insert(v.unique[3])
+                table.insert(v.unique[4])
+            end
         end
     end
 
+    if #fusionReady >= 4 then
+        print("fusion")
+        ReplicatedStorage.API:FindFirstChild("PetAPI/DoNeonFusion"):InvokeServer({unpack(fusionReady)})
+    end
+    print("finished")
     -- for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
     --     if v.id == maketoneon[1] and v.properties.age == 6 and not v.properties.neon and not v.properties.mega_neon then
     --         table.insert(maketoneonnow, v.unique)
