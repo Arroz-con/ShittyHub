@@ -44,7 +44,7 @@ end
 
 
 function Fusion:MakeNeon()
-    local fullgrownTable = getFullgrownPets(false)
+    local fullgrownTable = getFullgrownPets(true)
 
 
 
