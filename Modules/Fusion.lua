@@ -6,7 +6,6 @@ local Player = Players.LocalPlayer
 
 local Fusion = {}
 
-
 local function getFullgrownPets(mega: boolean): table
     local fullgrownTable = {}
 
@@ -30,10 +29,12 @@ local function getFullgrownPets(mega: boolean): table
             if v.properties.age == 6 and not v.properties.neon and not v.properties.mega_neon then
                 if not fullgrownTable[v.id] then
                     fullgrownTable[v.id] = {["count"] = 0, ["unique"] = {}}
-                end
-                table.insert(fullgrownTable[v.id]["unique"], v.unique)
-                if #fullgrownTable[v.id]["unique"] >= 4 then
-                    break
+                else
+                    table.insert(fullgrownTable[v.id]["unique"], v.unique)
+                    fullgrownTable[v.id]["count"] += 1
+                    if fullgrownTable[v.id]["count"] >= 4 then
+                        break
+                    end
                 end
             end
         end
@@ -43,10 +44,10 @@ local function getFullgrownPets(mega: boolean): table
 end
 
 
-function Fusion:MakeNeon()
+function Fusion:MakeMega(bool: boolean)
     local fusionReady = {}
 
-    local fullgrownTable = getFullgrownPets(true)
+    local fullgrownTable = getFullgrownPets(bool)
 
     for _, valueTable in fullgrownTable do
         if valueTable.count >= 4 then
@@ -59,23 +60,8 @@ function Fusion:MakeNeon()
     end
 
     if #fusionReady >= 4 then
-        print("fusion")
         ReplicatedStorage.API:FindFirstChild("PetAPI/DoNeonFusion"):InvokeServer({unpack(fusionReady)})
     end
-    print("finished")
-    -- for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
-    --     if v.id == maketoneon[1] and v.properties.age == 6 and not v.properties.neon and not v.properties.mega_neon then
-    --         table.insert(maketoneonnow, v.unique)
-    --         fullgrownCounter = fullgrownCounter + 1
-    --         if fullgrownCounter == 4 then
-    --             fullgrownCounter = 0
-    --             break
-    --         end
-    --     end
-    -- end
-
-    
-    -- ReplicatedStorage.API:FindFirstChild("PetAPI/DoNeonFusion"):InvokeServer({unpack(maketoneonnow)})
 
 end
 
