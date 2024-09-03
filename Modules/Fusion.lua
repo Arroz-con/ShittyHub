@@ -14,7 +14,7 @@ local function getFullgrownPets(mega: boolean): table
         for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
             if v.properties.age == 6 and v.properties.neon then
                 if not fullgrownTable[v.id] then
-                    fullgrownTable[v.id] = {["count"] = 0, ["unique"] = {v.unique}}
+                    fullgrownTable[v.id] = {["count"] = 0, ["unique"] = {}}
                 else
                     table.insert(fullgrownTable[v.id]["unique"], v.unique)
                     fullgrownTable[v.id]["count"] += 1
@@ -29,7 +29,7 @@ local function getFullgrownPets(mega: boolean): table
         for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
             if v.properties.age == 6 and not v.properties.neon and not v.properties.mega_neon then
                 if not fullgrownTable[v.id] then
-                    fullgrownTable[v.id] = {["unique"] = {}}
+                    fullgrownTable[v.id] = {["count"] = 0, ["unique"] = {}}
                 end
                 table.insert(fullgrownTable[v.id]["unique"], v.unique)
                 if #fullgrownTable[v.id]["unique"] >= 4 then
@@ -45,25 +45,17 @@ end
 
 function Fusion:MakeNeon()
     local fusionReady = {}
+
     local fullgrownTable = getFullgrownPets(true)
 
-
-
-    for _, v in fullgrownTable do
-        for count, _ in v.unique do
-            if tonumber(count) >= 4 then
-                table.insert(v.unique[1])
-                table.insert(v.unique[2])
-                table.insert(v.unique[3])
-                table.insert(v.unique[4])
-            end
-        end
+    for i, v in fullgrownTable do
+        print(i, v)
     end
 
-    if #fusionReady >= 4 then
-        print("fusion")
-        ReplicatedStorage.API:FindFirstChild("PetAPI/DoNeonFusion"):InvokeServer({unpack(fusionReady)})
-    end
+    -- if #fusionReady >= 4 then
+    --     print("fusion")
+    --     ReplicatedStorage.API:FindFirstChild("PetAPI/DoNeonFusion"):InvokeServer({unpack(fusionReady)})
+    -- end
     print("finished")
     -- for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
     --     if v.id == maketoneon[1] and v.properties.age == 6 and not v.properties.neon and not v.properties.mega_neon then
