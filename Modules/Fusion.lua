@@ -29,11 +29,10 @@ local function getFullgrownPets(mega: boolean): table
         for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
             if v.properties.age == 6 and not v.properties.neon and not v.properties.mega_neon then
                 if not fullgrownTable[v.id] then
-                    fullgrownTable[v.id] = {["count"] = 0, ["unique"] = {}}
+                    fullgrownTable[v.id] = {["unique"] = {}}
                 end
                 table.insert(fullgrownTable[v.id]["unique"], v.unique)
-                fullgrownTable[v.id]["count"] += 1
-                if fullgrownTable[v.id]["count"] >= 4 then
+                if #fullgrownTable[v.id]["unique"] >= 4 then
                     break
                 end
             end
@@ -45,15 +44,17 @@ end
 
 
 function Fusion:MakeNeon()
-    local fusionReady = {}
-
     local fullgrownTable = getFullgrownPets(false)
 
-    for i, v in fullgrownTable do
+
+
+    for _, v in fullgrownTable do
+        print(v.id)
         for k, v2 in v.unique do
-            print(v, k, v2)
+            print(v.id, k, v2)
         end
     end
+
     -- for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
     --     if v.id == maketoneon[1] and v.properties.age == 6 and not v.properties.neon and not v.properties.mega_neon then
     --         table.insert(maketoneonnow, v.unique)
@@ -65,6 +66,7 @@ function Fusion:MakeNeon()
     --     end
     -- end
 
+    
     -- ReplicatedStorage.API:FindFirstChild("PetAPI/DoNeonFusion"):InvokeServer({unpack(maketoneonnow)})
 
 end
