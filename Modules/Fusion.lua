@@ -50,10 +50,10 @@ function Fusion:MakeNeon()
 
     for _, valueTable in fullgrownTable do
         if valueTable.count >= 4 then
-            table.insert(valueTable.unique[1])
-            table.insert(valueTable.unique[2])
-            table.insert(valueTable.unique[3])
-            table.insert(valueTable.unique[4])
+            table.insert(fusionReady, valueTable.unique[1])
+            table.insert(fusionReady, valueTable.unique[2])
+            table.insert(fusionReady, valueTable.unique[3])
+            table.insert(fusionReady, valueTable.unique[4])
             break
         end
     end
