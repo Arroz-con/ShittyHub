@@ -51,7 +51,11 @@ function Fusion:MakeNeon()
     local fullgrownTable = getFullgrownPets(false)
 
     for i, v in fullgrownTable do
-        print(i, v)
+        print(i, v.count)
+        print(v.unique[1])
+        print(v.unique[2])
+        print(v.unique[3])
+        print(v.unique[4])
     end
     -- for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
     --     if v.id == maketoneon[1] and v.properties.age == 6 and not v.properties.neon and not v.properties.mega_neon then
