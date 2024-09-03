@@ -8,7 +8,7 @@ local Player = Players.LocalPlayer
 
 local Rarity = {}
 
-function Rarity:Get(rarity: string, age: number)
+function Rarity:GetPet(rarity: string, age: number)
     local PetageCounter = age or 5
     local isNeon = true
     local petFound = false
