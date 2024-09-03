@@ -45,25 +45,27 @@ end
 
 
 function Fusion:MakeMega(bool: boolean)
-    local fusionReady = {}
+    repeat
+        local fusionReady = {}
 
-    local fullgrownTable = getFullgrownPets(bool)
+        local fullgrownTable = getFullgrownPets(bool)
 
-    for _, valueTable in fullgrownTable do
-        if valueTable.count >= 4 then
-            table.insert(fusionReady, valueTable.unique[1])
-            table.insert(fusionReady, valueTable.unique[2])
-            table.insert(fusionReady, valueTable.unique[3])
-            table.insert(fusionReady, valueTable.unique[4])
-            break
+        for _, valueTable in fullgrownTable do
+            if valueTable.count >= 4 then
+                table.insert(fusionReady, valueTable.unique[1])
+                table.insert(fusionReady, valueTable.unique[2])
+                table.insert(fusionReady, valueTable.unique[3])
+                table.insert(fusionReady, valueTable.unique[4])
+                break
+            end
         end
-    end
 
-    if #fusionReady >= 4 then
-        ReplicatedStorage.API:FindFirstChild("PetAPI/DoNeonFusion"):InvokeServer({unpack(fusionReady)})
-    end
+        if #fusionReady >= 4 then
+            ReplicatedStorage.API:FindFirstChild("PetAPI/DoNeonFusion"):InvokeServer({unpack(fusionReady)})
+        end
 
+    until #fusionReady <= 3
+    print("done fusion")
 end
-
 
 return Fusion
