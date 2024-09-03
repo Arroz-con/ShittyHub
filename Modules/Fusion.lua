@@ -14,12 +14,13 @@ local function getFullgrownPets(mega: boolean): table
             if v.properties.age == 6 and v.properties.neon then
                 if not fullgrownTable[v.id] then
                     fullgrownTable[v.id] = {["count"] = 0, ["unique"] = {}}
-                else
-                    table.insert(fullgrownTable[v.id]["unique"], v.unique)
-                    fullgrownTable[v.id]["count"] += 1
-                    if fullgrownTable[v.id]["count"] >= 4 then
-                        break
-                    end
+                end
+
+                fullgrownTable[v.id]["count"] += 1
+                table.insert(fullgrownTable[v.id]["unique"], v.unique)
+
+                if fullgrownTable[v.id]["count"] >= 4 then
+                    break
                 end
             end
         end
@@ -29,12 +30,13 @@ local function getFullgrownPets(mega: boolean): table
             if v.properties.age == 6 and not v.properties.neon and not v.properties.mega_neon then
                 if not fullgrownTable[v.id] then
                     fullgrownTable[v.id] = {["count"] = 0, ["unique"] = {}}
-                else
-                    table.insert(fullgrownTable[v.id]["unique"], v.unique)
-                    fullgrownTable[v.id]["count"] += 1
-                    if fullgrownTable[v.id]["count"] >= 4 then
-                        break
-                    end
+                end
+
+                fullgrownTable[v.id]["count"] += 1
+                table.insert(fullgrownTable[v.id]["unique"], v.unique)
+                
+                if fullgrownTable[v.id]["count"] >= 4 then
+                    break
                 end
             end
         end
