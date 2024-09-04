@@ -30,6 +30,45 @@ function Trade:sendTradeRequest(selectedPlayer: Instance)
     end
 end
 
+
+function Trade:AutoAcceptTrade()
+    if Bypass("ClientData").get_data()[Player.Name].in_active_trade then
+        if Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.negotiated then
+            ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
+        end
+
+        if Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.confirmed then
+            ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
+        end
+    end
+end
+
+
+function Trade:AllInventory(TabPassOn: string, selectedPlayer: Instance) -- need to test
+    while getgenv().auto_trade_all_inventory do
+        if Bypass("ClientData").get_data()[Player.Name].in_active_trade then
+            if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items >= 18 then
+                return
+            end
+        end
+
+        Trade:sendTradeRequest(selectedPlayer)
+
+        for _, item in Bypass("ClientData").get_data()[Player.Name].inventory[TabPassOn] do
+            if item.id == "practice_dog" then continue end
+            ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(item.unique)
+            if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items >= 18 then
+                break
+            end
+            task.wait(0.1)
+        end
+
+        AcceptNegotiationAndConfirm("TradeAllInventory")
+        task.wait()
+    end
+end
+
+
 function Trade:AllPets(selectedPlayer: Instance)
     while getgenv().auto_trade_all_pets do
 
