@@ -23,6 +23,7 @@ end
 function Trade:sendTradeRequest(selectedPlayer: Instance)
     if not Player.PlayerGui.TradeApp.Frame.Visible then
         repeat
+            print("trade sent to "..selectedPlayer.Name)
             ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(selectedPlayer)
             task.wait(10)
         until Player.PlayerGui.TradeApp.Frame.Visible
@@ -30,8 +31,10 @@ function Trade:sendTradeRequest(selectedPlayer: Instance)
 end
 
 
-function Trade:TradeAllNeons(version: string)
+function Trade:TradeAllNeons(version: string, selectedPlayer: Instance)
     while getgenv().auto_trade_all_neons do
+        Trade:sendTradeRequest(selectedPlayer)
+        
         pcall(function()
             for _, pet in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
                 if pet.properties[version] then
