@@ -6,9 +6,22 @@ local InventoryDB = Bypass("InventoryDB")
 
 local Player = Players.LocalPlayer
 
-local GetPet = {}
+local GetInventory = {}
 
-function GetPet:RarityAndAge(rarity: string, age: number)
+function GetInventory:TabId(tabId: string)
+    local inventoryTable = {}
+    
+    for _, v in Bypass("ClientData").get_data()[Player.Name].inventory[tabId] do
+        if v.id == "practice_dog" then continue end
+        if table.find(inventoryTable, v.id) then continue end
+        table.insert(inventoryTable, v.id)
+    end
+
+    return inventoryTable
+end
+
+
+function GetInventory:PetRarityAndAge(rarity: string, age: number)
     local PetageCounter = age or 5
     local isNeon = true
     local petFound = false
@@ -37,4 +50,4 @@ function GetPet:RarityAndAge(rarity: string, age: number)
     end
 end
 
-return GetPet
+return GetInventory
