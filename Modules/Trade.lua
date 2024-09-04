@@ -30,9 +30,32 @@ function Trade:sendTradeRequest(selectedPlayer: Instance)
     end
 end
 
+function Trade:AllPets(selectedPlayer: Instance)
+    while getgenv().auto_trade_all_pets do
 
-function Trade:TradeAllNeons(version: string, selectedPlayer: Instance)
+        Trade:sendTradeRequest(selectedPlayer)
+
+        for _, pet in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
+            if pet.id == "practice_dog" then continue end
+
+            if Bypass("ClientData").get_data()[Player.Name].in_active_trade then
+                ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
+                if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items >= 18 then
+                    break
+                end
+            end
+            task.wait(0.1)
+        end
+
+        AcceptNegotiationAndConfirm("allPetsToggle")
+        task.wait()
+    end
+end
+
+
+function Trade:AllNeons(version: string, toggleName: string, selectedPlayer: Instance)
     while getgenv().auto_trade_all_neons do
+
         Trade:sendTradeRequest(selectedPlayer)
         
         pcall(function()
@@ -47,8 +70,9 @@ function Trade:TradeAllNeons(version: string, selectedPlayer: Instance)
                 end
             end
 
-            AcceptNegotiationAndConfirm("TradeAllNeons")
+            AcceptNegotiationAndConfirm(toggleName)
         end)
+        task.wait()
     end
 end
 
