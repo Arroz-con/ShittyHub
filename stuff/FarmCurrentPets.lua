@@ -12,7 +12,7 @@ getgenv().SETTINGS = {
     PET_AUTO_FUSION = true,
 
     ENABLE_TRADE_COLLECTOR = true,
-    TRADE_ONLY_LUMINOUS_MEGA = true,
+    TRADE_ONLY_LUMINOUS_MEGA = false,
     TRADE_COLLECTOR_NAME = "elmo8372", -- your account username (case sensitive) that will collect the pets.
     TRADE_LIST = {
         PET_WEAR_TABLE = {
@@ -45,9 +45,9 @@ getgenv().SETTINGS = {
         },
 
         -- the pets in here will be traded no matter what age they are
-        PETS_TABLE = { 
+        PETS_TABLE = {
             "lures_2023_blazing_lion",
-            "celestial_2024_glormy_hound",
+            -- "celestial_2024_glormy_hound",
             -- "summerfest_2024_punk_pony",
             -- "summerfest_2024_pretty_pony",
             -- "summerfest_2024_majestic_pony"
@@ -59,6 +59,7 @@ getgenv().SETTINGS = {
     
     PET_ONLY_PRIORITY = true,
     PET_ONLY_PRIORITY_NAMES = {
+        "celestial_2024_moonlight_moth",
         "garden_2024_rosy_maple_moth",
         "garden_2024_mushroom_friend",
         -- "garden_2024_praying_mantis",
@@ -72,7 +73,9 @@ getgenv().SETTINGS = {
         "summerfest_2024_pretty_pony",
         "summerfest_2024_majestic_pony",
         "summerfest_2024_corn_doggo",
-        "sunshine_2024_cheetah"
+        "sunshine_2024_cheetah",
+        "celestial_2024_glormy_hound",
+        "celestial_2024_glormy_leo"
     },
 }
 
@@ -89,6 +92,6 @@ local function buyPet(petNameId: string, howManyToBuy: number)
     end
 end
 
-buyPet("celestial_2024_glormy_hound", 4)
-buyPet("celestial_2024_glormy_leo", 4)
+buyPet("celestial_2024_glormy_hound", 1)
+buyPet("celestial_2024_glormy_leo", 1)
 --]]
