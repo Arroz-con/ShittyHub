@@ -37,9 +37,8 @@ local function removeParts()
     local MainMap = workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
     if not MainMap then print("not in mainmap") return end
 
-    local Static = MainMap:FindFirstChild("StaticMap")
-    if not Static then print("didnt find static") return end
-
+    MainMap:WaitForChild("Static")
+    
     workspace:FindFirstChildWhichIsA("Terrain"):Clear()
     workspace:FindFirstChild("StaticMap"):FindFirstChild("Balloon"):Destroy()
     MainMap.Static:FindFirstChild("Campsite"):Destroy()
