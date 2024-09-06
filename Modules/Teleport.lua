@@ -57,13 +57,13 @@ end
 
 
 function Teleport.MainMap()
-    local isAlreadyOnMainMap = game.Workspace:FindFirstChild("Interiors"):FindFirstChild("center_map_plot", true)
+    local isAlreadyOnMainMap = workspace:FindFirstChild("Interiors"):FindFirstChild("center_map_plot", true)
     if isAlreadyOnMainMap then return end
     Bypass("CollisionsClient").set_collidable(false)
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
     SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
-    game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
-    Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:FindFirstChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.Campsite.MarshmallowChair.VintageChair.Union.CFrame + Vector3.new(math.random(1, 10), 10, math.random(1, 10))
+    workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
+    Player.Character.PrimaryPart.CFrame = workspace:WaitForChild("StaticMap"):WaitForChild("Campsite"):WaitForChild("CampsiteOrigin").CFrame + Vector3.new(math.random(1, 10), 10, math.random(1, 10))
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
     Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
     Player.Character.Humanoid.WalkSpeed = 0
@@ -75,7 +75,7 @@ function Teleport.Nursery()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
     SetLocationFunc("Nursery", "MainDoor", {})
     task.wait(1)
-    game.Workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
+    workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
     Player.Character.PrimaryPart.CFrame = workspace.Interiors.Nursery:WaitForChild("GumballMachine"):WaitForChild("Root").CFrame + Vector3.new(-8, 10, 0)
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
     Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
@@ -84,13 +84,13 @@ end
 
 function Teleport.CampSite()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
-    local isAlreadyOnMainMap = game.Workspace:FindFirstChild("Interiors"):FindFirstChild("center_map_plot", true)
+    local isAlreadyOnMainMap = workspace:FindFirstChild("Interiors"):FindFirstChild("center_map_plot", true)
     if not isAlreadyOnMainMap then
         SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
     end
     task.wait(1)
-    game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
-    Player.Character.PrimaryPart.CFrame = game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))).Static.Campsite.MarshmallowChair.VintageChair.Union.CFrame + Vector3.new(math.random(1, 20), 10, math.random(1, 20))
+    workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
+    Player.Character.PrimaryPart.CFrame = workspace:WaitForChild("StaticMap"):WaitForChild("Campsite"):WaitForChild("CampsiteOrigin").CFrame + Vector3.new(math.random(1, 10), 10, math.random(1, 10))
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
     Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
     Player.Character.Humanoid.WalkSpeed = 0
@@ -99,13 +99,13 @@ end
 
 function Teleport.BeachParty()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
-    local isAlreadyOnMainMap = game.Workspace:FindFirstChild("Interiors"):FindFirstChild("center_map_plot", true)
+    local isAlreadyOnMainMap = workspace:FindFirstChild("Interiors"):FindFirstChild("center_map_plot", true)
     if not isAlreadyOnMainMap then
         SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
     end
     task.wait(1)
-    game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))) 
-    Player.Character.PrimaryPart.CFrame = game:GetService("Workspace").StaticMap.Beach.BeachPartyAilmentTarget.CFrame + Vector3.new(math.random(1, 20), 10, math.random(1, 20))
+    workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model"))) 
+    Player.Character.PrimaryPart.CFrame = workspace.StaticMap.Beach.BeachPartyAilmentTarget.CFrame + Vector3.new(math.random(1, 20), 10, math.random(1, 20))
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
     Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
     Player.Character.Humanoid.WalkSpeed = 0
@@ -114,12 +114,12 @@ end
 
 function Teleport.PlayGround()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
-    local isAlreadyOnMainMap = game.Workspace:FindFirstChild("Interiors"):FindFirstChild("center_map_plot", true)
+    local isAlreadyOnMainMap = workspace:FindFirstChild("Interiors"):FindFirstChild("center_map_plot", true)
     if not isAlreadyOnMainMap then
         SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
     end
     task.wait(1)
-    game.Workspace.Interiors:WaitForChild(tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model")))
+    workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
     Player.Character.PrimaryPart.CFrame = game:GetService("Workspace").StaticMap.Park.Roundabout.SeatsSpinModel.Visual:FindFirstChildWhichIsA("Part").CFrame + Vector3.new(math.random(1, 20), 10, math.random(-20, -1))
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
     Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
