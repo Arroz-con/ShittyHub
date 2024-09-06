@@ -33,6 +33,30 @@ local function SetLocationFunc(a, b, c)
     set_thread_identity(k)
 end
 
+local function removeParts()
+    local MainMap = workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
+    if not MainMap then return end
+
+    local Static = MainMap:FindFirstChild("StaticMap")
+    if not Static then return end
+
+    workspace:FindFirstChildWhichIsA("Terrain"):Clear()
+    workspace:FindFirstChild("StaticMap"):FindFirstChild("Balloon"):Destroy()
+    MainMap.Static:FindFirstChild("Campsite"):Destroy()
+    MainMap.Static:FindFirstChild("Bridges"):Destroy()
+    MainMap.Static:FindFirstChild("Boundaries"):Destroy()
+    MainMap.Static:FindFirstChild("Props"):Destroy()
+    MainMap.Static:FindFirstChild("Terrain"):FindFirstChild("Mountains"):Destroy()
+    MainMap.Static:FindFirstChild("Terrain"):FindFirstChild("Road"):Destroy()        
+    MainMap.Static:FindFirstChild("Terrain"):FindFirstChild("RiverEdge"):Destroy()   
+    MainMap.Static:FindFirstChild("ThemeArea"):Destroy()
+    MainMap.Static:FindFirstChild("Beach"):Destroy()
+    MainMap:FindFirstChild("Park"):Destroy()
+    MainMap:FindFirstChild("Buildings"):Destroy()
+    MainMap:FindFirstChild("Event"):Destroy()
+end
+
+
 function Teleport.MainMap()
     local isAlreadyOnMainMap = game.Workspace:FindFirstChild("Interiors"):FindFirstChild("center_map_plot", true)
     if isAlreadyOnMainMap then return end
@@ -44,6 +68,7 @@ function Teleport.MainMap()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
     Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
     Player.Character.Humanoid.WalkSpeed = 0
+    removeParts()
     task.wait(2)
 end
 
@@ -70,6 +95,7 @@ function Teleport.CampSite()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
     Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
     Player.Character.Humanoid.WalkSpeed = 0
+    removeParts()
 end
 
 function Teleport.BeachParty()
@@ -84,6 +110,7 @@ function Teleport.BeachParty()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
     Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
     Player.Character.Humanoid.WalkSpeed = 0
+    removeParts()
 end
 
 function Teleport.PlayGround()
@@ -98,6 +125,7 @@ function Teleport.PlayGround()
     Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
     Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
     Player.Character.Humanoid.WalkSpeed = 0
+    removeParts()
 end
 
 return Teleport
