@@ -12,8 +12,8 @@ getgenv().SETTINGS = {
     PET_AUTO_FUSION = true,
 
     ENABLE_TRADE_COLLECTOR = true,
-    TRADE_ONLY_LUMINOUS_MEGA = false,
-    TRADE_COLLECTOR_NAME = "elmo8372", -- your account username (case sensitive) that will collect the pets.
+    TRADE_ONLY_LUMINOUS_MEGA = true,
+    TRADE_COLLECTOR_NAME = "donutboy_92", -- your account username (case sensitive) that will collect the pets.
     TRADE_LIST = {
         PET_WEAR_TABLE = {
 
@@ -47,6 +47,7 @@ getgenv().SETTINGS = {
         -- the pets in here will be traded no matter what age they are
         PETS_TABLE = {
             "lures_2023_blazing_lion",
+            "celestial_2024_moonlight_moth",
             -- "celestial_2024_glormy_hound",
             -- "summerfest_2024_punk_pony",
             -- "summerfest_2024_pretty_pony",
