@@ -102,10 +102,10 @@ end
 buyPet(petToBuyId, howMany)
 --]]
 
---[[
+---[[
 local Bypass = require(game.ReplicatedStorage:WaitForChild("Fsys", 600)).load
 local Player = game:GetService("Players").LocalPlayer
-local selectedItem = "celestial_2024_glormy_leo"
+local selectedItem = "celestial_2024_moonlight_moth"
 local sameUnqiue
 
 
@@ -172,4 +172,4 @@ while true do
     task.wait(1)
 end
 
-]]
+--]]
