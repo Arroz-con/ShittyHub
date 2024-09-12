@@ -88,8 +88,8 @@ local function buyPet(petNameId: string, howManyToBuy: number)
 	end
 end
 
-buyPet("celestial_2024_glormy_hound", 2)
-buyPet("celestial_2024_glormy_leo", 2)
+-- buyPet("celestial_2024_glormy_hound", 2)
+buyPet("celestial_2024_glormy_leo", 20)
 --]]
 
 --[[
