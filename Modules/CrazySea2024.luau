@@ -4,7 +4,7 @@ local Player = game:GetService("Players").LocalPlayer
 -- local coinsFolder = workspace.StaticMap.OceanMinigameInteriorStatic.Spawns.SelectedSpawns
 local CrazySea = {}
 
-function CrazySea.GetChest()
+function CrazySea.GetChests()
 	for _, v in workspace.Interiors.OceanMinigameInterior.GameObjects:GetDescendants() do
 		if not workspace.Interiors:FindFirstChild("OceanMinigameInterior") then
 			break
