@@ -57,7 +57,7 @@ function Teleport.DeleteMainMapParts()
 		MainMap.Static:FindFirstChild("Beach"):Destroy()
 		MainMap:FindFirstChild("Park"):Destroy()
 		-- MainMap:FindFirstChild("Buildings"):Destroy()
-		MainMap:FindFirstChild("Event"):Destroy()
+		-- MainMap:FindFirstChild("Event"):Destroy()
 	end
 end
 
