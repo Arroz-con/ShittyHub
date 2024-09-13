@@ -14,7 +14,7 @@ function CrazySea.GetChests()
 				continue
 			end
 			Player.Character.HumanoidRootPart.CFrame = v.Root.CFrame
-			task.wait(0.50)
+			task.wait(1)
 		end
 	end
 end
