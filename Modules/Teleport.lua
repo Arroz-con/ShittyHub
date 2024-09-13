@@ -6,18 +6,8 @@ local Bypass = require(ReplicatedStorage:WaitForChild("Fsys")).load
 local Player = Players.LocalPlayer
 local getconstants = getconstants or debug.getconstants
 local getgc = getgc or get_gc_objects or debug.getgc
-local get_thread_identity = get_thread_identity
-	or gti
-	or getthreadidentity
-	or getidentity
-	or syn.get_thread_identity
-	or fluxus.get_thread_identity
-local set_thread_identity = set_thread_context
-	or sti
-	or setthreadcontext
-	or setidentity
-	or syn.set_thread_identity
-	or fluxus.set_thread_identity
+local get_thread_identity = get_thread_identity or gti or getthreadidentity or getidentity or syn.get_thread_identity or fluxus.get_thread_identity
+local set_thread_identity = set_thread_context or sti or setthreadcontext or setidentity or syn.set_thread_identity or fluxus.set_thread_identity
 
 local SetLocationTP
 
