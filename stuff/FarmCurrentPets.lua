@@ -89,13 +89,22 @@ local wishId = "ocean_2024_big_wish"
 local howManyWishes = 20
 
 local function makeWish(wishId)
-    game.ReplicatedStorage.API["LootBoxAPI/ExchangeItemForReward"]:InvokeServer(wishId)
+    local success, errMessage = pcall(function()
+        game.ReplicatedStorage.API["LootBoxAPI/ExchangeItemForReward"]:InvokeServer(wishId)
+    end)
+
+    if not success then
+        return false
+    else
+        return true
+    end
 end
 
 for _ = 1, howManyWishes do
-    makeWish(wishId)
+    if not makeWish(wishId) then return end
     task.wait(.2)
 end
+
 
 --]]
 
