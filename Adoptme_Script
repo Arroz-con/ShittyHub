@@ -1,78 +1,122 @@
-if not game:IsLoaded() then
-	game.Loaded:Wait()
-end
-
-if game.PlaceId ~= 920587237 then
-	return
-end
-
+-----------------------------------------------------------------------------------------------
+--[[ Services ]]--
+-----------------------------------------------------------------------------------------------
 local Players = game:GetService("Players")
-local Player = Players.LocalPlayer
-
-Player:WaitForChild("PlayerGui", 600)
-Player.PlayerGui:WaitForChild("NewsApp", 600)
-
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local VI = game:GetService("VirtualInputManager")
 local UserGameSettings = UserSettings():GetService("UserGameSettings")
 -- local UserInputService = game:GetService("UserInputService")
 local VirtualUser = game:GetService("VirtualUser")
 local CoreGui = game:GetService("CoreGui")
+-----------------------------------------------------------------------------------------------
+--[[ Modules ]]--
+-----------------------------------------------------------------------------------------------
+local Bypass = require(ReplicatedStorage:WaitForChild("Fsys", 600)).load
+-- local inventoryDB = Bypass("InventoryDB")
+-- local Remote = Bypass("RouterClient").get("HousingAPI/ActivateFurniture")
+local ClaimRemote = Bypass("RouterClient").get("QuestAPI/ClaimQuest")
+local RerollRemote = Bypass("RouterClient").get("QuestAPI/RerollQuest")
 
--- local getupvalue = getupvalue or debug.getupvalue
--- local getconstant = getconstant or debug.getconstant
--- local getconstants = getconstants or debug.getconstants
--- local getgc = getgc or get_gc_objects or debug.getgc
--- local getreg = getreg or getregistry or debug.getregistry
--- local get_thread_identity = get_thread_identity or gti or getthreadidentity or getidentity or syn.get_thread_identity or fluxus.get_thread_identity
--- local set_thread_identity = set_thread_context or sti or setthreadcontext or setidentity or syn.set_thread_identity or fluxus.set_thread_identity
+local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/Rayfield/main/source"))()
+
+local Clipboard = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/ClipboardPetsInfo.lua"))()
+local Fusion = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Fusion.lua"))()
+local GetInventory = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/GetInventory.lua"))()
+local Trade = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Trade.lua"))()
+local CrazySea = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/CrazySea2024.luau"))()
+local Teleport = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Teleport.lua"))()
+
+
+-----------------------------------------------------------------------------------------------
+--[[ Private Variables ]]--
+-----------------------------------------------------------------------------------------------
+local Player = Players.LocalPlayer
 
 local NewsAppConnection
 local PickColorConn
 local WelcomeScreen
 -- local DialogConnection
 local RoleChooserDialogConnection
--- local RobuxProductDialogConnection
+local RobuxProductDialogConnection
 local banMessageConnection
 local DailyClaimConnection
 -- local ChatConnection
 local CharConn
+
 local DailyBoolean = true
-local DailyRewardTable = {
-	[9] = "reward_1",
-	[30] = "reward_2",
-	[90] = "reward_3",
-	[140] = "reward_4",
-	[180] = "reward_5",
-	[210] = "reward_6",
-	[230] = "reward_7",
-	[280] = "reward_8",
-	[300] = "reward_9",
-	[320] = "reward_10",
-	[360] = "reward_11",
-	[400] = "reward_12",
-	[460] = "reward_13",
-	[500] = "reward_14",
-	[550] = "reward_15",
-	[600] = "reward_16",
-	[660] = "reward_17",
-}
-local DailyRewardTable2 = {
-	[9] = "reward_1",
-	[65] = "reward_2",
-	[120] = "reward_3",
-	[180] = "reward_4",
-	[225] = "reward_5",
-	[280] = "reward_6",
-	[340] = "reward_7",
-	[400] = "reward_8",
-	[450] = "reward_9",
-	[520] = "reward_10",
-	[600] = "reward_11",
-	[660] = "reward_12",
-}
 local NewTaskBool = true
 local NewClaimBool = true
+local isMainMap = false
+local stopDoingTasks = false
+local guiCooldown = false
+local tutorialDebonce = false
+local stopEquip = false
+local discordCooldown = false
+
+local Bed
+local Shower
+local Piano
+local normalLure
+local beachlog
+
+local baitId
+local selectedPlayer
+local selectedItem
+
+getgenv().auto_accept_trade = true
+getgenv().auto_trade_all_pets = true
+getgenv().auto_trade_fullgrown_neon_and_mega = true
+getgenv().auto_trade_custom = true
+getgenv().auto_trade_semi_auto = true
+getgenv().auto_trade_lowtier_pets = true
+getgenv().auto_farm = true
+getgenv().auto_make_neon = true
+getgenv().auto_trade_Legendary = true
+getgenv().auto_trade_custom_gifts = true
+getgenv().auto_trade_all_neons = true
+getgenv().auto_trade_eggs = true
+getgenv().auto_trade_all_inventory = true
+getgenv().feedAgeUpPotionToggle = false
+
+getgenv().PetCurrentlyFarming = ""
+
+local Egg2Buy = SETTINGS.PET_TO_BUY
+local Gift2Buy = "lunar_2024_special_lunar_new_year_gift_box"
+local Pet2Buy = SETTINGS.PET_TO_BUY
+
+
+local TestGui = Instance.new("ScreenGui")
+local TextButton = Instance.new("TextButton")
+
+local SelectedPet
+local TradeAllInventory
+local AllPetsToggle
+local LegendaryToggle
+local FullgrownToggle
+local TradeAllMegas
+local TradeAllNeons
+local LowTierToggle
+local GiftToggle
+local ToyToggle
+local FoodToggle
+
+-----------------------------------------------------------------------------------------------
+--[[ Tables  ]]--
+-----------------------------------------------------------------------------------------------
+local DailyRewardTable = {
+    [9] = "reward_1", [30] = "reward_2", [90] = "reward_3",[140] = "reward_4",
+    [180] = "reward_5", [210] = "reward_6", [230] = "reward_7", [280] = "reward_8",
+    [300] = "reward_9", [320] = "reward_10", [360] = "reward_11", [400] = "reward_12",
+    [460] = "reward_13", [500] = "reward_14", [550] = "reward_15", [600] = "reward_16",
+    [660] = "reward_17",
+}
+
+local DailyRewardTable2 = {
+    [9] = "reward_1", [65] = "reward_2", [120] = "reward_3", [180] = "reward_4",
+	[225] = "reward_5", [280] = "reward_6", [340] = "reward_7", [400] = "reward_8",
+    [450] = "reward_9", [520] = "reward_10", [600] = "reward_11", [660] = "reward_12",
+}
+
 local NeonTable = { ["neon_fusion"] = true, ["mega_neon_fusion"] = true }
 local ClaimTable = {
 	["hatch_three_eggs"] = { 3 },
@@ -87,73 +131,23 @@ local ClaimTable = {
 	["sunshine_2024_playtime"] = { 2400 }
 }
 
-Player.PlayerGui:WaitForChild("NewsApp", 600)
-Player.PlayerGui:WaitForChild("DialogApp", 600)
+local petsTable = GetInventory:TabId("pets")
+local giftsTable = GetInventory:TabId("gifts")
+local toysTable = GetInventory:TabId("toys")
+local foodTable = GetInventory:TabId("food")
 
-local Bypass = require(ReplicatedStorage:WaitForChild("Fsys", 600)).load
--- local inventoryDB = Bypass("InventoryDB")
--- local Remote = Bypass("RouterClient").get("HousingAPI/ActivateFurniture")
-local ClaimRemote = Bypass("RouterClient").get("QuestAPI/ClaimQuest")
-local RerollRemote = Bypass("RouterClient").get("QuestAPI/RerollQuest")
+local pets_legendary = {}
+local pets_ultrarare = {}
+local pets_rare = {}
+local pets_uncommon = {}
+local pets_common = {}
+local pets_eggs = {}
+local Pets_commonto_ultrarare = {}
+local pets_legendary_to_common = {}
 
--- stylua: ignore start
-local Clipboard = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/ClipboardPetsInfo.lua"))()
-local Fusion = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Fusion.lua"))()
-local GetInventory = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/GetInventory.lua"))()
-local Trade = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Trade.lua"))()
-local CrazySea = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/CrazySea2024.luau"))()
--- stylua: ignore end
-
-repeat
-	task.wait(1)
-until Bypass("ClientData").get_data()[Player.Name].loaded_in == true
-
-local TestGui = Instance.new("ScreenGui")
-local TextButton = Instance.new("TextButton")
-
-if gethui then
-	TestGui.Parent = gethui()
-elseif syn.protect_gui then
-	syn.protect_gui(TestGui)
-	TestGui.Parent = CoreGui
-elseif CoreGui:FindFirstChild("RobloxGui") then
-	TestGui.Parent = CoreGui:FindFirstChild("RobloxGui")
-else
-	TestGui.Parent = CoreGui
-end
-
-TestGui.Name = "TestGui"
-TestGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-TextButton.AnchorPoint = Vector2.new(0.5, 0.5)
-TextButton.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
-TextButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
-TextButton.BorderSizePixel = 0
-TextButton.Position = UDim2.new(0.65, 0, 0.91, 0)
-TextButton.Size = UDim2.new(0.1, 0, 0.1, 0)
-TextButton.Font = Enum.Font.SourceSans
-TextButton.TextColor3 = Color3.fromRGB(0, 0, 0)
-TextButton.TextScaled = true
-TextButton.TextSize = 14.000
-TextButton.TextWrapped = true
-TextButton.Parent = TestGui
-
-local Bed
-local Shower
-local Piano
-local normalLure
-local beachlog
-local isMainMap = false
-local stopDoingTasks = false
-local guiCooldown = false
-
-UserGameSettings.GraphicsQualityLevel = 1
-UserGameSettings.MasterVolume = 0
-
-for i, v in pairs(debug.getupvalue(require(ReplicatedStorage.Fsys).load("RouterClient").init, 4)) do
-	v.Name = i
-end
-
+-----------------------------------------------------------------------------------------------
+--[[ Private Functions ]]--
+-----------------------------------------------------------------------------------------------
 local function clickGuiButton(button: Instance, xOffset: number, yOffset: number)
 	local xOffset = xOffset or 60
 	local yOffset = yOffset or 60
@@ -178,7 +172,6 @@ local function FireButton(PassOn, dialogFrame)
 	end
 end
 
---// gets the trade license so you can trade legendarys
 local function getTradeLicense()
 	for i, v in Bypass("ClientData").get_data()[Player.Name].inventory.toys do
 		if v.id == "trade_license" then
@@ -285,162 +278,6 @@ local function buyCrib()
 	ReplicatedStorage:WaitForChild("API"):WaitForChild("HousingAPI/BuyFurnitures"):InvokeServer(unpack(args))
 end
 
-WelcomeScreen = Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal("Visible"):Connect(function()
-	if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
-		Player.PlayerGui.DialogApp.Dialog.NormalDialog:WaitForChild("Info")
-		Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info:WaitForChild("TextLabel")
-		Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel
-			:GetPropertyChangedSignal("Text")
-			:Connect(function()
-				if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Welcome to Adopt Me!") then
-					FireButton("Next")
-					task.wait(1)
-					FireButton("Start")
-					task.wait(1)
-					completeStarterTutorial()
-					getTradeLicense()
-					task.wait(1)
-					game:Shutdown()
-					WelcomeScreen:Disconnect()
-				end
-			end)
-	end
-end)
-
---// Main Adopt me Screen (Play! Button)
-NewsAppConnection = Player.PlayerGui.NewsApp:GetPropertyChangedSignal("Enabled"):Connect(function()
-	if Player.PlayerGui.NewsApp.Enabled then
-		local AbsPlay = Player.PlayerGui.NewsApp
-			:WaitForChild("EnclosingFrame")
-			:WaitForChild("MainFrame")
-			:WaitForChild("Contents")
-			:WaitForChild("PlayButton")
-		clickGuiButton(AbsPlay)
-		-- firesignal(AbsPlay.MouseButton1Click)
-		NewsAppConnection:Disconnect()
-	end
-end)
-
-if Player.PlayerGui.NewsApp.Enabled then
-	local AbsPlay = Player.PlayerGui.NewsApp
-		:WaitForChild("EnclosingFrame")
-		:WaitForChild("MainFrame")
-		:WaitForChild("Contents")
-		:WaitForChild("PlayButton")
-	clickGuiButton(AbsPlay)
-	-- firesignal(AbsPlay.MouseButton1Click)
-	NewsAppConnection:Disconnect()
-end
-
-local tutorialDebonce = false
-PickColorConn = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog
-	:GetPropertyChangedSignal("Visible")
-	:Connect(function()
-		if Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
-			if tutorialDebonce then
-				return
-			end
-			tutorialDebonce = true
-			local colorButton = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog
-				:WaitForChild("Info")
-				:WaitForChild("Response")
-				:WaitForChild("ColorTemplate")
-			local doneButton = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog
-				:WaitForChild("Buttons")
-				:WaitForChild("ButtonTemplate")
-			if not colorButton then
-				return
-			end
-			clickGuiButton(colorButton)
-			clickGuiButton(doneButton)
-
-			tutorialDebonce = false
-			PickColorConn:Disconnect()
-		end
-	end)
-
-if Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
-	if tutorialDebonce then
-		return
-	end
-	tutorialDebonce = true
-	local colorButton = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog
-		:WaitForChild("Info")
-		:WaitForChild("Response")
-		:WaitForChild("ColorTemplate")
-	local doneButton =
-		Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:WaitForChild("Buttons"):WaitForChild("ButtonTemplate")
-	if not colorButton then
-		return
-	end
-	clickGuiButton(colorButton)
-	clickGuiButton(doneButton)
-
-	tutorialDebonce = false
-	PickColorConn:Disconnect()
-end
-
-banMessageConnection = Player.PlayerGui.DialogApp.Dialog.NormalDialog
-	:GetPropertyChangedSignal("Visible")
-	:Connect(function()
-		if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
-			Player.PlayerGui.DialogApp.Dialog.NormalDialog:WaitForChild("Info")
-			Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info:WaitForChild("TextLabel")
-			Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel
-				:GetPropertyChangedSignal("Text")
-				:Connect(function()
-					if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("ban") then
-						FireButton("Okay")
-						banMessageConnection:Disconnect()
-					elseif
-						Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match(
-							"You have been awarded"
-						)
-					then
-						FireButton("Awesome!")
-					end
-				end)
-		end
-	end)
-
-if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
-	if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("ban") then
-		FireButton("Okay")
-		banMessageConnection:Disconnect()
-	end
-end
-
--- // Clicks on baby button
-RoleChooserDialogConnection = Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog
-	:GetPropertyChangedSignal("Visible")
-	:Connect(function()
-		task.wait()
-		if Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
-			firesignal(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby.MouseButton1Click)
-			RoleChooserDialogConnection:Disconnect()
-		end
-	end)
-
-if Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
-	firesignal(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby.MouseButton1Click)
-	RoleChooserDialogConnection:Disconnect()
-end
-
---// Clicks no robux product button
-Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog:GetPropertyChangedSignal("Visible"):Connect(function()
-	task.wait()
-	if Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Visible then
-		for i, v in pairs(Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Buttons:GetDescendants()) do
-			if v.Name == "TextLabel" then
-				if v.Text == "No Thanks" then
-					clickGuiButton(v.Parent.Parent) -- no thanks button
-					DailyBoolean = false
-				end
-			end
-		end
-	end
-end)
-
 local function GrabDailyReward()
 	local Daily = Bypass("ClientData").get("daily_login_manager")
 	if Daily.prestige % 2 == 0 then
@@ -461,170 +298,6 @@ local function GrabDailyReward()
 		end
 	end
 end
-
-DailyClaimConnection = Player.PlayerGui.DailyLoginApp:GetPropertyChangedSignal("Enabled"):Connect(function()
-	repeat
-		task.wait()
-	until Player.PlayerGui.DailyLoginApp.Enabled
-	if Player.PlayerGui.DailyLoginApp.Enabled then
-		task.wait()
-		if Player.PlayerGui.DailyLoginApp.Frame.Visible then
-			for i, v in pairs(Player.PlayerGui.DailyLoginApp.Frame.Body.Buttons:GetDescendants()) do
-				if v.Name == "TextLabel" then
-					if v.Text == "CLOSE" then
-						clickGuiButton(v.Parent.Parent) -- Close button
-						task.wait(1)
-						GrabDailyReward()
-						DailyClaimConnection:Disconnect()
-					elseif v.Text == "CLAIM!" then
-						clickGuiButton(v.Parent.Parent) -- claim button
-						task.wait(1)
-						clickGuiButton(v.Parent.Parent) -- close button
-						-- firesignal(v.Parent.Parent.MouseButton1Click) --claim button
-						-- firesignal(v.Parent.Parent.MouseButton1Click) --close button
-						task.wait(1)
-						GrabDailyReward()
-						DailyClaimConnection:Disconnect()
-					end
-				end
-			end
-		end
-	end
-end)
-
-local Char = Player.Character or Player.CharacterAdded:Wait()
-CharConn = Char.ChildAdded:Connect(function(HRPChild)
-	if HRPChild.Name == "HumanoidRootPart" then
-		repeat
-			task.wait()
-		until not DailyBoolean
-		print("turn to baby")
-		Bypass("RouterClient").get("TeamAPI/ChooseTeam"):InvokeServer("Babies", { ["dont_send_back_home"] = true })
-		CharConn:Disconnect()
-	end
-end)
-
-Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(NormalDialogChild)
-	if NormalDialogChild.Name == "NormalDialog" then
-		NormalDialogChild:GetPropertyChangedSignal("Visible"):Connect(function()
-			if NormalDialogChild.Visible then
-				NormalDialogChild:WaitForChild("Info")
-				NormalDialogChild.Info:WaitForChild("TextLabel")
-				NormalDialogChild.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
-					if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("4.5%% Legendary") then
-						FireButton("Okay")
-					elseif
-						Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match(
-							"Thanks for subscribing!"
-						)
-					then
-						FireButton("Okay")
-					elseif
-						Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("You've completed")
-					then
-						FireButton("Okay")
-					elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Pay off Sean") then
-						FireButton("Yes")
-					elseif
-						Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match(
-							"You have 2 reset chances"
-						)
-					then
-						FireButton("Okay")
-					elseif
-						Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match(
-							"You've been invited to"
-						)
-					then
-						FireButton("Accept")
-					elseif
-						Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match(
-							"lobby no longer exists."
-						)
-					then
-						FireButton("Okay")
-					elseif
-						Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("You can't spawn")
-					then
-						FireButton("Okay")
-					elseif
-						Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("The Galactic Pass")
-					then
-						FireButton("Okay")
-					end
-				end)
-			end
-		end)
-	end
-end)
-
-Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal("Visible"):Connect(function()
-	if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
-		Player.PlayerGui.DialogApp.Dialog.NormalDialog:WaitForChild("Info")
-		Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info:WaitForChild("TextLabel")
-		Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel
-			:GetPropertyChangedSignal("Text")
-			:Connect(function()
-				task.wait()
-				if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("4.5%% Legendary") then
-					FireButton("Okay")
-				elseif
-					Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Are you subscribed")
-				then
-					FireButton("Yes")
-				elseif
-					Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Thanks for subscribing!")
-				then
-					FireButton("Okay")
-				elseif
-					Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Welcome to Adopt Me!")
-				then
-					FireButton("Next")
-					task.wait(1)
-					FireButton("Start")
-				elseif
-					Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match(
-						"Welcome to the Classic Roblox"
-					)
-				then
-					FireButton("Cancel")
-				elseif
-					Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("You have been awarded")
-				then
-					FireButton("Awesome!")
-				elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("You've completed") then
-					FireButton("Okay")
-				elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Pay off Sean") then
-					FireButton("Yes")
-				elseif
-					Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("You have 2 reset chances")
-				then
-					FireButton("Okay")
-				elseif
-					Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("You've been invited to")
-				then
-					FireButton("Accept")
-				elseif
-					Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("lobby no longer exists.")
-				then
-					FireButton("Okay")
-				elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("You can't spawn") then
-					FireButton("Okay")
-				elseif
-					Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("The Galactic Pass")
-				then
-					FireButton("Okay")
-				end
-			end)
-	end
-end)
-
-if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
-	if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("4.5%% Legendary") then
-		FireButton("Okay")
-	end
-end
-
 
 ---\\Auto taskboard Quest
 local function QuestCount()
@@ -715,68 +388,6 @@ local function NewClaim()
 	NewClaimBool = true
 end
 
-game.Players.LocalPlayer.PlayerGui.QuestIconApp.ImageButton.EventContainer.IsNew
-	:GetPropertyChangedSignal("Position")
-	:Connect(function()
-		if NewTaskBool then
-			NewTaskBool = false
-			Bypass("RouterClient").get("QuestAPI/MarkQuestsViewed"):FireServer()
-			NewTask()
-		end
-	end)
-
-game.Players.LocalPlayer.PlayerGui.QuestIconApp.ImageButton.EventContainer.IsClaimable
-	:GetPropertyChangedSignal("Position")
-	:Connect(function()
-		if NewClaimBool then
-			NewClaimBool = false
-			NewClaim()
-		end
-	end)
-
-NewClaim()
-task.wait()
-NewTask()
-
---// Spikes11 code ^^^
-
--- local TradeButtons = Player.PlayerGui.DialogApp.Dialog.NormalDialog.Buttons
--- local CheckMarkNF = Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.PartnerOffer.Accepted
--- local CheckMarkCF = Player.PlayerGui.TradeApp.Frame.ConfirmationFrame.PartnerOffer.Accepted
-local baitId
-local selectedPlayer
-local selectedItem
-
-getgenv().auto_accept_trade = true
-getgenv().auto_trade_all_pets = true
-getgenv().auto_trade_fullgrown_neon_and_mega = true
-getgenv().auto_trade_custom = true
-getgenv().auto_trade_semi_auto = true
-getgenv().auto_trade_lowtier_pets = true
-getgenv().auto_farm = true
-getgenv().auto_make_neon = true
-getgenv().auto_trade_Legendary = true
-getgenv().auto_trade_custom_gifts = true
-getgenv().auto_trade_all_neons = true
-getgenv().auto_trade_eggs = true
-getgenv().auto_trade_all_inventory = true
-getgenv().feedAgeUpPotionToggle = false
-
-getgenv().PetCurrentlyFarming = ""
-
--- local selectedPettoFarm
-
-Player.Idled:Connect(function()
-	VirtualUser:ClickButton2(Vector2.new())
-end)
-
-for _, v in pairs(getconnections(Player.Idled)) do
-	v:Disable()
-end
-
-local Teleport =
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Teleport.lua"))()
-
 local function isMuleInGame()
 	for _, player in Players:GetPlayers() do
 		if player.Name == getgenv().SETTINGS.TRADE_COLLECTOR_NAME then
@@ -784,32 +395,6 @@ local function isMuleInGame()
 		end
 	end
 	return false
-end
-
-local petsTable = GetInventory:TabId("pets")
-local giftsTable = GetInventory:TabId("gifts")
-local toysTable = GetInventory:TabId("toys")
-local foodTable = GetInventory:TabId("food")
-
-local pets_legendary = {}
-local pets_ultrarare = {}
-local pets_rare = {}
-local pets_uncommon = {}
-local pets_common = {}
-local pets_eggs = {}
-
-local Pets_commonto_ultrarare = {}
-for _, pettable in pairs({ pets_common, pets_uncommon, pets_rare, pets_ultrarare }) do
-	for j, petlist in pairs(pettable) do
-		table.insert(Pets_commonto_ultrarare, petlist)
-	end
-end
-
-local pets_legendary_to_common = {}
-for _, pettable in pairs({ pets_legendary, pets_ultrarare, pets_rare, pets_uncommon, pets_common }) do
-	for _, petlist in pairs(pettable) do
-		table.insert(pets_legendary_to_common, petlist)
-	end
 end
 
 local function getPlayersInGame()
@@ -866,23 +451,11 @@ local function findBait(baitPassOn)
 	end
 end
 
---collect lure loot, not needed because placeBait does the collect too
--- local function collectLureLoot()
---     local args = {
---         [1] = game:GetService("Players").LocalPlayer,
---         [2] = normalLure,
---         [3] = "UseBlock",
---         [4] = false,
---         [5] = game:GetService("Players").LocalPlayer.Character
---     }
-
---     game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/ActivateFurniture"):InvokeServer(unpack(args))
-
--- end
 
 local function subToHouse()
 	game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/SubscribeToHouse"):FireServer(Player)
 end
+
 
 local function agePotion(FoodPassOn)
 	for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
@@ -903,11 +476,64 @@ local function agePotion(FoodPassOn)
 	end
 end
 
---local Pet_Farming
 
-local Egg2Buy = SETTINGS.PET_TO_BUY
-local Gift2Buy = "lunar_2024_special_lunar_new_year_gift_box"
-local Pet2Buy = SETTINGS.PET_TO_BUY -- ugc_refresh_2023_warthog   ugc_refresh_2023_ostrich
+local function getPlayersInGame()
+	local playerTable = {}
+	for _, player in Players:GetPlayers() do
+		if player.Name == Player.Name then
+			continue
+		end
+		table.insert(playerTable, player.Name)
+	end
+	table.sort(playerTable)
+	return playerTable
+end
+
+
+-- buy the lure bait and place it
+local function buyLure()
+	local args = {
+		[1] = {
+			[1] = {
+				["properties"] = {
+					["cframe"] = CFrame.new(14, 0, -14)
+						* CFrame.Angles(-0, 8.742277657347586e-08, 3.82137093032941e-15),
+				},
+				["kind"] = "lures_2023_normal_lure",
+			},
+		},
+	}
+
+	game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/BuyFurnitures"):InvokeServer(unpack(args))
+end
+
+
+-- give cookie bait to lure
+local function placeBait(baitIdPasson)
+	local args = {
+		[1] = game:GetService("Players").LocalPlayer,
+		[2] = normalLure,
+		[3] = "UseBlock",
+		[4] = {
+			["bait_unique"] = baitIdPasson,
+		},
+		[5] = game:GetService("Players").LocalPlayer.Character,
+	}
+
+	game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/ActivateFurniture"):InvokeServer(unpack(args))
+end
+
+
+local function findBait(baitPassOn)
+	local bait
+	for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
+		if v.id == baitPassOn then
+			bait = v.unique
+			return bait
+		end
+	end
+end
+
 
 local function buyPet()
 	local BuyPet = ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", Pet2Buy, {})
@@ -916,6 +542,7 @@ local function buyPet()
 	end
 	return true
 end
+
 
 local function getEgg()
 	for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
@@ -932,6 +559,7 @@ local function getEgg()
 	end
 	task.wait(1)
 end
+
 
 local function GetGiftPet()
 	for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.gifts) do
@@ -950,6 +578,7 @@ local function GetGiftPet()
 	end
 end
 
+
 local function priorityEgg()
 	local found_pet = false
 	while found_pet == false do
@@ -967,6 +596,7 @@ local function priorityEgg()
 		return false
 	end
 end
+
 
 local function priorityPet()
 	local Petage = 5
@@ -1001,6 +631,7 @@ local function priorityPet()
 	end
 end
 
+
 local function getNeonPet()
 	local Petage = 5
 	local isNeon = true
@@ -1022,6 +653,7 @@ local function getNeonPet()
 		end
 	end
 end
+
 
 local function getPet()
 	if SETTINGS.FOCUS_FARM_AGE_POTION then
@@ -1095,6 +727,7 @@ local function getPet()
 	-- if buyPet() then return end
 end
 
+
 local function FoodAilments(FoodPassOn) --FoodPassOn means "icecream" for this example
 	local hasFood = false
 	-- checks inventory to see if it has food
@@ -1119,6 +752,7 @@ local function FoodAilments(FoodPassOn) --FoodPassOn means "icecream" for this e
 	end
 end
 
+
 local function DayNightAilments(DayNightAilmentsPassOn) -- DayNightAilmentsPassOn means "bed or shower"
 	ReplicatedStorage.API["HousingAPI/ActivateFurniture"]:InvokeServer(
 		Player,
@@ -1129,21 +763,6 @@ local function DayNightAilments(DayNightAilmentsPassOn) -- DayNightAilmentsPassO
 	)
 end
 
--- local function ReEquipPet()
---     if Bypass("ClientData").get("pet_char_wrappers")[1] == nil or false then
---         getPet()
---         return
---     end
---     local Mag = (Player.Character.HumanoidRootPart.Position - Bypass("ClientData").get("pet_char_wrappers")[1].char:FindFirstChild("HumanoidRootPart").Position).Magnitude
---     if Mag then
---         if Mag >= 10 then
---             ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {["use_sound_delay"] = true})
---             task.wait(2)
---             ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(PetCurrentlyFarming, {["use_sound_delay"] = true})
---             return
---         end
---     end
--- end
 
 local function removeHandHeldItem()
 	local tool = Player.Character:FindFirstChildOfClass("Tool")
@@ -1152,13 +771,6 @@ local function removeHandHeldItem()
 	end
 end
 
--- local function checkForPlayerInHouse()
---     if game.Workspace.HouseInteriors.blueprint:FindFirstChildWhichIsA("Model") then
---         FarmToggle:Set(false)
---         task.wait(1)
---         FarmToggle:Set(true)
---     end
--- end
 
 local function AgeUpPotionLevelUp()
 	local sameUnqiue
@@ -1248,23 +860,23 @@ local function AgeUpPotionLevelUp()
 	end
 end
 
-local function floorPart()
-	for _, v in workspace:GetChildren() do
-		if v.Name == "FloorPart1" then
-			return
-		end
-	end
-	local part = Instance.new("Part")
-	part.Position = game.Workspace.Interiors:FindFirstChild(
-		tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))
-	).Static.Campsite.MarshmallowChair.VintageChair.Union.Position + Vector3.new(0, -2, 0)
-	part.Size = Vector3.new(2000, 2, 2000)
-	part.Anchored = true
-	part.Name = "FloorPart1"
-	part.Parent = workspace
-end
 
-------------------------------- Auto Farming ------------------------
+-- local function floorPart()
+-- 	for _, v in workspace:GetChildren() do
+-- 		if v.Name == "FloorPart1" then
+-- 			return
+-- 		end
+-- 	end
+-- 	local part = Instance.new("Part")
+-- 	part.Position = game.Workspace.Interiors:FindFirstChild(
+-- 		tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))
+-- 	).Static.Campsite.MarshmallowChair.VintageChair.Union.Position + Vector3.new(0, -2, 0)
+-- 	part.Size = Vector3.new(2000, 2, 2000)
+-- 	part.Anchored = true
+-- 	part.Name = "FloorPart1"
+-- 	part.Parent = workspace
+-- end
+
 
 local function CheckifEgg()
 	local PetNameID = Bypass("ClientData").get("pet_char_wrappers")[1]["pet_id"]
@@ -1281,6 +893,7 @@ local function CheckifEgg()
 	getPet()
 end
 
+
 local function SwitchOutFullyGrown()
 	if Bypass("ClientData").get("pet_char_wrappers")[1] == nil or false then
 		getPet()
@@ -1295,14 +908,212 @@ local function SwitchOutFullyGrown()
 	end
 end
 
-local stopEquip = false
+
+local function ClickTradeWindowPopUps()
+	for _, v in pairs(Player.PlayerGui.DialogApp.Dialog.NormalDialog.Buttons:GetDescendants()) do
+		if v.Name == "TextLabel" then
+			if
+				v.Text == "Accept"
+				or v.Text == "Okay"
+				or v.Text == "Next"
+				or v.Text == "I understand"
+				or v.Text == "No"
+			then
+				clickGuiButton(v.Parent.Parent)
+				return
+			end
+		end
+	end
+
+	for _, v in pairs(Player.PlayerGui.DialogApp.Dialog.HeaderDialog.Buttons:GetDescendants()) do
+		if v.Name == "TextLabel" then
+			if v.Text == "Accept" or v.Text == "Okay" or v.Text == "Next" or v.Text == "I understand" then
+				clickGuiButton(v.Parent.Parent)
+				return
+			end
+		end
+	end
+end
+
+
+local function checkInventory()
+	if not game.Players[SETTINGS.TRADE_COLLECTOR_NAME] then
+		return false, "false", nil
+	end
+
+	for _, accessory in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pet_accessories) do
+		if not SETTINGS.TRADE_LIST.PET_WEAR_TABLE[1] then
+			break
+		end
+		for _, v2 in SETTINGS.TRADE_LIST.PET_WEAR_TABLE do
+			if accessory.id == v2 then
+				return true, "pet_accessories", SETTINGS.TRADE_LIST.PET_WEAR_TABLE
+			end
+		end
+	end
+
+	for _, vehicle in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.transport) do
+		if not SETTINGS.TRADE_LIST.VEHICLES_TABLE[1] then
+			break
+		end
+		for _, v2 in SETTINGS.TRADE_LIST.VEHICLES_TABLE do
+			if vehicle.id == v2 then
+				return true, "transport", SETTINGS.TRADE_LIST.VEHICLES_TABLE
+			end
+		end
+	end
+
+	for _, food in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
+		if not SETTINGS.TRADE_LIST.FOOD_TABLE[1] then
+			break
+		end
+		for _, v2 in SETTINGS.TRADE_LIST.FOOD_TABLE do
+			if food.id == v2 then
+				return true, "food", SETTINGS.TRADE_LIST.FOOD_TABLE
+			end
+		end
+	end
+
+	for _, gift in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.gifts) do
+		if not SETTINGS.TRADE_LIST.GIFTS_TABLE[1] then
+			break
+		end
+		for _, v2 in SETTINGS.TRADE_LIST.GIFTS_TABLE do
+			if gift.id == v2 then
+				return true, "gifts", SETTINGS.TRADE_LIST.GIFTS_TABLE
+			end
+		end
+	end
+
+	for _, toy in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.toys) do
+		if not SETTINGS.TRADE_LIST.TOYS_TABLE[1] then
+			break
+		end
+		for _, v2 in SETTINGS.TRADE_LIST.TOYS_TABLE do
+			if toy.id == v2 then
+				return true, "toys", SETTINGS.TRADE_LIST.TOYS_TABLE
+			end
+		end
+	end
+
+	if SETTINGS.TRADE_ONLY_LUMINOUS_MEGA then
+		for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
+			for _, v2 in SETTINGS.TRADE_LIST.PETS_TABLE do
+				if
+					pet.id == v2
+					or (pet.properties.neon and pet.properties.age == 6)
+					or pet.properties.mega_neon == true
+				then
+					return true, "pets", SETTINGS.TRADE_LIST.PETS_TABLE
+				end
+			end
+		end
+	else
+		for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
+			for _, v2 in SETTINGS.TRADE_LIST.PETS_TABLE do
+				if
+					pet.id == v2
+					or pet.properties.age == 6
+					or (pet.properties.neon and pet.properties.age == 6)
+					or pet.properties.mega_neon == true
+				then
+					return true, "pets", SETTINGS.TRADE_LIST.PETS_TABLE
+				end
+			end
+		end
+	end
+
+	return false, "false", nil
+end
+
+
+local function tradeCollector(namePassOn)
+	while SETTINGS.ENABLE_TRADE_COLLECTOR and SETTINGS.TRADE_COLLECTOR_NAME and Players[namePassOn] do
+		local tabBoolean, tabName, tables = checkInventory()
+		if not tabBoolean then
+			return
+		end
+		pcall(function()
+			repeat
+				if not Player.PlayerGui.TradeApp.Frame.Visible then
+					ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(Players[namePassOn])
+					task.wait(math.random(8, 15))
+				end
+
+				ClickTradeWindowPopUps()
+				task.wait()
+			until Player.PlayerGui.TradeApp.Frame.Visible
+			ClickTradeWindowPopUps()
+			task.wait(1)
+			ClickTradeWindowPopUps()
+
+			local petCounter = 0
+			if SETTINGS.TRADE_ONLY_LUMINOUS_MEGA then
+				for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory[tabName]) do
+					for _, v2 in tables do
+						if
+							pet.id == v2
+							or (pet.properties.neon and pet.properties.age == 6)
+							or pet.properties.mega_neon == true
+						then
+							ReplicatedStorage.API:FindFirstChild("TradeAPI/AddItemToOffer"):FireServer(pet.unique)
+							petCounter = petCounter + 1
+							if petCounter >= 18 then
+								break
+							end
+							task.wait()
+						end
+					end
+				end
+			else
+				for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory[tabName]) do
+					for _, v2 in tables do
+						if
+							pet.id == v2
+							or pet.properties.age == 6
+							or (pet.properties.neon and pet.properties.age == 6)
+							or pet.properties.mega_neon == true
+						then
+							ReplicatedStorage.API:FindFirstChild("TradeAPI/AddItemToOffer"):FireServer(pet.unique)
+							petCounter = petCounter + 1
+							if petCounter >= 18 then
+								break
+							end
+							task.wait()
+						end
+					end
+				end
+			end
+			local stuck = 30
+			repeat
+				local lock = Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.LockIcon.Visible
+				stuck -= 1
+				task.wait(1)
+
+			until not lock or stuck <= 0
+			-- wait for timer to hit 0
+
+			ClickTradeWindowPopUps()
+			task.wait(1)
+			ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
+			task.wait(3)
+			ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
+			petCounter = 0
+			ClickTradeWindowPopUps()
+		end)
+		task.wait(1)
+		ClickTradeWindowPopUps()
+		task.wait()
+	end
+end
+
 
 local function autoFarm()
 	if not getgenv().auto_farm then
 		return
 	end
 	Teleport.MainMap()
-	workspace:FindFirstChildWhichIsA("Terrain"):Clear()
+
 	local function CompletePetAilments()
 		-- if stopEquip then return end
 		if getgenv().feedAgeUpPotionToggle then
@@ -1402,6 +1213,7 @@ local function autoFarm()
 		end
 	end
 
+
 	local function CompleteBabyAilments()
 		if not Bypass("ClientData").get("char_wrapper") then
 			return
@@ -1421,6 +1233,7 @@ local function autoFarm()
 		end
 	end
 
+
 	game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildAdded:Connect(function()
 		if getgenv().feedAgeUpPotionToggle then
 			return
@@ -1433,6 +1246,7 @@ local function autoFarm()
 		CompletePetAilments()
 		CompleteBabyAilments()
 	end)
+
 
 	game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildRemoved:Connect(function()
 		if getgenv().feedAgeUpPotionToggle then
@@ -1455,6 +1269,7 @@ local function autoFarm()
 		CompleteBabyAilments()
 
 	end)
+
 
 	-- For text that popups on bottom ui
 	Player.PlayerGui.HintApp.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
@@ -1479,6 +1294,7 @@ local function autoFarm()
 		end
 	end)
 
+
 	--// Fires when inside the minigame
 	Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(function()
 		if Player.PlayerGui.MinigameInGameApp.Enabled then
@@ -1497,6 +1313,7 @@ local function autoFarm()
 		end
 	end)
 
+
 	local function RemoveGameOverButton()
 		Player.PlayerGui.MinigameRewardsApp.Body.Button:WaitForChild("Face")
 		for _, v in pairs(Player.PlayerGui.MinigameRewardsApp.Body.Button:GetDescendants()) do
@@ -1509,6 +1326,7 @@ local function autoFarm()
 			end
 		end
 	end
+
 
 	-- fires when it ask you if you want to join minigame
 	Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(NormalDialogChild)
@@ -1532,6 +1350,7 @@ local function autoFarm()
 		end
 	end)
 
+
 	Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal("Visible"):Connect(function()
 		if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
 			Player.PlayerGui.DialogApp.Dialog.NormalDialog:WaitForChild("Info")
@@ -1547,6 +1366,7 @@ local function autoFarm()
 		end
 	end)
 
+
 	-- if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
 	--     if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Tile Skip is starting soon!") then
 	--         FireButton("Yes")
@@ -1556,6 +1376,7 @@ local function autoFarm()
 
 	--     end
 	-- end
+
 
 	Player.PlayerGui.MinigameRewardsApp.Body:GetPropertyChangedSignal("Visible"):Connect(function()
 		if Player.PlayerGui.MinigameRewardsApp.Body.Visible then
@@ -1570,6 +1391,7 @@ local function autoFarm()
 			end
 		end
 	end)
+
 
 	-- Player.PlayerGui.BattlePassApp.Body.Header.Title.Title.Text:match("Pony Pass")
 	Player.PlayerGui.BattlePassApp.Body:GetPropertyChangedSignal("Visible"):Connect(function()
@@ -1612,11 +1434,13 @@ local function autoFarm()
 		end
 	end)
 
+
 	--// Code below runs once when auto farm is enabled
 	if SETTINGS.PET_AUTO_FUSION then
 		Fusion:MakeMega(false)
 		Fusion:MakeMega(true)
 	end
+
 
 	task.wait()
 	getPet()
@@ -1638,26 +1462,261 @@ local function autoFarm()
 	-- setfpscap(SETTINGS.SET_FPS)
 end
 
----------------------------------------- Auto Trader --------------------------------
---// this will accept the trade only after other player accepts
 
--- CheckMarkNF:GetPropertyChangedSignal("ImageTransparency"):Connect(function()
---     if Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Visible then
---         if CheckMarkNF.ImageTransparency ~= 1 then
---             task.wait(2)
---             ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
---         end
---     end
--- end)
+local function startAutoFarm()
+	if SETTINGS.ENABLE_AUTO_FARM then
+		findFurniture()
+		if Bed then
+			-- task.wait(math.random(1, 5))
+			-- FarmToggle:Set(true)
+			getgenv().auto_farm = true
+			autoFarm()
+			task.wait(2)
+		else
+			buyCrib()
+			-- FarmToggle:Set(false)
+			startAutoFarm()
+		end
+	end
+end
 
--- CheckMarkCF:GetPropertyChangedSignal("ImageTransparency"):Connect(function()
---     if Player.PlayerGui.TradeApp.Frame.ConfirmationFrame.Visible then
---         if CheckMarkCF.ImageTransparency ~= 1 then
---             task.wait(2)
---             ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
---         end
---     end
--- end)
+
+local function SendMessage(url, message, userId)
+	local http = game:GetService("HttpService")
+	local headers = {
+		["Content-Type"] = "application/json",
+	}
+	local data = {
+		["content"] = `<@{userId}> {message}`,
+	}
+	local body = http:JSONEncode(data)
+	local response = request({
+		Url = url,
+		Method = "POST",
+		Headers = headers,
+		Body = body,
+	})
+	print("Sent")
+end
+
+
+-----------------------------------------------------------------------------------------------
+--[[ Handling ]]--
+-----------------------------------------------------------------------------------------------
+
+
+Player.Idled:Connect(function()
+	VirtualUser:ClickButton2(Vector2.new())
+end)
+
+
+Player.OnTeleport:Connect(function(State)
+	if State == Enum.TeleportState.InProgress then
+		game:Shutdown()
+	end
+end)
+
+
+Players.PlayerRemoving:Connect(function(player)
+	if player.Name == getgenv().SETTINGS.TRADE_COLLECTOR_NAME then
+		stopDoingTasks = false
+	end
+end)
+
+
+WelcomeScreen = Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal("Visible"):Connect(function()
+	if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
+		Player.PlayerGui.DialogApp.Dialog.NormalDialog:WaitForChild("Info")
+		Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info:WaitForChild("TextLabel")
+		Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
+			if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Welcome to Adopt Me!") then
+				FireButton("Next")
+				task.wait(1)
+				FireButton("Start")
+				task.wait(1)
+				completeStarterTutorial()
+				getTradeLicense()
+				task.wait(1)
+				game:Shutdown()
+				WelcomeScreen:Disconnect()
+			end
+		end)
+	end
+end)
+
+
+--// Main Adopt me Screen (Play! Button)
+NewsAppConnection = Player.PlayerGui.NewsApp:GetPropertyChangedSignal("Enabled"):Connect(function()
+	if Player.PlayerGui.NewsApp.Enabled then
+		local AbsPlay = Player.PlayerGui.NewsApp
+			:WaitForChild("EnclosingFrame")
+			:WaitForChild("MainFrame")
+			:WaitForChild("Contents")
+			:WaitForChild("PlayButton")
+		clickGuiButton(AbsPlay)
+		-- firesignal(AbsPlay.MouseButton1Click)
+		NewsAppConnection:Disconnect()
+	end
+end)
+
+
+PickColorConn = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:GetPropertyChangedSignal("Visible"):Connect(function()
+    if Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
+        if tutorialDebonce then
+            return
+        end
+        tutorialDebonce = true
+        local colorButton = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog
+            :WaitForChild("Info")
+            :WaitForChild("Response")
+            :WaitForChild("ColorTemplate")
+        local doneButton = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog
+            :WaitForChild("Buttons")
+            :WaitForChild("ButtonTemplate")
+        if not colorButton then
+            return
+        end
+        clickGuiButton(colorButton)
+        clickGuiButton(doneButton)
+
+        tutorialDebonce = false
+        PickColorConn:Disconnect()
+    end
+end)
+
+
+banMessageConnection = Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal("Visible"):Connect(function()
+    if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
+        Player.PlayerGui.DialogApp.Dialog.NormalDialog:WaitForChild("Info")
+        Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info:WaitForChild("TextLabel")
+        Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
+            if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("ban") then
+                FireButton("Okay")
+                banMessageConnection:Disconnect()
+            elseif
+                Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match(
+                    "You have been awarded"
+                )
+            then
+                FireButton("Awesome!")
+            end
+        end)
+    end
+end)
+
+
+-- // Clicks on baby button
+RoleChooserDialogConnection = Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog:GetPropertyChangedSignal("Visible"):Connect(function()
+	task.wait()
+	if Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
+		firesignal(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby.MouseButton1Click)
+		RoleChooserDialogConnection:Disconnect()
+	end
+end)
+
+
+--// Clicks no robux product button
+RobuxProductDialogConnection = Player.PlayerGui.DialogApp.Dialog:GetPropertyChangedSignal("Visible"):Connect(function()
+	if not Player.PlayerGui.DialogApp.Dialog.Visible then return end
+	Player.PlayerGui.DialogApp.Dialog:WaitForChild("RobuxProductDialog")
+	print("RobuxProductDialog")
+	Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog:GetPropertyChangedSignal("Visible"):Connect(function()
+		print("about to click product button")
+		task.wait()
+		if not Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Visible then return end
+		for _, v in pairs(Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Buttons:GetDescendants()) do
+			if v.Name == "TextLabel" then
+				if v.Text == "No Thanks" then
+					repeat
+						clickGuiButton(v.Parent.Parent) -- no thanks button
+					until not Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Visible
+					DailyBoolean = false
+					RobuxProductDialogConnection:Disconnect()
+				end
+			end
+		end
+	end)
+end)
+
+
+DailyClaimConnection = Player.PlayerGui.DailyLoginApp:GetPropertyChangedSignal("Enabled"):Connect(function()
+	repeat task.wait() until Player.PlayerGui.DailyLoginApp.Enabled
+	if not Player.PlayerGui.DailyLoginApp.Enabled then return end
+	task.wait()
+	if not Player.PlayerGui.DailyLoginApp.Frame.Visible then return end
+	for _, v in pairs(Player.PlayerGui.DailyLoginApp.Frame.Body.Buttons:GetDescendants()) do
+		if v.Name == "TextLabel" then
+			if v.Text == "CLOSE" then
+				repeat
+					clickGuiButton(v.Parent.Parent) -- Close button
+					task.wait(1)
+				until not Player.PlayerGui.DailyLoginApp.Frame.Visible
+
+				GrabDailyReward()
+				DailyClaimConnection:Disconnect()
+			elseif v.Text == "CLAIM!" then
+				repeat
+					clickGuiButton(v.Parent.Parent) -- Claim and Close button
+					task.wait(1)
+				until not Player.PlayerGui.DailyLoginApp.Frame.Visible
+				-- firesignal(v.Parent.Parent.MouseButton1Click) --claim button
+				-- firesignal(v.Parent.Parent.MouseButton1Click) --close button
+
+				GrabDailyReward()
+				DailyClaimConnection:Disconnect()
+			end
+		end
+	end
+end)
+
+
+DailyClaimConnection = Player.PlayerGui.DailyLoginApp:GetPropertyChangedSignal("Enabled"):Connect(function()
+	repeat task.wait() until Player.PlayerGui.DailyLoginApp.Enabled
+	if not Player.PlayerGui.DailyLoginApp.Enabled then return end
+	task.wait()
+	if not Player.PlayerGui.DailyLoginApp.Frame.Visible then return end
+	for _, v in pairs(Player.PlayerGui.DailyLoginApp.Frame.Body.Buttons:GetDescendants()) do
+		if v.Name == "TextLabel" then
+			if v.Text == "CLOSE" then
+				repeat
+					clickGuiButton(v.Parent.Parent) -- Close button
+					task.wait(1)
+				until not Player.PlayerGui.DailyLoginApp.Frame.Visible
+
+				GrabDailyReward()
+				DailyClaimConnection:Disconnect()
+			elseif v.Text == "CLAIM!" then
+				repeat
+					clickGuiButton(v.Parent.Parent) -- Claim and Close button
+					task.wait(1)
+				until not Player.PlayerGui.DailyLoginApp.Frame.Visible
+				-- firesignal(v.Parent.Parent.MouseButton1Click) --claim button
+				-- firesignal(v.Parent.Parent.MouseButton1Click) --close button
+
+				GrabDailyReward()
+				DailyClaimConnection:Disconnect()
+			end
+		end
+	end
+end)
+
+
+Players.LocalPlayer.PlayerGui.QuestIconApp.ImageButton.EventContainer.IsNew:GetPropertyChangedSignal("Position"):Connect(function()
+	if NewTaskBool then
+		NewTaskBool = false
+		Bypass("RouterClient").get("QuestAPI/MarkQuestsViewed"):FireServer()
+		NewTask()
+	end
+end)
+
+
+Players.LocalPlayer.PlayerGui.QuestIconApp.ImageButton.EventContainer.IsClaimable:GetPropertyChangedSignal("Position"):Connect(function()
+	if NewClaimBool then
+		NewClaimBool = false
+		NewClaim()
+	end
+end)
+
 
 Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(NormalDialogChild)
 	if NormalDialogChild.Name == "NormalDialog" then
@@ -1677,247 +1736,27 @@ Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(NormalDialogChild)
 	end
 end)
 
+
 Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal("Visible"):Connect(function()
 	if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
 		Player.PlayerGui.DialogApp.Dialog.NormalDialog:WaitForChild("Info")
 		Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info:WaitForChild("TextLabel")
-		Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel
-			:GetPropertyChangedSignal("Text")
-			:Connect(function()
-				if
-					Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Be careful when trading")
-				then
-					FireButton("Okay")
-				elseif
-					Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match(
-						"This trade seems unbalanced"
-					)
-				then
-					FireButton("Next")
-				end
-			end)
+		Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
+			if
+				Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Be careful when trading")
+			then
+				FireButton("Okay")
+			elseif
+				Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match(
+					"This trade seems unbalanced"
+				)
+			then
+				FireButton("Next")
+			end
+		end)
 	end
 end)
 
-local function ClickTradeWindowPopUps()
-	for _, v in pairs(Player.PlayerGui.DialogApp.Dialog.NormalDialog.Buttons:GetDescendants()) do
-		if v.Name == "TextLabel" then
-			if
-				v.Text == "Accept"
-				or v.Text == "Okay"
-				or v.Text == "Next"
-				or v.Text == "I understand"
-				or v.Text == "No"
-			then
-				clickGuiButton(v.Parent.Parent)
-				return
-			end
-		end
-	end
-
-	for _, v in pairs(Player.PlayerGui.DialogApp.Dialog.HeaderDialog.Buttons:GetDescendants()) do
-		if v.Name == "TextLabel" then
-			if v.Text == "Accept" or v.Text == "Okay" or v.Text == "Next" or v.Text == "I understand" then
-				clickGuiButton(v.Parent.Parent)
-				return
-			end
-		end
-	end
-end
-
--- game:GetService("Players").dudemyblox.PlayerGui.TradeApp.Frame.ConfirmationFrame
--- game:GetService("Players").dudemyblox.PlayerGui.TradeApp.Frame.NegotiationFrame.Body
--- Player.PlayerGui.TradeApp.Frame.ConfirmationFrame.TradeIcon.Countdown.Visible
-
-local function checkInventory()
-	if not game.Players[SETTINGS.TRADE_COLLECTOR_NAME] then
-		return false, "false", nil
-	end
-
-	for _, accessory in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pet_accessories) do
-		if not SETTINGS.TRADE_LIST.PET_WEAR_TABLE[1] then
-			break
-		end
-		for _, v2 in SETTINGS.TRADE_LIST.PET_WEAR_TABLE do
-			if accessory.id == v2 then
-				return true, "pet_accessories", SETTINGS.TRADE_LIST.PET_WEAR_TABLE
-			end
-		end
-	end
-
-	for _, vehicle in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.transport) do
-		if not SETTINGS.TRADE_LIST.VEHICLES_TABLE[1] then
-			break
-		end
-		for _, v2 in SETTINGS.TRADE_LIST.VEHICLES_TABLE do
-			if vehicle.id == v2 then
-				return true, "transport", SETTINGS.TRADE_LIST.VEHICLES_TABLE
-			end
-		end
-	end
-
-	for _, food in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
-		if not SETTINGS.TRADE_LIST.FOOD_TABLE[1] then
-			break
-		end
-		for _, v2 in SETTINGS.TRADE_LIST.FOOD_TABLE do
-			if food.id == v2 then
-				return true, "food", SETTINGS.TRADE_LIST.FOOD_TABLE
-			end
-		end
-	end
-
-	for _, gift in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.gifts) do
-		if not SETTINGS.TRADE_LIST.GIFTS_TABLE[1] then
-			break
-		end
-		for _, v2 in SETTINGS.TRADE_LIST.GIFTS_TABLE do
-			if gift.id == v2 then
-				return true, "gifts", SETTINGS.TRADE_LIST.GIFTS_TABLE
-			end
-		end
-	end
-
-	for _, toy in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.toys) do
-		if not SETTINGS.TRADE_LIST.TOYS_TABLE[1] then
-			break
-		end
-		for _, v2 in SETTINGS.TRADE_LIST.TOYS_TABLE do
-			if toy.id == v2 then
-				return true, "toys", SETTINGS.TRADE_LIST.TOYS_TABLE
-			end
-		end
-	end
-
-	if SETTINGS.TRADE_ONLY_LUMINOUS_MEGA then
-		for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
-			for _, v2 in SETTINGS.TRADE_LIST.PETS_TABLE do
-				if
-					pet.id == v2
-					or (pet.properties.neon and pet.properties.age == 6)
-					or pet.properties.mega_neon == true
-				then
-					return true, "pets", SETTINGS.TRADE_LIST.PETS_TABLE
-				end
-			end
-		end
-	else
-		for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
-			for _, v2 in SETTINGS.TRADE_LIST.PETS_TABLE do
-				if
-					pet.id == v2
-					or pet.properties.age == 6
-					or (pet.properties.neon and pet.properties.age == 6)
-					or pet.properties.mega_neon == true
-				then
-					return true, "pets", SETTINGS.TRADE_LIST.PETS_TABLE
-				end
-			end
-		end
-	end
-
-	return false, "false", nil
-end
-
-local function tradeCollector(namePassOn)
-	while SETTINGS.ENABLE_TRADE_COLLECTOR and SETTINGS.TRADE_COLLECTOR_NAME and Players[namePassOn] do
-		local tabBoolean, tabName, tables = checkInventory()
-		if not tabBoolean then
-			return
-		end
-		pcall(function()
-			repeat
-				if not Player.PlayerGui.TradeApp.Frame.Visible then
-					ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(Players[namePassOn])
-					task.wait(math.random(8, 15))
-				end
-
-				ClickTradeWindowPopUps()
-				task.wait()
-			until Player.PlayerGui.TradeApp.Frame.Visible
-			ClickTradeWindowPopUps()
-			task.wait(1)
-			ClickTradeWindowPopUps()
-
-			local petCounter = 0
-			if SETTINGS.TRADE_ONLY_LUMINOUS_MEGA then
-				for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory[tabName]) do
-					for _, v2 in tables do
-						if
-							pet.id == v2
-							or (pet.properties.neon and pet.properties.age == 6)
-							or pet.properties.mega_neon == true
-						then
-							ReplicatedStorage.API:FindFirstChild("TradeAPI/AddItemToOffer"):FireServer(pet.unique)
-							petCounter = petCounter + 1
-							if petCounter >= 18 then
-								break
-							end
-							task.wait()
-						end
-					end
-				end
-			else
-				for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory[tabName]) do
-					for _, v2 in tables do
-						if
-							pet.id == v2
-							or pet.properties.age == 6
-							or (pet.properties.neon and pet.properties.age == 6)
-							or pet.properties.mega_neon == true
-						then
-							ReplicatedStorage.API:FindFirstChild("TradeAPI/AddItemToOffer"):FireServer(pet.unique)
-							petCounter = petCounter + 1
-							if petCounter >= 18 then
-								break
-							end
-							task.wait()
-						end
-					end
-				end
-			end
-			local stuck = 30
-			repeat
-				local lock = Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.LockIcon.Visible
-				stuck -= 1
-				task.wait(1)
-
-			until not lock or stuck <= 0
-			-- wait for timer to hit 0
-
-			ClickTradeWindowPopUps()
-			task.wait(1)
-			ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
-			task.wait(3)
-			ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
-			petCounter = 0
-			ClickTradeWindowPopUps()
-		end)
-		task.wait(1)
-		ClickTradeWindowPopUps()
-		task.wait()
-	end
-end
-
-buyLure()
-
--- "lures_2023_campfire_cookies"  "lures_2023_flame_swirl_pie"
-baitId = findBait("fire_dimension_2024_burnt_bites_bait")
-
-if baitId == nil then
-	baitId = findBait("lures_2023_flame_swirl_pie")
-	if baitId == nil then
-		baitId = findBait("lures_2023_campfire_cookies")
-	end
-end
-
-task.wait(1)
--- will place bait but it will also collect pet
-placeBait(baitId)
-task.wait(1)
-placeBait(baitId)
-
-game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/SetDoorLocked"):InvokeServer(true)
 
 game.Players.PlayerAdded:Connect(function(player: Player)
 	player.CharacterAdded:Connect(function(character: Model)
@@ -1940,100 +1779,8 @@ game.Players.PlayerAdded:Connect(function(player: Player)
 	end)
 end)
 
-local function startAutoFarm()
-	if SETTINGS.ENABLE_AUTO_FARM then
-		findFurniture()
-		if Bed then
-			-- task.wait(math.random(1, 5))
-			-- FarmToggle:Set(true)
-			getgenv().auto_farm = true
-			autoFarm()
-			task.wait(2)
-		else
-			buyCrib()
-			-- FarmToggle:Set(false)
-			startAutoFarm()
-		end
-	end
-end
 
-Bypass("RouterClient").get("TeamAPI/ChooseTeam"):InvokeServer("Babies", { ["dont_send_back_home"] = true })
-task.wait(3)
-startAutoFarm()
-
-game:GetService("Players").LocalPlayer.OnTeleport:Connect(function(State)
-	if State == Enum.TeleportState.InProgress then
-		game:Shutdown()
-	end
-end)
-
-game.Players.PlayerRemoving:Connect(function(player)
-	if player.Name == getgenv().SETTINGS.TRADE_COLLECTOR_NAME then
-		stopDoingTasks = false
-	end
-end)
-
-if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Thanks for subscribing!") then
-	FireButton("Okay")
-end
-
-if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("You have been awarded") then
-	FireButton("Awesome!")
-end
-
-if Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Visible then
-	for _, v in pairs(Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Buttons:GetDescendants()) do
-		if v.Name == "TextLabel" then
-			if v.Text == "No Thanks" then
-				clickGuiButton(v.Parent.Parent) -- no thanks button
-				DailyBoolean = false
-			end
-		end
-	end
-end
-
-WelcomeScreen:Disconnect()
--- RobuxProductDialogConnection:Disconnect()
-
--- loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Barn.lua"))()
--- loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/BeetleTradeIn.lua"))()
--- loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Sunshine.lua"))()
-
--- local tele = fluxus or codex or arceusx
-
--- tele.queue_on_teleport([[
--- 		repeat task.wait() until game:IsLoaded()
--- 		game:Shutdown()
--- 		]])
-
--- game:GetService("RunService"):Set3dRenderingEnabled(false)
-
-local function SendMessage(url, message, userId)
-	local http = game:GetService("HttpService")
-	local headers = {
-		["Content-Type"] = "application/json",
-	}
-	local data = {
-		["content"] = `<@{userId}> {message}`,
-	}
-	local body = http:JSONEncode(data)
-	local response = request({
-		Url = url,
-		Method = "POST",
-		Headers = headers,
-		Body = body,
-	})
-	print("Sent")
-end
-
-local discordCooldown = false
-
-if
-	SETTINGS.WEBHOOK
-	and SETTINGS.WEBHOOK.URL
-	and #SETTINGS.WEBHOOK.URL >= 1
-	and Player.Name == SETTINGS.TRADE_COLLECTOR_NAME
-then
+if SETTINGS.WEBHOOK and SETTINGS.WEBHOOK.URL and #SETTINGS.WEBHOOK.URL >= 1 and Player.Name == SETTINGS.TRADE_COLLECTOR_NAME then
 	Player.PlayerGui.DialogApp.Dialog:GetPropertyChangedSignal("Visible"):Connect(function()
 		if discordCooldown then
 			return
@@ -2061,20 +1808,206 @@ then
 	end)
 end
 
------------          UI  Functions           ------------------
-local SelectedPet
-local TradeAllInventory
-local AllPetsToggle
-local LegendaryToggle
-local FullgrownToggle
-local TradeAllMegas
-local TradeAllNeons
-local LowTierToggle
-local GiftToggle
-local ToyToggle
-local FoodToggle
+-------------------------------------------------------------------------------------------------------------------
+--[[ Main ]]--
+-------------------------------------------------------------------------------------------------------------------
 
-local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/Rayfield/main/source"))()
+if not game:IsLoaded() then
+	game.Loaded:Wait()
+end
+
+if game.PlaceId ~= 920587237 then
+	return
+end
+
+repeat task.wait(1) until Bypass("ClientData").get_data()[Player.Name].loaded_in
+
+for _, v in getconnections(Player.Idled) do
+	v:Disable()
+end
+
+-- Player:WaitForChild("PlayerGui", 600)
+-- Player.PlayerGui:WaitForChild("NewsApp", 600)
+
+if gethui then
+	TestGui.Parent = gethui()
+elseif syn.protect_gui then
+	syn.protect_gui(TestGui)
+	TestGui.Parent = CoreGui
+elseif CoreGui:FindFirstChild("RobloxGui") then
+	TestGui.Parent = CoreGui:FindFirstChild("RobloxGui")
+else
+	TestGui.Parent = CoreGui
+end
+
+TestGui.Name = "TestGui"
+TestGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+TextButton.AnchorPoint = Vector2.new(0.5, 0.5)
+TextButton.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+TextButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+TextButton.BorderSizePixel = 0
+TextButton.Position = UDim2.new(0.65, 0, 0.91, 0)
+TextButton.Size = UDim2.new(0.1, 0, 0.1, 0)
+TextButton.Font = Enum.Font.SourceSans
+TextButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+TextButton.TextScaled = true
+TextButton.TextSize = 14.000
+TextButton.TextWrapped = true
+TextButton.Parent = TestGui
+
+UserGameSettings.GraphicsQualityLevel = 1
+UserGameSettings.MasterVolume = 0
+
+for i, v in debug.getupvalue(Bypass("RouterClient").init, 4) do
+	v.Name = i
+end
+
+if Player.PlayerGui.NewsApp.Enabled then
+	local AbsPlay = Player.PlayerGui.NewsApp
+		:WaitForChild("EnclosingFrame")
+		:WaitForChild("MainFrame")
+		:WaitForChild("Contents")
+		:WaitForChild("PlayButton")
+	clickGuiButton(AbsPlay)
+	-- firesignal(AbsPlay.MouseButton1Click)
+	NewsAppConnection:Disconnect()
+end
+
+if Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
+	if tutorialDebonce then
+		return
+	end
+	tutorialDebonce = true
+	local colorButton = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog
+		:WaitForChild("Info")
+		:WaitForChild("Response")
+		:WaitForChild("ColorTemplate")
+	local doneButton =
+		Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:WaitForChild("Buttons"):WaitForChild("ButtonTemplate")
+	if not colorButton then
+		return
+	end
+	clickGuiButton(colorButton)
+	clickGuiButton(doneButton)
+
+	tutorialDebonce = false
+	PickColorConn:Disconnect()
+end
+
+
+if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
+	if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("ban") then
+		FireButton("Okay")
+		banMessageConnection:Disconnect()
+	end
+end
+
+
+if Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
+	firesignal(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby.MouseButton1Click)
+	RoleChooserDialogConnection:Disconnect()
+end
+
+
+if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
+	if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("4.5%% Legendary") then
+		FireButton("Okay")
+	end
+end
+
+
+NewClaim()
+task.wait()
+NewTask()
+
+
+for _, pettable in pairs({ pets_common, pets_uncommon, pets_rare, pets_ultrarare }) do
+	for j, petlist in pairs(pettable) do
+		table.insert(Pets_commonto_ultrarare, petlist)
+	end
+end
+
+
+for _, pettable in pairs({ pets_legendary, pets_ultrarare, pets_rare, pets_uncommon, pets_common }) do
+	for _, petlist in pairs(pettable) do
+		table.insert(pets_legendary_to_common, petlist)
+	end
+end
+
+
+buyLure()
+
+
+-- "lures_2023_campfire_cookies"  "lures_2023_flame_swirl_pie"
+baitId = findBait("fire_dimension_2024_burnt_bites_bait")
+
+
+if baitId == nil then
+	baitId = findBait("lures_2023_flame_swirl_pie")
+	if baitId == nil then
+		baitId = findBait("lures_2023_campfire_cookies")
+	end
+end
+
+
+task.wait(1)
+-- will place bait but it will also collect pet
+placeBait(baitId)
+task.wait(1)
+placeBait(baitId)
+
+
+game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/SetDoorLocked"):InvokeServer(true)
+
+
+Bypass("RouterClient").get("TeamAPI/ChooseTeam"):InvokeServer("Babies", { ["dont_send_back_home"] = true })
+
+
+if Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Visible then
+	for _, v in pairs(Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Buttons:GetDescendants()) do
+		if v.Name == "TextLabel" then
+			if v.Text == "No Thanks" then
+				repeat
+					clickGuiButton(v.Parent.Parent) -- no thanks button
+				until not Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Visible
+				DailyBoolean = false
+				RobuxProductDialogConnection:Disconnect()
+			end
+		end
+	end
+end
+
+task.wait(3)
+startAutoFarm()
+
+
+if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Thanks for subscribing!") then
+	FireButton("Okay")
+end
+
+
+if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("You have been awarded") then
+	FireButton("Awesome!")
+end
+
+
+WelcomeScreen:Disconnect()
+-- RobuxProductDialogConnection:Disconnect()
+
+-- loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Barn.lua"))()
+-- loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/BeetleTradeIn.lua"))()
+-- loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Sunshine.lua"))()
+
+-- local tele = fluxus or codex or arceusx
+
+-- tele.queue_on_teleport([[
+-- 		repeat task.wait() until game:IsLoaded()
+-- 		game:Shutdown()
+-- 		]])
+
+-- game:GetService("RunService"):Set3dRenderingEnabled(false)
+
 local Window = Rayfield:CreateWindow({
 	Name = "Rayfield Example Window",
 	LoadingTitle = "Rayfield Interface Suite",
