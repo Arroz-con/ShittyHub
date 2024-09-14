@@ -55,6 +55,11 @@ getgenv().SETTINGS = {
 
 	PET_ONLY_PRIORITY = true,
 	PET_ONLY_PRIORITY_NAMES = {
+		"ocean_2024_kraken",
+		"ocean_2024_lionfish",
+		"ocean_2024_sea_angel",
+		"ocean_2024_dracula_fish",
+		"ocean_2024_urchin",
 		"celestial_2024_moonlight_moth",
 		"garden_2024_rosy_maple_moth",
 		"garden_2024_mushroom_friend",
@@ -76,6 +81,24 @@ getgenv().SETTINGS = {
 }
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Adoptme_Script"))()
+
+---[[
+
+-- ocean_2024_small_wish  ocean_2024_big_wish
+local wishId = "ocean_2024_big_wish"
+local howManyWishes = 20
+
+local function makeWish(wishId)
+    game.ReplicatedStorage.API["LootBoxAPI/ExchangeItemForReward"]:InvokeServer(wishId)
+end
+
+for _ = 1, howManyWishes do
+    makeWish(wishId)
+    task.wait(.2)
+end
+
+--]]
+
 
 --[[
 local function buyPet(petNameId: string, howManyToBuy: number)
