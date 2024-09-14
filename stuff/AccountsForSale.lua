@@ -3,8 +3,6 @@ getgenv().SETTINGS = {
 
 	FOCUS_FARM_AGE_POTION = true, -- if true, this will only farm 1 pet an keep aging to get aging potions
 
-	CELESTIAL_SUMMER_EVENT = true,
-
 	ENABLE_AUTO_FARM = true,
 	SET_FPS = 1,
 	PET_NEON_PRIORITY = false,
@@ -77,7 +75,7 @@ getgenv().SETTINGS = {
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Adoptme_Script"))()
 
----[[
+--[[
 local function buyPet(petNameId: string, howManyToBuy: number)
 	for _ = 1, howManyToBuy do
 		local hasMoney = game.ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", petNameId, {})
