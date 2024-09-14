@@ -86,7 +86,8 @@ local Pet2Buy = SETTINGS.PET_TO_BUY
 
 
 local TestGui = Instance.new("ScreenGui")
-local TextButton = Instance.new("TextButton")
+local GuiPopupButton = Instance.new("TextButton")
+local ClipboardButton = Instance.new("TextButton")
 
 local SelectedPet
 local TradeAllInventory
@@ -657,61 +658,36 @@ end
 
 local function getPet()
 	if SETTINGS.FOCUS_FARM_AGE_POTION then
-		if GetInventory:PetRarityAndAge("common", 6) then
-			return
-		end
-		if GetInventory:PetRarityAndAge("legendary", 6) then
-			return
-		end
-		if GetInventory:PetRarityAndAge("ultra_rare", 6) then
-			return
-		end
-		if GetInventory:PetRarityAndAge("rare", 6) then
-			return
-		end
-		if GetInventory:PetRarityAndAge("uncommon", 6) then
-			return
-		end
+		if GetInventory:PetRarityAndAge("common", 6) then return end
+		if GetInventory:PetRarityAndAge("legendary", 6) then return end
+		if GetInventory:PetRarityAndAge("ultra_rare", 6) then return end
+		if GetInventory:PetRarityAndAge("rare", 6) then return end
+		if GetInventory:PetRarityAndAge("uncommon", 6) then return end
 	end
 
 	if SETTINGS.PET_NEON_PRIORITY then
-		if getNeonPet() then
-			return
-		end
+		if getNeonPet() then return end
 	end
 
 	if SETTINGS.PET_ONLY_PRIORITY then
-		if priorityPet() then
-			return
-		end
+		if priorityPet() then return end
 	end
 
 	if SETTINGS.HATCH_EGG_PRIORITY then
-		if priorityEgg() then
-			return
-		end
+		if priorityEgg() then return end
+		
 		for i = 1, 1 do
 			ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", SETTINGS.HATCH_EGG_PRIORITY_NAMES[1], {})
 			return
 		end
 	end
 
-	if GetInventory:PetRarityAndAge("common", 5) then
-		return
-	end
-	if GetInventory:PetRarityAndAge("uncommon", 5) then
-		return
-	end
-	if GetInventory:PetRarityAndAge("rare", 5) then
-		return
-	end
-	if GetInventory:PetRarityAndAge("ultra_rare", 5) then
-		return
-	end
-	if GetInventory:PetRarityAndAge("legendary", 5) then
-		return
-	end
-
+	if GetInventory:PetRarityAndAge("legendary", 5) then return end
+	if GetInventory:PetRarityAndAge("ultra_rare", 5) then return end
+	if GetInventory:PetRarityAndAge("rare", 5) then return end
+	if GetInventory:PetRarityAndAge("uncommon", 5) then return end
+	if GetInventory:PetRarityAndAge("common", 5) then return end
+	
 	-- if GetGiftPet() then
 	--     task.wait(1)
 	--     if getLegendary() then return end
@@ -721,9 +697,7 @@ local function getPet()
 	--     if getCommon() then return end
 	-- end
 
-	if getEgg() then
-		return
-	end
+	if getEgg() then return end
 	-- if buyPet() then return end
 end
 
@@ -736,10 +710,7 @@ local function FoodAilments(FoodPassOn) --FoodPassOn means "icecream" for this e
 			hasFood = true
 			ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, { ["use_sound_delay"] = true })
 			task.wait(1)
-			ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(
-				v.unique,
-				Bypass("ClientData").get("pet_char_wrappers")[1].pet_unique
-			)
+			ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(v.unique,Bypass("ClientData").get("pet_char_wrappers")[1].pet_unique)
 			break
 		end
 	end
@@ -1338,11 +1309,10 @@ local function autoFarm()
 					NormalDialogChild.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
 						if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Crazy Currents") then
 							FireButton("Yes")
-						elseif
-							Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("invitation")
-						then
+						elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("invitation") then
 							game:Shutdown()
-						
+						elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("You found a") then
+							FireButton("Okay")
 						end
 					end)
 				end
@@ -1360,7 +1330,8 @@ local function autoFarm()
 					FireButton("Yes")
 				elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("invitation") then
 					game:Shutdown()
-				
+				elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("You found a") then
+					FireButton("Okay")
 				end
 			end)
 		end
@@ -1837,18 +1808,33 @@ end
 TestGui.Name = "TestGui"
 TestGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
-TextButton.AnchorPoint = Vector2.new(0.5, 0.5)
-TextButton.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
-TextButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
-TextButton.BorderSizePixel = 0
-TextButton.Position = UDim2.new(0.65, 0, 0.91, 0)
-TextButton.Size = UDim2.new(0.1, 0, 0.1, 0)
-TextButton.Font = Enum.Font.SourceSans
-TextButton.TextColor3 = Color3.fromRGB(0, 0, 0)
-TextButton.TextScaled = true
-TextButton.TextSize = 14.000
-TextButton.TextWrapped = true
-TextButton.Parent = TestGui
+GuiPopupButton.Text = "Gui Popup"
+GuiPopupButton.AnchorPoint = Vector2.new(0.5, 0.5)
+GuiPopupButton.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+GuiPopupButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+GuiPopupButton.BorderSizePixel = 0
+GuiPopupButton.Position = UDim2.new(0.65, 0, 0.91, 0)
+GuiPopupButton.Size = UDim2.new(0.1, 0, 0.1, 0)
+GuiPopupButton.Font = Enum.Font.SourceSans
+GuiPopupButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+GuiPopupButton.TextScaled = true
+GuiPopupButton.TextSize = 14.000
+GuiPopupButton.TextWrapped = true
+GuiPopupButton.Parent = TestGui
+
+ClipboardButton.Text = "Account Clipboard"
+ClipboardButton.AnchorPoint = Vector2.new(0.5, 0.5)
+ClipboardButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
+ClipboardButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+ClipboardButton.BorderSizePixel = 0
+ClipboardButton.Position = UDim2.new(0.78, 0, 0.91, 0)
+ClipboardButton.Size = UDim2.new(0.1, 0, 0.1, 0)
+ClipboardButton.Font = Enum.Font.SourceSans
+ClipboardButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+ClipboardButton.TextScaled = true
+ClipboardButton.TextSize = 14.000
+ClipboardButton.TextWrapped = true
+ClipboardButton.Parent = TestGui
 
 UserGameSettings.GraphicsQualityLevel = 1
 UserGameSettings.MasterVolume = 0
@@ -1990,7 +1976,7 @@ repeat
 		end
 	end
 	task.wait(1)
-	
+
 until not Player.PlayerGui.DialogApp.Dialog.Visible
 
 task.wait(3)
@@ -2049,12 +2035,16 @@ local Window = Rayfield:CreateWindow({
 	},
 })
 
--- Rayfield:Minimise()
-TextButton.MouseButton1Click:Connect(function()
-	if guiCooldown then
-		return
-	end
+ClipboardButton.Activated:Connect(function()
+	if guiCooldown then return end
+	guiCooldown = true
+	Clipboard:CopyAllInventory()
+	guiCooldown = false
+end)
 
+-- Rayfield:Minimise()
+GuiPopupButton.MouseButton1Click:Connect(function()
+	if guiCooldown then return end
 	guiCooldown = true
 	Rayfield:Unhide()
 	task.wait()
