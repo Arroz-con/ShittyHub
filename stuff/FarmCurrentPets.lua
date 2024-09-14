@@ -82,8 +82,7 @@ getgenv().SETTINGS = {
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Adoptme_Script"))()
 
----[[
-
+--[[
 -- ocean_2024_small_wish  ocean_2024_big_wish
 local wishId = "ocean_2024_big_wish"
 local howManyWishes = 20
