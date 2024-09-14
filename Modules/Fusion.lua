@@ -67,7 +67,6 @@ function Fusion:MakeMega(bool: boolean)
         end
 
     until #fusionReady <= 3
-    print("done fusion")
 end
 
 return Fusion
