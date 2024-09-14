@@ -33,32 +33,34 @@ local function SetLocationFunc(a, b, c)
 end
 
 function Teleport.DeleteMainMapParts()
-	local MainMap = workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
-	if not MainMap then
-		print("not in mainmap")
-		return
-	end
+	-- local MainMap = workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
+	-- if not MainMap then
+	-- 	print("not in mainmap")
+	-- 	return
+	-- end
 
-	MainMap:WaitForChild("Static")
-	workspace:WaitForChild("StaticMap")
+	-- MainMap:WaitForChild("Static")
+	-- workspace:WaitForChild("StaticMap")
 
-	workspace:FindFirstChildWhichIsA("Terrain"):Clear()
+	if workspace:FindFirstChildWhichIsA("Terrain") then
+        workspace.Terrain:Clear()
+    end
 
-	if workspace.StaticMap:FindFirstChild("Balloon") then
-		workspace.StaticMap:FindFirstChild("Balloon"):Destroy()
-		MainMap.Static:FindFirstChild("Campsite"):Destroy()
-		MainMap.Static:FindFirstChild("Bridges"):Destroy()
-		MainMap.Static:FindFirstChild("Boundaries"):Destroy()
-		MainMap.Static:FindFirstChild("Props"):Destroy()
-		MainMap.Static:FindFirstChild("Terrain"):FindFirstChild("Mountains"):Destroy()
-		MainMap.Static:FindFirstChild("Terrain"):FindFirstChild("Road"):Destroy()
-		MainMap.Static:FindFirstChild("Terrain"):FindFirstChild("RiverEdge"):Destroy()
-		MainMap.Static:FindFirstChild("ThemeArea"):Destroy()
-		MainMap.Static:FindFirstChild("Beach"):Destroy()
-		MainMap:FindFirstChild("Park"):Destroy()
+	-- if workspace.StaticMap:FindFirstChild("Balloon") then
+	-- 	workspace.StaticMap:FindFirstChild("Balloon"):Destroy()
+	-- 	MainMap.Static:FindFirstChild("Campsite"):Destroy()
+	-- 	MainMap.Static:FindFirstChild("Bridges"):Destroy()
+	-- 	MainMap.Static:FindFirstChild("Boundaries"):Destroy()
+	-- 	MainMap.Static:FindFirstChild("Props"):Destroy()
+	-- 	MainMap.Static:FindFirstChild("Terrain"):FindFirstChild("Mountains"):Destroy()
+	-- 	MainMap.Static:FindFirstChild("Terrain"):FindFirstChild("Road"):Destroy()
+	-- 	MainMap.Static:FindFirstChild("Terrain"):FindFirstChild("RiverEdge"):Destroy()
+	-- 	MainMap.Static:FindFirstChild("ThemeArea"):Destroy()
+	-- 	MainMap.Static:FindFirstChild("Beach"):Destroy()
+	-- 	MainMap:FindFirstChild("Park"):Destroy()
 		-- MainMap:FindFirstChild("Buildings"):Destroy()
 		-- MainMap:FindFirstChild("Event"):Destroy()
-	end
+	-- end
 end
 
 function Teleport.MainMap()
