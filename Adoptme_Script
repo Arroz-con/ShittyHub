@@ -1647,21 +1647,15 @@ DailyClaimConnection = Player.PlayerGui.DailyLoginApp:GetPropertyChangedSignal("
 	for _, v in pairs(Player.PlayerGui.DailyLoginApp.Frame.Body.Buttons:GetDescendants()) do
 		if v.Name == "TextLabel" then
 			if v.Text == "CLOSE" then
-				repeat
-					clickGuiButton(v.Parent.Parent) -- Close button
-					task.wait(1)
-				until not Player.PlayerGui.DailyLoginApp.Frame.Visible
-
+				clickGuiButton(v.Parent.Parent) -- Close button
+				task.wait(1)
 				GrabDailyReward()
 				DailyClaimConnection:Disconnect()
 			elseif v.Text == "CLAIM!" then
-				repeat
-					clickGuiButton(v.Parent.Parent) -- Claim and Close button
-					task.wait(1)
-				until not Player.PlayerGui.DailyLoginApp.Frame.Visible
+				clickGuiButton(v.Parent.Parent) -- Claim and Close button
+				task.wait(1)
 				-- firesignal(v.Parent.Parent.MouseButton1Click) --claim button
 				-- firesignal(v.Parent.Parent.MouseButton1Click) --close button
-
 				GrabDailyReward()
 				DailyClaimConnection:Disconnect()
 			end
@@ -1963,20 +1957,41 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAP
 
 Bypass("RouterClient").get("TeamAPI/ChooseTeam"):InvokeServer("Babies", { ["dont_send_back_home"] = true })
 
-
-if Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Visible then
-	for _, v in pairs(Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Buttons:GetDescendants()) do
-		if v.Name == "TextLabel" then
-			if v.Text == "No Thanks" then
-				repeat
-					clickGuiButton(v.Parent.Parent) -- no thanks button
-				until not Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Visible
-				DailyBoolean = false
-				RobuxProductDialogConnection:Disconnect()
+repeat
+	if Player.PlayerGui.DailyLoginApp.Frame.Visible then
+		for _, v in pairs(Player.PlayerGui.DailyLoginApp.Frame.Body.Buttons:GetDescendants()) do
+			if v.Name == "TextLabel" then
+				if v.Text == "CLOSE" then
+					clickGuiButton(v.Parent.Parent) -- Close button
+					task.wait(1)
+					GrabDailyReward()
+					DailyClaimConnection:Disconnect()
+				elseif v.Text == "CLAIM!" then
+					clickGuiButton(v.Parent.Parent) -- Claim and Close button
+					task.wait(1)
+					-- firesignal(v.Parent.Parent.MouseButton1Click) --claim button
+					-- firesignal(v.Parent.Parent.MouseButton1Click) --close button
+					GrabDailyReward()
+					DailyClaimConnection:Disconnect()
+				end
 			end
 		end
 	end
-end
+
+	if Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Visible then
+		for _, v in pairs(Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Buttons:GetDescendants()) do
+			if v.Name == "TextLabel" then
+				if v.Text == "No Thanks" then
+					clickGuiButton(v.Parent.Parent) -- no thanks button
+					DailyBoolean = false
+					RobuxProductDialogConnection:Disconnect()
+				end
+			end
+		end
+	end
+	task.wait(1)
+	
+until not Player.PlayerGui.DialogApp.Dialog.Visible
 
 task.wait(3)
 startAutoFarm()
