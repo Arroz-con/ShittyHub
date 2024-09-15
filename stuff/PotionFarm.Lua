@@ -1,4 +1,14 @@
 getgenv().SETTINGS = {
+	WEBHOOK = {
+		URL = "",
+		USER_ID = "",
+	},
+
+	OCEAN_EVENT = {
+		EXCHANGE = true,
+		WISH = "ocean_2024_big_wish",
+	},
+	
 	PET_TO_BUY = "garden_2024_egg", -- add pet or egg to buy when bot has no pets/egg left to level
 
 	FOCUS_FARM_AGE_POTION = true, -- if true, this will only farm 1 pet an keep aging to get aging potions
