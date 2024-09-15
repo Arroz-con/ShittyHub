@@ -10,16 +10,19 @@ local Trade = {}
 local lowTierRarity = {"common", "uncommon", "rare", "ultra_rare"}
 
 function Trade:AcceptNegotiationAndConfirm()
-    if Bypass("ClientData").get_data()[Player.Name].in_active_trade then
-        if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items == 0 then
-            ReplicatedStorage.API:FindFirstChild("TradeAPI/DeclineTrade"):FireServer()
-            return false
+    repeat
+        if Bypass("ClientData").get_data()[Player.Name].in_active_trade then
+            if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items == 0 then
+                ReplicatedStorage.API:FindFirstChild("TradeAPI/DeclineTrade"):FireServer()
+                return false
+            end
+            
+            ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
+            task.wait(3)
+            ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
         end
-    end
-
-    ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
-    task.wait(3)
-    ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
+    until not Bypass("ClientData").get_data()[Player.Name].in_active_trade
+    
     return true
 end
 
