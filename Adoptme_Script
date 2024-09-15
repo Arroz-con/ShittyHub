@@ -1302,6 +1302,17 @@ local function autoFarm()
 		end
 	end
 
+	local function makeWish(wishId)
+		local success, errMessage = pcall(function()
+			game.ReplicatedStorage.API["LootBoxAPI/ExchangeItemForReward"]:InvokeServer(wishId)
+		end)
+	
+		if not success then
+			return false
+		else
+			return true
+		end
+	end
 
 	-- fires when it ask you if you want to join minigame
 	Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(NormalDialogChild)
@@ -1313,6 +1324,13 @@ local function autoFarm()
 					NormalDialogChild.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
 						if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Crazy Currents") then
 							FireButton("Yes")
+							task.wait(5)
+							if SETTINGS.OCEAN_EVENT.EXCHANGE then
+								for i = 1, 10, 1 do
+									if not makeWish(SETTINGS.OCEAN_EVENT.WISH) then return end
+									task.wait(.1)
+								end
+							end
 						elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("invitation") then
 							game:Shutdown()
 						elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("You found a") then
@@ -1332,6 +1350,13 @@ local function autoFarm()
 			Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
 				if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Crazy Currents") then
 					FireButton("Yes")
+					task.wait(5)
+					if SETTINGS.OCEAN_EVENT.EXCHANGE then
+						for i = 1, 10, 1 do
+							if not makeWish(SETTINGS.OCEAN_EVENT.WISH) then return end
+							task.wait(.1)
+						end
+					end
 				elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("invitation") then
 					game:Shutdown()
 				elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("You found a") then
