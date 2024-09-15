@@ -30,7 +30,7 @@ function Trade:SendTradeRequest(selectedPlayer: Instance)
             print("trade sent to "..selectedPlayer.Name)
             ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(selectedPlayer)
             task.wait(10)
-        until Player.PlayerGui.TradeApp.Frame.Visible
+        until Player.PlayerGui.TradeApp.Frame.Visible or not Players[selectedPlayer.Name]
     end
 end
 
@@ -63,6 +63,7 @@ function Trade:LowTiers()
     end
 end
 
+
 function Trade:NewbornToPostteen(rarity: string)
     for _, petDB in InventoryDB.pets do
         for _, pet in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
@@ -77,7 +78,6 @@ function Trade:NewbornToPostteen(rarity: string)
         end
     end
 end
-
 
 
 function Trade:Fullgrown()
@@ -167,5 +167,6 @@ function Trade:AllNeons(version: string)
         end
     end
 end
+
 
 return Trade
