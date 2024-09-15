@@ -63,6 +63,22 @@ function Trade:LowTiers()
     end
 end
 
+function Trade:NewbornToPostteen(rarity: string)
+    for _, petDB in InventoryDB.pets do
+        for _, pet in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
+            if pet.id == "practice_dog" then continue end
+            if petDB.id == pet.id and petDB.rarity == rarity and pet.properties.age <=5 and not pet.properties.neon and not pet.properties.mega_neon then
+                ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
+                if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items >= 18 then
+                    break
+                end
+                task.wait(0.1)
+            end
+        end
+    end
+end
+
+
 
 function Trade:Fullgrown()
     for _, pet in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
@@ -78,10 +94,10 @@ end
 
 
 function Trade:AllPetsOfSameRarity(rarity: string)
-    for _, pet in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
-        for _, petDB in InventoryDB.pets do
+    for _, petDB in InventoryDB.pets do
+        for _, pet in Bypass("ClientData").get_data()[Player.Name].inventory.pets do     
             if pet.id == "practice_dog" then continue end
-            if rarity == petDB.rarity and pet.id == petDB.id then
+            if petDB.id == pet.id and petDB.rarity == rarity then
                 ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
                 if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items >= 18 then
                     return
