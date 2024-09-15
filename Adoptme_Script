@@ -1277,6 +1277,10 @@ local function autoFarm()
 				repeat
 					CrazySea.GetChests()
 					CrazySea.GetCoins()
+					if not workspace.StaticMap["ocean_minigame_minigame_state"]["is_game_active"] then
+						print("minigame is not active")
+						game:Shutdown()
+					end
 					task.wait()
 				until not workspace.Interiors:FindFirstChild("OceanMinigameInterior")
 				
@@ -1590,9 +1594,7 @@ end)
 RobuxProductDialogConnection = Player.PlayerGui.DialogApp.Dialog:GetPropertyChangedSignal("Visible"):Connect(function()
 	if not Player.PlayerGui.DialogApp.Dialog.Visible then return end
 	Player.PlayerGui.DialogApp.Dialog:WaitForChild("RobuxProductDialog")
-	print("RobuxProductDialog")
 	Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog:GetPropertyChangedSignal("Visible"):Connect(function()
-		print("about to click product button")
 		task.wait()
 		if not Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Visible then return end
 		for _, v in pairs(Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Buttons:GetDescendants()) do
