@@ -28,6 +28,7 @@ function Trade:SendTradeRequest(selectedPlayer: Instance)
     if not Player.PlayerGui.TradeApp.Frame.Visible then
         repeat
             print("trade sent to "..selectedPlayer.Name)
+            if not Players[selectedPlayer.Name] then return end
             ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(selectedPlayer)
             task.wait(10)
         until Player.PlayerGui.TradeApp.Frame.Visible or not Players[selectedPlayer.Name]
@@ -40,7 +41,7 @@ function Trade:SelectTabAndTrade(tab: string, selectedItem: string)
         if item.id == selectedItem then
             ReplicatedStorage.API:FindFirstChild("TradeAPI/AddItemToOffer"):FireServer(item.unique)
             if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items >= 18 then
-                break
+                return
             end
             task.wait(0.1)
         end
@@ -55,7 +56,7 @@ function Trade:LowTiers()
             if petDB.id == pet.id and table.find(lowTierRarity, petDB.rarity) and pet.properties.age <=5 and not pet.properties.neon and not pet.properties.mega_neon then
                 ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
                 if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items >= 18 then
-                    break
+                    return
                 end
                 task.wait(0.1)
             end
@@ -71,10 +72,28 @@ function Trade:NewbornToPostteen(rarity: string)
             if petDB.id == pet.id and petDB.rarity == rarity and pet.properties.age <=5 and not pet.properties.neon and not pet.properties.mega_neon then
                 ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
                 if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items >= 18 then
-                    break
+                    return
                 end
                 task.wait(0.1)
             end
+        end
+    end
+end
+
+
+function Trade:NewbornToPostteenByPetId(petIds: table)
+    if typeof(petIds) ~= "table" then print("not a table") return end
+
+    if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items >= 18 then return end
+
+    for _, pet in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
+        if pet.id == "practice_dog" then continue end
+        if table.find(petIds, pet.id) and pet.properties.age <=5 and not pet.properties.mega_neon then
+            ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
+            if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items >= 18 then
+                return
+            end
+            task.wait(0.1)
         end
     end
 end
@@ -85,7 +104,7 @@ function Trade:Fullgrown()
         if pet.properties.age == 6 or (pet.properties.age == 6 and pet.properties.neon) or pet.properties.mega_neon then
             ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
             if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items >= 18 then
-                break
+                return
             end
             task.wait(0.1)
         end
@@ -133,7 +152,7 @@ function Trade:AllInventory(TabPassOn: string) -- need to test
         if item.id == "practice_dog" then continue end
         ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(item.unique)
         if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items >= 18 then
-            break
+            return
         end
         task.wait(0.1)
     end
@@ -147,7 +166,7 @@ function Trade:AllPets()
         if Bypass("ClientData").get_data()[Player.Name].in_active_trade then
             ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
             if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items >= 18 then
-                break
+                return
             end
         end
         task.wait(0.1)
@@ -161,7 +180,7 @@ function Trade:AllNeons(version: string)
             ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
 
             if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items >= 18 then
-                break
+                return
             end
             task.wait(0.1)
         end
