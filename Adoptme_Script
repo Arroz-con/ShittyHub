@@ -5,6 +5,7 @@ end
 if game.PlaceId ~= 920587237 then
 	return
 end
+
 -----------------------------------------------------------------------------------------------
 --[[ Services ]]--
 -----------------------------------------------------------------------------------------------
@@ -70,19 +71,20 @@ local baitId
 local selectedPlayer
 local selectedItem
 
-getgenv().auto_accept_trade = true
-getgenv().auto_trade_all_pets = true
-getgenv().auto_trade_fullgrown_neon_and_mega = true
-getgenv().auto_trade_custom = true
-getgenv().auto_trade_semi_auto = true
-getgenv().auto_trade_lowtier_pets = true
-getgenv().auto_farm = true
-getgenv().auto_make_neon = true
-getgenv().auto_trade_Legendary = true
-getgenv().auto_trade_custom_gifts = true
-getgenv().auto_trade_all_neons = true
-getgenv().auto_trade_eggs = true
-getgenv().auto_trade_all_inventory = true
+getgenv().auto_accept_trade = false
+getgenv().auto_trade_all_pets = false
+getgenv().auto_trade_fullgrown_neon_and_mega = false
+getgenv().auto_trade_custom = false
+getgenv().auto_trade_semi_auto = false
+getgenv().auto_trade_lowtier_pets = false
+getgenv().auto_trade_rarity_pets = false
+getgenv().auto_farm = false
+getgenv().auto_make_neon = false
+getgenv().auto_trade_Legendary = false
+getgenv().auto_trade_custom_gifts = false
+getgenv().auto_trade_all_neons = false
+getgenv().auto_trade_eggs = false
+getgenv().auto_trade_all_inventory = false
 getgenv().feedAgeUpPotionToggle = false
 
 getgenv().PetCurrentlyFarming = ""
@@ -104,6 +106,7 @@ local FullgrownToggle
 local TradeAllMegas
 local TradeAllNeons
 local LowTierToggle
+local RarityToggle
 local GiftToggle
 local ToyToggle
 local FoodToggle
@@ -1724,10 +1727,14 @@ Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(NormalDialogChild)
 				NormalDialogChild:WaitForChild("Info")
 				NormalDialogChild.Info:WaitForChild("TextLabel")
 				NormalDialogChild.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
-					if NormalDialogChild.Info.TextLabel.Text:match("This trade seems unbalanced") then
+					if NormalDialogChild.Info.TextLabel.Text:match("Be careful when trading") then
+						FireButton("Okay")
+					elseif NormalDialogChild.Info.TextLabel.Text:match("This trade seems unbalanced") then
 						FireButton("Next")
 					elseif NormalDialogChild.Info.TextLabel.Text:match("Any items lost to scams") then
 						FireButton("I understand")
+					elseif NormalDialogChild.Info.TextLabel.Text:match("sent you a trade request") then
+						FireButton("Accept")
 					end
 				end)
 			end
@@ -1741,16 +1748,12 @@ Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal("Visible
 		Player.PlayerGui.DialogApp.Dialog.NormalDialog:WaitForChild("Info")
 		Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info:WaitForChild("TextLabel")
 		Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
-			if
-				Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Be careful when trading")
-			then
+			if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Be careful when trading") then
 				FireButton("Okay")
-			elseif
-				Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match(
-					"This trade seems unbalanced"
-				)
-			then
+			elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("This trade seems unbalanced") then
 				FireButton("Next")
+			elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("sent you a trade request") then
+				FireButton("Accept")
 			end
 		end)
 	end
@@ -1806,6 +1809,16 @@ if SETTINGS.WEBHOOK and SETTINGS.WEBHOOK.URL and #SETTINGS.WEBHOOK.URL >= 1 and 
 		end)
 	end)
 end
+
+
+Player.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.PartnerOffer.Accepted:GetPropertyChangedSignal("ImageTransparency"):Connect(function()
+    Trade:AutoAcceptTrade()
+end)
+
+Player.PlayerGui.TradeApp.Frame.ConfirmationFrame.PartnerOffer.Accepted:GetPropertyChangedSignal("ImageTransparency"):Connect(function()
+    Trade:AutoAcceptTrade()
+end)
+
 
 -------------------------------------------------------------------------------------------------------------------
 --[[ Main ]]--
@@ -2003,7 +2016,7 @@ repeat
 	end
 	task.wait(1)
 
-until not Player.PlayerGui.DialogApp.Dialog.Visible
+until not Player.PlayerGui.DailyLoginApp.Frame.Visible
 
 task.wait(3)
 startAutoFarm()
@@ -2290,6 +2303,24 @@ LowTierToggle = TradeTab:CreateToggle({
 			local hasPets = Trade:AcceptNegotiationAndConfirm()
 			if not hasPets then
 				LowTierToggle:Set(false)
+			end
+			task.wait()
+		end
+	end,
+})
+
+RarityToggle = TradeTab:CreateToggle({
+	Name = "Auto Trade Legendary Newborn to Post-Teen",
+	CurrentValue = false,
+	Flag = "Toggle1",
+	Callback = function(Value)
+		getgenv().auto_trade_rarity_pets = Value
+		while getgenv().auto_trade_rarity_pets do
+			Trade:SendTradeRequest(selectedPlayer)
+			Trade:NewbornToPostteen("legendary")
+			local hasPets = Trade:AcceptNegotiationAndConfirm()
+			if not hasPets then
+				RarityToggle:Set(false)
 			end
 			task.wait()
 		end
