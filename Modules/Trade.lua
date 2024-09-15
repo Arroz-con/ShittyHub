@@ -51,7 +51,8 @@ end
 function Trade:LowTiers()
     for _, pet in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
         if pet.id == "practice_dog" then continue end
-        if table.find(lowTierRarity, pet.rarity) and pet.properties.age <=5 and not pet.properties.neon and not pet.properties.mega_neon then
+        if table.find(lowTierRarity, tostring(pet.rarity)) and pet.properties.age <=5 and not pet.properties.neon and not pet.properties.mega_neon then
+            print(typeof(pet.unique))
             ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
             if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items >= 18 then
                 break
