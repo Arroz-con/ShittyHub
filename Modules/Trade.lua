@@ -9,21 +9,30 @@ local Trade = {}
 
 local lowTierRarity = {"common", "uncommon", "rare", "ultra_rare"}
 
+-- sender_offer is then one who send the trade
+-- recipient_offer is the one who got the trade
 function Trade:AcceptNegotiationAndConfirm()
     repeat
         if Bypass("ClientData").get_data()[Player.Name].in_active_trade then
-            ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
-            task.wait(3)
+            if Bypass("ClientData").get_data()[Player.Name].trade.current_stage == "negotiation" then
+                if not Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.negotiated then
+                    ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
+                end
+            end
 
-            if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items == 0 then
+            if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items == 0 and #Bypass("ClientData").get_data()[Player.Name].trade.recipient_offer.items == 0 then
                 ReplicatedStorage.API:FindFirstChild("TradeAPI/DeclineTrade"):FireServer()
                 return false
             end
-            
-            ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
+
+            if Bypass("ClientData").get_data()[Player.Name].trade.current_stage == "confirmation" then
+                if not Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.confirmed then
+                    ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
+                end
+            end
         end
-        
-        task.wait()
+
+        task.wait(1)
     until not Bypass("ClientData").get_data()[Player.Name].in_active_trade
     
     return true
