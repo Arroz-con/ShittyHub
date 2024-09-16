@@ -2530,7 +2530,7 @@ getgenv().PotionToggle = AgeUpPotionTab:CreateToggle({
 --     dropDownName:Refresh(petOptions, true)
 -- end
 
-if Players.LocalPlayer.Name == SETTINGS.TRADE_COLLECTOR_NAME and SETTINGS.ENABLE_TRADE_COLLECTOR == true then
-	getgenv().AutoTradeToggle:Set(true)
-	task.wait(1)
-end
+-- if Players.LocalPlayer.Name == SETTINGS.TRADE_COLLECTOR_NAME and SETTINGS.ENABLE_TRADE_COLLECTOR == true then
+-- 	getgenv().AutoTradeToggle:Set(true)
+-- 	task.wait(1)
+-- end
