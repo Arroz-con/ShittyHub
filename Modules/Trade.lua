@@ -12,15 +12,18 @@ local lowTierRarity = {"common", "uncommon", "rare", "ultra_rare"}
 function Trade:AcceptNegotiationAndConfirm()
     repeat
         if Bypass("ClientData").get_data()[Player.Name].in_active_trade then
+            ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
+            task.wait(3)
+
             if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items == 0 then
                 ReplicatedStorage.API:FindFirstChild("TradeAPI/DeclineTrade"):FireServer()
                 return false
             end
             
-            ReplicatedStorage.API:FindFirstChild("TradeAPI/AcceptNegotiation"):FireServer()
-            task.wait(3)
             ReplicatedStorage.API:FindFirstChild("TradeAPI/ConfirmTrade"):FireServer()
         end
+        
+        task.wait()
     until not Bypass("ClientData").get_data()[Player.Name].in_active_trade
     
     return true
@@ -67,8 +70,12 @@ end
 
 
 function Trade:NewbornToPostteen(rarity: string)
-    task.wait(1)
-    if not Bypass("ClientData").get_data()[Player.Name].in_active_trade then return end
+    local timeOut = 60
+    repeat
+        task.wait(1)
+        timeOut -= 1
+    until Bypass("ClientData").get_data()[Player.Name].in_active_trade or timeOut <= 0
+
     for _, petDB in InventoryDB.pets do
         for _, pet in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
             if pet.id == "practice_dog" then continue end
