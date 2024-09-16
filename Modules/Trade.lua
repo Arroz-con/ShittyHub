@@ -30,8 +30,6 @@ end
 function Trade:SendTradeRequest(selectedPlayer: Instance)
     if not Player.PlayerGui.TradeApp.Frame.Visible then
         repeat
-            print("trade sent to "..selectedPlayer.Name)
-            if not Players[selectedPlayer.Name] then return end
             ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(selectedPlayer)
             task.wait(10)
         until Player.PlayerGui.TradeApp.Frame.Visible or not Players[selectedPlayer.Name]
@@ -69,6 +67,8 @@ end
 
 
 function Trade:NewbornToPostteen(rarity: string)
+    task.wait(1)
+    if not Bypass("ClientData").get_data()[Player.Name].in_active_trade then return end
     for _, petDB in InventoryDB.pets do
         for _, pet in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
             if pet.id == "practice_dog" then continue end
