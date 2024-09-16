@@ -1358,7 +1358,12 @@ local function autoFarm()
 			Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info:WaitForChild("TextLabel")
 			Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
 				if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Crazy Currents") then
+					if isMuleInGame() then
+						FireButton("No")
+						return
+					end
 					FireButton("Yes")
+					stopDoingTasks = true
 					task.wait(5)
 					if SETTINGS.OCEAN_EVENT.EXCHANGE then
 						for i = 1, 10, 1 do
