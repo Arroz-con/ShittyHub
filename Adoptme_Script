@@ -2316,7 +2316,10 @@ RarityToggle = TradeTab:CreateToggle({
 	Callback = function(Value)
 		getgenv().auto_trade_rarity_pets = Value
 		while getgenv().auto_trade_rarity_pets do
-			Trade:SendTradeRequest(selectedPlayer)
+			if selectedPlayer then
+				Trade:SendTradeRequest(selectedPlayer)
+			end
+			
 			Trade:NewbornToPostteen("legendary")
 			local hasPets = Trade:AcceptNegotiationAndConfirm()
 			if not hasPets then
