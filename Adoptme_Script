@@ -2177,7 +2177,8 @@ local playerDropdown = TradeTab:CreateDropdown({
 	MultipleOptions = false,
 	Flag = "Dropdown1",
 	Callback = function(Option)
-		selectedPlayer = Players[Option[1]]
+		selectedPlayer = Option
+		print(selectedPlayer)
 	end,
 })
 
@@ -2323,7 +2324,7 @@ LowTierToggle = TradeTab:CreateToggle({
 			if selectedPlayer then
 				Trade:SendTradeRequest(selectedPlayer)
 			end
-			
+
 			Trade:LowTiers()
 			local hasPets = Trade:AcceptNegotiationAndConfirm()
 			if not hasPets then
