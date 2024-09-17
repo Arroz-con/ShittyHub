@@ -72,6 +72,11 @@ function Trade:LowTiers()
         timeOut -= 1
     until Bypass("ClientData").get_data()[Player.Name].in_active_trade or timeOut <= 0
 
+    if timeOut <= 0 then
+        print("timeOut is 0, no trade window")
+        return
+    end
+
     if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items >= 18 then
         return
     end
@@ -98,6 +103,11 @@ function Trade:NewbornToPostteen(rarity: string)
         timeOut -= 1
     until Bypass("ClientData").get_data()[Player.Name].in_active_trade or timeOut <= 0
 
+    if timeOut <= 0 then
+        print("timeOut is 0, no trade window")
+        return
+    end
+    
     if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items >= 18 then
         return
     end
