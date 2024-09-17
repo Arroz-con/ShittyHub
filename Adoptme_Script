@@ -2545,9 +2545,3 @@ getgenv().PotionToggle = AgeUpPotionTab:CreateToggle({
 -- 	getgenv().AutoTradeToggle:Set(true)
 -- 	task.wait(1)
 -- end
-
-for _, player in Players:GetPlayers() do
-	if player.Name == getgenv().SETTINGS.TRADE_COLLECTOR_NAME then
-		tradeCollector(SETTINGS.TRADE_COLLECTOR_NAME)
-	end
-end
