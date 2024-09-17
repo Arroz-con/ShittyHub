@@ -66,6 +66,16 @@ end
 
 
 function Trade:LowTiers()
+    local timeOut = 60
+    repeat
+        task.wait(1)
+        timeOut -= 1
+    until Bypass("ClientData").get_data()[Player.Name].in_active_trade or timeOut <= 0
+
+    if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items >= 18 then
+        return
+    end
+
     for _, petDB in InventoryDB.pets do
         for _, pet in Bypass("ClientData").get_data()[Player.Name].inventory.pets do 
             if pet.id == "practice_dog" then continue end
