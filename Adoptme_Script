@@ -2064,7 +2064,7 @@ WelcomeScreen:Disconnect()
 -- game:GetService("RunService"):Set3dRenderingEnabled(false)
 
 local Window = Rayfield:CreateWindow({
-	Name = "Rayfield Example Window",
+	Name = Player.Name,
 	LoadingTitle = "Rayfield Interface Suite",
 	LoadingSubtitle = "by Sirius",
 	ConfigurationSaving = {
@@ -2178,6 +2178,13 @@ local playerDropdown = TradeTab:CreateDropdown({
 	Flag = "Dropdown1",
 	Callback = function(Option)
 		selectedPlayer = Players[Option[1]]
+	end,
+})
+
+TradeTab:CreateButton({
+	Name = "Refesh player list",
+	Callback = function()
+		playerDropdown:Set(getPlayersInGame())
 	end,
 })
 
@@ -2347,7 +2354,7 @@ RarityToggle = TradeTab:CreateToggle({
 
 TradeTab:CreateSection("Send Custom Pet, sends ALL ages of selected pet")
 
-local PetsDropdown = TradeTab:CreateDropdown({
+local petsDropdown = TradeTab:CreateDropdown({
 	Name = "Select a Pet",
 	Options = petsTable,
 	CurrentOption = { petsTable[1] },
@@ -2357,6 +2364,14 @@ local PetsDropdown = TradeTab:CreateDropdown({
 		selectedPet = Option[1]
 	end,
 })
+
+TradeTab:CreateButton({
+	Name = "Refesh Pet list",
+	Callback = function()
+		petsDropdown:Set(GetInventory:TabId("pets"))
+	end,
+})
+
 
 PetToggle = TradeTab:CreateToggle({
 	Name = "Auto Trade Selected Pet",
@@ -2378,7 +2393,9 @@ PetToggle = TradeTab:CreateToggle({
 	end,
 })
 
-local GiftsDropdown = TradeTab:CreateDropdown({
+TradeTab:CreateSection(" ")
+
+local giftsDropdown = TradeTab:CreateDropdown({
 	Name = "Select gift",
 	Options = giftsTable,
 	CurrentOption = { giftsTable[1] },
@@ -2386,6 +2403,13 @@ local GiftsDropdown = TradeTab:CreateDropdown({
 	Flag = "Dropdown1",
 	Callback = function(Option)
 		selectedGift = Option[1]
+	end,
+})
+
+TradeTab:CreateButton({
+	Name = "Refesh Gift list",
+	Callback = function()
+		giftsDropdown:Set(GetInventory:TabId("gifts"))
 	end,
 })
 
@@ -2407,9 +2431,9 @@ GiftToggle = TradeTab:CreateToggle({
 	end,
 })
 
--- TradeTab:CreateSection("Send Toys")
+TradeTab:CreateSection(" ")
 
-local ToysDropdown = TradeTab:CreateDropdown({
+local toysDropdown = TradeTab:CreateDropdown({
 	Name = "Select toys",
 	Options = toysTable,
 	CurrentOption = { toysTable[1] }, -- need to change to toys table
@@ -2419,6 +2443,14 @@ local ToysDropdown = TradeTab:CreateDropdown({
 		selectedToy = Option[1]
 	end,
 })
+
+TradeTab:CreateButton({
+	Name = "Refesh Toy list",
+	Callback = function()
+		toysDropdown:Set(GetInventory:TabId("toys"))
+	end,
+})
+
 
 ToyToggle = TradeTab:CreateToggle({
 	Name = "Auto Trade Custom Toy",
@@ -2438,7 +2470,9 @@ ToyToggle = TradeTab:CreateToggle({
 	end,
 })
 
-local ToysDropdown = TradeTab:CreateDropdown({
+TradeTab:CreateSection(" ")
+
+local foodDropdown = TradeTab:CreateDropdown({
 	Name = "Select food",
 	Options = foodTable,
 	CurrentOption = { foodTable[1] }, -- need to change to food table
@@ -2447,6 +2481,13 @@ local ToysDropdown = TradeTab:CreateDropdown({
 	Callback = function(Option)
 		selectedFood = Option[1]
 		-- refreshInventory("food", ToysDropdown)
+	end,
+})
+
+TradeTab:CreateButton({
+	Name = "Refesh Food list",
+	Callback = function()
+		foodDropdown:Set(GetInventory:TabId("food"))
 	end,
 })
 
@@ -2497,23 +2538,23 @@ NewAltTab:CreateButton({
 
 local AgeUpPotionTab = Window:CreateTab("Age Potion", 4483362458)
 
-local PetsDropdown3 = AgeUpPotionTab:CreateDropdown({
+local PetsDropdown2 = AgeUpPotionTab:CreateDropdown({
 	Name = "Select a Pet",
 	Options = petsTable,
-	CurrentOption = { "" }, -- need to change to food table
+	CurrentOption = { "" },
 	MultipleOptions = false,
-	Flag = "Dropdown1",
+	Flag = "Dropdown2",
 	Callback = function(Option)
 		selectedItem = Option[1]
 	end,
 })
 
--- AgeUpPotion:AddButton({
---     Name = "Refresh Pet List",
---     Callback = function()
---         refreshInventory("pets", PetsDropdown3)
---     end
--- })
+AgeUpPotionTab:CreateButton({
+	Name = "Refesh Pet list",
+	Callback = function()
+		PetsDropdown2:Set(GetInventory:TabId("pets"))
+	end,
+})
 
 getgenv().PotionToggle = AgeUpPotionTab:CreateToggle({
 	Name = "Click to Age up Pet",
