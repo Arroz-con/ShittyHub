@@ -70,6 +70,10 @@ local beachlog
 local baitId
 local selectedPlayer
 local selectedItem
+local selectedPet
+local selectedGift
+local selectedToy
+local selectedFood
 
 getgenv().auto_accept_trade = false
 getgenv().auto_trade_all_pets = false
@@ -98,7 +102,7 @@ local TestGui = Instance.new("ScreenGui")
 local GuiPopupButton = Instance.new("TextButton")
 local ClipboardButton = Instance.new("TextButton")
 
-local SelectedPet
+local PetToggle
 local TradeAllInventory
 local AllPetsToggle
 local LegendaryToggle
@@ -2350,11 +2354,11 @@ local PetsDropdown = TradeTab:CreateDropdown({
 	MultipleOptions = false,
 	Flag = "Dropdown1",
 	Callback = function(Option)
-		selectedItem = Option[1]
+		selectedPet = Option[1]
 	end,
 })
 
-SelectedPet = TradeTab:CreateToggle({
+PetToggle = TradeTab:CreateToggle({
 	Name = "Auto Trade Selected Pet",
 	CurrentValue = false,
 	Flag = "Toggle1",
@@ -2363,11 +2367,11 @@ SelectedPet = TradeTab:CreateToggle({
 		while getgenv().auto_trade_custom do
 			Trade:SendTradeRequest(selectedPlayer)
 
-			Trade:SelectTabAndTrade("pets", selectedItem)
+			Trade:SelectTabAndTrade("pets", selectedPet)
 
 			local hasPets = Trade:AcceptNegotiationAndConfirm()
 			if not hasPets then
-				SelectedPet:Set(false)
+				PetToggle:Set(false)
 			end
 			task.wait()
 		end
@@ -2381,7 +2385,7 @@ local GiftsDropdown = TradeTab:CreateDropdown({
 	MultipleOptions = false,
 	Flag = "Dropdown1",
 	Callback = function(Option)
-		selectedItem = Option[1]
+		selectedGift = Option[1]
 	end,
 })
 
@@ -2393,7 +2397,7 @@ GiftToggle = TradeTab:CreateToggle({
 		getgenv().auto_trade_custom = Value
 		while getgenv().auto_trade_custom do
 			Trade:SendTradeRequest(selectedPlayer)
-			Trade:SelectTabAndTrade("gifts", selectedItem)
+			Trade:SelectTabAndTrade("gifts", selectedGift)
 			local hasPets = Trade:AcceptNegotiationAndConfirm()
 			if not hasPets then
 				GiftToggle:Set(false)
@@ -2412,7 +2416,7 @@ local ToysDropdown = TradeTab:CreateDropdown({
 	MultipleOptions = false,
 	Flag = "Dropdown1",
 	Callback = function(Option)
-		selectedItem = Option[1]
+		selectedToy = Option[1]
 	end,
 })
 
@@ -2424,7 +2428,7 @@ ToyToggle = TradeTab:CreateToggle({
 		getgenv().auto_trade_custom = Value
 		while getgenv().auto_trade_custom do
 			Trade:SendTradeRequest(selectedPlayer)
-			Trade:SelectTabAndTrade("toys", selectedItem)
+			Trade:SelectTabAndTrade("toys", selectedToy)
 			local hasPets = Trade:AcceptNegotiationAndConfirm()
 			if not hasPets then
 				ToyToggle:Set(false)
@@ -2441,7 +2445,7 @@ local ToysDropdown = TradeTab:CreateDropdown({
 	MultipleOptions = false,
 	Flag = "Dropdown1",
 	Callback = function(Option)
-		selectedItem = Option[1]
+		selectedFood = Option[1]
 		-- refreshInventory("food", ToysDropdown)
 	end,
 })
@@ -2454,7 +2458,7 @@ FoodToggle = TradeTab:CreateToggle({
 		getgenv().auto_trade_custom = Value
 		while getgenv().auto_trade_custom do
 			Trade:SendTradeRequest(selectedPlayer)
-			Trade:SelectTabAndTrade("food", selectedItem)
+			Trade:SelectTabAndTrade("food", selectedFood)
 			local hasPets = Trade:AcceptNegotiationAndConfirm()
 			if not hasPets then
 				FoodToggle:Set(false)
