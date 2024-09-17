@@ -32,9 +32,10 @@ function Trade:AcceptNegotiationAndConfirm()
             end
         end
 
-        task.wait(1)
+        task.wait(.1)
+        print("active trade")
     until not Bypass("ClientData").get_data()[Player.Name].in_active_trade
-    
+    print("no active trade")
     return true
 end
 
@@ -84,6 +85,10 @@ function Trade:NewbornToPostteen(rarity: string)
         task.wait(1)
         timeOut -= 1
     until Bypass("ClientData").get_data()[Player.Name].in_active_trade or timeOut <= 0
+
+    if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items >= 18 then
+        return
+    end
 
     for _, petDB in InventoryDB.pets do
         for _, pet in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
