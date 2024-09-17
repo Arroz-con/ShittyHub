@@ -2320,7 +2320,10 @@ LowTierToggle = TradeTab:CreateToggle({
 	Callback = function(Value)
 		getgenv().auto_trade_lowtier_pets = Value
 		while getgenv().auto_trade_lowtier_pets do
-			Trade:SendTradeRequest(selectedPlayer)
+			if selectedPlayer then
+				Trade:SendTradeRequest(selectedPlayer)
+			end
+			
 			Trade:LowTiers()
 			local hasPets = Trade:AcceptNegotiationAndConfirm()
 			if not hasPets then
