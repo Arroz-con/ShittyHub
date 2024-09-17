@@ -12,6 +12,7 @@ local lowTierRarity = {"common", "uncommon", "rare", "ultra_rare"}
 -- sender_offer is then one who send the trade
 -- recipient_offer is the one who got the trade
 function Trade:AcceptNegotiationAndConfirm()
+    local timeOut = 30
     repeat
         if Bypass("ClientData").get_data()[Player.Name].in_active_trade then
             if Bypass("ClientData").get_data()[Player.Name].trade.current_stage == "negotiation" then
@@ -32,9 +33,10 @@ function Trade:AcceptNegotiationAndConfirm()
             end
         end
 
-        task.wait(.1)
+        task.wait(1)
+        timeOut -= 1
         print("active trade")
-    until not Bypass("ClientData").get_data()[Player.Name].in_active_trade
+    until not Bypass("ClientData").get_data()[Player.Name].in_active_trade or timeOut <= 0
     print("no active trade")
     return true
 end
