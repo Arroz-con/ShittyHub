@@ -16,7 +16,8 @@ function GetInventory:TabId(tabId: string)
         if table.find(inventoryTable, v.id) then continue end
         table.insert(inventoryTable, v.id)
     end
-
+    
+    table.sort(inventoryTable)
     return inventoryTable
 end
 
