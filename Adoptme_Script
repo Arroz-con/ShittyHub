@@ -45,7 +45,8 @@ local PickColorConn
 local WelcomeScreen
 -- local DialogConnection
 local RoleChooserDialogConnection
-local RobuxProductDialogConnection
+local RobuxProductDialogConnection1
+local RobuxProductDialogConnection2
 local banMessageConnection
 local DailyClaimConnection
 -- local ChatConnection
@@ -1646,46 +1647,34 @@ end)
 
 
 --// Clicks no robux product button
-RobuxProductDialogConnection = Player.PlayerGui.DialogApp.Dialog:GetPropertyChangedSignal("Visible"):Connect(function()
-	if not Player.PlayerGui.DialogApp.Dialog.Visible then return end
-	Player.PlayerGui.DialogApp.Dialog:WaitForChild("RobuxProductDialog")
-	Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog:GetPropertyChangedSignal("Visible"):Connect(function()
-		task.wait()
-		if not Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Visible then return end
-		for _, v in pairs(Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Buttons:GetDescendants()) do
-			if v.Name == "TextLabel" then
-				if v.Text == "No Thanks" then
-					repeat
-						clickGuiButton(v.Parent.Parent) -- no thanks button
-					until not Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Visible
-					DailyBoolean = false
-					RobuxProductDialogConnection:Disconnect()
-				end
+RobuxProductDialogConnection1 = Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog:GetPropertyChangedSignal("Visible"):Connect(function()
+	if not Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Visible then return end
+	Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog:WaitForChild("Buttons")
+	task.wait()
+	for _, v in Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Buttons:GetDescendants() do
+		if v.Name == "TextLabel" then
+			if v.Text == "No Thanks" then
+				print("no thanks")
+				clickGuiButton(v.Parent.Parent) -- no thanks button
+				RobuxProductDialogConnection1:Disconnect()
 			end
 		end
-	end)
+	end
 end)
 
 
-DailyClaimConnection = Player.PlayerGui.DailyLoginApp:GetPropertyChangedSignal("Enabled"):Connect(function()
-	repeat task.wait() until Player.PlayerGui.DailyLoginApp.Enabled
-	if not Player.PlayerGui.DailyLoginApp.Enabled then return end
+RobuxProductDialogConnection2 = Player.PlayerGui.DialogApp.Dialog:GetPropertyChangedSignal("Visible"):Connect(function()
+	if not Player.PlayerGui.DialogApp.Dialog.Visible then return end
+	Player.PlayerGui.DialogApp.Dialog:WaitForChild("RobuxProductDialog")
+	if not Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Visible then return end
+	Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog:WaitForChild("Buttons")
 	task.wait()
-	if not Player.PlayerGui.DailyLoginApp.Frame.Visible then return end
-	for _, v in pairs(Player.PlayerGui.DailyLoginApp.Frame.Body.Buttons:GetDescendants()) do
+	for _, v in Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Buttons:GetDescendants() do
 		if v.Name == "TextLabel" then
-			if v.Text == "CLOSE" then
-				clickGuiButton(v.Parent.Parent) -- Close button
-				task.wait(1)
-				GrabDailyReward()
-				DailyClaimConnection:Disconnect()
-			elseif v.Text == "CLAIM!" then
-				clickGuiButton(v.Parent.Parent) -- Claim and Close button
-				task.wait(1)
-				-- firesignal(v.Parent.Parent.MouseButton1Click) --claim button
-				-- firesignal(v.Parent.Parent.MouseButton1Click) --close button
-				GrabDailyReward()
-				DailyClaimConnection:Disconnect()
+			if v.Text == "No Thanks" then
+				print("no thanks")
+				clickGuiButton(v.Parent.Parent) -- no thanks button
+				RobuxProductDialogConnection2:Disconnect()
 			end
 		end
 	end
@@ -1693,28 +1682,24 @@ end)
 
 
 DailyClaimConnection = Player.PlayerGui.DailyLoginApp:GetPropertyChangedSignal("Enabled"):Connect(function()
-	repeat task.wait() until Player.PlayerGui.DailyLoginApp.Enabled
 	if not Player.PlayerGui.DailyLoginApp.Enabled then return end
-	task.wait()
-	if not Player.PlayerGui.DailyLoginApp.Frame.Visible then return end
-	for _, v in pairs(Player.PlayerGui.DailyLoginApp.Frame.Body.Buttons:GetDescendants()) do
+	Player.PlayerGui.DailyLoginApp:WaitForChild("Frame")
+	Player.PlayerGui.DailyLoginApp.Frame:WaitForChild("Body")
+	Player.PlayerGui.DailyLoginApp.Frame.Body:WaitForChild("Buttons")
+	for _, v in Player.PlayerGui.DailyLoginApp.Frame.Body.Buttons:GetDescendants() do
 		if v.Name == "TextLabel" then
 			if v.Text == "CLOSE" then
-				repeat
-					clickGuiButton(v.Parent.Parent) -- Close button
-					task.wait(1)
-				until not Player.PlayerGui.DailyLoginApp.Frame.Visible
-
+				clickGuiButton(v.Parent.Parent) -- Close button
+				task.wait(1)
 				GrabDailyReward()
 				DailyClaimConnection:Disconnect()
 			elseif v.Text == "CLAIM!" then
-				repeat
-					clickGuiButton(v.Parent.Parent) -- Claim and Close button
-					task.wait(1)
-				until not Player.PlayerGui.DailyLoginApp.Frame.Visible
+				clickGuiButton(v.Parent.Parent) -- Claim button
+				task.wait(.1)
+				clickGuiButton(v.Parent.Parent) -- Close button
+				task.wait(1)
 				-- firesignal(v.Parent.Parent.MouseButton1Click) --claim button
 				-- firesignal(v.Parent.Parent.MouseButton1Click) --close button
-
 				GrabDailyReward()
 				DailyClaimConnection:Disconnect()
 			end
@@ -1978,45 +1963,6 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAP
 
 Bypass("RouterClient").get("TeamAPI/ChooseTeam"):InvokeServer("Babies", { ["dont_send_back_home"] = true })
 
-repeat
-	if Player.PlayerGui.DailyLoginApp.Frame.Visible then
-		for _, v in pairs(Player.PlayerGui.DailyLoginApp.Frame.Body.Buttons:GetDescendants()) do
-			if v.Name == "TextLabel" then
-				if v.Text == "CLOSE" then
-					clickGuiButton(v.Parent.Parent) -- Close button
-					task.wait(1)
-					GrabDailyReward()
-					DailyClaimConnection:Disconnect()
-				elseif v.Text == "CLAIM!" then
-					clickGuiButton(v.Parent.Parent) -- Claim and Close button
-					task.wait(1)
-					-- firesignal(v.Parent.Parent.MouseButton1Click) --claim button
-					-- firesignal(v.Parent.Parent.MouseButton1Click) --close button
-					GrabDailyReward()
-					DailyClaimConnection:Disconnect()
-				end
-			end
-		end
-	end
-
-	if Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Visible then
-		for _, v in pairs(Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Buttons:GetDescendants()) do
-			if v.Name == "TextLabel" then
-				if v.Text == "No Thanks" then
-					clickGuiButton(v.Parent.Parent) -- no thanks button
-					DailyBoolean = false
-					RobuxProductDialogConnection:Disconnect()
-				end
-			end
-		end
-	end
-	task.wait(1)
-
-until not Player.PlayerGui.DailyLoginApp.Frame.Visible
-
-task.wait(3)
-startAutoFarm()
-
 
 if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Thanks for subscribing!") then
 	FireButton("Okay")
@@ -2028,12 +1974,7 @@ if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("You
 end
 
 
-WelcomeScreen:Disconnect()
 -- RobuxProductDialogConnection:Disconnect()
-
--- loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Barn.lua"))()
--- loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/BeetleTradeIn.lua"))()
--- loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Sunshine.lua"))()
 
 -- local tele = fluxus or codex or arceusx
 
@@ -2579,25 +2520,10 @@ ClipboardButton.TextSize = 14.000
 ClipboardButton.TextWrapped = true
 ClipboardButton.Parent = TestGui
 
--- local function refreshInventory(tab: string, dropDownName: string)
---     local petOptions = {}
---     local petTable = {}
---     local addedNames = {}
---     for _, value in Bypass("ClientData").get_data()[Player.Name].inventory[tab] do
---         if value and not addedNames[value.id] then
---             if not petTable[value.id] then
---                 petTable[value.id] = {}
---             end
---             table.insert(petTable[value.id], value.id)
---             addedNames[value.id] = true
---         end
---     end
---     for name, ids in pairs(petTable) do
---         table.insert(petOptions, name)
---     end
---     table.sort(petOptions)
---     dropDownName:Refresh(petOptions, true)
--- end
+
+startAutoFarm()
+WelcomeScreen:Disconnect()
+
 
 -- if Players.LocalPlayer.Name == SETTINGS.TRADE_COLLECTOR_NAME and SETTINGS.ENABLE_TRADE_COLLECTOR == true then
 -- 	getgenv().AutoTradeToggle:Set(true)
