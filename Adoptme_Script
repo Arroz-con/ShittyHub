@@ -673,6 +673,7 @@ end
 
 local function getPet()
 	if SETTINGS.FOCUS_FARM_AGE_POTION then
+		if GetInventory:GetPetFriendship() then return end
 		if GetInventory:PetRarityAndAge("common", 6) then return end
 		if GetInventory:PetRarityAndAge("legendary", 6) then return end
 		if GetInventory:PetRarityAndAge("ultra_rare", 6) then return end

@@ -22,6 +22,26 @@ function GetInventory:TabId(tabId: string)
 end
 
 
+function GetInventory:GetPetFriendship()
+    local level = 0
+    local petUnique = nil
+
+    for _, pet in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
+        if pet.id ~= "practice_dog" then continue end
+        if pet.properties.friendship_level > level then
+            level = pet.properties.friendship_level
+            petUnique = pet.unique
+        end
+    end
+
+    if not petUnique then return false end
+
+    ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(petUnique, {})
+    getgenv().PetCurrentlyFarming = petUnique
+    return true
+end
+
+
 function GetInventory:PetRarityAndAge(rarity: string, age: number)
     local PetageCounter = age or 5
     local isNeon = true
