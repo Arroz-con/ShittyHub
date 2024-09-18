@@ -32,7 +32,7 @@ function GetInventory:PetRarityAndAge(rarity: string, age: number)
             for _, petDB in InventoryDB.pets do
                 if rarity == petDB.rarity and pet.id == petDB.id and pet.id ~= "practice_dog" and pet.properties.age == PetageCounter and pet.properties.neon == isNeon then
                     ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(pet.unique, {})
-                    -- getgenv().PetCurrentlyFarming = pet.unique
+                    getgenv().PetCurrentlyFarming = pet.unique
                     return true
                 end
             end
