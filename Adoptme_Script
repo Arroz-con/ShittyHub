@@ -1253,6 +1253,11 @@ local function autoFarm()
 		CompletePetAilments()
 		CompleteBabyAilments()
 
+		if workspace.Interiors:FindFirstChild("OceanMinigameInterior") then
+			if Player:GetAttribute("Ocean2024Score") == 0 then
+				game:Shutdown()
+			end
+		end
 	end)
 
 
@@ -1750,6 +1755,8 @@ Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(NormalDialogChild)
 						FireButton("I understand")
 					elseif NormalDialogChild.Info.TextLabel.Text:match("sent you a trade request") then
 						FireButton("Accept")
+					elseif NormalDialogChild.Info.TextLabel.Text:match("4.5%% Legendary") then
+						FireButton("Okay")
 					end
 				end)
 			end
@@ -1769,6 +1776,8 @@ Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal("Visible
 				FireButton("Next")
 			elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("sent you a trade request") then
 				FireButton("Accept")
+			elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("4.5%% Legendary") then
+				FireButton("Okay")
 			end
 		end)
 	end
@@ -1861,34 +1870,6 @@ end
 
 TestGui.Name = "TestGui"
 TestGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-GuiPopupButton.Text = "Gui Popup"
-GuiPopupButton.AnchorPoint = Vector2.new(0.5, 0.5)
-GuiPopupButton.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
-GuiPopupButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
-GuiPopupButton.BorderSizePixel = 0
-GuiPopupButton.Position = UDim2.new(0.65, 0, 0.91, 0)
-GuiPopupButton.Size = UDim2.new(0.1, 0, 0.1, 0)
-GuiPopupButton.Font = Enum.Font.SourceSans
-GuiPopupButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-GuiPopupButton.TextScaled = true
-GuiPopupButton.TextSize = 14.000
-GuiPopupButton.TextWrapped = true
-GuiPopupButton.Parent = TestGui
-
-ClipboardButton.Text = "Account Clipboard"
-ClipboardButton.AnchorPoint = Vector2.new(0.5, 0.5)
-ClipboardButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
-ClipboardButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
-ClipboardButton.BorderSizePixel = 0
-ClipboardButton.Position = UDim2.new(0.78, 0, 0.91, 0)
-ClipboardButton.Size = UDim2.new(0.1, 0, 0.1, 0)
-ClipboardButton.Font = Enum.Font.SourceSans
-ClipboardButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ClipboardButton.TextScaled = true
-ClipboardButton.TextSize = 14.000
-ClipboardButton.TextWrapped = true
-ClipboardButton.Parent = TestGui
 
 UserGameSettings.GraphicsQualityLevel = 1
 UserGameSettings.MasterVolume = 0
@@ -2569,6 +2550,34 @@ getgenv().PotionToggle = AgeUpPotionTab:CreateToggle({
 		AgeUpPotionLevelUp()
 	end,
 })
+
+GuiPopupButton.Text = "Gui Popup"
+GuiPopupButton.AnchorPoint = Vector2.new(0.5, 0.5)
+GuiPopupButton.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+GuiPopupButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+GuiPopupButton.BorderSizePixel = 0
+GuiPopupButton.Position = UDim2.new(0.65, 0, 0.91, 0)
+GuiPopupButton.Size = UDim2.new(0.1, 0, 0.1, 0)
+GuiPopupButton.Font = Enum.Font.SourceSans
+GuiPopupButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+GuiPopupButton.TextScaled = true
+GuiPopupButton.TextSize = 14.000
+GuiPopupButton.TextWrapped = true
+GuiPopupButton.Parent = TestGui
+
+ClipboardButton.Text = "Account Clipboard"
+ClipboardButton.AnchorPoint = Vector2.new(0.5, 0.5)
+ClipboardButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
+ClipboardButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+ClipboardButton.BorderSizePixel = 0
+ClipboardButton.Position = UDim2.new(0.78, 0, 0.91, 0)
+ClipboardButton.Size = UDim2.new(0.1, 0, 0.1, 0)
+ClipboardButton.Font = Enum.Font.SourceSans
+ClipboardButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ClipboardButton.TextScaled = true
+ClipboardButton.TextSize = 14.000
+ClipboardButton.TextWrapped = true
+ClipboardButton.Parent = TestGui
 
 -- local function refreshInventory(tab: string, dropDownName: string)
 --     local petOptions = {}
