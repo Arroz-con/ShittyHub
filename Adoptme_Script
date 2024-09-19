@@ -1531,6 +1531,29 @@ local function SendMessage(url, message, userId)
 	print("Sent")
 end
 
+local function dailyLoginAppClick()
+	if not Player.PlayerGui.DailyLoginApp.Enabled then return end
+	Player.PlayerGui.DailyLoginApp:WaitForChild("Frame")
+	Player.PlayerGui.DailyLoginApp.Frame:WaitForChild("Body")
+	Player.PlayerGui.DailyLoginApp.Frame.Body:WaitForChild("Buttons")
+	for _, v in Player.PlayerGui.DailyLoginApp.Frame.Body.Buttons:GetDescendants() do
+		if v.Name == "TextLabel" then
+			if v.Text == "CLOSE" then
+				clickGuiButton(v.Parent.Parent) -- Close button
+				task.wait(1)
+				GrabDailyReward()
+			elseif v.Text == "CLAIM!" then
+				clickGuiButton(v.Parent.Parent) -- Claim button
+				task.wait(.1)
+				clickGuiButton(v.Parent.Parent) -- Close button
+				task.wait(1)
+				-- firesignal(v.Parent.Parent.MouseButton1Click) --claim button
+				-- firesignal(v.Parent.Parent.MouseButton1Click) --close button
+				GrabDailyReward()
+			end
+		end
+	end
+end
 
 -----------------------------------------------------------------------------------------------
 --[[ Handling ]]--
@@ -1683,29 +1706,7 @@ end)
 
 
 DailyClaimConnection = Player.PlayerGui.DailyLoginApp:GetPropertyChangedSignal("Enabled"):Connect(function()
-	if not Player.PlayerGui.DailyLoginApp.Enabled then return end
-	Player.PlayerGui.DailyLoginApp:WaitForChild("Frame")
-	Player.PlayerGui.DailyLoginApp.Frame:WaitForChild("Body")
-	Player.PlayerGui.DailyLoginApp.Frame.Body:WaitForChild("Buttons")
-	for _, v in Player.PlayerGui.DailyLoginApp.Frame.Body.Buttons:GetDescendants() do
-		if v.Name == "TextLabel" then
-			if v.Text == "CLOSE" then
-				clickGuiButton(v.Parent.Parent) -- Close button
-				task.wait(1)
-				GrabDailyReward()
-				DailyClaimConnection:Disconnect()
-			elseif v.Text == "CLAIM!" then
-				clickGuiButton(v.Parent.Parent) -- Claim button
-				task.wait(.1)
-				clickGuiButton(v.Parent.Parent) -- Close button
-				task.wait(1)
-				-- firesignal(v.Parent.Parent.MouseButton1Click) --claim button
-				-- firesignal(v.Parent.Parent.MouseButton1Click) --close button
-				GrabDailyReward()
-				DailyClaimConnection:Disconnect()
-			end
-		end
-	end
+	dailyLoginAppClick()
 end)
 
 
@@ -2522,9 +2523,11 @@ ClipboardButton.TextWrapped = true
 ClipboardButton.Parent = TestGui
 
 
+dailyLoginAppClick()
+
 startAutoFarm()
 WelcomeScreen:Disconnect()
-
+DailyClaimConnection:Disconnect()
 
 -- if Players.LocalPlayer.Name == SETTINGS.TRADE_COLLECTOR_NAME and SETTINGS.ENABLE_TRADE_COLLECTOR == true then
 -- 	getgenv().AutoTradeToggle:Set(true)
