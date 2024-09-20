@@ -148,10 +148,15 @@ local ClaimTable = {
 	["sunshine_2024_playtime"] = { 2400 }
 }
 
+
 local petsTable = GetInventory:TabId("pets")
+if #petsTable == 0 then petsTable = {"Nothing"} end
 local giftsTable = GetInventory:TabId("gifts")
+if #giftsTable == 0 then giftsTable = {"Nothing"} end
 local toysTable = GetInventory:TabId("toys")
+if #toysTable == 0 then toysTable = {"Nothing"} end
 local foodTable = GetInventory:TabId("food")
+if #foodTable == 0 then foodTable = {"Nothing"} end
 
 local pets_legendary = {}
 local pets_ultrarare = {}
@@ -1482,6 +1487,14 @@ local function autoFarm()
 	task.wait()
 	getTradeLicense()
 
+	Player.Idled:Connect(function()
+		VirtualUser:ClickButton2(Vector2.new())
+	end)
+
+	for _, v in getconnections(Player.Idled) do
+		v:Disable()
+	end
+
 	-- if not Bypass("ClientData").get_data()[Player.Name].inventory.toys.trade_license then
 	--     getTradeLicense()
 	--     FireButton("Okay")
@@ -1558,11 +1571,6 @@ end
 -----------------------------------------------------------------------------------------------
 --[[ Handling ]]--
 -----------------------------------------------------------------------------------------------
-
-
-Player.Idled:Connect(function()
-	VirtualUser:ClickButton2(Vector2.new())
-end)
 
 
 Player.OnTeleport:Connect(function(State)
@@ -1837,10 +1845,6 @@ end)
 
 repeat task.wait(1) until Bypass("ClientData").get_data()[Player.Name].loaded_in
 
-for _, v in getconnections(Player.Idled) do
-	v:Disable()
-end
-
 -- Player:WaitForChild("PlayerGui", 600)
 -- Player.PlayerGui:WaitForChild("NewsApp", 600)
 
@@ -2102,7 +2106,6 @@ local playerDropdown = TradeTab:CreateDropdown({
 	Flag = "Dropdown1",
 	Callback = function(Option)
 		selectedPlayer = Option
-		print(selectedPlayer)
 	end,
 })
 
@@ -2289,7 +2292,7 @@ local petsDropdown = TradeTab:CreateDropdown({
 	MultipleOptions = false,
 	Flag = "Dropdown1",
 	Callback = function(Option)
-		selectedPet = Option[1]
+		selectedPet = Option
 	end,
 })
 
@@ -2330,7 +2333,7 @@ local giftsDropdown = TradeTab:CreateDropdown({
 	MultipleOptions = false,
 	Flag = "Dropdown1",
 	Callback = function(Option)
-		selectedGift = Option[1]
+		selectedGift = Option
 	end,
 })
 
@@ -2368,7 +2371,7 @@ local toysDropdown = TradeTab:CreateDropdown({
 	MultipleOptions = false,
 	Flag = "Dropdown1",
 	Callback = function(Option)
-		selectedToy = Option[1]
+		selectedToy = Option
 	end,
 })
 
@@ -2407,7 +2410,7 @@ local foodDropdown = TradeTab:CreateDropdown({
 	MultipleOptions = false,
 	Flag = "Dropdown1",
 	Callback = function(Option)
-		selectedFood = Option[1]
+		selectedFood = Option
 		-- refreshInventory("food", ToysDropdown)
 	end,
 })
@@ -2473,7 +2476,7 @@ local PetsDropdown2 = AgeUpPotionTab:CreateDropdown({
 	MultipleOptions = false,
 	Flag = "Dropdown2",
 	Callback = function(Option)
-		selectedItem = Option[1]
+		selectedItem = Option
 	end,
 })
 
