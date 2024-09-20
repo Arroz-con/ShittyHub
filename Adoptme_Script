@@ -52,6 +52,7 @@ local DailyClaimConnection
 -- local ChatConnection
 local CharConn
 
+local isInMiniGame = false
 local DailyBoolean = true
 local NewTaskBool = true
 local NewClaimBool = true
@@ -1255,10 +1256,8 @@ local function autoFarm()
 		CompletePetAilments()
 		CompleteBabyAilments()
 
-		if workspace.Interiors:FindFirstChild("OceanMinigameInterior") then
-			if Player:GetAttribute("Ocean2024Score") == 0 then
-				game:Shutdown()
-			end
+		if isInMiniGame then	
+			game:Shutdown()
 		end
 	end)
 
@@ -1294,6 +1293,7 @@ local function autoFarm()
 			Player.PlayerGui.MinigameInGameApp.Body.Middle:WaitForChild("Container")
 			Player.PlayerGui.MinigameInGameApp.Body.Middle.Container:WaitForChild("TitleLabel")
 			if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("CRANKY'S CRAZY CURRENTS") then
+				isInMiniGame = true
 				repeat
 					CrazySea.GetChests()
 					CrazySea.GetCoins()
@@ -1303,7 +1303,6 @@ local function autoFarm()
 					end
 					task.wait()
 				until not workspace.Interiors:FindFirstChild("OceanMinigameInterior")
-				
 			end
 		end
 	end)
@@ -1417,6 +1416,7 @@ local function autoFarm()
 				Player.Character.HumanoidRootPart.Anchored = false
 				RemoveGameOverButton()
 				stopDoingTasks = false
+				isInMiniGame = false
 				Teleport.DeleteMainMapParts()
 			end
 		end
