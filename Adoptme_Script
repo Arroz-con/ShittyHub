@@ -1736,26 +1736,21 @@ end)
 
 
 Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(NormalDialogChild)
-	if NormalDialogChild.Name == "NormalDialog" then
-		NormalDialogChild:GetPropertyChangedSignal("Visible"):Connect(function()
-			if NormalDialogChild.Visible then
-				NormalDialogChild:WaitForChild("Info")
-				NormalDialogChild.Info:WaitForChild("TextLabel")
-				NormalDialogChild.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
-					if NormalDialogChild.Info.TextLabel.Text:match("Be careful when trading") then
-						FireButton("Okay")
-					elseif NormalDialogChild.Info.TextLabel.Text:match("This trade seems unbalanced") then
-						FireButton("Next")
-					elseif NormalDialogChild.Info.TextLabel.Text:match("Any items lost to scams") then
-						FireButton("I understand")
-					elseif NormalDialogChild.Info.TextLabel.Text:match("sent you a trade request") then
-						FireButton("Accept")
-					elseif NormalDialogChild.Info.TextLabel.Text:match("4.5%% Legendary") then
-						FireButton("Okay")
-					end
-				end)
-			end
-		end)
+	if NormalDialogChild.Name ~= "NormalDialog" then return end
+	if NormalDialogChild.Visible then
+		NormalDialogChild:WaitForChild("Info")
+		NormalDialogChild.Info:WaitForChild("TextLabel")
+		if NormalDialogChild.Info.TextLabel.Text:match("Be careful when trading") then
+			FireButton("Okay")
+		elseif NormalDialogChild.Info.TextLabel.Text:match("This trade seems unbalanced") then
+			FireButton("Next")
+		elseif NormalDialogChild.Info.TextLabel.Text:match("Any items lost to scams") then
+			FireButton("I understand")
+		elseif NormalDialogChild.Info.TextLabel.Text:match("sent you a trade request") then
+			FireButton("Accept")
+		elseif NormalDialogChild.Info.TextLabel.Text:match("4.5%% Legendary") then
+			FireButton("Okay")
+		end
 	end
 end)
 
