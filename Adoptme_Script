@@ -1568,6 +1568,17 @@ local function dailyLoginAppClick()
 	end
 end
 
+local function onTextChanged()
+	if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Be careful when trading") then
+		FireButton("Okay")
+	elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("This trade seems unbalanced") then
+		FireButton("Next")
+	elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("sent you a trade request") then
+		FireButton("Accept")
+	elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("4.5%% Legendary") then
+		FireButton("Okay")
+	end
+end
 -----------------------------------------------------------------------------------------------
 --[[ Handling ]]--
 -----------------------------------------------------------------------------------------------
@@ -1686,7 +1697,6 @@ RobuxProductDialogConnection1 = Player.PlayerGui.DialogApp.Dialog.RobuxProductDi
 	for _, v in Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Buttons:GetDescendants() do
 		if v.Name == "TextLabel" then
 			if v.Text == "No Thanks" then
-				print("no thanks")
 				clickGuiButton(v.Parent.Parent) -- no thanks button
 				RobuxProductDialogConnection1:Disconnect()
 			end
@@ -1704,7 +1714,6 @@ RobuxProductDialogConnection2 = Player.PlayerGui.DialogApp.Dialog:GetPropertyCha
 	for _, v in Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Buttons:GetDescendants() do
 		if v.Name == "TextLabel" then
 			if v.Text == "No Thanks" then
-				print("no thanks")
 				clickGuiButton(v.Parent.Parent) -- no thanks button
 				RobuxProductDialogConnection2:Disconnect()
 			end
@@ -1735,23 +1744,43 @@ Players.LocalPlayer.PlayerGui.QuestIconApp.ImageButton.EventContainer.IsClaimabl
 end)
 
 
-Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(NormalDialogChild)
-	if NormalDialogChild.Name ~= "NormalDialog" then return end
-	if NormalDialogChild.Visible then
-		NormalDialogChild:WaitForChild("Info")
-		NormalDialogChild.Info:WaitForChild("TextLabel")
-		if NormalDialogChild.Info.TextLabel.Text:match("Be careful when trading") then
-			FireButton("Okay")
-		elseif NormalDialogChild.Info.TextLabel.Text:match("This trade seems unbalanced") then
-			FireButton("Next")
-		elseif NormalDialogChild.Info.TextLabel.Text:match("Any items lost to scams") then
-			FireButton("I understand")
-		elseif NormalDialogChild.Info.TextLabel.Text:match("sent you a trade request") then
-			FireButton("Accept")
-		elseif NormalDialogChild.Info.TextLabel.Text:match("4.5%% Legendary") then
-			FireButton("Okay")
+Player.PlayerGui.DialogApp.Dialog:GetPropertyChangedSignal("Visible"):Connect(function()
+	if not Player.PlayerGui.DialogApp.Dialog.Visible then return end
+	Player.PlayerGui.DialogApp.Dialog:WaitForChild("HeaderDialog")
+	if not Player.PlayerGui.DialogApp.Dialog.HeaderDialog.Visible then return end
+	Player.PlayerGui.DialogApp.Dialog.HeaderDialog:WaitForChild("Info")
+	Player.PlayerGui.DialogApp.Dialog.HeaderDialog.Info:WaitForChild("TextLabel")
+	Player.PlayerGui.DialogApp.Dialog.HeaderDialog.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
+		if Player.PlayerGui.DialogApp.Dialog.HeaderDialog.Info.TextLabel.Text:match("sent you a trade request") then
+			FireButton("Accept", "HeaderDialog")
 		end
-	end
+	end)
+end)
+
+-- Player.PlayerGui.DialogApp.Dialog.HeaderDialog:GetPropertyChangedSignal("Visible"):Connect(function()
+-- 	if not Player.PlayerGui.DialogApp.Dialog.HeaderDialog.Visible then return end
+-- 	Player.PlayerGui.DialogApp.Dialog.HeaderDialog:WaitForChild("Info")
+-- 	Player.PlayerGui.DialogApp.Dialog.HeaderDialog.Info:WaitForChild("TextLabel")
+-- 	Player.PlayerGui.DialogApp.Dialog.HeaderDialog.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
+-- 		if Player.PlayerGui.DialogApp.Dialog.HeaderDialog.Info.TextLabel.Text:match("sent you a trade request") then
+-- 			FireButton("Accept", "HeaderDialog")
+-- 		end
+-- 	end)
+-- end)
+
+
+Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(Child)
+	if Child.Name ~= "HeaderDialog" then return end
+	Child:GetPropertyChangedSignal("Visible"):Connect(function()
+		if not Child.Visible then return end
+		Child:WaitForChild("Info")
+		Child.Info:WaitForChild("TextLabel")
+		Child.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
+			if Child.Info.TextLabel.Text:match("sent you a trade request") then
+				FireButton("Accept", Child.Name)
+			end
+		end)
+	end)
 end)
 
 
@@ -1759,19 +1788,21 @@ Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal("Visible
 	if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
 		Player.PlayerGui.DialogApp.Dialog.NormalDialog:WaitForChild("Info")
 		Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info:WaitForChild("TextLabel")
-		Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
-			if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Be careful when trading") then
-				FireButton("Okay")
-			elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("This trade seems unbalanced") then
-				FireButton("Next")
-			elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("sent you a trade request") then
-				FireButton("Accept")
-			elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("4.5%% Legendary") then
-				FireButton("Okay")
-			end
-		end)
+		Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(onTextChanged)
 	end
 end)
+
+
+Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(Child)
+	if Child.Name ~= "NormalDialog" then return end
+	Child:GetPropertyChangedSignal("Visible"):Connect(function()
+		if not Child.Visible then return end
+		Child:WaitForChild("Info")
+		Child.Info:WaitForChild("TextLabel")
+		Child.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(onTextChanged)
+	end)
+end)
+
 
 
 game.Players.PlayerAdded:Connect(function(player: Player)
