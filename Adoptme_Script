@@ -2123,7 +2123,7 @@ getgenv().AutoTradeToggle = TradeTab:CreateToggle({
 	end,
 })
 
--- dont forget to add a refresh when players join game
+
 local playerDropdown = TradeTab:CreateDropdown({
 	Name = "Select a player",
 	Options = getPlayersInGame(),
@@ -2131,7 +2131,7 @@ local playerDropdown = TradeTab:CreateDropdown({
 	MultipleOptions = false,
 	Flag = "Dropdown1",
 	Callback = function(Option)
-		selectedPlayer = Option
+		selectedPlayer = Option[1] or "Nothing"
 	end,
 })
 
@@ -2230,7 +2230,7 @@ FullgrownToggle = TradeTab:CreateToggle({
 	end,
 })
 
--- (pet.properties.age == 6 or pet.properties.neon) or pet.properties.mega_neon
+
 TradeAllMegas = TradeTab:CreateToggle({
 	Name = "Auto Trade All Megas",
 	CurrentValue = false,
@@ -2318,7 +2318,7 @@ local petsDropdown = TradeTab:CreateDropdown({
 	MultipleOptions = false,
 	Flag = "Dropdown1",
 	Callback = function(Option)
-		selectedPet = Option
+		selectedPet = Option[1] or "Nothing"
 	end,
 })
 
@@ -2359,7 +2359,7 @@ local giftsDropdown = TradeTab:CreateDropdown({
 	MultipleOptions = false,
 	Flag = "Dropdown1",
 	Callback = function(Option)
-		selectedGift = Option
+		selectedGift = Option[1] or "Nothing"
 	end,
 })
 
@@ -2397,7 +2397,7 @@ local toysDropdown = TradeTab:CreateDropdown({
 	MultipleOptions = false,
 	Flag = "Dropdown1",
 	Callback = function(Option)
-		selectedToy = Option
+		selectedToy = Option[1] or "Nothing"
 	end,
 })
 
@@ -2436,7 +2436,7 @@ local foodDropdown = TradeTab:CreateDropdown({
 	MultipleOptions = false,
 	Flag = "Dropdown1",
 	Callback = function(Option)
-		selectedFood = Option
+		selectedFood = Option[1] or "Nothing"
 		-- refreshInventory("food", ToysDropdown)
 	end,
 })
@@ -2502,7 +2502,7 @@ local PetsDropdown2 = AgeUpPotionTab:CreateDropdown({
 	MultipleOptions = false,
 	Flag = "Dropdown2",
 	Callback = function(Option)
-		selectedItem = Option
+		selectedItem = Option[1] or "Nothing"
 	end,
 })
 
