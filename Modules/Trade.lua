@@ -59,12 +59,13 @@ function Trade:AcceptNegotiationAndConfirm()
 end
 
 
-function Trade:SendTradeRequest(selectedPlayer: Instance)
+function Trade:SendTradeRequest(selectedPlayer: string)
+    if typeof(selectedPlayer) ~= "string" then return end
     if not Player.PlayerGui.TradeApp.Frame.Visible then
         repeat
-            ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(selectedPlayer)
+            ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(Players[selectedPlayer])
             task.wait(10)
-        until Player.PlayerGui.TradeApp.Frame.Visible or not Players[selectedPlayer.Name]
+        until Player.PlayerGui.TradeApp.Frame.Visible or not Players[selectedPlayer]
     end
 end
 
