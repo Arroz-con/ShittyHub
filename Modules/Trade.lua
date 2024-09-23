@@ -61,6 +61,8 @@ end
 
 function Trade:SendTradeRequest(selectedPlayer: string)
     if typeof(selectedPlayer) ~= "string" then return end
+    if selectedPlayer == "Nothing" then return end
+    
     if not Player.PlayerGui.TradeApp.Frame.Visible then
         repeat
             ReplicatedStorage.API:FindFirstChild("TradeAPI/SendTradeRequest"):FireServer(Players[selectedPlayer])
