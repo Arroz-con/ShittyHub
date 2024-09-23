@@ -17,7 +17,6 @@ local function inActiveTrade()
     until Bypass("ClientData").get_data()[Player.Name].in_active_trade or timeOut <= 0
 
     if timeOut <= 0 then
-        print("timeOut is 0, no trade window")
         return
     end
 
@@ -52,9 +51,8 @@ function Trade:AcceptNegotiationAndConfirm()
 
         task.wait(1)
         timeOut -= 1
-        print("active trade")
     until not Bypass("ClientData").get_data()[Player.Name].in_active_trade or timeOut <= 0
-    print("no active trade")
+    
     return true
 end
 
@@ -145,7 +143,7 @@ end
 
 
 function Trade:NewbornToPostteenByPetId(petIds: table)
-    if typeof(petIds) ~= "table" then print("not a table") return end
+    if typeof(petIds) ~= "table" then return end
 
     inActiveTrade()
 
