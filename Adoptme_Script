@@ -1252,11 +1252,9 @@ local function autoFarm()
 		if not SETTINGS.FOCUS_FARM_AGE_POTION then
 			SwitchOutFullyGrown()
 			task.wait(2)
+		else
+			getPet()
 		end
-
-		-- if SETTINGS.FOCUS_FARM_AGE_POTION then
-		--     getPet()
-		-- end
 
 		CompletePetAilments()
 		CompleteBabyAilments()
@@ -1575,6 +1573,8 @@ local function onTextChanged()
 		FireButton("Next")
 	elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("sent you a trade request") then
 		FireButton("Accept")
+	elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Any items lost") then
+		FireButton("I understand")
 	elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("4.5%% Legendary") then
 		FireButton("Okay")
 	end
