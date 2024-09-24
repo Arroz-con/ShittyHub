@@ -65,7 +65,7 @@ getgenv().SETTINGS = {
 
 	PET_ONLY_PRIORITY = true,
 	PET_ONLY_PRIORITY_NAMES = {
-		"celestial_2024_moonlight_moth",
+		-- "celestial_2024_moonlight_moth",
 		"ocean_2024_kraken",
 		"ocean_2024_sea_angel",
 		-- "ocean_2024_lionfish",
