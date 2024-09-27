@@ -1258,10 +1258,6 @@ local function autoFarm()
 
 		CompletePetAilments()
 		CompleteBabyAilments()
-
-		if isInMiniGame or workspace.Interiors:FindFirstChild("OceanMinigameInterior") then
-			game:Shutdown()
-		end
 	end)
 
 
