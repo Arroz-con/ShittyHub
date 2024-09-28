@@ -109,6 +109,7 @@ local TradeAllInventory
 local AllPetsToggle
 local LegendaryToggle
 local FullgrownToggle
+local AnyNeonToggle
 local TradeAllMegas
 local TradeAllNeons
 local LowTierToggle
@@ -451,7 +452,6 @@ local function getPlayersInGame()
 		if player.Name == Player.Name then
 			continue
 		end
-		print(player.Name)
 		table.insert(playerTable, player.Name)
 	end
 	table.sort(playerTable)
@@ -2093,6 +2093,24 @@ AllPetsToggle = TradeTab:CreateToggle({
 			local hasPets = Trade:AcceptNegotiationAndConfirm()
 			if not hasPets then
 				AllPetsToggle:Set(false)
+			end
+			task.wait()
+		end
+	end,
+})
+
+AnyNeonToggle = TradeTab:CreateToggle({
+	Name = "FullGrown, Newborn to luminous Neons and Megas",
+	CurrentValue = false,
+	Flag = "Toggle1",
+	Callback = function(Value)
+		getgenv().auto_trade_fullgrown_neon_and_mega = Value
+		while getgenv().auto_trade_fullgrown_neon_and_mega do
+			Trade:SendTradeRequest(selectedPlayer)
+			Trade:FullgrownAndAnyNeonsAndMegas()
+			local hasPets = Trade:AcceptNegotiationAndConfirm()
+			if not hasPets then
+				AnyNeonToggle:Set(false)
 			end
 			task.wait()
 		end
