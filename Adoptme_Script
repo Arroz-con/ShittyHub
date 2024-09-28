@@ -31,7 +31,7 @@ local Clipboard = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arr
 local Fusion = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Fusion.lua"))()
 local GetInventory = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/GetInventory.lua"))()
 local Trade = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Trade.lua"))()
-local CrazySea = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/CrazySea2024.luau"))()
+-- local CrazySea = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/CrazySea2024.luau"))()
 local Teleport = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Teleport.lua"))()
 
 
@@ -419,60 +419,6 @@ local function isMuleInGame()
 	return false
 end
 
-local function getPlayersInGame()
-	local playerTable = {}
-	for _, player in Players:GetPlayers() do
-		if player.Name == Player.Name then
-			continue
-		end
-		table.insert(playerTable, player.Name)
-	end
-	table.sort(playerTable)
-	return playerTable
-end
-
--- buy the lure bait and place it
-local function buyLure()
-	local args = {
-		[1] = {
-			[1] = {
-				["properties"] = {
-					["cframe"] = CFrame.new(14, 0, -14)
-						* CFrame.Angles(-0, 8.742277657347586e-08, 3.82137093032941e-15),
-				},
-				["kind"] = "lures_2023_normal_lure",
-			},
-		},
-	}
-
-	game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/BuyFurnitures"):InvokeServer(unpack(args))
-end
-
--- give cookie bait to lure
-local function placeBait(baitIdPasson)
-	local args = {
-		[1] = game:GetService("Players").LocalPlayer,
-		[2] = normalLure,
-		[3] = "UseBlock",
-		[4] = {
-			["bait_unique"] = baitIdPasson,
-		},
-		[5] = game:GetService("Players").LocalPlayer.Character,
-	}
-
-	game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/ActivateFurniture"):InvokeServer(unpack(args))
-end
-
-local function findBait(baitPassOn)
-	local bait
-	for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
-		if v.id == baitPassOn then
-			bait = v.unique
-			return bait
-		end
-	end
-end
-
 
 local function subToHouse()
 	game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/SubscribeToHouse"):FireServer(Player)
@@ -505,6 +451,7 @@ local function getPlayersInGame()
 		if player.Name == Player.Name then
 			continue
 		end
+		print(player.Name)
 		table.insert(playerTable, player.Name)
 	end
 	table.sort(playerTable)
@@ -557,13 +504,13 @@ local function findBait(baitPassOn)
 end
 
 
-local function buyPet()
-	local BuyPet = ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", Pet2Buy, {})
-	if BuyPet == "too little money" then
-		return false
-	end
-	return true
-end
+-- local function buyPet()
+-- 	local BuyPet = ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", Pet2Buy, {})
+-- 	if BuyPet == "too little money" then
+-- 		return false
+-- 	end
+-- 	return true
+-- end
 
 
 local function getEgg()
@@ -582,7 +529,7 @@ local function getEgg()
 	task.wait(1)
 end
 
-
+--[[
 local function GetGiftPet()
 	for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.gifts) do
 		if v["id"] == Gift2Buy then
@@ -599,7 +546,7 @@ local function GetGiftPet()
 		return true -- dont wanna buy egg, we will wait for event currenty
 	end
 end
-
+--]]
 
 local function priorityEgg()
 	local found_pet = false
@@ -1292,16 +1239,7 @@ local function autoFarm()
 			Player.PlayerGui.MinigameInGameApp.Body.Middle:WaitForChild("Container")
 			Player.PlayerGui.MinigameInGameApp.Body.Middle.Container:WaitForChild("TitleLabel")
 			if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("CRANKY'S CRAZY CURRENTS") then
-				isInMiniGame = true
-				repeat
-					CrazySea.GetChests()
-					CrazySea.GetCoins()
-					if not workspace.StaticMap["ocean_minigame_minigame_state"]["is_game_active"] then
-						print("minigame is not active")
-						game:Shutdown()
-					end
-					task.wait()
-				until not workspace.Interiors:FindFirstChild("OceanMinigameInterior")
+				-- nothing
 			end
 		end
 	end)
@@ -1320,18 +1258,6 @@ local function autoFarm()
 		end
 	end
 
-	local function makeWish(wishId)
-		local success, errMessage = pcall(function()
-			game.ReplicatedStorage.API["LootBoxAPI/ExchangeItemForReward"]:InvokeServer(wishId)
-		end)
-	
-		if not success then
-			return false
-		else
-			return true
-		end
-	end
-
 	-- fires when it ask you if you want to join minigame
 	Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(NormalDialogChild)
 		if NormalDialogChild.Name == "NormalDialog" then
@@ -1341,18 +1267,7 @@ local function autoFarm()
 					NormalDialogChild.Info:WaitForChild("TextLabel")
 					NormalDialogChild.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
 						if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Crazy Currents") then
-							if isMuleInGame() then
-								FireButton("No")
-								return
-							end
-							FireButton("Yes")
-							task.wait(5)
-							if SETTINGS.OCEAN_EVENT.EXCHANGE then
-								for i = 1, 10, 1 do
-									if not makeWish(SETTINGS.OCEAN_EVENT.WISH) then return end
-									task.wait(.1)
-								end
-							end
+							-- nothing
 						elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("invitation") then
 							game:Shutdown()
 						elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("You found a") then
@@ -1371,18 +1286,7 @@ local function autoFarm()
 			Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info:WaitForChild("TextLabel")
 			Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
 				if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Crazy Currents") then
-					if isMuleInGame() then
-						FireButton("No")
-						return
-					end
-					FireButton("Yes")
-					task.wait(5)
-					if SETTINGS.OCEAN_EVENT.EXCHANGE then
-						for i = 1, 10, 1 do
-							if not makeWish(SETTINGS.OCEAN_EVENT.WISH) then return end
-							task.wait(.1)
-						end
-					end
+					-- nothing
 				elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("invitation") then
 					game:Shutdown()
 				elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("You found a") then
@@ -2125,7 +2029,7 @@ local playerDropdown = TradeTab:CreateDropdown({
 	MultipleOptions = false,
 	Flag = "Dropdown1",
 	Callback = function(Option)
-		selectedPlayer = Option[1] or "Nothing"
+		selectedPlayer = Option[1]
 	end,
 })
 
@@ -2133,6 +2037,13 @@ TradeTab:CreateButton({
 	Name = "Refesh player list",
 	Callback = function()
 		playerDropdown:Set(getPlayersInGame())
+	end,
+})
+
+TradeTab:CreateButton({
+	Name = "Send player Trade",
+	Callback = function()
+		Trade:SendTradeRequest(selectedPlayer)
 	end,
 })
 
