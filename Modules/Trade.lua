@@ -161,6 +161,22 @@ function Trade:NewbornToPostteenByPetId(petIds: table)
 end
 
 
+function Trade:FullgrownAndAnyNeonsAndMegas()
+    inActiveTrade()
+
+    for _, pet in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
+        if pet.properties.age == 6 or pet.properties.neon or pet.properties.mega_neon then
+            if not Bypass("ClientData").get_data()[Player.Name].in_active_trade then return end
+            ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
+            if #Bypass("ClientData").get_data()[Player.Name].trade.sender_offer.items >= 18 then
+                return
+            end
+            task.wait(0.1)
+        end
+    end
+end
+
+
 function Trade:Fullgrown()
     inActiveTrade()
 
