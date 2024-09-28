@@ -4,11 +4,6 @@ getgenv().SETTINGS = {
 		USER_ID = "",
 	},
 
-	OCEAN_EVENT = {
-		EXCHANGE = true,
-		WISH = "ocean_2024_small_wish",
-	},
-
 	PET_TO_BUY = "garden_2024_egg", -- add pet or egg to buy when bot has no pets/egg left to level
 
 	FOCUS_FARM_AGE_POTION = false, -- if true, this will only farm 1 pet an keep aging to get aging potions
@@ -19,7 +14,7 @@ getgenv().SETTINGS = {
 	PET_AUTO_FUSION = true,
 
 	ENABLE_TRADE_COLLECTOR = true,
-	TRADE_ONLY_LUMINOUS_MEGA = true,
+	TRADE_ONLY_LUMINOUS_MEGA = false,
 	TRADE_COLLECTOR_NAME = "donutboy_92", -- your account username (case sensitive) that will collect the pets.
 	TRADE_LIST = {
 		PET_WEAR_TABLE = {},
@@ -67,18 +62,18 @@ getgenv().SETTINGS = {
 	PET_ONLY_PRIORITY_NAMES = {
 		-- "celestial_2024_moonlight_moth",
 		"ocean_2024_kraken",
-		"ocean_2024_sea_angel",
+		-- "ocean_2024_sea_angel",
 		-- "ocean_2024_lionfish",
 		"ocean_2024_dracula_fish",
 		"ocean_2024_urchin",
 		"garden_2024_rosy_maple_moth",
 		"garden_2024_mushroom_friend",
 		-- "garden_2024_praying_mantis",
-		"garden_2024_skunk",
+		-- "garden_2024_skunk",
 		-- "garden_2024_weevil",
 		-- "garden_2024_blue_jay",
-		"garden_2024_mole",
-		-- "summerfest_2024_cow_calf",
+		-- "garden_2024_mole",
+		"summerfest_2024_cow_calf",
 		"summerfest_2024_kid_goat",
 		"summerfest_2024_punk_pony",
 		"summerfest_2024_pretty_pony",
