@@ -446,7 +446,7 @@ end
 
 
 local function getPlayersInGame()
-	local playerTable = {}
+	local playerTable = {"Nothing"}
 	for _, player in Players:GetPlayers() do
 		if player.Name == Player.Name then
 			continue
