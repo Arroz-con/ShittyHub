@@ -11,14 +11,16 @@ end
 -----------------------------------------------------------------------------------------------
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local VI = game:GetService("VirtualInputManager")
+local VirtualInputManager = game:GetService("VirtualInputManager")
 local UserGameSettings = UserSettings():GetService("UserGameSettings")
 -- local UserInputService = game:GetService("UserInputService")
 local VirtualUser = game:GetService("VirtualUser")
 local CoreGui = game:GetService("CoreGui")
+
 -----------------------------------------------------------------------------------------------
 --[[ Modules ]]--
 -----------------------------------------------------------------------------------------------
+
 local Bypass = require(ReplicatedStorage:WaitForChild("Fsys", 600)).load
 -- local inventoryDB = Bypass("InventoryDB")
 -- local Remote = Bypass("RouterClient").get("HousingAPI/ActivateFurniture")
@@ -175,9 +177,9 @@ local function clickGuiButton(button: Instance, xOffset: number, yOffset: number
 	local xOffset = xOffset or 60
 	local yOffset = yOffset or 60
 	task.wait()
-	VI:SendMouseButtonEvent(button.AbsolutePosition.X + xOffset, button.AbsolutePosition.Y + yOffset, 0, true, game, 1)
+	VirtualInputManager:SendMouseButtonEvent(button.AbsolutePosition.X + xOffset, button.AbsolutePosition.Y + yOffset, 0, true, game, 1)
 	task.wait()
-	VI:SendMouseButtonEvent(button.AbsolutePosition.X + xOffset, button.AbsolutePosition.Y + yOffset, 0, false, game, 1)
+	VirtualInputManager:SendMouseButtonEvent(button.AbsolutePosition.X + xOffset, button.AbsolutePosition.Y + yOffset, 0, false, game, 1)
 	task.wait()
 end
 
@@ -2040,11 +2042,17 @@ TradeTab:CreateButton({
 	end,
 })
 
-TradeTab:CreateButton({
-	Name = "Send player Trade",
-	Callback = function()
-		Trade:SendTradeRequest(selectedPlayer)
-	end,
+TradeTab:CreateToggle({
+    Name = "Send player Trade",
+    CurrentValue = false,
+    Flag = "Toggle1",
+    Callback = function(Value)
+        getgenv().auto_trade_semi_auto = Value
+		while getgenv().auto_trade_semi_auto do
+			Trade:SendTradeRequest(selectedPlayer)
+			task.wait(1)
+		end
+    end,
 })
 
 -- TradeTab:CreateToggle({
