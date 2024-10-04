@@ -169,6 +169,7 @@ local pets_eggs = {}
 local Pets_commonto_ultrarare = {}
 local pets_legendary_to_common = {}
 
+local rng = Random.new()
 -----------------------------------------------------------------------------------------------
 --[[ Private Functions ]]--
 -----------------------------------------------------------------------------------------------
@@ -1050,9 +1051,9 @@ end
 
 
 local function autoFarm()
-	if not getgenv().auto_farm then
-		return
-	end
+	if not getgenv().auto_farm then return end
+
+	Halloween:GetAllPumpkins()
 	Teleport.MainMap()
 
 	local function CompletePetAilments()
@@ -1239,7 +1240,7 @@ local function autoFarm()
 			Player.PlayerGui.MinigameInGameApp.Body.Middle:WaitForChild("Container")
 			Player.PlayerGui.MinigameInGameApp.Body.Middle.Container:WaitForChild("TitleLabel")
 			if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("CRICKET'S TILE HOP") then
-				task.wait(3)
+				task.wait(rng:NextInteger(5, 20))
 				Halloween:GetPumpkins("TileSkipMinigame")
 				Halloween:FinishMiniGame()
 			end
@@ -1269,7 +1270,7 @@ local function autoFarm()
 					NormalDialogChild.Info:WaitForChild("TextLabel")
 					NormalDialogChild.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
 						if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Cricket's Tile Hop") then
-							Halloween:GetPumpkins("MainMap")
+							task.wait(rng:NextInteger(1, 10))
 							FireButton("Yes")
 						elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("invitation") then
 							game:Shutdown()
@@ -1289,7 +1290,7 @@ local function autoFarm()
 			Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info:WaitForChild("TextLabel")
 			Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
 				if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Cricket's Tile Hop") then
-					Halloween:GetPumpkins("MainMap")
+					task.wait(rng:NextInteger(1, 10))
 					FireButton("Yes")
 				elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("invitation") then
 					game:Shutdown()
