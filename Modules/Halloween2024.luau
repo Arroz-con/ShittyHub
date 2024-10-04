@@ -11,7 +11,7 @@ function Halloween2024:GetPumpkins(mapName: string)
     for _, id in workspace.Collectables:GetChildren() do
         if not id:IsA("Model") then continue end
         ReplicatedStorage.API["HalloweenAPI/PurplePumpkinCollected"]:FireServer(mapName, id.Name)
-        task.wait()
+        task.wait(1)
     end
 end
 
