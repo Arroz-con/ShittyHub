@@ -13,4 +13,13 @@ function Halloween2024:GetPumpkins(mapName: string)
     end
 end
 
+function Halloween2024:FinishMiniGame()
+    local args = {
+        [1] = "tile_skip_minigame",
+        [2] = "reached_goal"
+    }
+
+    game:GetService("ReplicatedStorage").API:FindFirstChild("MinigameAPI/MessageServer"):FireServer(unpack(args))
+end
+
 return Halloween2024
