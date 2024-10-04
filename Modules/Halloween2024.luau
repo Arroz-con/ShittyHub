@@ -2,7 +2,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Halloween2024 = {}
 
--- "MainMap" "SkyCastle" "TileSkipMinigame"
+local Teleport = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Teleport.lua"))()
+
+-- "MainMap" "SkyCastle" "TileSkipMinigame" "Neighborhood"
 function Halloween2024:GetPumpkins(mapName: string)
     if not workspace.Collectables then return end
 
@@ -11,6 +13,21 @@ function Halloween2024:GetPumpkins(mapName: string)
         ReplicatedStorage.API["HalloweenAPI/PurplePumpkinCollected"]:FireServer(mapName, id.Name)
         task.wait()
     end
+end
+
+function Halloween2024:GetAllPumpkins()
+    Teleport.Neighborhood()
+    task.wait(5)
+    Halloween2024:GetPumpkins("Neighborhood")
+    task.wait(1)
+    Teleport.MainMap()
+    task.wait(5)
+    Halloween2024:GetPumpkins("MainMap")
+    task.wait(1)
+    Teleport.SkyCastle()
+    task.wait(5)
+    Halloween2024:GetPumpkins("SkyCastle")
+    task.wait(1)
 end
 
 function Halloween2024:FinishMiniGame()

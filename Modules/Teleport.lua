@@ -167,4 +167,17 @@ function Teleport.SkyCastle()
 	Player.Character.Humanoid.WalkSpeed = 0
 end
 
+function Teleport.Neighborhood()
+	Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
+	SetLocationFunc("Neighborhood", "MainDoor", {})
+	task.wait(1)
+	workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
+	if not workspace.Interiors:FindFirstChild("Neighborhood!Fall") then return end
+	workspace.Interiors["Neighborhood!Fall"]:WaitForChild("InteriorOrigin")
+	Player.Character.PrimaryPart.CFrame = workspace.Interiors["Neighborhood!Fall"].InteriorOrigin.CFrame + Vector3.new(0, -10, 0)
+	Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
+	Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+	Player.Character.Humanoid.WalkSpeed = 0
+end
+
 return Teleport
