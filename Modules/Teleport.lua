@@ -146,4 +146,25 @@ function Teleport.PlayGround()
 	Teleport.DeleteMainMapParts()
 end
 
+function Teleport.SkyCastle()
+	Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
+	local isAlreadyOnSkyCastle = workspace:WaitForChild("Interiors"):FindFirstChild("SkyCastle")
+	if not isAlreadyOnSkyCastle then
+		SetLocationFunc("SkyCastle", "MainDoor", {})
+	end
+	task.wait(1)
+	workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
+	
+	local skyCastle = workspace.Interiors:FindFirstChild("SkyCastle")
+	if not skyCastle then return end
+	skyCastle:WaitForChild("Potions")
+	skyCastle.Potions:WaitForChild("GrowPotion")
+	skyCastle.Potions.GrowPotion:WaitForChild("Part")
+
+	Player.Character.PrimaryPart.CFrame = skyCastle.Potions.GrowPotion.Part.CFrame + Vector3.new(math.random(1, 5), 10, math.random(-5, -1))
+	Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
+	Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+	Player.Character.Humanoid.WalkSpeed = 0
+end
+
 return Teleport
