@@ -64,6 +64,7 @@ local tutorialDebonce = false
 local stopEquip = false
 local discordCooldown = false
 
+
 local Bed
 local Shower
 local Piano
@@ -1177,12 +1178,11 @@ local function autoFarm()
 
 
 	game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildAdded:Connect(function()
-		if getgenv().feedAgeUpPotionToggle then
-			return
+		if isInMiniGame then
+			game:Shutdown()
 		end
-		if stopDoingTasks then
-			return
-		end
+		if getgenv().feedAgeUpPotionToggle then return end
+		if stopDoingTasks then return end
 		removeHandHeldItem()
 
 		CompletePetAilments()
@@ -1191,12 +1191,8 @@ local function autoFarm()
 
 
 	game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildRemoved:Connect(function()
-		if getgenv().feedAgeUpPotionToggle then
-			return
-		end
-		if stopDoingTasks then
-			return
-		end
+		if getgenv().feedAgeUpPotionToggle then return end
+		if stopDoingTasks then return end
 
 		if not SETTINGS.FOCUS_FARM_AGE_POTION then
 			SwitchOutFullyGrown()
@@ -1240,6 +1236,7 @@ local function autoFarm()
 			Player.PlayerGui.MinigameInGameApp.Body.Middle:WaitForChild("Container")
 			Player.PlayerGui.MinigameInGameApp.Body.Middle.Container:WaitForChild("TitleLabel")
 			if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("CRICKET'S TILE HOP") then
+				isInMiniGame = true
 				task.wait(rng:NextInteger(5, 20))
 				Halloween:GetPumpkins("TileSkipMinigame")
 				Halloween:FinishMiniGame()
