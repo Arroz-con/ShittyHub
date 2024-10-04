@@ -2,7 +2,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Halloween2024 = {}
 
--- "MainMap" "SkyCastle" 
+-- "MainMap" "SkyCastle" "TileSkipMinigame"
 function Halloween2024:GetPumpkins(mapName: string)
     if not workspace.Collectables then return end
 
