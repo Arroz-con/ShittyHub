@@ -117,7 +117,7 @@ end
 --]]
 
 
---[[
+---[[
 local function buyPet(petNameId: string, howManyToBuy: number)
 	for _ = 1, howManyToBuy do
 		local hasMoney = game.ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", petNameId, {})
@@ -128,6 +128,5 @@ local function buyPet(petNameId: string, howManyToBuy: number)
 	end
 end
 
-buyPet("celestial_2024_glormy_hound", 2)
-buyPet("celestial_2024_glormy_leo", 2)
+buyPet("halloween_2024_indian_flying_fox", 1)
 --]]
