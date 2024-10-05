@@ -11,6 +11,7 @@ local Teleport = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arro
 -- "MainMap" "SkyCastle" "TileSkipMinigame" "Neighborhood"
 function Halloween2024:GetPumpkins(mapName: string)
     if Bypass("ClientData").get_data()[Player.Name].halloween_2024_purple_pumpkins.available_pumpkins[mapName] == 0 then return end
+    print(Bypass("ClientData").get_data()[Player.Name].halloween_2024_purple_pumpkins.available_pumpkins[mapName])
     if not workspace.Collectables then return end
 
     for _, id in workspace.Collectables:GetChildren() do
