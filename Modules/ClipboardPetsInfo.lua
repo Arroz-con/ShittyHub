@@ -131,8 +131,8 @@ local function getBucksInfo()
     -- local ponyPassLevel = Bypass("ClientData").get_data()[Player.Name].battle_pass_manager.show_horse.rewards_claimed
     -- local tickets = Bypass("ClientData").get_data()[Player.Name].tickets_2024
     local bucks = Bypass("ClientData").get_data()[Player.Name].money or 0
-    local coins = Bypass("ClientData").get_data()[Player.Name].cranky_coins_2024 or 0
-    allInventory = allInventory..`{potions} Age-up Potions + {addComma(bucks)} Bucks + {addComma(coins)} Cranky Coins | Adopt me\n`
+    local candy = Bypass("ClientData").get_data()[Player.Name].candy_2024 or 0
+    allInventory = allInventory..`{potions} Age-up Potions + {addComma(bucks)} Bucks + {addComma(candy)} Halloween Candy | Adopt me\n`
 
     -- local cash = tonumber(bucks) * 0.000037
 
