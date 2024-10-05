@@ -119,7 +119,7 @@ end
 
 ---[[
 local function buyPet(petNameId: string, howManyToBuy: number)
-	for _ = 1, howManyToBuy do
+	for _ = 5, howManyToBuy do
 		local hasMoney = game.ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", petNameId, {})
 		if hasMoney == "too little money" then
 			return
