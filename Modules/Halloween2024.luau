@@ -10,8 +10,6 @@ local Teleport = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arro
 
 -- "MainMap" "SkyCastle" "TileSkipMinigame" "Neighborhood"
 function Halloween2024:GetPumpkins(mapName: string)
-    if Bypass("ClientData").get_data()[Player.Name].halloween_2024_purple_pumpkins.available_pumpkins[mapName] == 0 then return end
-    print(Bypass("ClientData").get_data()[Player.Name].halloween_2024_purple_pumpkins.available_pumpkins[mapName])
     if not workspace.Collectables then return end
 
     for _, id in workspace.Collectables:GetChildren() do
@@ -21,20 +19,25 @@ function Halloween2024:GetPumpkins(mapName: string)
     end
 end
 
+
 function Halloween2024:GetAllPumpkins()
     if Bypass("ClientData").get_data()[Player.Name].halloween_2024_purple_pumpkins.purple_pumpkins == 25 then return end
-    Teleport.Neighborhood()
-    task.wait(5)
-    Halloween2024:GetPumpkins("Neighborhood")
-    task.wait(1)
-    Teleport.MainMap()
-    task.wait(5)
-    Halloween2024:GetPumpkins("MainMap")
-    task.wait(1)
-    Teleport.SkyCastle()
-    task.wait(5)
-    Halloween2024:GetPumpkins("SkyCastle")
-    task.wait(1)
+    
+    if Bypass("ClientData").get_data()[Player.Name].halloween_2024_purple_pumpkins.available_pumpkins.Neighborhood >= 1 then
+        Teleport.Neighborhood()
+        task.wait(5)
+        Halloween2024:GetPumpkins("Neighborhood") 
+    end
+    if Bypass("ClientData").get_data()[Player.Name].halloween_2024_purple_pumpkins.available_pumpkins.MainMap >= 1 then
+        Teleport.MainMap()
+        task.wait(5)
+        Halloween2024:GetPumpkins("MainMap")
+    end
+    if Bypass("ClientData").get_data()[Player.Name].halloween_2024_purple_pumpkins.available_pumpkins.SkyCastle >= 1 then
+        Teleport.SkyCastle()
+        task.wait(5)
+        Halloween2024:GetPumpkins("SkyCastle")
+    end
 end
 
 function Halloween2024:FinishMiniGame()
