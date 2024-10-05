@@ -1,6 +1,8 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Player = game:GetService("Players").LocalPlayer
-local Bypass = require(ReplicatedStorage:WaitForChild("Fsys")).load
+local Players = game:GetService("Players")
+
+local Bypass = require(ReplicatedStorage:WaitForChild("Fsys", 600)).load
+local Player = Players.LocalPlayer
 
 local Halloween2024 = {}
 
@@ -18,17 +20,19 @@ function Halloween2024:GetPumpkins(mapName: string)
 end
 
 function Halloween2024:GetAllPumpkins()
-    if Bypass("ClientData").get_data()[Player.Name].halloween_2024_purple_pumpkins.purple_pumpkins == 25 then 
-        print("collected all pumpkins")
-        return
-    end
-    for key, value in Bypass("ClientData").get_data()[Player.Name].halloween_2024_purple_pumpkins.interior_collected_ids do
-        for id, bool in value do
-            if bool then continue end
-            ReplicatedStorage.API["HalloweenAPI/PurplePumpkinCollected"]:FireServer(key, id)
-            task.wait(.1)
-        end
-    end
+    if Bypass("ClientData").get_data()[Player.Name].halloween_2024_purple_pumpkins.purple_pumpkins == 25 then return end
+    Teleport.Neighborhood()
+    task.wait(5)
+    Halloween2024:GetPumpkins("Neighborhood")
+    task.wait(1)
+    Teleport.MainMap()
+    task.wait(5)
+    Halloween2024:GetPumpkins("MainMap")
+    task.wait(1)
+    Teleport.SkyCastle()
+    task.wait(5)
+    Halloween2024:GetPumpkins("SkyCastle")
+    task.wait(1)
 end
 
 function Halloween2024:FinishMiniGame()
