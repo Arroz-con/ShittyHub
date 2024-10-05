@@ -91,35 +91,10 @@ getgenv().SETTINGS = {
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Adoptme_Script"))()
 
---[[
--- ocean_2024_small_wish  ocean_2024_big_wish
-local wishId = "ocean_2024_big_wish"
-local howManyWishes = 20
-
-local function makeWish(wishId)
-    local success, errMessage = pcall(function()
-        game.ReplicatedStorage.API["LootBoxAPI/ExchangeItemForReward"]:InvokeServer(wishId)
-    end)
-
-    if not success then
-        return false
-    else
-        return true
-    end
-end
-
-for _ = 1, howManyWishes do
-    if not makeWish(wishId) then return end
-    task.wait(.2)
-end
-
-
---]]
-
 
 ---[[
 local function buyPet(petNameId: string, howManyToBuy: number)
-	for _ = 5, howManyToBuy do
+	for _ = 1, howManyToBuy do
 		local hasMoney = game.ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", petNameId, {})
 		if hasMoney == "too little money" then
 			return
@@ -128,5 +103,5 @@ local function buyPet(petNameId: string, howManyToBuy: number)
 	end
 end
 
-buyPet("halloween_2024_indian_flying_fox", 1)
+buyPet("halloween_2024_indian_flying_fox", 5)
 --]]
