@@ -32,6 +32,22 @@ local function SetLocationFunc(a, b, c)
 	set_thread_identity(k)
 end
 
+local function floorPart()
+	for _, v in workspace:GetChildren() do
+		if v.Name == "FloorPart1" then
+			return
+		end
+	end
+	local part = Instance.new("Part")
+	part.Position = game.Workspace.Interiors:FindFirstChild(
+		tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))
+	).Static.Campsite.MarshmallowChair.VintageChair.Union.Position + Vector3.new(0, -2, 0)
+	part.Size = Vector3.new(2000, 2, 2000)
+	part.Anchored = true
+	part.Name = "FloorPart1"
+	part.Parent = workspace
+end
+
 function Teleport.DeleteMainMapParts()
 	-- local MainMap = workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
 	-- if not MainMap then
@@ -72,6 +88,7 @@ function Teleport.MainMap()
 	Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
 	SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
 	workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
+	floorPart()
 	Player.Character.PrimaryPart.CFrame = workspace
 		:WaitForChild("StaticMap")
 		:WaitForChild("Campsite")
