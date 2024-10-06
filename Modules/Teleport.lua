@@ -92,7 +92,7 @@ function Teleport.MainMap()
 	Player.Character.PrimaryPart.CFrame = workspace
 		:WaitForChild("StaticMap")
 		:WaitForChild("Campsite")
-		:WaitForChild("CampsiteOrigin").CFrame + Vector3.new(math.random(1, 10), 10, math.random(1, 10))
+		:WaitForChild("CampsiteOrigin").CFrame + Vector3.new(math.random(1, 5), 10, math.random(1, 5))
 	Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
 	Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
 	Player.Character.Humanoid.WalkSpeed = 0
@@ -121,10 +121,11 @@ function Teleport.CampSite()
 	end
 	task.wait(1)
 	workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
+	floorPart()
 	Player.Character.PrimaryPart.CFrame = workspace
 		:WaitForChild("StaticMap")
 		:WaitForChild("Campsite")
-		:WaitForChild("CampsiteOrigin").CFrame + Vector3.new(math.random(1, 10), 10, math.random(1, 10))
+		:WaitForChild("CampsiteOrigin").CFrame + Vector3.new(math.random(1, 5), 10, math.random(1, 5))
 	Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
 	Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
 	Player.Character.Humanoid.WalkSpeed = 0
