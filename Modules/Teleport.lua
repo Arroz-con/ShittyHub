@@ -55,11 +55,12 @@ function Teleport.placeFloorOnJoinZone()
 			return
 		end
 	end
-	
+
 	local part = Instance.new("Part")
-	part.Position = game.Workspace.Interiors:WaitForChild(
-		tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))
-	).TileSkip.JoinZone.EmitterPart.Position + Vector3.new(0, -2, 0)
+	part.Position = game.Workspace.Interiors
+		:WaitForChild("Halloween2024Shop")
+		:WaitForChild("TileSkip"):WaitForChild("JoinZone")
+		:WaitForChild("EmitterPart").Position + Vector3.new(0, -2, 0)
 	part.Size = Vector3.new(100, 2, 100)
 	part.Anchored = true
 	part.Name = "FloorPart2"
