@@ -6,6 +6,7 @@ if game.PlaceId ~= 920587237 then
 	return
 end
 
+task.wait(10)
 -----------------------------------------------------------------------------------------------
 --[[ Services ]]--
 -----------------------------------------------------------------------------------------------
@@ -26,6 +27,9 @@ local Bypass = require(ReplicatedStorage:WaitForChild("Fsys", 600)).load
 -- local Remote = Bypass("RouterClient").get("HousingAPI/ActivateFurniture")
 local ClaimRemote = Bypass("RouterClient").get("QuestAPI/ClaimQuest")
 local RerollRemote = Bypass("RouterClient").get("QuestAPI/RerollQuest")
+local Player = Players.LocalPlayer
+
+repeat task.wait(1) until Bypass("ClientData").get_data()[Player.Name].loaded_in
 
 local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/Rayfield/main/source"))()
 
@@ -39,8 +43,6 @@ local Halloween = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arr
 -----------------------------------------------------------------------------------------------
 --[[ Private Variables ]]--
 -----------------------------------------------------------------------------------------------
-local Player = Players.LocalPlayer
-
 local NewsAppConnection
 local PickColorConn
 local WelcomeScreen
@@ -804,23 +806,6 @@ local function AgeUpPotionLevelUp()
 end
 
 
--- local function floorPart()
--- 	for _, v in workspace:GetChildren() do
--- 		if v.Name == "FloorPart1" then
--- 			return
--- 		end
--- 	end
--- 	local part = Instance.new("Part")
--- 	part.Position = game.Workspace.Interiors:FindFirstChild(
--- 		tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))
--- 	).Static.Campsite.MarshmallowChair.VintageChair.Union.Position + Vector3.new(0, -2, 0)
--- 	part.Size = Vector3.new(2000, 2, 2000)
--- 	part.Anchored = true
--- 	part.Name = "FloorPart1"
--- 	part.Parent = workspace
--- end
-
-
 local function CheckifEgg()
 	local PetNameID = Bypass("ClientData").get("pet_char_wrappers")[1]["pet_id"]
 	local PetUniqueID = Bypass("ClientData").get("pet_char_wrappers")[1]["pet_unique"]
@@ -1056,7 +1041,6 @@ local function autoFarm()
 
 	Halloween:GetAllPumpkins()
 	Teleport.MainMap()
-
 	local function CompletePetAilments()
 		-- if stopEquip then return end
 		if getgenv().feedAgeUpPotionToggle then
@@ -1158,22 +1142,17 @@ local function autoFarm()
 
 
 	local function CompleteBabyAilments()
-		if not Bypass("ClientData").get("char_wrapper") then
-			return
-		end
-		if not Bypass("ClientData").get("char_wrapper")["ailments_monitor"] then
-			return
-		end
-
-		if #Bypass("ClientData").get("char_wrapper")["ailments_monitor"]["ailments"] == 0 then
-			return
-		end
-		for _, m in pairs(Bypass("ClientData").get("char_wrapper")["ailments_monitor"]["ailments"]) do
-			if m["id"] == m["id"] then
-				Bypass("RouterClient").get("MonitorAPI/AddRate"):InvokeServer(m["id"], 100)
+		pcall(function()
+			if #Bypass("ClientData").get("char_wrapper")["ailments_monitor"]["ailments"] == 0 then
 				return
 			end
-		end
+			for _, m in pairs(Bypass("ClientData").get("char_wrapper")["ailments_monitor"]["ailments"]) do
+				if m["id"] == m["id"] then
+					Bypass("RouterClient").get("MonitorAPI/AddRate"):InvokeServer(m["id"], 100)
+					return
+				end
+			end
+		end)
 	end
 
 
@@ -1257,6 +1236,17 @@ local function autoFarm()
 		end
 	end
 
+	local function onTextChangedMiniGame()
+		if SETTINGS.EVENT and SETTINGS.EVENT.IS_AUTO_BUY then
+			Halloween:BuyPet(SETTINGS.EVENT.BUY, 1)
+		end
+		if not SETTINGS.EVENT or SETTINGS.EVENT.DO_MINIGAME == true or SETTINGS.EVENT.DO_MINIGAME == nil then
+			task.wait(rng:NextInteger(1, 10))
+			FireButton("Yes")
+			Teleport.placeFloorOnJoinZone()
+		end
+	end
+
 	-- fires when it ask you if you want to join minigame
 	Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(NormalDialogChild)
 		if NormalDialogChild.Name == "NormalDialog" then
@@ -1266,8 +1256,7 @@ local function autoFarm()
 					NormalDialogChild.Info:WaitForChild("TextLabel")
 					NormalDialogChild.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
 						if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Cricket's Tile Hop") then
-							task.wait(rng:NextInteger(1, 10))
-							FireButton("Yes")
+							onTextChangedMiniGame()
 						elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("invitation") then
 							game:Shutdown()
 						elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("You found a") then
@@ -1286,8 +1275,7 @@ local function autoFarm()
 			Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info:WaitForChild("TextLabel")
 			Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
 				if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Cricket's Tile Hop") then
-					task.wait(rng:NextInteger(1, 10))
-					FireButton("Yes")
+					onTextChangedMiniGame()
 				elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("invitation") then
 					game:Shutdown()
 				elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("You found a") then
@@ -1768,8 +1756,6 @@ end)
 -------------------------------------------------------------------------------------------------------------------
 --[[ Main ]]--
 -------------------------------------------------------------------------------------------------------------------
-
-repeat task.wait(1) until Bypass("ClientData").get_data()[Player.Name].loaded_in
 
 -- Player:WaitForChild("PlayerGui", 600)
 -- Player.PlayerGui:WaitForChild("NewsApp", 600)
