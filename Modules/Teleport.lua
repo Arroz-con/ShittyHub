@@ -48,6 +48,24 @@ local function floorPart()
 	part.Parent = workspace
 end
 
+function Teleport.placeFloorOnJoinZone()
+	-- workspace.Interiors.Halloween2024Shop.TileSkip.JoinZone.EmitterPart
+	for _, v in workspace:GetChildren() do
+		if v.Name == "FloorPart2" then
+			return
+		end
+	end
+	
+	local part = Instance.new("Part")
+	part.Position = game.Workspace.Interiors:WaitForChild(
+		tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))
+	).TileSkip.JoinZone.EmitterPart.Position + Vector3.new(0, -2, 0)
+	part.Size = Vector3.new(100, 2, 100)
+	part.Anchored = true
+	part.Name = "FloorPart2"
+	part.Parent = workspace
+end
+
 function Teleport.DeleteMainMapParts()
 	-- local MainMap = workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
 	-- if not MainMap then
