@@ -3,6 +3,12 @@ getgenv().SETTINGS = {
 		URL = "",
 		USER_ID = "",
 	},
+	
+	EVENT = {
+		DO_MINIGAME = true,
+		IS_AUTO_BUY = true,
+		BUY = "halloween_2024_indian_flying_fox"
+	},
 
 	PET_TO_BUY = "garden_2024_egg", -- add pet or egg to buy when bot has no pets/egg left to level
 
@@ -15,7 +21,7 @@ getgenv().SETTINGS = {
 
 	ENABLE_TRADE_COLLECTOR = true,
 	TRADE_ONLY_LUMINOUS_MEGA = false,
-	TRADE_COLLECTOR_NAME = "donutboy_92", -- your account username (case sensitive) that will collect the pets.
+	TRADE_COLLECTOR_NAME = "candymine8", -- your account username (case sensitive) that will collect the pets.
 	TRADE_LIST = {
 		PET_WEAR_TABLE = {},
 
