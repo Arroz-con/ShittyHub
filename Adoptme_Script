@@ -2470,6 +2470,9 @@ ClipboardButton.Parent = TestGui
 
 
 dailyLoginAppClick()
+if Bypass("ClientData").get_data()[Player.Name].halloween_2024_purple_pumpkins.purple_pumpkins >= 150 then
+	ReplicatedStorage.API:FindFirstChild("HalloweenAPI/VendingMachinePurchase"):FireServer(1)
+end
 
 startAutoFarm()
 WelcomeScreen:Disconnect()
