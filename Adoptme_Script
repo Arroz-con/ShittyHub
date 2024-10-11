@@ -6,7 +6,7 @@ if game.PlaceId ~= 920587237 then
 	return
 end
 
-task.wait(10)
+-- task.wait(10)
 -----------------------------------------------------------------------------------------------
 --[[ Services ]]--
 -----------------------------------------------------------------------------------------------
@@ -1396,6 +1396,7 @@ end
 
 
 local function startAutoFarm()
+	print("start farm")
 	if SETTINGS.ENABLE_AUTO_FARM then
 		findFurniture()
 		if Bed then
