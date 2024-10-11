@@ -1242,7 +1242,7 @@ local function autoFarm()
 			Halloween:BuyPet(SETTINGS.EVENT.BUY, 1)
 		end
 		if not SETTINGS.EVENT or SETTINGS.EVENT.DO_MINIGAME == true or SETTINGS.EVENT.DO_MINIGAME == nil then
-			task.wait(rng:NextInteger(1, 10))
+			task.wait(rng:NextInteger(1, 5))
 			FireButton("Yes")
 			Teleport.placeFloorOnJoinZone()
 		end
