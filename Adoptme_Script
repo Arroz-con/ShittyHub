@@ -1238,6 +1238,10 @@ local function autoFarm()
 
 	local function onTextChangedMiniGame()
 		Halloween:GetGravestones()
+		if getgenv().feedAgeUpPotionToggle then
+			FireButton("No")
+			return
+		end
 		if SETTINGS.EVENT and SETTINGS.EVENT.IS_AUTO_BUY then
 			Halloween:BuyPet(SETTINGS.EVENT.BUY, 1)
 		end
