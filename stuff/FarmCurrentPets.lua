@@ -7,7 +7,7 @@ getgenv().SETTINGS = {
 	EVENT = {
 		DO_MINIGAME = true,
 		IS_AUTO_BUY = true,
-		BUY = "halloween_2024_scarebear"
+		BUY = "halloween_2024_sea_skeleton_panda"
 	},
 
 	PET_TO_BUY = "garden_2024_egg", -- add pet or egg to buy when bot has no pets/egg left to level
@@ -20,7 +20,7 @@ getgenv().SETTINGS = {
 	PET_AUTO_FUSION = true,
 
 	ENABLE_TRADE_COLLECTOR = true,
-	TRADE_ONLY_LUMINOUS_MEGA = false,
+	TRADE_ONLY_LUMINOUS_MEGA = true,
 	TRADE_COLLECTOR_NAME = "candymine8", -- your account username (case sensitive) that will collect the pets.
 	TRADE_LIST = {
 		PET_WEAR_TABLE = {},
@@ -53,7 +53,7 @@ getgenv().SETTINGS = {
 		-- the pets in here will be traded no matter what age they are
 		PETS_TABLE = {
 			"lures_2023_blazing_lion",
-			"halloween_2024_pumpkin_friend",
+			-- "halloween_2024_pumpkin_friend",
 			-- "celestial_2024_moonlight_moth",
 			-- "celestial_2024_glormy_hound",
 			-- "summerfest_2024_punk_pony",
@@ -70,7 +70,7 @@ getgenv().SETTINGS = {
 		"halloween_2024_scarebear",
 		"halloween_2024_dracula_parrot",
 		"halloween_2024_sea_skeleton_panda",
-		"halloween_2024_indian_flying_fox",
+		-- "halloween_2024_indian_flying_fox",
 		-- "halloween_2024_franken_feline",
 		-- "halloween_2024_grim_dragon",
 		"summerfest_2024_majestic_pony",
