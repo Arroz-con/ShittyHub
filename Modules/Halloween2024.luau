@@ -60,16 +60,11 @@ function Halloween2024:BuyPet(petNameId: string, howManyToBuy: number)
 end
 
 function Halloween2024:GetGravestones()
-    if workspace.Interiors["MainMap!Fall"] then
-        local gravestones = workspace.Interiors["MainMap!Fall"].Event.Halloween2024.Graveyard.Gravestones
-        if not gravestones then return end
-    
-        for _, v in gravestones:GetChildren() do
-            local response = ReplicatedStorage.API["HalloweenAPI/PushGravestone"]:InvokeServer(v:GetAttribute("index"))
-            if response == "false Grave has already been pushed." or response == false then continue end
-            task.wait(.1)
-        end
-    end
+    for index, bool in Bypass("ClientData").get_data()[Player.Name].graveyard_manager.gravestones_pushed do
+        if bool then continue end
+        ReplicatedStorage.API["HalloweenAPI/PushGravestone"]:InvokeServer(index)
+        task.wait(1)
+    end    
 end
 
 
