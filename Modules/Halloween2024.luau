@@ -67,7 +67,7 @@ function Halloween2024:GetGravestones()
         for _, v in gravestones:GetChildren() do
             local response = ReplicatedStorage.API["HalloweenAPI/PushGravestone"]:InvokeServer(v:GetAttribute("index"))
             if response == "false Grave has already been pushed." or response == false then continue end
-            task.wait(1)
+            task.wait(.1)
         end
     end
 end
