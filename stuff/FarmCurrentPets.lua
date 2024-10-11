@@ -20,7 +20,7 @@ getgenv().SETTINGS = {
 	PET_AUTO_FUSION = true,
 
 	ENABLE_TRADE_COLLECTOR = true,
-	TRADE_ONLY_LUMINOUS_MEGA = true,
+	TRADE_ONLY_LUMINOUS_MEGA = false,
 	TRADE_COLLECTOR_NAME = "candymine8", -- your account username (case sensitive) that will collect the pets.
 	TRADE_LIST = {
 		PET_WEAR_TABLE = {},
@@ -67,12 +67,12 @@ getgenv().SETTINGS = {
 
 	PET_ONLY_PRIORITY = true,
 	PET_ONLY_PRIORITY_NAMES = {
-		"halloween_2024_indian_flying_fox",
-		"halloween_2024_franken_feline",
-		"halloween_2024_grim_dragon",
 		"halloween_2024_scarebear",
 		"halloween_2024_dracula_parrot",
 		"halloween_2024_sea_skeleton_panda",
+		"halloween_2024_indian_flying_fox",
+		-- "halloween_2024_franken_feline",
+		-- "halloween_2024_grim_dragon",
 		"summerfest_2024_majestic_pony",
 		-- "summerfest_2024_corn_doggo",
 		"sunshine_2024_cheetah",
