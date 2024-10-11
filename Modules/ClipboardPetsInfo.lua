@@ -132,7 +132,8 @@ local function getBucksInfo()
     -- local tickets = Bypass("ClientData").get_data()[Player.Name].tickets_2024
     local bucks = Bypass("ClientData").get_data()[Player.Name].money or 0
     local candy = Bypass("ClientData").get_data()[Player.Name].candy_2024 or 0
-    allInventory = allInventory..`{potions} Age-up Potions + {addComma(bucks)} Bucks + {addComma(candy)} Halloween Candy | Adopt me\n`
+    local pumpkins = Bypass("ClientData").get_data()[Player.Name].halloween_2024_purple_pumpkins.purple_pumpkins or 0
+    allInventory = allInventory..`{potions} Age-up Potions + {addComma(bucks)} Bucks + {addComma(candy)} Halloween Candy + {addComma(pumpkins)} Purple Pumpkins | Adopt me\n`
 
     -- local cash = tonumber(bucks) * 0.000037
 
