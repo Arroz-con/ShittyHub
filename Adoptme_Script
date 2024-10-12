@@ -6,7 +6,7 @@ if game.PlaceId ~= 920587237 then
 	return
 end
 
--- task.wait(10)
+task.wait(10)
 -----------------------------------------------------------------------------------------------
 --[[ Services ]]--
 -----------------------------------------------------------------------------------------------
@@ -1872,7 +1872,6 @@ buyLure()
 -- "lures_2023_campfire_cookies"  "lures_2023_flame_swirl_pie"
 baitId = findBait("fire_dimension_2024_burnt_bites_bait")
 
-
 if baitId == nil then
 	baitId = findBait("lures_2023_flame_swirl_pie")
 	if baitId == nil then
@@ -1881,7 +1880,7 @@ if baitId == nil then
 end
 
 
-task.wait(1)
+-- task.wait(1)
 -- will place bait but it will also collect pet
 placeBait(baitId)
 task.wait(1)
