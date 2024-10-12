@@ -55,6 +55,8 @@ local DailyClaimConnection
 -- local ChatConnection
 local CharConn
 
+local counter = 0
+
 local isInMiniGame = false
 local DailyBoolean = true
 local NewTaskBool = true
@@ -1401,6 +1403,7 @@ end
 
 local function startAutoFarm()
 	print("start farm")
+	counter += 1
 	if SETTINGS.ENABLE_AUTO_FARM then
 		findFurniture()
 		if Bed then
@@ -1408,8 +1411,11 @@ local function startAutoFarm()
 			-- FarmToggle:Set(true)
 			getgenv().auto_farm = true
 			autoFarm()
-			task.wait(2)
+			-- task.wait(2)
 		else
+			if counter >= 10 then
+				game:Shutdown()
+			end
 			buyCrib()
 			-- FarmToggle:Set(false)
 			startAutoFarm()
