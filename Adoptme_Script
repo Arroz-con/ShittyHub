@@ -457,7 +457,6 @@ end
 
 
 local function getPlayersInGame()
-	print("player refresh")
 	local playerTable = {"Nothing"}
 	for _, player in Players:GetPlayers() do
 		if player.Name == Player.Name then
@@ -1489,7 +1488,6 @@ end
 
 Player.CharacterAdded:Connect(function(character: Model)
 	diedCounter += 1
-	print(diedCounter)
 	if diedCounter >= 3 then
 		game:Shutdown()
 	end
