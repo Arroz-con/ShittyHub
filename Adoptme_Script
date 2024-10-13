@@ -6,12 +6,13 @@ if game.PlaceId ~= 920587237 then
 	return
 end
 
-task.wait(10)
+task.wait(5)
 -----------------------------------------------------------------------------------------------
 --[[ Services ]]--
 -----------------------------------------------------------------------------------------------
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local UserGameSettings = UserSettings():GetService("UserGameSettings")
 -- local UserInputService = game:GetService("UserInputService")
@@ -32,6 +33,7 @@ local Player = Players.LocalPlayer
 repeat task.wait(1) until Bypass("ClientData").get_data()[Player.Name].loaded_in
 
 local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/Rayfield/main/source"))()
+-- local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/Rayfield/Testing/source"))()
 
 local Clipboard = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/ClipboardPetsInfo.lua"))()
 local Fusion = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Fusion.lua"))()
@@ -56,6 +58,7 @@ local DailyClaimConnection
 local CharConn
 
 local counter = 0
+local diedCounter = 0
 
 local isInMiniGame = false
 local DailyBoolean = true
@@ -67,7 +70,7 @@ local guiCooldown = false
 local tutorialDebonce = false
 local stopEquip = false
 local discordCooldown = false
-
+local debounce = false
 
 local Bed
 local Shower
@@ -264,7 +267,7 @@ local function findFurniture()
 			Shower = key
 		elseif value.id == "piano" then
 			Piano = key
-		elseif value.id == "lures2023normallure" then
+		elseif value.id == "lures_2023_normal_lure" then
 			normalLure = key
 		elseif value.id == "beach_2024_log" then
 			beachlog = key
@@ -454,6 +457,7 @@ end
 
 
 local function getPlayersInGame()
+	print("player refresh")
 	local playerTable = {"Nothing"}
 	for _, player in Players:GetPlayers() do
 		if player.Name == Player.Name then
@@ -461,6 +465,7 @@ local function getPlayersInGame()
 		end
 		table.insert(playerTable, player.Name)
 	end
+
 	table.sort(playerTable)
 	return playerTable
 end
@@ -1402,7 +1407,6 @@ end
 
 
 local function startAutoFarm()
-	print("start farm")
 	counter += 1
 	if SETTINGS.ENABLE_AUTO_FARM then
 		findFurniture()
@@ -1483,13 +1487,29 @@ end
 --[[ Handling ]]--
 -----------------------------------------------------------------------------------------------
 
+Player.CharacterAdded:Connect(function(character: Model)
+	diedCounter += 1
+	print(diedCounter)
+	if diedCounter >= 3 then
+		game:Shutdown()
+	end
+end)
+
+UserInputService.InputBegan:Connect(function(input, processed)
+	if (input.KeyCode == Enum.KeyCode.Q and not processed) then
+		if debounce then return end
+		debounce = true
+		Clipboard:CopyAllInventory()
+		task.wait()
+		debounce = false
+	end
+end)
 
 Player.OnTeleport:Connect(function(State)
 	if State == Enum.TeleportState.InProgress then
 		game:Shutdown()
 	end
 end)
-
 
 Players.PlayerRemoving:Connect(function(player)
 	if player.Name == getgenv().SETTINGS.TRADE_COLLECTOR_NAME then
@@ -1721,7 +1741,7 @@ game.Players.PlayerAdded:Connect(function(player: Player)
 		if tostring(player.Name) ~= SETTINGS.TRADE_COLLECTOR_NAME then
 			return
 		end --extra check just in case
-		task.wait(math.random(5, 15))
+		task.wait(math.random(10, 20))
 		tradeCollector(tostring(player.Name))
 	end)
 end)
@@ -1865,9 +1885,11 @@ for _, pettable in pairs({ pets_legendary, pets_ultrarare, pets_rare, pets_uncom
 	end
 end
 
+findFurniture()
 
-buyLure()
-
+if not normalLure then
+	buyLure()
+end
 
 -- "lures_2023_campfire_cookies"  "lures_2023_flame_swirl_pie"
 baitId = findBait("fire_dimension_2024_burnt_bites_bait")
@@ -1878,7 +1900,6 @@ if baitId == nil then
 		baitId = findBait("lures_2023_campfire_cookies")
 	end
 end
-
 
 -- task.wait(1)
 -- will place bait but it will also collect pet
@@ -2479,6 +2500,9 @@ ClipboardButton.TextSize = 14.000
 ClipboardButton.TextWrapped = true
 ClipboardButton.Parent = TestGui
 
+if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Cricket's Tile Hop") then
+	FireButton("No")
+end
 
 dailyLoginAppClick()
 if Bypass("ClientData").get_data()[Player.Name].halloween_2024_purple_pumpkins.purple_pumpkins >= 150 then
