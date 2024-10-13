@@ -7,7 +7,7 @@ getgenv().SETTINGS = {
 	EVENT = {
 		DO_MINIGAME = true,
 		IS_AUTO_BUY = true,
-		BUY = "halloween_2024_sea_skeleton_panda"
+		BUY = "halloween_2024_indian_flying_fox"
 	},
 
 	PET_TO_BUY = "garden_2024_egg", -- add pet or egg to buy when bot has no pets/egg left to level
@@ -69,8 +69,9 @@ getgenv().SETTINGS = {
 	PET_ONLY_PRIORITY_NAMES = {
 		"halloween_2024_scarebear",
 		"halloween_2024_dracula_parrot",
+		"halloween_2024_pumpkin_friend",
 		"halloween_2024_sea_skeleton_panda",
-		-- "halloween_2024_indian_flying_fox",
+		"halloween_2024_indian_flying_fox",
 		-- "halloween_2024_franken_feline",
 		-- "halloween_2024_grim_dragon",
 		"summerfest_2024_majestic_pony",
