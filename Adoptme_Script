@@ -1064,13 +1064,17 @@ local function autoFarm()
 			return
 		end
 
-		if #Bypass("ClientData").get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"] >= 3 then
-			stopDoingTasks = true
-			ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {})
-			task.wait(2)
-			ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(PetCurrentlyFarming, {})
-			task.wait(2)
-			stopDoingTasks = false
+		-- if #Bypass("ClientData").get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"] >= 3 then
+		-- 	stopDoingTasks = true
+		-- 	ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {})
+		-- 	task.wait(2)
+		-- 	ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(PetCurrentlyFarming, {})
+		-- 	task.wait(2)
+		-- 	stopDoingTasks = false
+		-- end
+		if #Bypass("ClientData").get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"] >= 4 then
+			-- has too many task so it must be stuck 
+			game:Shutdown()
 		end
 
 		for _, v in pairs(Bypass("ClientData").get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"]) do
@@ -1328,6 +1332,8 @@ local function autoFarm()
 				RemoveGameOverButton()
 				Teleport.DeleteMainMapParts()
 				Halloween:GetAllPumpkins()
+				CompletePetAilments()
+				CompleteBabyAilments()
 			end
 		end
 	end)
