@@ -175,8 +175,11 @@ function Teleport.PlayGround()
 	end
 	task.wait(1)
 	workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
-	Player.Character.PrimaryPart.CFrame = game:GetService("Workspace").StaticMap.Park.Roundabout.SeatsSpinModel.Visual
-		:FindFirstChildWhichIsA("Part").CFrame + Vector3.new(math.random(1, 20), 10, math.random(-20, -1))
+	Player.Character.PrimaryPart.CFrame = workspace
+		:WaitForChild("StaticMap")
+		:WaitForChild("Park")
+		:WaitForChild("Roundabout").PrimaryPart.CFrame + Vector3.new(20, 10, math.random(15, 30))
+
 	Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
 	Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
 	Player.Character.Humanoid.WalkSpeed = 0
