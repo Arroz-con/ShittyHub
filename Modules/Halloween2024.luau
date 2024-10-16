@@ -63,7 +63,7 @@ function Halloween2024:GetGravestones()
     for index, bool in Bypass("ClientData").get_data()[Player.Name].graveyard_manager.gravestones_pushed do
         if bool then continue end
         ReplicatedStorage.API["HalloweenAPI/PushGravestone"]:InvokeServer(index)
-        task.wait(1)
+        task.wait(.1)
     end    
 end
 
