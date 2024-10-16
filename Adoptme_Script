@@ -6,7 +6,7 @@ if game.PlaceId ~= 920587237 then
 	return
 end
 
-task.wait(5)
+
 -----------------------------------------------------------------------------------------------
 --[[ Services ]]--
 -----------------------------------------------------------------------------------------------
@@ -260,6 +260,7 @@ end
 
 -- "basiccrib"  "stylishshower"  "modernshower"  "piano" "lures2023normallure"
 local function findFurniture()
+	if Bed then return end
 	for key, value in Bypass("ClientData").get_data()[Player.Name].house_interior.furniture do
 		if value.id == "basiccrib" then
 			Bed = key
@@ -503,6 +504,17 @@ local function placeBait(baitIdPasson)
 	game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/ActivateFurniture"):InvokeServer(unpack(args))
 end
 
+local function getBaitReward(baitId)
+	local args = {
+		[1] = game:GetService("Players").LocalPlayer,
+		[2] = baitId,
+		[3] = "UseBlock",
+		[4] = false,
+		[5] = game:GetService("Players").LocalPlayer.Character
+	}
+	
+	game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/ActivateFurniture"):InvokeServer(unpack(args))
+end
 
 local function findBait(baitPassOn)
 	local bait
@@ -1117,18 +1129,17 @@ local function autoFarm()
 					break
 				end
 			elseif v["id"] == "sleepy" then
+				print("doing sleep task")
 				if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
-					subToHouse()
-					task.wait(2)
+					-- subToHouse()
+					-- task.wait(2)
 					DayNightAilments(Bed)
 
-					baitId = findBait("fire_dimension_2024_burnt_bites_bait")
-					if baitId == nil then
-						baitId = findBait("lures_2023_campfire_cookies")
-					end
-					placeBait(baitId)
-					task.wait(1)
-					placeBait(baitId)
+					-- baitId = findBait("fire_dimension_2024_burnt_bites_bait")
+					-- if baitId == nil then
+					-- 	baitId = findBait("lures_2023_campfire_cookies")
+					-- end
+					getBaitReward(baitId)
 					break
 				end
 			elseif v["id"] == "dirty" then
@@ -1232,6 +1243,7 @@ local function autoFarm()
 			Player.PlayerGui.MinigameInGameApp.Body.Middle.Container:WaitForChild("TitleLabel")
 			if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("CRICKET'S TILE HOP") then
 				isInMiniGame = true
+				Player.Character.Humanoid.WalkSpeed = 0
 				task.wait(rng:NextInteger(10, 20))
 				Halloween:GetPumpkins("TileSkipMinigame")
 				Halloween:FinishMiniGame()
@@ -1500,6 +1512,7 @@ end
 -----------------------------------------------------------------------------------------------
 
 Player.CharacterAdded:Connect(function(character: Model)
+	findFurniture()
 	diedCounter += 1
 	if diedCounter >= 3 then
 		game:Shutdown()
@@ -1549,7 +1562,6 @@ WelcomeScreen = Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChange
 	end
 end)
 
-
 --// Main Adopt me Screen (Play! Button)
 NewsAppConnection = Player.PlayerGui.NewsApp:GetPropertyChangedSignal("Enabled"):Connect(function()
 	if Player.PlayerGui.NewsApp.Enabled then
@@ -1563,7 +1575,6 @@ NewsAppConnection = Player.PlayerGui.NewsApp:GetPropertyChangedSignal("Enabled")
 		NewsAppConnection:Disconnect()
 	end
 end)
-
 
 PickColorConn = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:GetPropertyChangedSignal("Visible"):Connect(function()
     if Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
@@ -1599,9 +1610,7 @@ banMessageConnection = Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropert
                 FireButton("Okay")
                 banMessageConnection:Disconnect()
             elseif
-                Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match(
-                    "You have been awarded"
-                )
+                Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("You have been awarded")
             then
                 FireButton("Awesome!")
             end
@@ -1896,9 +1905,9 @@ for _, pettable in pairs({ pets_legendary, pets_ultrarare, pets_rare, pets_uncom
 	end
 end
 
-task.wait(10)
-
-findFurniture()
+-- task.wait(10)
+ 
+-- findFurniture()
 
 if not normalLure then
 	buyLure()
