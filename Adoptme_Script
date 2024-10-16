@@ -1242,9 +1242,8 @@ local function autoFarm()
 			Player.PlayerGui.MinigameInGameApp.Body.Middle:WaitForChild("Container")
 			Player.PlayerGui.MinigameInGameApp.Body.Middle.Container:WaitForChild("TitleLabel")
 			if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("CRICKET'S TILE HOP") then
-				isInMiniGame = true
 				Player.Character.Humanoid.WalkSpeed = 0
-				task.wait(rng:NextInteger(10, 20))
+				task.wait(rng:NextInteger(20, 30))
 				Halloween:GetPumpkins("TileSkipMinigame")
 				Halloween:FinishMiniGame()
 			end
