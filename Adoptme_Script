@@ -1263,7 +1263,6 @@ local function autoFarm()
 			Halloween:BuyPet(SETTINGS.EVENT.BUY, 1)
 		end
 		if not SETTINGS.EVENT or SETTINGS.EVENT.DO_MINIGAME == true or SETTINGS.EVENT.DO_MINIGAME == nil then
-			stopDoingTasks = true
 			task.wait(rng:NextInteger(1, 5))
 			FireButton("Yes")
 			Teleport.placeFloorOnJoinZone()
@@ -1326,8 +1325,6 @@ local function autoFarm()
 			Player.PlayerGui.MinigameRewardsApp.Body.Button:WaitForChild("Face")
 			Player.PlayerGui.MinigameRewardsApp.Body.Button.Face:WaitForChild("TextLabel")
 			if Player.PlayerGui.MinigameRewardsApp.Body.Button.Face.TextLabel.Text:match("NICE!") then
-				stopDoingTasks = false
-				isInMiniGame = false
 				Player.Character.HumanoidRootPart.Anchored = false
 				RemoveGameOverButton()
 				Teleport.DeleteMainMapParts()
