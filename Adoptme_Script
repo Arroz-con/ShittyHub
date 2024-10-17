@@ -1095,6 +1095,8 @@ local function autoFarm()
 				task.wait()
 				if not SETTINGS.FOCUS_FARM_AGE_POTION then
 					agePotion("pet_age_potion")
+					task.wait(1)
+					agePotion("tiny_pet_age_potion")
 				end
 
 				break
@@ -1345,7 +1347,6 @@ local function autoFarm()
 			end
 		end
 	end)
-
 
 	-- Player.PlayerGui.BattlePassApp.Body.Header.Title.Title.Text:match("Pony Pass")
 	Player.PlayerGui.BattlePassApp.Body:GetPropertyChangedSignal("Visible"):Connect(function()
