@@ -1272,7 +1272,7 @@ local function autoFarm()
 			FireButton("No")
 			return
 		end
-		if SETTINGS.EVENT and SETTINGS.EVENT.IS_AUTO_BUY then
+		if SETTINGS.EVENT and SETTINGS.EVENT.IS_AUTO_BUY == true then
 			Halloween:BuyPet(SETTINGS.EVENT.BUY, 1)
 		end
 		if not SETTINGS.EVENT or SETTINGS.EVENT.DO_MINIGAME == true or SETTINGS.EVENT.DO_MINIGAME == nil then
