@@ -1,7 +1,7 @@
 getgenv().SETTINGS = {
 	WEBHOOK = {
 		URL = "",
-		USER_ID = "",
+		USER_ID = ""
 	},
 
 	EVENT = {
