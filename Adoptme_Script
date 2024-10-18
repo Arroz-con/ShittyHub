@@ -1273,7 +1273,14 @@ local function autoFarm()
 			return
 		end
 		if SETTINGS.EVENT and SETTINGS.EVENT.IS_AUTO_BUY == true then
-			Halloween:BuyPet(SETTINGS.EVENT.BUY, 1)
+			if SETTINGS.EVENT.BUY == "halloween_2024_chick_box" then
+				repeat
+					local hasBox = Halloween:Exchange(SETTINGS.EVENT.BUY)
+					task.wait(.1)
+				until not hasBox
+			else
+				Halloween:BuyPet(SETTINGS.EVENT.BUY, 1)
+			end
 		end
 		if not SETTINGS.EVENT or SETTINGS.EVENT.DO_MINIGAME == true or SETTINGS.EVENT.DO_MINIGAME == nil then
 			task.wait(rng:NextInteger(1, 5))
@@ -2535,7 +2542,17 @@ startAutoFarm()
 WelcomeScreen:Disconnect()
 DailyClaimConnection:Disconnect()
 
+
 -- if Players.LocalPlayer.Name == SETTINGS.TRADE_COLLECTOR_NAME and SETTINGS.ENABLE_TRADE_COLLECTOR == true then
 -- 	getgenv().AutoTradeToggle:Set(true)
 -- 	task.wait(1)
 -- end
+
+if SETTINGS.EVENT and SETTINGS.EVENT.IS_AUTO_BUY == true then
+	if SETTINGS.EVENT.BUY == "halloween_2024_chick_box" then
+		repeat
+			local hasBox = Halloween:Exchange(SETTINGS.EVENT.BUY)
+			task.wait(.1)
+		until not hasBox
+	end
+end
