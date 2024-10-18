@@ -59,6 +59,18 @@ function Halloween2024:BuyPet(petNameId: string, howManyToBuy: number)
     end
 end
 
+function Halloween2024:Exchange(boxId)
+    ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("gifts", boxId, {})
+    task.wait()
+    for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.gifts do
+        if v["id"] == boxId then
+            ReplicatedStorage.API["LootBoxAPI/ExchangeItemForReward"]:InvokeServer(v["id"], v["unique"])
+            return true
+        end
+    end
+    return false
+end
+
 function Halloween2024:GetGravestones()
     for index, bool in Bypass("ClientData").get_data()[Player.Name].graveyard_manager.gravestones_pushed do
         if bool then continue end
