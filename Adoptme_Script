@@ -1268,6 +1268,12 @@ local function autoFarm()
 
 	local function onTextChangedMiniGame()
 		Halloween:GetGravestones()
+		task.spawn(function()
+			for _, v in Players:GetPlayers() do
+				ReplicatedStorage.API:FindFirstChild("HalloweenAPI/TrickOrTreatHouse"):InvokeServer(v)
+				task.wait(.1)
+			end
+		end)
 		if getgenv().feedAgeUpPotionToggle then
 			FireButton("No")
 			return
