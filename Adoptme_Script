@@ -1060,33 +1060,31 @@ local function autoFarm()
 	Halloween:GetAllPumpkins()
 	Teleport.MainMap()
 	local function CompletePetAilments()
-		-- if stopEquip then return end
-		if getgenv().feedAgeUpPotionToggle then
-			return
-		end
+		if stopDoingTasks then return end
+		if getgenv().feedAgeUpPotionToggle then return end
+
 		if Bypass("ClientData").get("pet_char_wrappers")[1] == nil then
 			ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(PetCurrentlyFarming, {})
 			return -- return because when pet gets requipped it will call this function anyway
 		end
 
-		if not Bypass("ClientData").get("pet_char_wrappers")[1]["ailments_monitor"] then
-			return
-		end
+		if not Bypass("ClientData").get("pet_char_wrappers")[1] then return end
+		if not Bypass("ClientData").get("pet_char_wrappers")[1]["ailments_monitor"] then return end
+
 		if #Bypass("ClientData").get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"] == 0 then
 			return
-		end
-
-		-- if #Bypass("ClientData").get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"] >= 3 then
-		-- 	stopDoingTasks = true
-		-- 	ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {})
-		-- 	task.wait(2)
-		-- 	ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(PetCurrentlyFarming, {})
-		-- 	task.wait(2)
-		-- 	stopDoingTasks = false
-		-- end
-		if #Bypass("ClientData").get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"] >= 4 then
-			-- has too many task so it must be stuck 
+		elseif #Bypass("ClientData").get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"] >= 6 then
 			game:Shutdown()
+		elseif #Bypass("ClientData").get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"] >= 3 then
+			print("has 3 or more ailments")
+			stopDoingTasks = true
+			ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {})
+			print("Unequip pet")
+			task.wait(10)
+			ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(PetCurrentlyFarming, {})
+			print("equip pet")
+			task.wait(10)
+			stopDoingTasks = false
 		end
 
 		for _, v in pairs(Bypass("ClientData").get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"]) do
@@ -1165,17 +1163,16 @@ local function autoFarm()
 
 
 	local function CompleteBabyAilments()
-		pcall(function()
-			if #Bypass("ClientData").get("char_wrapper")["ailments_monitor"]["ailments"] == 0 then
+		if Bypass("ClientData").get_data()[Player.Name]["team"] ~= "Babies" then return end
+		if #Bypass("ClientData").get("char_wrapper")["ailments_monitor"]["ailments"] == 0 then
+			return
+		end
+		for _, m in pairs(Bypass("ClientData").get("char_wrapper")["ailments_monitor"]["ailments"]) do
+			if m["id"] == m["id"] then
+				Bypass("RouterClient").get("MonitorAPI/AddRate"):InvokeServer(m["id"], 100)
 				return
 			end
-			for _, m in pairs(Bypass("ClientData").get("char_wrapper")["ailments_monitor"]["ailments"]) do
-				if m["id"] == m["id"] then
-					Bypass("RouterClient").get("MonitorAPI/AddRate"):InvokeServer(m["id"], 100)
-					return
-				end
-			end
-		end)
+		end
 	end
 
 
@@ -1186,7 +1183,7 @@ local function autoFarm()
 		if getgenv().feedAgeUpPotionToggle then return end
 		if stopDoingTasks then return end
 		removeHandHeldItem()
-
+		print("childadded")
 		CompletePetAilments()
 		CompleteBabyAilments()
 	end)
@@ -1201,7 +1198,7 @@ local function autoFarm()
 		else
 			getPet()
 		end
-
+		print("childremoved")
 		CompletePetAilments()
 		CompleteBabyAilments()
 	end)
@@ -1244,10 +1241,12 @@ local function autoFarm()
 			Player.PlayerGui.MinigameInGameApp.Body.Middle:WaitForChild("Container")
 			Player.PlayerGui.MinigameInGameApp.Body.Middle.Container:WaitForChild("TitleLabel")
 			if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("CRICKET'S TILE HOP") then
+				stopDoingTasks = true
 				Player.Character.Humanoid.WalkSpeed = 0
 				task.wait(rng:NextInteger(20, 30))
 				Halloween:GetPumpkins("TileSkipMinigame")
 				Halloween:FinishMiniGame()
+				stopDoingTasks = false
 			end
 		end
 	end)
