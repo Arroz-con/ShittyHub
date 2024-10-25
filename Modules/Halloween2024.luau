@@ -50,14 +50,12 @@ function Halloween2024:FinishMiniGame()
     game:GetService("ReplicatedStorage").API:FindFirstChild("MinigameAPI/MessageServer"):FireServer(unpack(args))
 end
 
-function Halloween2024:BuyPet(petNameId: string, howManyToBuy: number)
-    for _ = 1, howManyToBuy do
-        local hasMoney = game.ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", petNameId, {})
-        if hasMoney == "too little money" then
-            return
-        end
-        task.wait(.1)
+function Halloween2024:BuyPet(petNameId: string)
+    local hasMoney = game.ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", petNameId, {})
+    if hasMoney == "too little money" then
+        return false
     end
+    return true
 end
 
 function Halloween2024:Exchange(boxId)

@@ -1284,7 +1284,10 @@ local function autoFarm()
 					task.wait(.1)
 				until not hasBox
 			else
-				Halloween:BuyPet(SETTINGS.EVENT.BUY, 1)
+				repeat
+					local canBuy = Halloween:BuyPet(SETTINGS.EVENT.BUY, 1)
+					task.wait(.1)
+				until not canBuy
 			end
 		end
 		if not SETTINGS.EVENT or SETTINGS.EVENT.DO_MINIGAME == true or SETTINGS.EVENT.DO_MINIGAME == nil then
