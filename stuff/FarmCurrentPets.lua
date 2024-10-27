@@ -68,10 +68,10 @@ getgenv().SETTINGS = {
 	PET_ONLY_PRIORITY = true,
 	PET_ONLY_PRIORITY_NAMES = {
 		"halloween_2024_scarebear",
-		"halloween_2024_dracula_parrot",
+		-- "halloween_2024_dracula_parrot",
 		"halloween_2024_pumpkin_friend",
-		"halloween_2024_sea_skeleton_panda",
 		"halloween_2024_indian_flying_fox",
+		"halloween_2024_sea_skeleton_panda",
 		"halloween_2024_evil_chick",
 		"halloween_2024_ghost_chick",
 		"halloween_2024_zombie_chick",
