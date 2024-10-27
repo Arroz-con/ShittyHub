@@ -7,7 +7,7 @@ getgenv().SETTINGS = {
 	EVENT = {
 		DO_MINIGAME = true,
 		IS_AUTO_BUY = true,
-		BUY = "halloween_2024_scarebear"
+		BUY = "halloween_2024_indian_flying_fox"
 	},
 
 	PET_TO_BUY = "garden_2024_egg", -- add pet or egg to buy when bot has no pets/egg left to level
