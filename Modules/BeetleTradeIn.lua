@@ -1,13 +1,14 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Player = game:GetService("Players").LocalPlayer
-local Bypass = require(game.ReplicatedStorage:WaitForChild("Fsys")).load
+local ClientData = require(ReplicatedStorage:WaitForChild("ClientModules"):WaitForChild("Core"):WaitForChild("ClientData"))
+
 
 local moles = {}
 
 local function getMoleKeys()
     table.clear(moles)
     local count = 0
-    for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
+    for _, v in ClientData.get_data()[Player.Name].inventory.pets do
         if v.id == "garden_2024_mole" and not v.properties.neon and not v.properties.mega_neon then
             table.insert(moles, v.unique)
             count += 1

@@ -1,7 +1,9 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
-local Bypass = require(game.ReplicatedStorage:WaitForChild("Fsys")).load
-local InventoryDB = Bypass("InventoryDB")
+local ClientData = require(ReplicatedStorage:WaitForChild("ClientModules"):WaitForChild("Core"):WaitForChild("ClientData"))
+local InventoryDB = require(ReplicatedStorage:WaitForChild("ClientDB"):WaitForChild("Inventory"):WaitForChild("InventoryDB"))
+
 local Player = Players.LocalPlayer
 local debounce = false
 
@@ -23,7 +25,7 @@ local allInventory = ""
 
 
 local function getPetInfoMega(title: string)
-    for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
+    for _, v in ClientData.get_data()[Player.Name].inventory.pets do
         for _, v2 in InventoryDB.pets do
             if v.id == v2.id and v.properties.mega_neon then
                 megaPets[title..v2.name] = (megaPets[title..v2.name] or 0) + 1
@@ -36,7 +38,7 @@ local function getPetInfoMega(title: string)
 end
 
 local function getPetInfoNeon(title: string)
-    for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
+    for _, v in ClientData.get_data()[Player.Name].inventory.pets do
         for _, v2 in InventoryDB.pets do
             if v.id == v2.id and v.properties.neon then
                 neonPets[title..v2.name] = (neonPets[title..v2.name] or 0) + 1
@@ -49,7 +51,7 @@ local function getPetInfoNeon(title: string)
 end
 
 local function getPetInfoNormal(title: string)
-    for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
+    for _, v in pairs(ClientData.get_data()[Player.Name].inventory.pets) do
         for _, v2 in InventoryDB.pets do
             if v.id == v2.id and not v.properties.neon and not v.properties.mega_neon then
                 normalPets[title..v2.name] = (normalPets[title..v2.name] or 0) + 1
@@ -75,7 +77,7 @@ end
 
 --[[ Copy all inventory information ]]
 local function getInventoryInfo(tab, tablePassOn)
-    for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory[tab]) do
+    for _, v in pairs(ClientData.get_data()[Player.Name].inventory[tab]) do
         if v.id == "practice_dog" then continue end
         tablePassOn[v.id] = (tablePassOn[v.id] or 0) + 1
     end
@@ -93,7 +95,7 @@ end
 
 local function getAgeupPotionInfo()
     local count = 0
-    for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
+    for _, v in pairs(ClientData.get_data()[Player.Name].inventory.food) do
         if v.id == "pet_age_potion" then
             count += 1
         end
@@ -103,7 +105,7 @@ end
 
 -- local function getTokenInfo()
 --     local count = 0
---     for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.toys) do
+--     for _, v in pairs(ClientData.get_data()[Player.Name].inventory.toys) do
 --         if v.id == "sunshine_2024_sunshine_token" then
 --             count += 1
 --         end
@@ -128,11 +130,11 @@ local function getBucksInfo()
     -- local tokens = getTokenInfo() or 0
     local potionAmount = potions * 0.04
 
-    -- local ponyPassLevel = Bypass("ClientData").get_data()[Player.Name].battle_pass_manager.show_horse.rewards_claimed
-    -- local tickets = Bypass("ClientData").get_data()[Player.Name].tickets_2024
-    local bucks = Bypass("ClientData").get_data()[Player.Name].money or 0
-    local candy = Bypass("ClientData").get_data()[Player.Name].candy_2024 or 0
-    local pumpkins = Bypass("ClientData").get_data()[Player.Name].halloween_2024_purple_pumpkins.purple_pumpkins or 0
+    -- local ponyPassLevel = ClientData.get_data()[Player.Name].battle_pass_manager.show_horse.rewards_claimed
+    -- local tickets = ClientData.get_data()[Player.Name].tickets_2024
+    local bucks = ClientData.get_data()[Player.Name].money or 0
+    local candy = ClientData.get_data()[Player.Name].candy_2024 or 0
+    local pumpkins = ClientData.get_data()[Player.Name].halloween_2024_purple_pumpkins.purple_pumpkins or 0
     allInventory = allInventory..`{potions} Age-up Potions + {addComma(bucks)} Bucks + {addComma(candy)} Halloween Candy + {addComma(pumpkins)} Purple Pumpkins | Adopt me\n`
 
     -- local cash = tonumber(bucks) * 0.000037

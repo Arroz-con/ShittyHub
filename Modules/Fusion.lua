@@ -1,7 +1,8 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
-local Bypass = require(ReplicatedStorage:WaitForChild("Fsys", 600)).load
+local ClientData = require(ReplicatedStorage:WaitForChild("ClientModules"):WaitForChild("Core"):WaitForChild("ClientData"))
+
 local Player = Players.LocalPlayer
 
 local Fusion = {}
@@ -10,7 +11,7 @@ local function getFullgrownPets(mega: boolean): table
     local fullgrownTable = {}
 
     if mega then
-        for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
+        for _, v in ClientData.get_data()[Player.Name].inventory.pets do
             if v.properties.age == 6 and v.properties.neon then
                 if not fullgrownTable[v.id] then
                     fullgrownTable[v.id] = {["count"] = 0, ["unique"] = {}}
@@ -26,7 +27,7 @@ local function getFullgrownPets(mega: boolean): table
         end
 
     else
-        for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
+        for _, v in ClientData.get_data()[Player.Name].inventory.pets do
             if v.properties.age == 6 and not v.properties.neon and not v.properties.mega_neon then
                 if not fullgrownTable[v.id] then
                     fullgrownTable[v.id] = {["count"] = 0, ["unique"] = {}}

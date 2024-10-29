@@ -1,8 +1,8 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
-local Bypass = require(ReplicatedStorage:WaitForChild("Fsys")).load
-local InventoryDB = Bypass("InventoryDB")
+local ClientData = require(ReplicatedStorage:WaitForChild("ClientModules"):WaitForChild("Core"):WaitForChild("ClientData"))
+local InventoryDB = require(ReplicatedStorage:WaitForChild("ClientDB"):WaitForChild("Inventory"):WaitForChild("InventoryDB"))
 
 local Player = Players.LocalPlayer
 
@@ -11,7 +11,7 @@ local GetInventory = {}
 function GetInventory:TabId(tabId: string)
     local inventoryTable = {}
     
-    for _, v in Bypass("ClientData").get_data()[Player.Name].inventory[tabId] do
+    for _, v in ClientData.get_data()[Player.Name].inventory[tabId] do
         if v.id == "practice_dog" then continue end
         if table.find(inventoryTable, v.id) then continue end
         table.insert(inventoryTable, v.id)
@@ -26,7 +26,7 @@ function GetInventory:GetPetFriendship()
     local level = 0
     local petUnique = nil
 
-    for _, pet in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
+    for _, pet in ClientData.get_data()[Player.Name].inventory.pets do
         if pet.id ~= "practice_dog" then continue end
         if pet.properties.friendship_level > level then
             level = pet.properties.friendship_level
@@ -48,7 +48,7 @@ function GetInventory:PetRarityAndAge(rarity: string, age: number)
     local petFound = false
 
     while not petFound do
-        for _, pet in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
+        for _, pet in ClientData.get_data()[Player.Name].inventory.pets do
             for _, petDB in InventoryDB.pets do
                 if rarity == petDB.rarity and pet.id == petDB.id and pet.id ~= "practice_dog" and pet.properties.age == PetageCounter and pet.properties.neon == isNeon then
                     ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(pet.unique, {})

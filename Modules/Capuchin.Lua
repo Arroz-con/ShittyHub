@@ -1,12 +1,13 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Player = game:GetService("Players").LocalPlayer
-local Bypass = require(game.ReplicatedStorage:WaitForChild("Fsys")).load
+local ClientData = require(ReplicatedStorage:WaitForChild("ClientModules"):WaitForChild("Core"):WaitForChild("ClientData"))
+
 
 if SETTINGS.FOCUS_FARM_AGE_POTION then return end
 
 local function checkInventory()
     local count = 0
-    for i, v in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
+    for i, v in ClientData.get_data()[Player.Name].inventory.pets do
         if v.id == "capuchin_2024_capuchin_monkey" then
             count += 1
         end
@@ -19,7 +20,7 @@ local function buyAndOpen()
     task.wait(.1)
     if canBuy == "too little money" then return false end
     
-    for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.gifts do
+    for _, v in ClientData.get_data()[Player.Name].inventory.gifts do
         if v["id"] == "capuchin_2024_standard_box" then
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("LootBoxAPI/ExchangeItemForReward"):InvokeServer(v["id"], v["unique"])
             task.wait()
@@ -30,7 +31,7 @@ local function buyAndOpen()
 end
 
 local function hasPetInInventory()
-    for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
+    for _, v in ClientData.get_data()[Player.Name].inventory.pets do
         if v.id == "capuchin_2024_capuchin_monkey" then return true end
     end
     return false
@@ -39,7 +40,7 @@ end
 local function ExchangeCapuchin(items, Capuchin, tab)
     local Counter = 0
 
-    for _, v in Bypass("ClientData").get_data()[Player.Name].inventory[tab] do
+    for _, v in ClientData.get_data()[Player.Name].inventory[tab] do
         if v.id == items then
             Counter = Counter + 1
             if Counter == 3 then break end
@@ -49,7 +50,7 @@ local function ExchangeCapuchin(items, Capuchin, tab)
     if Counter <= 2 then return false end
 
     if hasPetInInventory() then
-        for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
+        for _, v in ClientData.get_data()[Player.Name].inventory.pets do
             if v.id == "capuchin_2024_capuchin_monkey" then
                 ReplicatedStorage.API["EventAPI/TransformCapuchin"]:InvokeServer(v.unique, Capuchin)
                 task.wait(.1)

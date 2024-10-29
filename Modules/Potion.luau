@@ -2,7 +2,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 
-local Bypass = require(ReplicatedStorage:WaitForChild("Fsys")).load
+local ClientData = require(ReplicatedStorage:WaitForChild("ClientModules"):WaitForChild("Core"):WaitForChild("ClientData"))
 
 local Potion = {}
 
@@ -11,14 +11,14 @@ local count = 0
 
 local function equipPet()
     -- checks inventory for neon pet
-    for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
+    for _, v in ClientData.get_data()[Player.Name].inventory.pets do
         if v.id == selectedItem and v.id ~= "practice_dog" and v.properties.age ~= 6 and v.properties.neon and not v.properties.mega_neon then
             ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, { ["use_sound_delay"] = true })
             return true
         end
     end
 
-    for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.pets do
+    for _, v in ClientData.get_data()[Player.Name].inventory.pets do
         if v.id == selectedItem and v.id ~= "practice_dog" and v.properties.age ~= 6 and not v.properties.mega_neon then
             ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, { ["use_sound_delay"] = true })
             return true
@@ -38,7 +38,7 @@ local function feedAgePotion()
             sameUnqiue = v.unique
             ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(
                 v.unique,
-                Bypass("ClientData").get("pet_char_wrappers")[1].pet_unique
+                ClientData.get("pet_char_wrappers")[1].pet_unique
             )
             return true
         end
@@ -47,18 +47,18 @@ local function feedAgePotion()
 end
 
 while getgenv().feedAgeUpPotionToggle do
-    local hasPetEquipped = Bypass("ClientData").get("pet_char_wrappers")[1]
+    local hasPetEquipped = ClientData.get("pet_char_wrappers")[1]
     if not hasPetEquipped then
         equipPet()
         task.wait(1)
     end
 
-    if selectedItem ~= Bypass("ClientData").get("pet_char_wrappers")[1]["pet_id"] then
+    if selectedItem ~= ClientData.get("pet_char_wrappers")[1]["pet_id"] then
         equipPet()
         task.wait(1)
     end
 
-    local age = Bypass("ClientData").get("pet_char_wrappers")[1]["pet_progression"]["age"]
+    local age = ClientData.get("pet_char_wrappers")[1]["pet_progression"]["age"]
     if age >= 6 then
         local hasPet = equipPet()
         task.wait(1) -- wait for pet to equip

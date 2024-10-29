@@ -1,6 +1,9 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
+local ClientData = require(ReplicatedStorage:WaitForChild("ClientModules"):WaitForChild("Core"):WaitForChild("ClientData"))
+
+
 local Bypass = require(ReplicatedStorage:WaitForChild("Fsys", 600)).load
 local Player = Players.LocalPlayer
 
@@ -22,19 +25,19 @@ end
 
 
 function Halloween2024:GetAllPumpkins()
-    if Bypass("ClientData").get_data()[Player.Name].halloween_2024_purple_pumpkins.purple_pumpkins == 25 then return end
+    if ClientData.get_data()[Player.Name].halloween_2024_purple_pumpkins.purple_pumpkins == 25 then return end
     
-    if Bypass("ClientData").get_data()[Player.Name].halloween_2024_purple_pumpkins.available_pumpkins.Neighborhood >= 1 then
+    if ClientData.get_data()[Player.Name].halloween_2024_purple_pumpkins.available_pumpkins.Neighborhood >= 1 then
         Teleport.Neighborhood()
         task.wait(5)
         Halloween2024:GetPumpkins("Neighborhood") 
     end
-    if Bypass("ClientData").get_data()[Player.Name].halloween_2024_purple_pumpkins.available_pumpkins.MainMap >= 1 then
+    if ClientData.get_data()[Player.Name].halloween_2024_purple_pumpkins.available_pumpkins.MainMap >= 1 then
         Teleport.MainMap()
         task.wait(5)
         Halloween2024:GetPumpkins("MainMap")
     end
-    if Bypass("ClientData").get_data()[Player.Name].halloween_2024_purple_pumpkins.available_pumpkins.SkyCastle >= 1 then
+    if ClientData.get_data()[Player.Name].halloween_2024_purple_pumpkins.available_pumpkins.SkyCastle >= 1 then
         Teleport.SkyCastle()
         task.wait(5)
         Halloween2024:GetPumpkins("SkyCastle")
@@ -61,7 +64,7 @@ end
 function Halloween2024:Exchange(boxId)
     ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("gifts", boxId, {})
     task.wait()
-    for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.gifts do
+    for _, v in ClientData.get_data()[Player.Name].inventory.gifts do
         if v["id"] == boxId then
             ReplicatedStorage.API["LootBoxAPI/ExchangeItemForReward"]:InvokeServer(v["id"], v["unique"])
             return true
@@ -71,7 +74,7 @@ function Halloween2024:Exchange(boxId)
 end
 
 function Halloween2024:GetGravestones()
-    for index, bool in Bypass("ClientData").get_data()[Player.Name].graveyard_manager.gravestones_pushed do
+    for index, bool in ClientData.get_data()[Player.Name].graveyard_manager.gravestones_pushed do
         if bool then continue end
         ReplicatedStorage.API["HalloweenAPI/PushGravestone"]:InvokeServer(index)
         task.wait(.1)

@@ -1,7 +1,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
-local Bypass = require(ReplicatedStorage:WaitForChild("Fsys")).load
+local CollisionsClient = require(ReplicatedStorage.ClientModules.Game.CollisionsClient)
 
 local Player = Players.LocalPlayer
 local getconstants = getconstants or debug.getconstants
@@ -103,7 +103,7 @@ function Teleport.MainMap()
 	if isAlreadyOnMainMap then
 		return
 	end
-	Bypass("CollisionsClient").set_collidable(false)
+	CollisionsClient.set_collidable(false)
 	Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
 	SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
 	workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
