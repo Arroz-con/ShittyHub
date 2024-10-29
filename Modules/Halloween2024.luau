@@ -3,8 +3,6 @@ local Players = game:GetService("Players")
 
 local ClientData = require(ReplicatedStorage:WaitForChild("ClientModules"):WaitForChild("Core"):WaitForChild("ClientData"))
 
-
-local Bypass = require(ReplicatedStorage:WaitForChild("Fsys", 600)).load
 local Player = Players.LocalPlayer
 
 local Halloween2024 = {}
