@@ -182,6 +182,7 @@ local rng = Random.new()
 --[[ Private Functions ]]--
 -----------------------------------------------------------------------------------------------
 local function clickGuiButton(button: Instance, xOffset: number, yOffset: number)
+	if typeof(button) ~= "Instance" then print("button is not a Instance") return end
 	local xOffset = xOffset or 60
 	local yOffset = yOffset or 60
 	task.wait()
@@ -1242,11 +1243,13 @@ local function autoFarm()
 			Player.PlayerGui.MinigameInGameApp.Body.Middle.Container:WaitForChild("TitleLabel")
 			if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("CRICKET'S TILE HOP") then
 				stopDoingTasks = true
+				print("stop doing task")
 				Player.Character.Humanoid.WalkSpeed = 0
 				task.wait(rng:NextInteger(20, 30))
 				Halloween:GetPumpkins("TileSkipMinigame")
 				Halloween:FinishMiniGame()
 				stopDoingTasks = false
+				print("start doing task")
 			end
 		end
 	end)
@@ -1732,7 +1735,7 @@ Player.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(Child)
 		Child.Info:WaitForChild("TextLabel")
 		Child.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
 			if Child.Info.TextLabel.Text:match("sent you a trade request") then
-				FireButton("Accept", Child.Name)
+				FireButton("Accept", "HeaderDialog")
 			end
 		end)
 	end)
@@ -1998,6 +2001,18 @@ local Window = Rayfield:CreateWindow({
 	},
 })
 
+local function notify(content: string)
+	Rayfield:Notify({
+		Title = "Notification",
+		Content = content,
+		Duration = 6.5,
+		Image = 4483362458,
+		Actions = {
+		},
+	})
+end
+
+
 ClipboardButton.Activated:Connect(function()
 	if guiCooldown then return end
 	guiCooldown = true
@@ -2070,6 +2085,11 @@ getgenv().AutoTradeToggle = TradeTab:CreateToggle({
 	Flag = "Toggle1",
 	Callback = function(Value)
 		getgenv().auto_accept_trade = Value
+		if getgenv().auto_accept_trade then
+			notify("auto trade is enabled, hiding GUI")
+			Rayfield:Hide()
+			task.wait(1)
+		end
 		while getgenv().auto_accept_trade do
 			Trade:AutoAcceptTrade()
 			ClickTradeWindowPopUps()
