@@ -22,16 +22,19 @@ local CoreGui = game:GetService("CoreGui")
 -----------------------------------------------------------------------------------------------
 --[[ Modules ]]--
 -----------------------------------------------------------------------------------------------
-
 local Bypass = require(ReplicatedStorage:WaitForChild("Fsys", 600)).load
--- local inventoryDB = Bypass("InventoryDB")
+-- local InventoryDB = require(ReplicatedStorage.ClientDB.Inventory.InventoryDB)
+local ClientData = require(ReplicatedStorage:WaitForChild("ClientModules"):WaitForChild("Core"):WaitForChild("ClientData"))
+local RouterClient = require(ReplicatedStorage.ClientModules.Core:WaitForChild("RouterClient"):WaitForChild("RouterClient"))
+local LegacyTutorial = require(ReplicatedStorage.ClientModules:WaitForChild("Game"):WaitForChild("Tutorial"):WaitForChild("LegacyTutorial"))
+
 -- local Remote = Bypass("RouterClient").get("HousingAPI/ActivateFurniture")
-local ClaimRemote = Bypass("RouterClient").get("QuestAPI/ClaimQuest")
-local RerollRemote = Bypass("RouterClient").get("QuestAPI/RerollQuest")
+-- local ClaimRemote = Bypass("RouterClient").get("QuestAPI/ClaimQuest")
+-- local RerollRemote = Bypass("RouterClient").get("QuestAPI/RerollQuest")
 local Player = Players.LocalPlayer
 
-repeat task.wait(1) until Bypass("ClientData").get_data()[Player.Name].loaded_in
-
+repeat task.wait(1) until ClientData.get_data()[Player.Name].loaded_in
+print("loaded")
 local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/Rayfield/main/source"))()
 -- local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/Rayfield/Testing/source"))()
 
@@ -207,19 +210,19 @@ local function FireButton(PassOn, dialogFrame)
 end
 
 local function getTradeLicense()
-	for i, v in Bypass("ClientData").get_data()[Player.Name].inventory.toys do
+	for i, v in ClientData.get_data()[Player.Name].inventory.toys do
 		if v.id == "trade_license" then
 			return
 		end
 	end
 
 	pcall(function()
-		Bypass("RouterClient").get("SettingsAPI/SetBooleanFlag"):FireServer("has_talked_to_trade_quest_npc", true)
+		RouterClient.get("SettingsAPI/SetBooleanFlag"):FireServer("has_talked_to_trade_quest_npc", true)
 		task.wait()
-		Bypass("RouterClient").get("TradeAPI/BeginQuiz"):FireServer()
+		RouterClient.get("TradeAPI/BeginQuiz"):FireServer()
 		task.wait(1)
-		for _, v in pairs(Bypass("ClientData").get("trade_license_quiz_manager")["quiz"]) do
-			Bypass("RouterClient").get("TradeAPI/AnswerQuizQuestion"):FireServer(v["answer"])
+		for _, v in pairs(ClientData.get("trade_license_quiz_manager")["quiz"]) do
+			RouterClient.get("TradeAPI/AnswerQuizQuestion"):FireServer(v["answer"])
 		end
 	end)
 end
@@ -227,9 +230,9 @@ end
 --// completes the starter tutorial
 local function completeStarterTutorial()
 	pcall(function()
-		Bypass("LegacyTutorial").cancel_tutorial()
+		LegacyTutorial.cancel_tutorial()
 		task.wait()
-		Bypass("TutorialClient").cancel()
+		-- Bypass("TutorialClient").cancel()
 		task.wait()
 		ReplicatedStorage.API["LegacyTutorialAPI/EquipTutorialEgg"]:FireServer()
 		task.wait()
@@ -239,7 +242,7 @@ local function completeStarterTutorial()
 		task.wait()
 		local function feedStartEgg(SandwichPassOn)
 			local Foodid2
-			for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
+			for _, v in pairs(ClientData.get_data()[Player.Name].inventory.food) do
 				if v.id == SandwichPassOn then
 					Foodid2 = v.unique
 					break
@@ -250,19 +253,19 @@ local function completeStarterTutorial()
 			task.wait(1)
 			ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(
 				Foodid2,
-				Bypass("ClientData").get("pet_char_wrappers")[1].pet_unique
+				ClientData.get("pet_char_wrappers")[1].pet_unique
 			)
 		end
 
 		feedStartEgg("sandwich-default")
-		Bypass("RouterClient").get("TeamAPI/ChooseTeam"):InvokeServer("Babies", { ["dont_send_back_home"] = true })
+		ReplicatedStorage.API["TeamAPI/ChooseTeam"]:InvokeServer("Babies", {["dont_send_back_home"] = true})
 	end)
 end
 
 -- "basiccrib"  "stylishshower"  "modernshower"  "piano" "lures2023normallure"
 local function findFurniture()
 	if Bed then return end
-	for key, value in Bypass("ClientData").get_data()[Player.Name].house_interior.furniture do
+	for key, value in ClientData.get_data()[Player.Name].house_interior.furniture do
 		if value.id == "basiccrib" then
 			Bed = key
 		elseif value.id == "stylishshower" or value.id == "modernshower" then
@@ -314,12 +317,12 @@ local function buyCrib()
 end
 
 local function GrabDailyReward()
-	local Daily = Bypass("ClientData").get("daily_login_manager")
+	local Daily = ClientData.get("daily_login_manager")
 	if Daily.prestige % 2 == 0 then
 		for i, v in pairs(DailyRewardTable) do
 			if i < Daily.stars or i == Daily.stars then
 				if not Daily.claimed_star_rewards[v] then
-					Bypass("RouterClient").get("DailyLoginAPI/ClaimStarReward"):InvokeServer(v)
+					RouterClient.get("DailyLoginAPI/ClaimStarReward"):InvokeServer(v)
 				end
 			end
 		end
@@ -327,7 +330,7 @@ local function GrabDailyReward()
 		for i, v in pairs(DailyRewardTable2) do
 			if i < Daily.stars or i == Daily.stars then
 				if not Daily.claimed_star_rewards[v] then
-					Bypass("RouterClient").get("DailyLoginAPI/ClaimStarReward"):InvokeServer(v)
+					RouterClient.get("DailyLoginAPI/ClaimStarReward"):InvokeServer(v)
 				end
 			end
 		end
@@ -337,7 +340,7 @@ end
 ---\\Auto taskboard Quest
 local function QuestCount()
 	local Count = 0
-	for i, v in pairs(Bypass("ClientData").get("quest_manager")["quests_cached"]) do
+	for i, v in pairs(ClientData.get("quest_manager")["quests_cached"]) do
 		if
 			v["entry_name"]:match("teleport")
 			or v["entry_name"]:match("navigate")
@@ -353,7 +356,7 @@ local function QuestCount()
 end
 
 local function ReRollCount()
-	for i, v in pairs(Bypass("ClientData").get("quest_manager")["daily_quest_data"]) do
+	for i, v in pairs(ClientData.get("quest_manager")["daily_quest_data"]) do
 		if v == 1 or v == 0 then
 			return v
 		end
@@ -362,19 +365,20 @@ end
 
 local function NewTask()
 	NewTaskBool = false
-	for _, v in pairs(Bypass("ClientData").get("quest_manager")["quests_cached"]) do
+	for _, v in pairs(ClientData.get("quest_manager")["quests_cached"]) do
 		if v["entry_name"]:match("teleport") then
 			task.wait()
 		elseif v["entry_name"]:match("tutorial") then
-			ClaimRemote:InvokeServer(v["unique_id"])
+			ReplicatedStorage.API["QuestAPI/ClaimQuest"]:InvokeServer(v["unique_id"])
+			-- ClaimRemote:InvokeServer(v["unique_id"])
 			task.wait()
 		elseif v["entry_name"]:match("celestial_2024_small_open_gift") then
 			-- open small gift
 			ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("gifts", "smallgift", {})
 			task.wait(1)
-			for _, v in Bypass("ClientData").get_data()[Player.Name].inventory.gifts do
+			for _, v in ClientData.get_data()[Player.Name].inventory.gifts do
 				if v["id"] == "smallgift" then
-					Bypass("RouterClient").get("ShopAPI/OpenGift"):InvokeServer(v["unique"])
+					ReplicatedStorage.API["ShopAPI/OpenGift"]:InvokeServer(v["unique"])
 					break
 				end
 			end
@@ -382,21 +386,22 @@ local function NewTask()
 		else
 			if QuestCount() == 1 then
 				if NeonTable[v["entry_name"]] then
-					ClaimRemote:InvokeServer(v["unique_id"])
+					ReplicatedStorage.API["QuestAPI/ClaimQuest"]:InvokeServer(v["unique_id"])
 					task.wait()
 				elseif not NeonTable[v["entry_name"]] and ReRollCount() >= 1 then
-					RerollRemote:FireServer(v["unique_id"])
+					ReplicatedStorage.API["QuestAPI/RerollQuest"]:FireServer(v["unique_id"])
+					-- RerollRemote:FireServer(v["unique_id"])
 					task.wait()
 				end
 			elseif QuestCount() > 1 then
 				if NeonTable[v["entry_name"]] then
-					ClaimRemote:InvokeServer(v["unique_id"])
+					ReplicatedStorage.API["QuestAPI/ClaimQuest"]:InvokeServer(v["unique_id"])
 					task.wait()
 				elseif not NeonTable[v["entry_name"]] and ReRollCount() >= 1 then
-					RerollRemote:FireServer(v["unique_id"])
+					ReplicatedStorage.API["QuestAPI/RerollQuest"]:FireServer(v["unique_id"])
 					task.wait()
 				elseif not NeonTable[v["entry_name"]] and ReRollCount() <= 0 then
-					ClaimRemote:InvokeServer(v["unique_id"])
+					ReplicatedStorage.API["QuestAPI/ClaimQuest"]:InvokeServer(v["unique_id"])
 					task.wait()
 				end
 			end
@@ -408,14 +413,14 @@ end
 
 local function NewClaim()
 	NewClaimBool = false
-	for _, v in pairs(Bypass("ClientData").get("quest_manager")["quests_cached"]) do
+	for _, v in pairs(ClientData.get("quest_manager")["quests_cached"]) do
 		if ClaimTable[v["entry_name"]] then
 			if v["steps_completed"] == ClaimTable[v["entry_name"]][1] then
-				ClaimRemote:InvokeServer(v["unique_id"])
+				ReplicatedStorage.API["QuestAPI/ClaimQuest"]:InvokeServer(v["unique_id"])
 				task.wait()
 			end
 		elseif not ClaimTable[v["entry_name"]] and v["steps_completed"] == 1 then
-			ClaimRemote:InvokeServer(v["unique_id"])
+			ReplicatedStorage.API["QuestAPI/ClaimQuest"]:InvokeServer(v["unique_id"])
 			task.wait()
 		end
 	end
@@ -439,18 +444,18 @@ end
 
 
 local function agePotion(FoodPassOn)
-	for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
+	for _, v in pairs(ClientData.get_data()[Player.Name].inventory.food) do
 		if v.id == FoodPassOn then
-			local isEgg = if table.find(pets_eggs, Bypass("ClientData").get("pet_char_wrappers")[1]["pet_id"])
+			local isEgg = if table.find(pets_eggs, ClientData.get("pet_char_wrappers")[1]["pet_id"])
 				then true
 				else false
-			local petAge = Bypass("ClientData").get("pet_char_wrappers")[1]["pet_progression"]["age"]
+			local petAge = ClientData.get("pet_char_wrappers")[1]["pet_progression"]["age"]
 			if isEgg or petAge >= 6 then
 				return
 			end
 			ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(
 				v.unique,
-				Bypass("ClientData").get("pet_char_wrappers")[1].pet_unique
+				ClientData.get("pet_char_wrappers")[1].pet_unique
 			)
 			return
 		end
@@ -519,7 +524,7 @@ end
 
 local function findBait(baitPassOn)
 	local bait
-	for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
+	for _, v in pairs(ClientData.get_data()[Player.Name].inventory.food) do
 		if v.id == baitPassOn then
 			bait = v.unique
 			return bait
@@ -538,7 +543,7 @@ end
 
 
 local function getEgg()
-	for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
+	for _, v in pairs(ClientData.get_data()[Player.Name].inventory.pets) do
 		if v.id == Egg2Buy and v.id ~= "practice_dog" and v.properties.age ~= 6 and not v.properties.mega_neon then
 			ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, { ["use_sound_delay"] = true })
 			PetCurrentlyFarming = v.unique
@@ -577,7 +582,7 @@ local function priorityEgg()
 	while found_pet == false do
 		task.wait()
 		for _, v in ipairs(SETTINGS.HATCH_EGG_PRIORITY_NAMES) do
-			for i, v2 in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
+			for i, v2 in pairs(ClientData.get_data()[Player.Name].inventory.pets) do
 				if v == v2.id and v2.id ~= "practice_dog" then
 					ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v2.unique, { ["use_sound_delay"] = true })
 					PetCurrentlyFarming = v2.unique
@@ -598,7 +603,7 @@ local function priorityPet()
 	while found_pet == false do
 		task.wait()
 		for i, v in ipairs(SETTINGS.PET_ONLY_PRIORITY_NAMES) do
-			for i2, v2 in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
+			for i2, v2 in pairs(ClientData.get_data()[Player.Name].inventory.pets) do
 				if
 					v == v2.id
 					and v2.id ~= "practice_dog"
@@ -631,7 +636,7 @@ local function getNeonPet()
 	local found_pet = false
 	while found_pet == false do
 		task.wait()
-		for i, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
+		for i, v in pairs(ClientData.get_data()[Player.Name].inventory.pets) do
 			if v.id ~= "practice_dog" and v.properties.age == Petage and v.properties.neon == isNeon then
 				ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, { ["use_sound_delay"] = true })
 				PetCurrentlyFarming = v.unique
@@ -698,12 +703,12 @@ end
 local function FoodAilments(FoodPassOn) --FoodPassOn means "icecream" for this example
 	local hasFood = false
 	-- checks inventory to see if it has food
-	for _, v in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
+	for _, v in pairs(ClientData.get_data()[Player.Name].inventory.food) do
 		if v.id == FoodPassOn then
 			hasFood = true
 			ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, { ["use_sound_delay"] = true })
 			task.wait(1)
-			ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(v.unique,Bypass("ClientData").get("pet_char_wrappers")[1].pet_unique)
+			ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(v.unique, ClientData.get("pet_char_wrappers")[1].pet_unique)
 			break
 		end
 	end
@@ -723,7 +728,7 @@ local function DayNightAilments(DayNightAilmentsPassOn) -- DayNightAilmentsPassO
 		DayNightAilmentsPassOn,
 		"UseBlock",
 		{ ["cframe"] = Player.Character.HumanoidRootPart.CFrame },
-		Bypass("ClientData").get("pet_char_wrappers")[1]["char"]
+		ClientData.get("pet_char_wrappers")[1]["char"]
 	)
 end
 
@@ -784,7 +789,7 @@ local function AgeUpPotionLevelUp()
 				sameUnqiue = v.unique
 				ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(
 					v.unique,
-					Bypass("ClientData").get("pet_char_wrappers")[1].pet_unique
+					ClientData.get("pet_char_wrappers")[1].pet_unique
 				)
 				return true
 			end
@@ -793,18 +798,18 @@ local function AgeUpPotionLevelUp()
 	end
 
 	while getgenv().feedAgeUpPotionToggle do
-		local hasPetEquipped = Bypass("ClientData").get("pet_char_wrappers")[1]
+		local hasPetEquipped = ClientData.get("pet_char_wrappers")[1]
 		if not hasPetEquipped then
 			equipPet()
 			task.wait(1)
 		end
 
-		if selectedItem ~= Bypass("ClientData").get("pet_char_wrappers")[1]["pet_id"] then
+		if selectedItem ~= ClientData.get("pet_char_wrappers")[1]["pet_id"] then
 			equipPet()
 			task.wait(1)
 		end
 
-		local age = Bypass("ClientData").get("pet_char_wrappers")[1]["pet_progression"]["age"]
+		local age = ClientData.get("pet_char_wrappers")[1]["pet_progression"]["age"]
 		if age >= 6 then
 			local hasPet = equipPet()
 			task.wait(1) -- wait for pet to equip
@@ -826,9 +831,9 @@ end
 
 
 local function CheckifEgg()
-	local PetNameID = Bypass("ClientData").get("pet_char_wrappers")[1]["pet_id"]
-	local PetUniqueID = Bypass("ClientData").get("pet_char_wrappers")[1]["pet_unique"]
-	local PetAge = Bypass("ClientData").get("pet_char_wrappers")[1]["pet_progression"]["age"]
+	local PetNameID = ClientData.get("pet_char_wrappers")[1]["pet_id"]
+	local PetUniqueID = ClientData.get("pet_char_wrappers")[1]["pet_unique"]
+	local PetAge = ClientData.get("pet_char_wrappers")[1]["pet_progression"]["age"]
 
 	if PetUniqueID == PetCurrentlyFarming then
 		return
@@ -842,11 +847,11 @@ end
 
 
 local function SwitchOutFullyGrown()
-	if Bypass("ClientData").get("pet_char_wrappers")[1] == nil or false then
+	if ClientData.get("pet_char_wrappers")[1] == nil or false then
 		getPet()
 		return
 	end
-	local PetAge = Bypass("ClientData").get("pet_char_wrappers")[1]["pet_progression"]["age"]
+	local PetAge = ClientData.get("pet_char_wrappers")[1]["pet_progression"]["age"]
 	if PetAge == 6 then
 		getPet()
 		return
@@ -888,7 +893,7 @@ local function checkInventory()
 		return false, "false", nil
 	end
 
-	for _, accessory in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pet_accessories) do
+	for _, accessory in pairs(ClientData.get_data()[Player.Name].inventory.pet_accessories) do
 		if not SETTINGS.TRADE_LIST.PET_WEAR_TABLE[1] then
 			break
 		end
@@ -899,7 +904,7 @@ local function checkInventory()
 		end
 	end
 
-	for _, vehicle in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.transport) do
+	for _, vehicle in pairs(ClientData.get_data()[Player.Name].inventory.transport) do
 		if not SETTINGS.TRADE_LIST.VEHICLES_TABLE[1] then
 			break
 		end
@@ -910,7 +915,7 @@ local function checkInventory()
 		end
 	end
 
-	for _, food in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.food) do
+	for _, food in pairs(ClientData.get_data()[Player.Name].inventory.food) do
 		if not SETTINGS.TRADE_LIST.FOOD_TABLE[1] then
 			break
 		end
@@ -921,7 +926,7 @@ local function checkInventory()
 		end
 	end
 
-	for _, gift in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.gifts) do
+	for _, gift in pairs(ClientData.get_data()[Player.Name].inventory.gifts) do
 		if not SETTINGS.TRADE_LIST.GIFTS_TABLE[1] then
 			break
 		end
@@ -932,7 +937,7 @@ local function checkInventory()
 		end
 	end
 
-	for _, toy in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.toys) do
+	for _, toy in pairs(ClientData.get_data()[Player.Name].inventory.toys) do
 		if not SETTINGS.TRADE_LIST.TOYS_TABLE[1] then
 			break
 		end
@@ -944,7 +949,7 @@ local function checkInventory()
 	end
 
 	if SETTINGS.TRADE_ONLY_LUMINOUS_MEGA then
-		for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
+		for _, pet in pairs(ClientData.get_data()[Player.Name].inventory.pets) do
 			for _, v2 in SETTINGS.TRADE_LIST.PETS_TABLE do
 				if
 					pet.id == v2
@@ -956,7 +961,7 @@ local function checkInventory()
 			end
 		end
 	else
-		for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory.pets) do
+		for _, pet in pairs(ClientData.get_data()[Player.Name].inventory.pets) do
 			for _, v2 in SETTINGS.TRADE_LIST.PETS_TABLE do
 				if
 					pet.id == v2
@@ -996,7 +1001,7 @@ local function tradeCollector(namePassOn)
 
 			local petCounter = 0
 			if SETTINGS.TRADE_ONLY_LUMINOUS_MEGA then
-				for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory[tabName]) do
+				for _, pet in pairs(ClientData.get_data()[Player.Name].inventory[tabName]) do
 					for _, v2 in tables do
 						if
 							pet.id == v2
@@ -1013,7 +1018,7 @@ local function tradeCollector(namePassOn)
 					end
 				end
 			else
-				for _, pet in pairs(Bypass("ClientData").get_data()[Player.Name].inventory[tabName]) do
+				for _, pet in pairs(ClientData.get_data()[Player.Name].inventory[tabName]) do
 					for _, v2 in tables do
 						if
 							pet.id == v2
@@ -1064,19 +1069,19 @@ local function autoFarm()
 		if stopDoingTasks then return end
 		if getgenv().feedAgeUpPotionToggle then return end
 
-		if Bypass("ClientData").get("pet_char_wrappers")[1] == nil then
+		if ClientData.get("pet_char_wrappers")[1] == nil then
 			ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(PetCurrentlyFarming, {})
 			return -- return because when pet gets requipped it will call this function anyway
 		end
 
-		if not Bypass("ClientData").get("pet_char_wrappers")[1] then return end
-		if not Bypass("ClientData").get("pet_char_wrappers")[1]["ailments_monitor"] then return end
+		if not ClientData.get("pet_char_wrappers")[1] then return end
+		if not ClientData.get("pet_char_wrappers")[1]["ailments_monitor"] then return end
 
-		if #Bypass("ClientData").get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"] == 0 then
+		if #ClientData.get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"] == 0 then
 			return
-		elseif #Bypass("ClientData").get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"] >= 6 then
+		elseif #ClientData.get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"] >= 6 then
 			game:Shutdown()
-		elseif #Bypass("ClientData").get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"] >= 3 then
+		elseif #ClientData.get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"] >= 3 then
 			print("has 3 or more ailments")
 			stopDoingTasks = true
 			ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {})
@@ -1088,7 +1093,7 @@ local function autoFarm()
 			stopDoingTasks = false
 		end
 
-		for _, v in pairs(Bypass("ClientData").get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"]) do
+		for _, v in pairs(ClientData.get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"]) do
 			if v["id"] == "hungry" then
 				FoodAilments("icecream")
 				task.wait()
@@ -1104,7 +1109,7 @@ local function autoFarm()
 				break
 			elseif v["id"] == "sick" then
 				if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
-					Bypass("RouterClient").get("MonitorAPI/HealWithDoctor"):FireServer()
+					RouterClient.get("MonitorAPI/HealWithDoctor"):FireServer()
 
 					break
 				end
@@ -1164,13 +1169,13 @@ local function autoFarm()
 
 
 	local function CompleteBabyAilments()
-		if Bypass("ClientData").get_data()[Player.Name]["team"] ~= "Babies" then return end
-		if #Bypass("ClientData").get("char_wrapper")["ailments_monitor"]["ailments"] == 0 then
+		if ClientData.get_data()[Player.Name]["team"] ~= "Babies" then return end
+		if #ClientData.get("char_wrapper")["ailments_monitor"]["ailments"] == 0 then
 			return
 		end
-		for _, m in pairs(Bypass("ClientData").get("char_wrapper")["ailments_monitor"]["ailments"]) do
+		for _, m in pairs(ClientData.get("char_wrapper")["ailments_monitor"]["ailments"]) do
 			if m["id"] == m["id"] then
-				Bypass("RouterClient").get("MonitorAPI/AddRate"):InvokeServer(m["id"], 100)
+				RouterClient.get("MonitorAPI/AddRate"):InvokeServer(m["id"], 100)
 				return
 			end
 		end
@@ -1688,7 +1693,7 @@ end)
 Players.LocalPlayer.PlayerGui.QuestIconApp.ImageButton.EventContainer.IsNew:GetPropertyChangedSignal("Position"):Connect(function()
 	if NewTaskBool then
 		NewTaskBool = false
-		Bypass("RouterClient").get("QuestAPI/MarkQuestsViewed"):FireServer()
+		RouterClient.get("QuestAPI/MarkQuestsViewed"):FireServer()
 		NewTask()
 	end
 end)
@@ -1847,7 +1852,7 @@ TestGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 UserGameSettings.GraphicsQualityLevel = 1
 UserGameSettings.MasterVolume = 0
 
-for i, v in debug.getupvalue(Bypass("RouterClient").init, 4) do
+for i, v in debug.getupvalue(RouterClient.init, 7) do
 	v.Name = i
 end
 
@@ -1951,7 +1956,7 @@ placeBait(baitId)
 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/SetDoorLocked"):InvokeServer(true)
 
 
-Bypass("RouterClient").get("TeamAPI/ChooseTeam"):InvokeServer("Babies", { ["dont_send_back_home"] = true })
+ReplicatedStorage.API["TeamAPI/ChooseTeam"]:InvokeServer("Babies", {["dont_send_back_home"] = true})
 
 
 if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Thanks for subscribing!") then
@@ -2562,7 +2567,7 @@ if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Cri
 end
 
 dailyLoginAppClick()
-if Bypass("ClientData").get_data()[Player.Name].halloween_2024_purple_pumpkins.purple_pumpkins >= 150 then
+if ClientData.get_data()[Player.Name].halloween_2024_purple_pumpkins.purple_pumpkins >= 150 then
 	ReplicatedStorage.API:FindFirstChild("HalloweenAPI/VendingMachinePurchase"):FireServer(1)
 end
 
