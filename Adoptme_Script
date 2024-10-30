@@ -6,7 +6,7 @@ if game.PlaceId ~= 920587237 then
 	return
 end
 
-task.wait(5)
+-- task.wait(5)
 -----------------------------------------------------------------------------------------------
 --[[ Services ]]--
 -----------------------------------------------------------------------------------------------
@@ -22,7 +22,7 @@ local CoreGui = game:GetService("CoreGui")
 -----------------------------------------------------------------------------------------------
 --[[ Modules ]]--
 -----------------------------------------------------------------------------------------------
-local Bypass = require(ReplicatedStorage:WaitForChild("Fsys", 600)).load
+-- local Bypass = require(ReplicatedStorage:WaitForChild("Fsys", 600)).load
 -- local InventoryDB = require(ReplicatedStorage.ClientDB.Inventory.InventoryDB)
 local ClientData = require(ReplicatedStorage:WaitForChild("ClientModules"):WaitForChild("Core"):WaitForChild("ClientData"))
 local RouterClient = require(ReplicatedStorage.ClientModules.Core:WaitForChild("RouterClient"):WaitForChild("RouterClient"))
@@ -33,7 +33,7 @@ local LegacyTutorial = require(ReplicatedStorage.ClientModules:WaitForChild("Gam
 -- local RerollRemote = Bypass("RouterClient").get("QuestAPI/RerollQuest")
 local Player = Players.LocalPlayer
 
-repeat task.wait(1) until ClientData.get_data()[Player.Name].loaded_in
+-- repeat task.wait(1) until ClientData.get_data()[Player.Name].loaded_in
 print("loaded")
 local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/Rayfield/main/source"))()
 -- local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/Rayfield/Testing/source"))()
@@ -1586,18 +1586,18 @@ WelcomeScreen = Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChange
 end)
 
 --// Main Adopt me Screen (Play! Button)
-NewsAppConnection = Player.PlayerGui.NewsApp:GetPropertyChangedSignal("Enabled"):Connect(function()
-	if Player.PlayerGui.NewsApp.Enabled then
-		local AbsPlay = Player.PlayerGui.NewsApp
-			:WaitForChild("EnclosingFrame")
-			:WaitForChild("MainFrame")
-			:WaitForChild("Contents")
-			:WaitForChild("PlayButton")
-		clickGuiButton(AbsPlay)
-		-- firesignal(AbsPlay.MouseButton1Click)
-		NewsAppConnection:Disconnect()
-	end
-end)
+-- NewsAppConnection = Player.PlayerGui.NewsApp:GetPropertyChangedSignal("Enabled"):Connect(function()
+-- 	if Player.PlayerGui.NewsApp.Enabled then
+-- 		local AbsPlay = Player.PlayerGui.NewsApp
+-- 			:WaitForChild("EnclosingFrame")
+-- 			:WaitForChild("MainFrame")
+-- 			:WaitForChild("Contents")
+-- 			:WaitForChild("PlayButton")
+-- 		clickGuiButton(AbsPlay)
+-- 		-- firesignal(AbsPlay.MouseButton1Click)
+-- 		NewsAppConnection:Disconnect()
+-- 	end
+-- end)
 
 PickColorConn = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:GetPropertyChangedSignal("Visible"):Connect(function()
     if Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
@@ -1831,6 +1831,9 @@ end)
 -------------------------------------------------------------------------------------------------------------------
 --[[ Main ]]--
 -------------------------------------------------------------------------------------------------------------------
+repeat
+	task.wait(1)
+until Player.PlayerGui.NewsApp.Enabled or Player.Character
 
 -- Player:WaitForChild("PlayerGui", 600)
 -- Player.PlayerGui:WaitForChild("NewsApp", 600)
@@ -1856,6 +1859,26 @@ for i, v in debug.getupvalue(RouterClient.init, 7) do
 	v.Name = i
 end
 
+if not normalLure then
+	buyLure()
+end
+
+-- "lures_2023_campfire_cookies"  "lures_2023_flame_swirl_pie"
+baitId = findBait("fire_dimension_2024_burnt_bites_bait")
+
+if baitId == nil then
+	baitId = findBait("lures_2023_flame_swirl_pie")
+	if baitId == nil then
+		baitId = findBait("lures_2023_campfire_cookies")
+	end
+end
+
+-- task.wait(1)
+-- will place bait but it will also collect pet
+placeBait(baitId)
+task.wait(1)
+placeBait(baitId)
+
 if Player.PlayerGui.NewsApp.Enabled then
 	local AbsPlay = Player.PlayerGui.NewsApp
 		:WaitForChild("EnclosingFrame")
@@ -1864,7 +1887,7 @@ if Player.PlayerGui.NewsApp.Enabled then
 		:WaitForChild("PlayButton")
 	clickGuiButton(AbsPlay)
 	-- firesignal(AbsPlay.MouseButton1Click)
-	NewsAppConnection:Disconnect()
+	-- NewsAppConnection:Disconnect()
 end
 
 if Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
@@ -1931,26 +1954,6 @@ end
 -- task.wait(10)
  
 -- findFurniture()
-
-if not normalLure then
-	buyLure()
-end
-
--- "lures_2023_campfire_cookies"  "lures_2023_flame_swirl_pie"
-baitId = findBait("fire_dimension_2024_burnt_bites_bait")
-
-if baitId == nil then
-	baitId = findBait("lures_2023_flame_swirl_pie")
-	if baitId == nil then
-		baitId = findBait("lures_2023_campfire_cookies")
-	end
-end
-
--- task.wait(1)
--- will place bait but it will also collect pet
-placeBait(baitId)
-task.wait(1)
-placeBait(baitId)
 
 
 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/SetDoorLocked"):InvokeServer(true)
