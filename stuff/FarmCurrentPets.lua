@@ -105,16 +105,15 @@ getgenv().SETTINGS = {
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Adoptme_Script"))()
 
 
---[[
-local function buyPet(petNameId: string, howManyToBuy: number)
-	for _ = 1, howManyToBuy do
-		local hasMoney = game.ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", petNameId, {})
-		if hasMoney == "too little money" then
-			return
-		end
-		task.wait(0.1)
-	end
-end
+local BuyItems = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/BuyItems.luau"))()
 
-buyPet("halloween_2024_indian_flying_fox", 5)
---]]
+local petsToBuy = {
+    {NameId = "halloween_2024_franken_feline", MaxAmount = 48},
+    {NameId = "halloween_2024_sea_skeleton_panda", MaxAmount = 48},
+    {NameId = "halloween_2024_indian_flying_fox", MaxAmount = 80},
+    {NameId = "halloween_2024_headless_horse", MaxAmount = 80},
+    {NameId = "halloween_2024_marabou_stork", MaxAmount = 16},
+    {NameId = "halloween_2024_scarebear", MaxAmount = 16}
+}
+
+BuyItems:BuyPets(petsToBuy)
