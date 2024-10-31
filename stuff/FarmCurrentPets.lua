@@ -6,8 +6,8 @@ getgenv().SETTINGS = {
 
 	EVENT = {
 		DO_MINIGAME = true,
-		IS_AUTO_BUY = false,
-		BUY = "halloween_2024_indian_flying_fox"
+		IS_AUTO_BUY = true,
+		BUY = "halloween_2024_scarebear"
 	},
 
 	PET_TO_BUY = "garden_2024_egg", -- add pet or egg to buy when bot has no pets/egg left to level
@@ -104,16 +104,17 @@ getgenv().SETTINGS = {
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Adoptme_Script"))()
 
-
+--[[
 local BuyItems = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/BuyItems.luau"))()
 
 local petsToBuy = {
-    {NameId = "halloween_2024_franken_feline", MaxAmount = 48},
-    {NameId = "halloween_2024_sea_skeleton_panda", MaxAmount = 48},
-    {NameId = "halloween_2024_indian_flying_fox", MaxAmount = 80},
+	{NameId = "halloween_2024_scarebear", MaxAmount = 160},
+	{NameId = "halloween_2024_indian_flying_fox", MaxAmount = 80},
+    {NameId = "halloween_2024_franken_feline", MaxAmount = 96},
+    {NameId = "halloween_2024_sea_skeleton_panda", MaxAmount = 96},
     {NameId = "halloween_2024_headless_horse", MaxAmount = 80},
     {NameId = "halloween_2024_marabou_stork", MaxAmount = 16},
-    {NameId = "halloween_2024_scarebear", MaxAmount = 16}
 }
 
 BuyItems:BuyPets(petsToBuy)
+--]]
