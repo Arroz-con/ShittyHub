@@ -4,9 +4,8 @@ local Player = Players.LocalPlayer
 
 local ClientData = require(ReplicatedStorage:WaitForChild("ClientModules"):WaitForChild("Core"):WaitForChild("ClientData"))
 
-local Potion = {}
+local BulkPotions = {}
 
-local isLeveling = true
 local sameUnqiue
 
 
@@ -56,7 +55,7 @@ local function hasAgeUpPotion()
 end
 
 
-function Potion:StartAgingPets(petsTable: table)
+function BulkPotions:StartAgingPets(petsTable: table)
     for _, petId in ipairs(petsTable) do
 
         -- equip the pet only if its neon or normal and age is less then 6
@@ -84,6 +83,6 @@ function Potion:StartAgingPets(petsTable: table)
     end
 end
 
+local BulkPotions = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/BulkPotions.luau"))()
 
-
-return Potion
+return BulkPotions
