@@ -48,6 +48,22 @@ local function floorPart()
 	part.Parent = workspace
 end
 
+local function floorPart2()
+	for _, v in workspace:GetChildren() do
+		if v.Name == "FloorPart3" then
+			return
+		end
+	end
+	local part = Instance.new("Part")
+	part.Position = game.Workspace.Interiors:FindFirstChild(
+		tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))
+	).Static.Campsite.MarshmallowChair.VintageChair.Union.Position + Vector3.new(0, -15, 0)
+	part.Size = Vector3.new(2000, 2, 2000)
+	part.Anchored = true
+	part.Name = "FloorPart1"
+	part.Parent = workspace
+end
+
 function Teleport.placeFloorOnJoinZone()
 	-- workspace.Interiors.Halloween2024Shop.TileSkip.JoinZone.EmitterPart
 	for _, v in workspace:GetChildren() do
@@ -141,6 +157,25 @@ function Teleport.CampSite()
 	task.wait(1)
 	workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
 	floorPart()
+	Player.Character.PrimaryPart.CFrame = workspace
+		:WaitForChild("StaticMap")
+		:WaitForChild("Campsite")
+		:WaitForChild("CampsiteOrigin").CFrame + Vector3.new(math.random(1, 5), 10, math.random(1, 5))
+	Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
+	Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+	Player.Character.Humanoid.WalkSpeed = 0
+	Teleport.DeleteMainMapParts()
+end
+
+function Teleport.CampSite2()
+	Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
+	local isAlreadyOnMainMap = workspace:FindFirstChild("Interiors"):FindFirstChild("center_map_plot", true)
+	if not isAlreadyOnMainMap then
+		SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
+	end
+	task.wait(1)
+	workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
+	floorPart2()
 	Player.Character.PrimaryPart.CFrame = workspace
 		:WaitForChild("StaticMap")
 		:WaitForChild("Campsite")
