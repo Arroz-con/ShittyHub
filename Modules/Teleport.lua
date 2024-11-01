@@ -60,7 +60,7 @@ local function floorPart2()
 	).Static.Campsite.MarshmallowChair.VintageChair.Union.Position + Vector3.new(0, -15, 0)
 	part.Size = Vector3.new(2000, 2, 2000)
 	part.Anchored = true
-	part.Name = "FloorPart1"
+	part.Name = "FloorPart3"
 	part.Parent = workspace
 end
 
@@ -179,7 +179,7 @@ function Teleport.CampSite2()
 	Player.Character.PrimaryPart.CFrame = workspace
 		:WaitForChild("StaticMap")
 		:WaitForChild("Campsite")
-		:WaitForChild("CampsiteOrigin").CFrame + Vector3.new(math.random(1, 5), 10, math.random(1, 5))
+		:WaitForChild("CampsiteOrigin").CFrame + Vector3.new(math.random(1, 5), -10, math.random(1, 5))
 	Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
 	Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
 	Player.Character.Humanoid.WalkSpeed = 0
