@@ -57,7 +57,7 @@ local function floorPart2()
 	local part = Instance.new("Part")
 	part.Position = game.Workspace.Interiors:FindFirstChild(
 		tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))
-	).Static.Campsite.MarshmallowChair.VintageChair.Union.Position + Vector3.new(0, -15, 0)
+	).Static.Campsite.MarshmallowChair.VintageChair.Union.Position + Vector3.new(0, -25, 0)
 	part.Size = Vector3.new(2000, 2, 2000)
 	part.Anchored = true
 	part.Name = "FloorPart3"
@@ -211,7 +211,7 @@ function Teleport.BeachParty2()
 	task.wait(1)
 	workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
 	Player.Character.PrimaryPart.CFrame = workspace.StaticMap.Beach.BeachPartyAilmentTarget.CFrame
-		+ Vector3.new(math.random(1, 20), -10, math.random(1, 20))
+		+ Vector3.new(math.random(1, 20), -20, math.random(1, 20))
 	Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
 	Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
 	Player.Character.Humanoid.WalkSpeed = 0
