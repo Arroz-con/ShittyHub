@@ -43,7 +43,7 @@ local Fusion = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-
 local GetInventory = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/GetInventory.lua"))()
 local Trade = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Trade.lua"))()
 local Teleport = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Teleport.lua"))()
-local Halloween = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Halloween2024.luau"))()
+-- local Halloween = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Halloween2024.luau"))()
 
 -----------------------------------------------------------------------------------------------
 --[[ Private Variables ]]--
@@ -1063,7 +1063,7 @@ end
 local function autoFarm()
 	if not getgenv().auto_farm then return end
 
-	Halloween:GetAllPumpkins()
+	-- Halloween:GetAllPumpkins()
 	Teleport.MainMap()
 	local function CompletePetAilments()
 		if stopDoingTasks then return end
@@ -1251,8 +1251,8 @@ local function autoFarm()
 				print("stop doing task")
 				Player.Character.Humanoid.WalkSpeed = 0
 				task.wait(rng:NextInteger(20, 30))
-				Halloween:GetPumpkins("TileSkipMinigame")
-				Halloween:FinishMiniGame()
+				-- Halloween:GetPumpkins("TileSkipMinigame")
+				-- Halloween:FinishMiniGame()
 				stopDoingTasks = false
 				print("start doing task")
 			end
@@ -1274,35 +1274,35 @@ local function autoFarm()
 	end
 
 	local function onTextChangedMiniGame()
-		Halloween:GetGravestones()
-		task.spawn(function()
-			for _, v in Players:GetPlayers() do
-				ReplicatedStorage.API:FindFirstChild("HalloweenAPI/TrickOrTreatHouse"):InvokeServer(v)
-				task.wait(.1)
-			end
-		end)
+		-- Halloween:GetGravestones()
+		-- task.spawn(function()
+		-- 	for _, v in Players:GetPlayers() do
+		-- 		ReplicatedStorage.API:FindFirstChild("HalloweenAPI/TrickOrTreatHouse"):InvokeServer(v)
+		-- 		task.wait(.1)
+		-- 	end
+		-- end)
 		if getgenv().feedAgeUpPotionToggle then
 			FireButton("No")
 			return
 		end
-		if SETTINGS.EVENT and SETTINGS.EVENT.IS_AUTO_BUY == true then
-			if SETTINGS.EVENT.BUY == "halloween_2024_chick_box" then
-				repeat
-					local hasBox = Halloween:Exchange(SETTINGS.EVENT.BUY)
-					task.wait(.1)
-				until not hasBox
-			else
-				repeat
-					local canBuy = Halloween:BuyPet(SETTINGS.EVENT.BUY, 1)
-					task.wait(.1)
-				until not canBuy
-			end
-		end
-		if not SETTINGS.EVENT or SETTINGS.EVENT.DO_MINIGAME == true or SETTINGS.EVENT.DO_MINIGAME == nil then
-			task.wait(rng:NextInteger(1, 5))
-			FireButton("Yes")
-			Teleport.placeFloorOnJoinZone()
-		end
+		-- if SETTINGS.EVENT and SETTINGS.EVENT.IS_AUTO_BUY == true then
+		-- 	if SETTINGS.EVENT.BUY == "halloween_2024_chick_box" then
+		-- 		repeat
+		-- 			local hasBox = Halloween:Exchange(SETTINGS.EVENT.BUY)
+		-- 			task.wait(.1)
+		-- 		until not hasBox
+		-- 	else
+		-- 		repeat
+		-- 			local canBuy = Halloween:BuyPet(SETTINGS.EVENT.BUY, 1)
+		-- 			task.wait(.1)
+		-- 		until not canBuy
+		-- 	end
+		-- end
+		-- if not SETTINGS.EVENT or SETTINGS.EVENT.DO_MINIGAME == true or SETTINGS.EVENT.DO_MINIGAME == nil then
+		-- 	task.wait(rng:NextInteger(1, 5))
+		-- 	FireButton("Yes")
+		-- 	Teleport.placeFloorOnJoinZone()
+		-- end
 	end
 
 	-- fires when it ask you if you want to join minigame
@@ -1364,7 +1364,7 @@ local function autoFarm()
 				Player.Character.HumanoidRootPart.Anchored = false
 				RemoveGameOverButton()
 				Teleport.DeleteMainMapParts()
-				Halloween:GetAllPumpkins()
+				-- Halloween:GetAllPumpkins()
 				CompletePetAilments()
 				CompleteBabyAilments()
 			end
@@ -2570,9 +2570,9 @@ if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Cri
 end
 
 dailyLoginAppClick()
-if ClientData.get_data()[Player.Name].halloween_2024_purple_pumpkins.purple_pumpkins >= 150 then
-	ReplicatedStorage.API:FindFirstChild("HalloweenAPI/VendingMachinePurchase"):FireServer(1)
-end
+-- if ClientData.get_data()[Player.Name].halloween_2024_purple_pumpkins.purple_pumpkins >= 150 then
+-- 	ReplicatedStorage.API:FindFirstChild("HalloweenAPI/VendingMachinePurchase"):FireServer(1)
+-- end
 
 startAutoFarm()
 WelcomeScreen:Disconnect()
@@ -2583,11 +2583,11 @@ if Players.LocalPlayer.Name == SETTINGS.TRADE_COLLECTOR_NAME and SETTINGS.ENABLE
 	getgenv().AutoTradeToggle:Set(true)
 end
 
-if SETTINGS.EVENT and SETTINGS.EVENT.IS_AUTO_BUY == true then
-	if SETTINGS.EVENT.BUY == "halloween_2024_chick_box" then
-		repeat
-			local hasBox = Halloween:Exchange(SETTINGS.EVENT.BUY)
-			task.wait(.1)
-		until not hasBox
-	end
-end
+-- if SETTINGS.EVENT and SETTINGS.EVENT.IS_AUTO_BUY == true then
+-- 	if SETTINGS.EVENT.BUY == "halloween_2024_chick_box" then
+-- 		repeat
+-- 			local hasBox = Halloween:Exchange(SETTINGS.EVENT.BUY)
+-- 			task.wait(.1)
+-- 		until not hasBox
+-- 	end
+-- end
