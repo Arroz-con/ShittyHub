@@ -202,6 +202,22 @@ function Teleport.BeachParty()
 	Teleport.DeleteMainMapParts()
 end
 
+function Teleport.BeachParty2()
+	Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
+	local isAlreadyOnMainMap = workspace:FindFirstChild("Interiors"):FindFirstChild("center_map_plot", true)
+	if not isAlreadyOnMainMap then
+		SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
+	end
+	task.wait(1)
+	workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
+	Player.Character.PrimaryPart.CFrame = workspace.StaticMap.Beach.BeachPartyAilmentTarget.CFrame
+		+ Vector3.new(math.random(1, 20), -10, math.random(1, 20))
+	Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
+	Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+	Player.Character.Humanoid.WalkSpeed = 0
+	Teleport.DeleteMainMapParts()
+end
+
 function Teleport.PlayGround()
 	Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
 	local isAlreadyOnMainMap = workspace:FindFirstChild("Interiors"):FindFirstChild("center_map_plot", true)
