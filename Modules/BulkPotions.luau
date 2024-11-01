@@ -83,6 +83,4 @@ function BulkPotions:StartAgingPets(petsTable: table)
     end
 end
 
-local BulkPotions = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/BulkPotions.luau"))()
-
 return BulkPotions
