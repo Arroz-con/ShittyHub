@@ -212,7 +212,7 @@ function Teleport.BeachParty2()
 	workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
 	floorPart2()
 	Player.Character.PrimaryPart.CFrame = workspace.StaticMap.Beach.BeachPartyAilmentTarget.CFrame
-		+ Vector3.new(math.random(1, 20), -18, math.random(1, 20))
+		+ Vector3.new(-160, -10, 40)
 	Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
 	Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
 	Player.Character.Humanoid.WalkSpeed = 0
