@@ -29,7 +29,11 @@ local function isPetNeon(petName: string)
         end
     end
 
-    isPetNormal(petName)
+    if isPetNormal(petName) then
+        return true
+    else
+        return false
+    end
 end
 
 local function feedAgePotion()
