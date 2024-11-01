@@ -34,7 +34,7 @@ local LegacyTutorial = require(ReplicatedStorage.ClientModules:WaitForChild("Gam
 local Player = Players.LocalPlayer
 
 -- repeat task.wait(1) until ClientData.get_data()[Player.Name].loaded_in
-print("loaded")
+print("loading")
 local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/Rayfield/main/source"))()
 -- local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/Rayfield/Testing/source"))()
 
@@ -2591,3 +2591,4 @@ end
 -- 		until not hasBox
 -- 	end
 -- end
+print("Loaded. lastest update 11/1/2024  mm/dd/yyyy")
