@@ -1169,6 +1169,10 @@ local function autoFarm()
 			elseif v["id"] == "camping" then
 				if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
 					Teleport.CampSite2()
+
+					if not ClientData.get_data()[Player.Name].ddlm_2024_manager.stamp_claimed_today then
+						game:GetService("ReplicatedStorage").API["DdlmAPI/ClaimStamp"]:FireServer()
+					end
 					break
 				end
 			end
@@ -1200,9 +1204,6 @@ local function autoFarm()
 		removeHandHeldItem()
 		CompletePetAilments()
 		CompleteBabyAilments()
-		if not ClientData.get_data()[Player.Name].ddlm_2024_manager.stamp_claimed_today then
-			game:GetService("ReplicatedStorage").API["DdlmAPI/ClaimStamp"]:FireServer()
-		end
 	end)
 
 	game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildRemoved:Connect(function(ailment)
@@ -2079,7 +2080,6 @@ getgenv().AutoTradeToggle = TradeTab:CreateToggle({
 	Callback = function(Value)
 		getgenv().auto_accept_trade = Value
 		if getgenv().auto_accept_trade then
-			notify("auto trade is enabled, hiding GUI")
 			Rayfield:Hide()
 			task.wait(1)
 		end
@@ -2560,9 +2560,10 @@ startAutoFarm()
 WelcomeScreen:Disconnect()
 DailyClaimConnection:Disconnect()
 
-
-if Players.LocalPlayer.Name == SETTINGS.TRADE_COLLECTOR_NAME and SETTINGS.ENABLE_TRADE_COLLECTOR == true then
-	getgenv().AutoTradeToggle:Set(true)
-end
+task.delay(5, function()
+	if Players.LocalPlayer.Name == SETTINGS.TRADE_COLLECTOR_NAME and SETTINGS.ENABLE_TRADE_COLLECTOR == true then
+		getgenv().AutoTradeToggle:Set(true)
+	end
+end)
 
 print("Loaded. lastest update 11/1/2024  mm/dd/yyyy")
