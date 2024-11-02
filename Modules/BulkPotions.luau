@@ -48,16 +48,26 @@ local function agePotionCount()
     return count
 end
 
-local function feedAgePotion()
-    print(`age up potions: {agePotionCount()}`)
-
+local function isSameUnique()
     for _, v in ClientData.get_data()[Player.Name].inventory.food do
         if v.id == "pet_age_potion" then
             if sameUnqiue == v.unique then
                 print("has same unqiue age up potion")
-                break
-            end -- means the same age potion is still in inventory
+                return true
+            end
+        end
+    end
+    return false
+end
+
+local function feedAgePotion()
+    print(`age up potions: {agePotionCount()}`)
+    if isSameUnique() then return end
+
+    for _, v in ClientData.get_data()[Player.Name].inventory.food do
+        if v.id == "pet_age_potion" then
             sameUnqiue = v.unique
+            print("feeding")
             ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(v.unique, ClientData.get("pet_char_wrappers")[1].pet_unique)
             break
         end
