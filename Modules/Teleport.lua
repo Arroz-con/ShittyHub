@@ -179,7 +179,7 @@ function Teleport.CampSite2()
 	Player.Character.PrimaryPart.CFrame = workspace
 		:WaitForChild("StaticMap")
 		:WaitForChild("Campsite")
-		:WaitForChild("CampsiteOrigin").CFrame + Vector3.new(math.random(1, 5), -15, math.random(1, 5))
+		:WaitForChild("CampsiteOrigin").CFrame + Vector3.new(math.random(1, 5), -15, 40)
 	Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
 	Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
 	Player.Character.Humanoid.WalkSpeed = 0
