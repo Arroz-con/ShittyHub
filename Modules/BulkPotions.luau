@@ -2,6 +2,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 
+local Fusion = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Fusion.lua"))()
 local ClientData = require(ReplicatedStorage:WaitForChild("ClientModules"):WaitForChild("Core"):WaitForChild("ClientData"))
 
 local BulkPotions = {}
@@ -61,6 +62,10 @@ local function hasAgeUpPotion()
 end
 
 local function ageAllPetsOfSameName(petId)
+
+    Fusion:MakeMega(false) -- makes neon
+    Fusion:MakeMega(true) -- makes mega
+
     -- equip the pet only if its neon or normal and age is less then 6
     local hasPet = isPetNeon(petId)
     if not hasPet then return print(`no {petId} so moving to next pet or stopping`) end
