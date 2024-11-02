@@ -1078,8 +1078,8 @@ local function autoFarm()
 			return
 		elseif #ClientData.get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"] >= 6 then
 			game:Shutdown()
-		elseif #ClientData.get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"] >= 3 then
-			print("has 3 or more ailments")
+		elseif #ClientData.get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"] >= 4 then
+			print("has 4 or more ailments")
 			stopDoingTasks = true
 			ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {})
 			print("Unequip pet")
