@@ -7,6 +7,7 @@ local ClientData = require(ReplicatedStorage:WaitForChild("ClientModules"):WaitF
 local BulkPotions = {}
 
 local sameUnqiue
+local stopAging = false
 
 
 local function isPetNormal(petName: string)
@@ -59,33 +60,44 @@ local function hasAgeUpPotion()
     return false
 end
 
+local function ageAllPetsOfSameName(petId)
+    -- equip the pet only if its neon or normal and age is less then 6
+    local hasPet = isPetNeon(petId)
+    if not hasPet then return print(`no {petId} so moving to next pet or stopping`) end
+    
+    while true do
+        local age = ClientData.get("pet_char_wrappers")[1]["pet_progression"]["age"]
+        if age >= 6 then print("pet's age is 6") break end
+
+        local hasAgeUpPotion = hasAgeUpPotion()
+        if not hasAgeUpPotion then
+            stopAging = true
+            print("no more age up potions")
+            return
+        end
+
+        feedAgePotion()
+        task.wait(1)
+    end
+
+    if stopAging then
+        return
+    end
+    ageAllPetsOfSameName(petId)
+end
 
 function BulkPotions:StartAgingPets(petsTable: table)
     for _, petId in ipairs(petsTable) do
-
-        -- equip the pet only if its neon or normal and age is less then 6
-        local hasPet = isPetNeon(petId)
-        if not hasPet then return print("no pet to age up") end
-
-        -- if not ClientData.get("pet_char_wrappers")[1] 
-        --     or petName ~= ClientData.get("pet_char_wrappers")[1]["pet_id"] then
-        --     equipPet(petName)
-        --     task.wait(1)
-        -- end
-        
-        while true do
-            local age = ClientData.get("pet_char_wrappers")[1]["pet_progression"]["age"]
-            if age >= 6 then print("pet's age is 6") break end
-
-            local hasAgeUpPotion = hasAgeUpPotion()
-            if not hasAgeUpPotion then return print("no more age up potions") end
-
-            feedAgePotion()
-            task.wait(1)
-        end
-
-        task.wait()
+        if stopAging then print("stop aging is true, so stopped") return end
+        ageAllPetsOfSameName(petId)
     end
 end
+
+
+-- if not ClientData.get("pet_char_wrappers")[1] 
+--     or petName ~= ClientData.get("pet_char_wrappers")[1]["pet_id"] then
+--     equipPet(petName)
+--     task.wait(1)
+-- end
 
 return BulkPotions
