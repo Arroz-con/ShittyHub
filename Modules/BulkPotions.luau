@@ -45,7 +45,7 @@ local function feedAgePotion()
             end -- means the same age potion is still in inventory
             sameUnqiue = v.unique
             ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(v.unique, ClientData.get("pet_char_wrappers")[1].pet_unique)
-            return
+            break
         end
     end
 end
