@@ -38,7 +38,19 @@ local function isPetNeon(petName: string)
     end
 end
 
+local function agePotionCount()
+    local count = 0
+    for _, v in ClientData.get_data()[Player.Name].inventory.food do
+        if v.id == "pet_age_potion" then
+            count += 1
+        end
+    end
+    return count
+end
+
 local function feedAgePotion()
+    print(`age up potions: {agePotionCount()}`)
+
     for _, v in ClientData.get_data()[Player.Name].inventory.food do
         if v.id == "pet_age_potion" then
             if sameUnqiue == v.unique then
