@@ -28,7 +28,8 @@ local StarterGui = game:GetService("StarterGui")
 local ClientData = require(ReplicatedStorage:WaitForChild("ClientModules"):WaitForChild("Core"):WaitForChild("ClientData"))
 local RouterClient = require(ReplicatedStorage.ClientModules.Core:WaitForChild("RouterClient"):WaitForChild("RouterClient"))
 local LegacyTutorial = require(ReplicatedStorage.ClientModules:WaitForChild("Game"):WaitForChild("Tutorial"):WaitForChild("LegacyTutorial"))
-local PetEntityManager = require(ReplicatedStorage.ClientModules.Game:WaitForChild("PetEntities"):WaitForChild("PetEntityManager"))
+-- local PetEntityManager = require(ReplicatedStorage.ClientModules.Game:WaitForChild("PetEntities"):WaitForChild("PetEntityManager"))
+local CollisionsClient = require(ReplicatedStorage.ClientModules.Game:WaitForChild("CollisionsClient"))
 
 -- local Remote = Bypass("RouterClient").get("HousingAPI/ActivateFurniture")
 -- local ClaimRemote = Bypass("RouterClient").get("QuestAPI/ClaimQuest")
@@ -1068,7 +1069,7 @@ end
 
 local function autoFarm()
 	if not getgenv().auto_farm then return end
-
+	CollisionsClient.set_collidable(false)
 	Teleport.CampSite2()
 	local function CompletePetAilments()
 		if stopDoingTasks then return end
