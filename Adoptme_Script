@@ -18,6 +18,7 @@ local UserGameSettings = UserSettings():GetService("UserGameSettings")
 -- local UserInputService = game:GetService("UserInputService")
 local VirtualUser = game:GetService("VirtualUser")
 local CoreGui = game:GetService("CoreGui")
+local StarterGui = game:GetService("StarterGui")
 
 -----------------------------------------------------------------------------------------------
 --[[ Modules ]]--
@@ -27,6 +28,7 @@ local CoreGui = game:GetService("CoreGui")
 local ClientData = require(ReplicatedStorage:WaitForChild("ClientModules"):WaitForChild("Core"):WaitForChild("ClientData"))
 local RouterClient = require(ReplicatedStorage.ClientModules.Core:WaitForChild("RouterClient"):WaitForChild("RouterClient"))
 local LegacyTutorial = require(ReplicatedStorage.ClientModules:WaitForChild("Game"):WaitForChild("Tutorial"):WaitForChild("LegacyTutorial"))
+local PetEntityManager = require(ReplicatedStorage.ClientModules.Game:WaitForChild("PetEntities"):WaitForChild("PetEntityManager"))
 
 -- local Remote = Bypass("RouterClient").get("HousingAPI/ActivateFurniture")
 -- local ClaimRemote = Bypass("RouterClient").get("QuestAPI/ClaimQuest")
@@ -158,7 +160,11 @@ local ClaimTable = {
 	["buy_fifteen_furniture_items"] = { 15 },
 	["play_as_a_baby_for_twenty_five_minutes"] = { 1500 },
 	["play_for_thirty_minutes"] = { 1800 },
-	["sunshine_2024_playtime"] = { 2400 }
+	["sunshine_2024_playtime"] = { 2400 },
+	["ddlm_2024_stamp_unlock"] = {1},
+	["ddlm_2024_stamp_total"] = {1},
+	["ddlm_2024_stamp_collect"] = {1},
+	["ddlm_2024_stamp_jaguar"] = {1},
 }
 
 
@@ -787,7 +793,10 @@ local function AgeUpPotionLevelUp()
 					return true
 				end -- means the same age potion is still in inventory
 				sameUnqiue = v.unique
-				ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(v.unique, ClientData.get("pet_char_wrappers")[1].pet_unique)
+				ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(
+					v.unique,
+					ClientData.get("pet_char_wrappers")[1].pet_unique
+				)
 				return true
 			end
 		end
@@ -1060,8 +1069,7 @@ end
 local function autoFarm()
 	if not getgenv().auto_farm then return end
 
-	-- Halloween:GetAllPumpkins()
-	Teleport.MainMap()
+	Teleport.CampSite2()
 	local function CompletePetAilments()
 		if stopDoingTasks then return end
 		if getgenv().feedAgeUpPotionToggle then return end
@@ -1142,7 +1150,10 @@ local function autoFarm()
 					-- if baitId == nil then
 					-- 	baitId = findBait("lures_2023_campfire_cookies")
 					-- end
+					
 					getBaitReward(baitId)
+					task.wait(1)
+					placeBait(baitId)
 					break
 				end
 			elseif v["id"] == "dirty" then
@@ -1152,12 +1163,12 @@ local function autoFarm()
 				end
 			elseif v["id"] == "beach_party" then
 				if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
-					Teleport.BeachParty()
+					Teleport.BeachParty2()
 					break
 				end
 			elseif v["id"] == "camping" then
 				if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
-					Teleport.CampSite()
+					Teleport.CampSite2()
 					break
 				end
 			end
@@ -1179,19 +1190,22 @@ local function autoFarm()
 	end
 
 
-	game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildAdded:Connect(function()
+	game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildAdded:Connect(function(ailment)
+		
 		-- if isInMiniGame then
 		-- 	game:Shutdown()
 		-- end
 		if getgenv().feedAgeUpPotionToggle then return end
 		if stopDoingTasks then return end
 		removeHandHeldItem()
-		print("childadded")
 		CompletePetAilments()
 		CompleteBabyAilments()
+		if not ClientData.get_data()[Player.Name].ddlm_2024_manager.stamp_claimed_today then
+			game:GetService("ReplicatedStorage").API["DdlmAPI/ClaimStamp"]:FireServer()
+		end
 	end)
 
-	game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildRemoved:Connect(function()
+	game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildRemoved:Connect(function(ailment)
 		if getgenv().feedAgeUpPotionToggle then return end
 		if stopDoingTasks then return end
 
@@ -1201,7 +1215,7 @@ local function autoFarm()
 		else
 			getPet()
 		end
-		print("childremoved")
+
 		CompletePetAilments()
 		CompleteBabyAilments()
 	end)
@@ -1248,8 +1262,7 @@ local function autoFarm()
 				print("stop doing task")
 				Player.Character.Humanoid.WalkSpeed = 0
 				task.wait(rng:NextInteger(20, 30))
-				-- Halloween:GetPumpkins("TileSkipMinigame")
-				-- Halloween:FinishMiniGame()
+				
 				stopDoingTasks = false
 				print("start doing task")
 			end
@@ -1271,35 +1284,7 @@ local function autoFarm()
 	end
 
 	local function onTextChangedMiniGame()
-		-- Halloween:GetGravestones()
-		-- task.spawn(function()
-		-- 	for _, v in Players:GetPlayers() do
-		-- 		ReplicatedStorage.API:FindFirstChild("HalloweenAPI/TrickOrTreatHouse"):InvokeServer(v)
-		-- 		task.wait(.1)
-		-- 	end
-		-- end)
-		if getgenv().feedAgeUpPotionToggle then
-			FireButton("No")
-			return
-		end
-		-- if SETTINGS.EVENT and SETTINGS.EVENT.IS_AUTO_BUY == true then
-		-- 	if SETTINGS.EVENT.BUY == "halloween_2024_chick_box" then
-		-- 		repeat
-		-- 			local hasBox = Halloween:Exchange(SETTINGS.EVENT.BUY)
-		-- 			task.wait(.1)
-		-- 		until not hasBox
-		-- 	else
-		-- 		repeat
-		-- 			local canBuy = Halloween:BuyPet(SETTINGS.EVENT.BUY, 1)
-		-- 			task.wait(.1)
-		-- 		until not canBuy
-		-- 	end
-		-- end
-		-- if not SETTINGS.EVENT or SETTINGS.EVENT.DO_MINIGAME == true or SETTINGS.EVENT.DO_MINIGAME == nil then
-		-- 	task.wait(rng:NextInteger(1, 5))
-		-- 	FireButton("Yes")
-		-- 	Teleport.placeFloorOnJoinZone()
-		-- end
+		-- nothing for now
 	end
 
 	-- fires when it ask you if you want to join minigame
@@ -1361,7 +1346,8 @@ local function autoFarm()
 				Player.Character.HumanoidRootPart.Anchored = false
 				RemoveGameOverButton()
 				Teleport.DeleteMainMapParts()
-				-- Halloween:GetAllPumpkins()
+
+				Teleport.BeachParty2()
 				CompletePetAilments()
 				CompleteBabyAilments()
 			end
@@ -1454,6 +1440,7 @@ local function startAutoFarm()
 		findFurniture()
 		if Bed then
 			print(Bed)
+			print(normalLure)
 			-- task.wait(math.random(1, 5))
 			-- FarmToggle:Set(true)
 			getgenv().auto_farm = true
@@ -1832,6 +1819,7 @@ repeat
 	task.wait(1)
 until Player.PlayerGui.NewsApp.Enabled or Player.Character
 
+StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Captures, false)
 -- Player:WaitForChild("PlayerGui", 600)
 -- Player.PlayerGui:WaitForChild("NewsApp", 600)
 
@@ -2567,9 +2555,6 @@ if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Cri
 end
 
 dailyLoginAppClick()
--- if ClientData.get_data()[Player.Name].halloween_2024_purple_pumpkins.purple_pumpkins >= 150 then
--- 	ReplicatedStorage.API:FindFirstChild("HalloweenAPI/VendingMachinePurchase"):FireServer(1)
--- end
 
 startAutoFarm()
 WelcomeScreen:Disconnect()
@@ -2580,12 +2565,4 @@ if Players.LocalPlayer.Name == SETTINGS.TRADE_COLLECTOR_NAME and SETTINGS.ENABLE
 	getgenv().AutoTradeToggle:Set(true)
 end
 
--- if SETTINGS.EVENT and SETTINGS.EVENT.IS_AUTO_BUY == true then
--- 	if SETTINGS.EVENT.BUY == "halloween_2024_chick_box" then
--- 		repeat
--- 			local hasBox = Halloween:Exchange(SETTINGS.EVENT.BUY)
--- 			task.wait(.1)
--- 		until not hasBox
--- 	end
--- end
 print("Loaded. lastest update 11/1/2024  mm/dd/yyyy")
