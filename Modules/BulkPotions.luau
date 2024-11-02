@@ -120,6 +120,9 @@ function BulkPotions:StartAgingPets(petsTable: table)
     end
 end
 
+for _, v in getconnections(Player.Idled) do
+    v:Disable()
+end
 
 -- if not ClientData.get("pet_char_wrappers")[1] 
 --     or petName ~= ClientData.get("pet_char_wrappers")[1]["pet_id"] then
