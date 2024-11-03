@@ -271,7 +271,7 @@ end
 
 -- "basiccrib"  "stylishshower"  "modernshower"  "piano" "lures2023normallure"
 local function findFurniture()
-	if Bed then return end
+	if Bed and Piano then return end
 	for key, value in ClientData.get_data()[Player.Name].house_interior.furniture do
 		if value.id == "basiccrib" then
 			Bed = key
@@ -287,35 +287,13 @@ local function findFurniture()
 	end
 end
 
---[[
-local function buyPiano()
-    local args = {
-        [1] = {
-            [1] = {
-                ["kind"] = "piano",
-                ["properties"] = {
-                    ["cframe"] = CFrame.new(Vector3.new(13.7001953125, 0, -20.699951171875), Vector3.new(-8.742277657347586e-08, -0, -1))
-                }
-            }
-        }
-    }
-    
-    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/BuyFurnitures"):InvokeServer(unpack(args))
-    
-end
---]]
 
-local function buyCrib()
+local function buyFurniture(furnitureId: string) --piano basiccrib
 	local args = {
-		[1] = {
-			[1] = {
-				["kind"] = "basiccrib",
-				["properties"] = {
-					["cframe"] = CFrame.new(
-						Vector3.new(13.7001953125, 0, -20.699951171875),
-						Vector3.new(-8.742277657347586e-08, -0, -1)
-					),
-				},
+		{
+			{
+				["kind"] = furnitureId,
+				["properties"] = {["cframe"] = CFrame.new(14, 2, -22) * CFrame.Angles(-0, 8.7, 3.8)},
 			},
 		},
 	}
@@ -734,9 +712,21 @@ local function DayNightAilments(DayNightAilmentsPassOn) -- DayNightAilmentsPassO
 		Player,
 		DayNightAilmentsPassOn,
 		"UseBlock",
-		{ ["cframe"] = Player.Character.HumanoidRootPart.CFrame },
+		{ ["cframe"] = Player.Character.HumanoidRootPart.CFrame},
 		ClientData.get("pet_char_wrappers")[1]["char"]
 	)
+end
+
+local function PianoAilment(pianoId: string)
+	local args = {
+		Player,
+		pianoId,
+		"Seat1",
+		{["cframe"] = Player.Character.HumanoidRootPart.CFrame},
+		ClientData.get("pet_char_wrappers")[1]["char"]
+	}
+	
+	game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/ActivateFurniture"):InvokeServer(unpack(args))
 end
 
 
@@ -1066,6 +1056,16 @@ local function tradeCollector(namePassOn)
 	end
 end
 
+local function equipOrUnequip()
+	stopDoingTasks = true
+	ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {})
+	print("Unequip pet")
+	task.wait(3)
+	ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(PetCurrentlyFarming, {})
+	print("equip pet")
+	task.wait(5)
+	stopDoingTasks = false
+end
 
 local function autoFarm()
 	if not getgenv().auto_farm then return end
@@ -1075,12 +1075,16 @@ local function autoFarm()
 		if stopDoingTasks then return end
 		if getgenv().feedAgeUpPotionToggle then return end
 
-		if ClientData.get("pet_char_wrappers")[1] == nil then
-			ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(PetCurrentlyFarming, {})
-			return -- return because when pet gets requipped it will call this function anyway
-		end
+		-- if ClientData.get("pet_char_wrappers")[1] == nil then
+		-- 	ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(PetCurrentlyFarming, {})
+		-- 	return -- return because when pet gets requipped it will call this function anyway
+		-- end
 
-		if not ClientData.get("pet_char_wrappers")[1] then return end
+		if not ClientData.get("pet_char_wrappers")[1] then
+			print("no pet so requipping")
+			equipOrUnequip()
+			return
+		end
 		if not ClientData.get("pet_char_wrappers")[1]["ailments_monitor"] then return end
 
 		if #ClientData.get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"] == 0 then
@@ -1089,14 +1093,7 @@ local function autoFarm()
 			game:Shutdown()
 		elseif #ClientData.get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"] >= 4 then
 			print("has 4 or more ailments")
-			stopDoingTasks = true
-			ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {})
-			print("Unequip pet")
-			task.wait(10)
-			ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(PetCurrentlyFarming, {})
-			print("equip pet")
-			task.wait(10)
-			stopDoingTasks = false
+			equipOrUnequip()
 		end
 
 		for _, v in pairs(ClientData.get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"]) do
@@ -1136,8 +1133,13 @@ local function autoFarm()
 				end
 			elseif v["id"] == "bored" then
 				if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
-					Teleport.PlayGround()
-					-- DayNightAilments(Piano)
+					if Piano then
+						PianoAilment(Piano)
+						print("doing piano task")
+					else
+						Teleport.PlayGround()
+					end
+
 					break
 				end
 			elseif v["id"] == "sleepy" then
@@ -1165,12 +1167,13 @@ local function autoFarm()
 			elseif v["id"] == "beach_party" then
 				if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
 					Teleport.BeachParty2()
+					equipOrUnequip()
 					break
 				end
 			elseif v["id"] == "camping" then
 				if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
 					Teleport.CampSite2()
-
+					equipOrUnequip()
 					if not ClientData.get_data()[Player.Name].ddlm_2024_manager.stamp_claimed_today then
 						game:GetService("ReplicatedStorage").API["DdlmAPI/ClaimStamp"]:FireServer()
 					end
@@ -1441,21 +1444,21 @@ local function startAutoFarm()
 	if SETTINGS.ENABLE_AUTO_FARM then
 		findFurniture()
 		if Bed then
-			print(Bed)
-			print(normalLure)
+			print(`bed: {Bed}`)
+			print(`piano: {Piano}`)
 			-- task.wait(math.random(1, 5))
 			-- FarmToggle:Set(true)
 			getgenv().auto_farm = true
 			autoFarm()
 			-- task.wait(2)
-		else
-			print("no bed")
-			if counter >= 10 then
-				game:Shutdown()
-			end
-			buyCrib()
-			-- FarmToggle:Set(false)
-			startAutoFarm()
+		-- else
+		-- 	print("no bed")
+		-- 	if counter >= 10 then
+		-- 		game:Shutdown()
+		-- 	end
+		-- 	buyFurniture("basiccrib")
+		-- 	-- FarmToggle:Set(false)
+		-- 	startAutoFarm()
 		end
 	end
 end
@@ -1520,13 +1523,13 @@ end
 --[[ Handling ]]--
 -----------------------------------------------------------------------------------------------
 
-Player.CharacterAdded:Connect(function(character: Model)
-	findFurniture()
-	diedCounter += 1
-	if diedCounter >= 3 then
-		game:Shutdown()
-	end
-end)
+-- Player.CharacterAdded:Connect(function(character: Model)
+-- 	findFurniture()
+-- 	diedCounter += 1
+-- 	if diedCounter >= 3 then
+-- 		game:Shutdown()
+-- 	end
+-- end)
 
 UserInputService.InputBegan:Connect(function(input, processed)
 	if (input.KeyCode == Enum.KeyCode.Q and not processed) then
@@ -1938,10 +1941,14 @@ for _, pettable in pairs({ pets_legendary, pets_ultrarare, pets_rare, pets_uncom
 	end
 end
 
--- task.wait(10)
  
--- findFurniture()
+findFurniture()
 
+if not Bed then buyFurniture("basiccrib") end
+if not Piano then buyFurniture("piano") end
+task.wait(1)
+findFurniture()
+print(Piano)
 
 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/SetDoorLocked"):InvokeServer(true)
 
@@ -2487,7 +2494,7 @@ NewAltTab:CreateButton({
 NewAltTab:CreateButton({
 	Name = "Buy Basic Crib",
 	Callback = function()
-		buyCrib()
+		buyFurniture("basiccrib")
 	end,
 })
 
@@ -2567,4 +2574,4 @@ task.delay(5, function()
 	end
 end)
 
-print("Loaded. lastest update 11/1/2024  mm/dd/yyyy")
+print("Loaded. lastest update 11/2/2024  mm/dd/yyyy")
