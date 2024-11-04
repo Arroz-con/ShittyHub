@@ -110,12 +110,12 @@ local BuyItems = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arro
 
 local petsToBuy = {
 	{NameId = "ddlm_2024_grave_owl", MaxAmount = 160},
-	-- {NameId = "halloween_2024_scarebear", MaxAmount = 160},
-	-- {NameId = "halloween_2024_indian_flying_fox", MaxAmount = 80},
-    -- {NameId = "halloween_2024_franken_feline", MaxAmount = 96},
-    -- {NameId = "halloween_2024_sea_skeleton_panda", MaxAmount = 96},
-    -- {NameId = "halloween_2024_headless_horse", MaxAmount = 80},
-    -- {NameId = "halloween_2024_marabou_stork", MaxAmount = 16},
+	{NameId = "halloween_2024_headless_horse", MaxAmount = 80},
+	{NameId = "halloween_2024_scarebear", MaxAmount = 160},
+	{NameId = "halloween_2024_indian_flying_fox", MaxAmount = 80},
+    {NameId = "halloween_2024_franken_feline", MaxAmount = 96},
+    {NameId = "halloween_2024_sea_skeleton_panda", MaxAmount = 96},
+    {NameId = "halloween_2024_marabou_stork", MaxAmount = 16},
 }
 
 BuyItems:BuyPets(petsToBuy)
