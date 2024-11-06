@@ -2565,7 +2565,7 @@ end
 dailyLoginAppClick()
 
 startAutoFarm()
-WelcomeScreen:Disconnect()
+
 DailyClaimConnection:Disconnect()
 
 task.delay(5, function()
