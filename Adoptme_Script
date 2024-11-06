@@ -1822,7 +1822,7 @@ end)
 -------------------------------------------------------------------------------------------------------------------
 repeat
 	task.wait(1)
-until Player.PlayerGui.NewsApp.Enabled or Player.Character
+until Player.PlayerGui.NewsApp.Enabled or Player.Character or Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible
 
 StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Captures, false)
 -- Player:WaitForChild("PlayerGui", 600)
