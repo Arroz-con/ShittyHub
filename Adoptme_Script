@@ -1090,11 +1090,11 @@ local function autoFarm()
 		-- 	return -- return because when pet gets requipped it will call this function anyway
 		-- end
 
-		if not ClientData.get("pet_char_wrappers")[1] then
-			print("no pet so requipping")
-			equipOrUnequip()
-			return
-		end
+		-- if not ClientData.get("pet_char_wrappers")[1] then
+		-- 	print("no pet so requipping")
+		-- 	equipOrUnequip()
+		-- 	return
+		-- end
 
 		local petUnique = ClientData.get_data()[Player.Name].pet_char_wrappers[1].pet_unique
 
@@ -1196,8 +1196,8 @@ local function autoFarm()
 				break
 			elseif key == "walk" then
 				local pointA, pointB = Keyboard:SetStartPosition()
+				game:GetService("ReplicatedStorage").API["AdoptAPI/HoldBaby"]:FireServer(ClientData.get("pet_char_wrappers")[1]["char"])
 				repeat
-					game:GetService("ReplicatedStorage").API["AdoptAPI/HoldBaby"]:FireServer(ClientData.get("pet_char_wrappers")[1]["char"])
 					print("waiting for walk task to finish")
 					Keyboard:MoveBackAndForth(pointA, pointB)
 					local taskActive = if ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][key] then true else false
@@ -1231,11 +1231,18 @@ local function autoFarm()
 			-- 	game:GetService("ReplicatedStorage").API:FindFirstChild("ToolAPI/Unequip"):InvokeServer(uniqueId, {})
 			-- 	break
 			elseif key == "play" then
+				local toyId = GetInventory:GetUniqueId("toys", "raw_bone")
+				if not toyId then
+					game:GetService("ReplicatedStorage").API:FindFirstChild("ShopAPI/BuyItem"):InvokeServer("toys", "raw_bone")
+					task.wait(1)
+				end
+				toyId = GetInventory:GetUniqueId("toys", "raw_bone")
+				if not toyId then return end
 				local args = {
 					[1] = "__Enum_PetObjectCreatorType_1",
 					[2] = {
 						["reaction_name"] = "ThrowToyReaction",
-						["unique_id"] = "2_de2192f7fe8542d3bc6789a7f7d6d81d"
+						["unique_id"] = toyId
 					}
 				}
 				
