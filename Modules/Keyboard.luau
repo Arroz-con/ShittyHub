@@ -11,6 +11,12 @@ function Keyboard:keyPressForMoving()
     task.wait()
 end
 
+function Keyboard:PressEKey()
+    game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.E, false, game)
+    task.wait(.01)
+    game:GetService("VirtualInputManager"):SendKeyEvent(false, Enum.KeyCode.E, false, game)
+end
+
 function Keyboard:keyPressForMoving2()
     keypress(0x57)
     task.wait(3)
