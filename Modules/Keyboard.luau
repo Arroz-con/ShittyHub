@@ -1,4 +1,4 @@
-local Keyboard
+local Keyboard = {}
 
 function Keyboard:keyPressForMoving()
     game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.W, false, game)
