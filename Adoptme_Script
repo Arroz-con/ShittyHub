@@ -1098,16 +1098,9 @@ local function autoFarm()
 
 		local petUnique = ClientData.get_data()[Player.Name].pet_char_wrappers[1].pet_unique
 
-		if not ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique] then print("no unique") return end
-
-		-- if #ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique] == 0 then
-		-- 	return
-		-- elseif #ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique] >= 6 then
-		-- 	game:Shutdown()
-		-- elseif #ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique] >= 4 then
-		-- 	print("has 4 or more ailments")
-		-- 	equipOrUnequip()
-		-- end
+		if not ClientData.get_data()[Player.Name].ailments_manager then print("guard1") return end
+		if not ClientData.get_data()[Player.Name].ailments_manager.ailments then print("guard2") return end
+		if not ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique] then print("guard3") return end
 
 		print("doing task")
 		for key, v in ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique] do
@@ -1207,7 +1200,7 @@ local function autoFarm()
 					game:GetService("ReplicatedStorage").API["AdoptAPI/HoldBaby"]:FireServer(ClientData.get("pet_char_wrappers")[1]["char"])
 					print("waiting for walk task to finish")
 					Keyboard:MoveBackAndForth(pointA, pointB)
-					local taskActive = ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][key]
+					local taskActive = if ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][key] then true else false
 					task.wait()
 				until not taskActive
 				game:GetService("ReplicatedStorage").API:FindFirstChild("AdoptAPI/EjectBaby"):FireServer(ClientData.get("pet_char_wrappers")[1]["char"])
@@ -1232,7 +1225,7 @@ local function autoFarm()
 					task.wait()
 					print("waiting for ride task to finish")
 					Keyboard:keyPressForMoving()
-					local taskActive = ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][key]
+					local taskActive = if ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][key] then true else false
 					task.wait()
 				until not taskActive
 				game:GetService("ReplicatedStorage").API:FindFirstChild("ToolAPI/Unequip"):InvokeServer(uniqueId, {})
@@ -1249,7 +1242,7 @@ local function autoFarm()
 				repeat
 					game:GetService("ReplicatedStorage").API:FindFirstChild("PetObjectAPI/CreatePetObject"):InvokeServer(unpack(args))
 					print("throwing toy")
-					local taskActive = ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][key]
+					local taskActive = if ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][key] then true else false
 					task.wait(5)
 				until not taskActive
 				
