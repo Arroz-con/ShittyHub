@@ -47,6 +47,7 @@ local GetInventory = loadstring(game:HttpGet("https://raw.githubusercontent.com/
 local Trade = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Trade.lua"))()
 local Teleport = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Teleport.lua"))()
 local Keyboard = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Keyboard.luau"))()
+local Ailments = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Ailments.luau"))()
 
 -- local Halloween = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Halloween2024.luau"))()
 
@@ -1079,6 +1080,34 @@ local function waitForTaskToFinish(petUnique, ailment)
 	print("task finished successfully")
 end
 
+local ailmentsList = {
+	"beach_party",
+	"salon",
+	"dirty",
+	"thirsty",
+	"hungry",
+	"sleepy",
+	"toilet",
+	"play",
+	"walk",
+	"ride",
+}
+
+
+local function pickMysteryTask(mysteryId, petUnique)
+	for _, ailment in ipairs(ailmentsList) do
+		for count = 1, 3, 1 do
+			print("fired mystery task")
+			ReplicatedStorage.API["AilmentsAPI/ChooseMysteryAilment"]:FireServer(mysteryId, count, ailment)
+			task.wait(.1)
+			if not ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][mysteryId] then
+				print("mystery picked")
+				return
+			end
+		end
+	end
+end
+
 
 local function autoFarm()
 	if not getgenv().auto_farm then return end
@@ -1200,7 +1229,7 @@ local function autoFarm()
 				repeat
 					print("waiting for walk task to finish")
 					Keyboard:MoveBackAndForth(pointA, pointB)
-					local taskActive = if ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][key] then true else false
+					local taskActive = if ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique] and ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][key] then true else false
 					task.wait()
 				until not taskActive
 				game:GetService("ReplicatedStorage").API:FindFirstChild("AdoptAPI/EjectBaby"):FireServer(ClientData.get("pet_char_wrappers")[1]["char"])
@@ -1226,7 +1255,7 @@ local function autoFarm()
 			-- 		task.wait()
 			-- 		print("waiting for ride task to finish")
 			-- 		Keyboard:keyPressForMoving()
-			-- 		local taskActive = if ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][key] then true else false
+			-- 		local taskActive = if ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique] and ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][key] then true else false
 			-- 		task.wait()
 			-- 	until not taskActive
 			-- 	game:GetService("ReplicatedStorage").API:FindFirstChild("ToolAPI/Unequip"):InvokeServer(uniqueId, {})
@@ -1250,11 +1279,14 @@ local function autoFarm()
 				repeat
 					game:GetService("ReplicatedStorage").API:FindFirstChild("PetObjectAPI/CreatePetObject"):InvokeServer(unpack(args))
 					print("throwing toy")
-					local taskActive = if ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][key] then true else false
+					local taskActive = if ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique] and ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][key] then true else false
 					count += 1
 					task.wait(5)
 				until not taskActive or count > 10
 				
+				break
+			elseif key:match("mystery") then
+					Ailments:ClickMysteryAilment()
 				break
 			end
 		end
