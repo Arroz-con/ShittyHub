@@ -1,14 +1,10 @@
 local Players = game:GetService("Players")
 
+local Keyboard = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Keyboard.luau"))()
+
 local localPlayer = Players.LocalPlayer
 
 local Ailments = {}
-
-local function endpressEKey()
-    keypress(0x45)
-    task.wait()
-    keyrelease(0x45)
-end
 
 local function findMysteryIcon()
     local questionMarkIcon = "rbxassetid://18939211149"
@@ -24,7 +20,7 @@ local function findMysteryIcon()
 end
 
 function Ailments:ClickMysteryAilment()
-    endpressEKey()
+    Keyboard:PressEKey()
     task.wait(1)
     findMysteryIcon()
     task.wait(1)
@@ -38,7 +34,7 @@ function Ailments:ClickMysteryAilment()
     end
 
     task.wait(1)
-    endpressEKey()
+    Keyboard:PressEKey()
 end
 
 
