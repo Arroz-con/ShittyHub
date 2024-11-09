@@ -1083,7 +1083,7 @@ end
 local function autoFarm()
 	if not getgenv().auto_farm then return end
 	CollisionsClient.set_collidable(false)
-	Teleport.CampSite2()
+	Teleport.CampSite()
 	local function CompletePetAilments()
 		-- if ClientData.get("pet_char_wrappers")[1] == nil then
 		-- 	ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(PetCurrentlyFarming, {})
@@ -1158,7 +1158,7 @@ local function autoFarm()
 					PianoAilment(Piano)
 					print("doing piano task")
 				else
-					Teleport.PlayGround()
+					Teleport.PlayGround(Vector3.new(20, 10, math.random(15, 30)))
 				end
 				-- waitForTaskToFinish(petUnique, key)
 				break
@@ -1188,7 +1188,7 @@ local function autoFarm()
 				-- waitForTaskToFinish(petUnique, key)
 				break
 			elseif key == "camping" then
-				Teleport.CampSite2()
+				Teleport.CampSite()
 				equipOrUnequip()
 				-- waitForTaskToFinish(petUnique, key)
 				if not ClientData.get_data()[Player.Name].ddlm_2024_manager.stamp_claimed_today then
@@ -1196,11 +1196,14 @@ local function autoFarm()
 				end
 				break
 			elseif key == "walk" then
+				local pointA, pointB = Keyboard:SetStartPosition()
 				repeat
 					game:GetService("ReplicatedStorage").API["AdoptAPI/HoldBaby"]:FireServer(ClientData.get("pet_char_wrappers")[1]["char"])
 					print("waiting for walk task to finish")
-					Keyboard:keyPressForMoving2()
-				until not ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][key]
+					Keyboard:MoveBackAndForth(pointA, pointB)
+					local taskActive = ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][key]
+					task.wait()
+				until not taskActive
 				game:GetService("ReplicatedStorage").API:FindFirstChild("AdoptAPI/EjectBaby"):FireServer(ClientData.get("pet_char_wrappers")[1]["char"])
 				break
 			elseif key == "toilet" then
@@ -1210,11 +1213,12 @@ local function autoFarm()
 				-- waitForTaskToFinish(petUnique, key)
 				break
 			elseif key == "ride" then
-				Teleport.PlayGround()
+				Teleport.PlayGround(Vector3.new(40, 10, math.random(15, 30)))
 				task.wait(5)
 				local uniqueId = GetInventory:GetUniqueId("transport")
 				repeat
-					game:GetService("ReplicatedStorage").API:FindFirstChild("ToolAPI/Equip"):InvokeServer(uniqueId, {})
+					local canSpawn = game:GetService("ReplicatedStorage").API:FindFirstChild("ToolAPI/Equip"):InvokeServer(uniqueId, {})
+					print(canSpawn)
 					task.wait()
 					print("waiting for ride task to finish")
 					Keyboard:keyPressForMoving()
