@@ -46,6 +46,8 @@ local Fusion = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-
 local GetInventory = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/GetInventory.lua"))()
 local Trade = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Trade.lua"))()
 local Teleport = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Teleport.lua"))()
+local Keyboard = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Keyboard.luau"))()
+
 -- local Halloween = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Halloween2024.luau"))()
 
 -----------------------------------------------------------------------------------------------
@@ -215,6 +217,7 @@ local function FireButton(PassOn, dialogFrame)
 		end
 	end
 end
+
 
 local function getTradeLicense()
 	for i, v in ClientData.get_data()[Player.Name].inventory.toys do
@@ -1067,14 +1070,21 @@ local function equipOrUnequip()
 	stopDoingTasks = false
 end
 
+local function waitForTaskToFinish(petUnique, ailment)
+	repeat
+		local isDoingTask = ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][ailment]
+		print("waiting for task to finish", isDoingTask)
+		task.wait(1)
+	until not isDoingTask
+	print("task finished successfully")
+end
+
+
 local function autoFarm()
 	if not getgenv().auto_farm then return end
 	CollisionsClient.set_collidable(false)
 	Teleport.CampSite2()
 	local function CompletePetAilments()
-		if stopDoingTasks then return end
-		if getgenv().feedAgeUpPotionToggle then return end
-
 		-- if ClientData.get("pet_char_wrappers")[1] == nil then
 		-- 	ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(PetCurrentlyFarming, {})
 		-- 	return -- return because when pet gets requipped it will call this function anyway
@@ -1085,21 +1095,25 @@ local function autoFarm()
 			equipOrUnequip()
 			return
 		end
-		if not ClientData.get("pet_char_wrappers")[1]["ailments_monitor"] then return end
 
-		if #ClientData.get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"] == 0 then
-			return
-		elseif #ClientData.get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"] >= 6 then
-			game:Shutdown()
-		elseif #ClientData.get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"] >= 4 then
-			print("has 4 or more ailments")
-			equipOrUnequip()
-		end
+		local petUnique = ClientData.get_data()[Player.Name].pet_char_wrappers[1].pet_unique
 
-		for _, v in pairs(ClientData.get("pet_char_wrappers")[1]["ailments_monitor"]["ailments"]) do
-			if v["id"] == "hungry" then
+		if not ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique] then print("no unique") return end
+
+		-- if #ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique] == 0 then
+		-- 	return
+		-- elseif #ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique] >= 6 then
+		-- 	game:Shutdown()
+		-- elseif #ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique] >= 4 then
+		-- 	print("has 4 or more ailments")
+		-- 	equipOrUnequip()
+		-- end
+
+		print("doing task")
+		for key, v in ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique] do
+			if key == "hungry" then
 				FoodAilments("icecream")
-				task.wait()
+				-- waitForTaskToFinish(petUnique, key)
 				if not SETTINGS.FOCUS_FARM_AGE_POTION then
 					agePotion("pet_age_potion")
 					task.wait(1)
@@ -1107,123 +1121,169 @@ local function autoFarm()
 				end
 
 				break
-			elseif v["id"] == "thirsty" then
+			elseif key == "thirsty" then
 				FoodAilments("water")
+				-- waitForTaskToFinish(petUnique, key)
 				break
-			elseif v["id"] == "sick" then
-				if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
-					RouterClient.get("MonitorAPI/HealWithDoctor"):FireServer()
+			elseif key == "sick" then
+				ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("Hospital")
+				task.wait(2)
+				local doctor = workspace.HouseInteriors.furniture:FindFirstChild("Doctor", true)
 
-					break
+				local args = {
+					[1] = doctor:GetAttribute("furniture_unique"),
+					[2] = "UseBlock",
+					[3] = "Yes",
+					[4] = game:GetService("Players").LocalPlayer.Character
+				}
+				
+				game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/ActivateInteriorFurniture"):InvokeServer(unpack(args))
+				
+				-- waitForTaskToFinish(petUnique, key)
+				break
+			elseif key == "salon" then
+				ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("Salon")
+				-- waitForTaskToFinish(petUnique, key)
+				break
+			elseif key == "pizza_party" then
+				ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("PizzaShop")
+				-- waitForTaskToFinish(petUnique, key)
+				break
+			elseif key == "school" then
+				ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("School")
+				-- waitForTaskToFinish(petUnique, key)
+				break
+			elseif key == "bored" then
+				if Piano then
+					PianoAilment(Piano)
+					print("doing piano task")
+				else
+					Teleport.PlayGround()
 				end
-			elseif v["id"] == "salon" then
-				if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
-					ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("Salon")
-					break
-				end
-			elseif v["id"] == "pizza_party" then
-				if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
-					ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("PizzaShop")
-					break
-				end
-			elseif v["id"] == "school" then
-				if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
-					ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("School")
-					break
-				end
-			elseif v["id"] == "bored" then
-				if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
-					if Piano then
-						PianoAilment(Piano)
-						print("doing piano task")
-					else
-						Teleport.PlayGround()
-					end
-
-					break
-				end
-			elseif v["id"] == "sleepy" then
+				-- waitForTaskToFinish(petUnique, key)
+				break
+			elseif key == "sleepy" then
 				print("doing sleep task")
-				if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
-					-- subToHouse()
-					-- task.wait(2)
-					DayNightAilments(Bed)
+				-- subToHouse()
+				-- task.wait(2)
+				DayNightAilments(Bed)
 
-					-- baitId = findBait("fire_dimension_2024_burnt_bites_bait")
-					-- if baitId == nil then
-					-- 	baitId = findBait("lures_2023_campfire_cookies")
-					-- end
-					
-					getBaitReward(baitId)
-					task.wait(1)
-					placeBait(baitId)
-					break
+				-- baitId = findBait("fire_dimension_2024_burnt_bites_bait")
+				-- if baitId == nil then
+				-- 	baitId = findBait("lures_2023_campfire_cookies")
+				-- end
+				-- waitForTaskToFinish(petUnique, key)
+				getBaitReward(baitId)
+				task.wait(1)
+				placeBait(baitId)
+				break
+			
+			elseif key == "dirty" then
+				DayNightAilments(Shower)
+				-- waitForTaskToFinish(petUnique, key)
+				break
+			elseif key == "beach_party" then
+				Teleport.BeachParty2()
+				equipOrUnequip()
+				-- waitForTaskToFinish(petUnique, key)
+				break
+			elseif key == "camping" then
+				Teleport.CampSite2()
+				equipOrUnequip()
+				-- waitForTaskToFinish(petUnique, key)
+				if not ClientData.get_data()[Player.Name].ddlm_2024_manager.stamp_claimed_today then
+					game:GetService("ReplicatedStorage").API["DdlmAPI/ClaimStamp"]:FireServer()
 				end
-			elseif v["id"] == "dirty" then
-				if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
-					DayNightAilments(Shower)
-					break
-				end
-			elseif v["id"] == "beach_party" then
-				if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
-					Teleport.BeachParty2()
-					equipOrUnequip()
-					break
-				end
-			elseif v["id"] == "camping" then
-				if tonumber(v["progress"]) == tonumber(v["old_progress"]) then
-					Teleport.CampSite2()
-					equipOrUnequip()
-					if not ClientData.get_data()[Player.Name].ddlm_2024_manager.stamp_claimed_today then
-						game:GetService("ReplicatedStorage").API["DdlmAPI/ClaimStamp"]:FireServer()
-					end
-					break
-				end
+				break
+			elseif key == "walk" then
+				repeat
+					game:GetService("ReplicatedStorage").API["AdoptAPI/HoldBaby"]:FireServer(ClientData.get("pet_char_wrappers")[1]["char"])
+					print("waiting for walk task to finish")
+					Keyboard:keyPressForMoving2()
+				until not ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][key]
+				game:GetService("ReplicatedStorage").API:FindFirstChild("AdoptAPI/EjectBaby"):FireServer(ClientData.get("pet_char_wrappers")[1]["char"])
+				break
+			elseif key == "toilet" then
+				Teleport.DownloadMainMap()
+				task.wait(5)
+				Player.Character.HumanoidRootPart.CFrame = workspace.HouseInteriors.furniture:FindFirstChild("AilmentsRefresh2024FireHydrant", true).PrimaryPart.CFrame + Vector3.new(5, 5, 5)
+				-- waitForTaskToFinish(petUnique, key)
+				break
+			elseif key == "ride" then
+				Teleport.PlayGround()
+				task.wait(5)
+				local uniqueId = GetInventory:GetUniqueId("transport")
+				repeat
+					game:GetService("ReplicatedStorage").API:FindFirstChild("ToolAPI/Equip"):InvokeServer(uniqueId, {})
+					task.wait()
+					print("waiting for ride task to finish")
+					Keyboard:keyPressForMoving()
+					local taskActive = ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][key]
+					task.wait()
+				until not taskActive
+				game:GetService("ReplicatedStorage").API:FindFirstChild("ToolAPI/Unequip"):InvokeServer(uniqueId, {})
+				break
+			elseif key == "play" then
+				local args = {
+					[1] = "__Enum_PetObjectCreatorType_1",
+					[2] = {
+						["reaction_name"] = "ThrowToyReaction",
+						["unique_id"] = "2_de2192f7fe8542d3bc6789a7f7d6d81d"
+					}
+				}
+				
+				repeat
+					game:GetService("ReplicatedStorage").API:FindFirstChild("PetObjectAPI/CreatePetObject"):InvokeServer(unpack(args))
+					print("throwing toy")
+					local taskActive = ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][key]
+					task.wait(5)
+				until not taskActive
+				
+				break
 			end
 		end
 	end
 
 
-	local function CompleteBabyAilments()
-		if ClientData.get_data()[Player.Name]["team"] ~= "Babies" then return end
-		if #ClientData.get("char_wrapper")["ailments_monitor"]["ailments"] == 0 then
-			return
-		end
-		for _, m in pairs(ClientData.get("char_wrapper")["ailments_monitor"]["ailments"]) do
-			if m["id"] == m["id"] then
-				RouterClient.get("MonitorAPI/AddRate"):InvokeServer(m["id"], 100)
-				return
-			end
-		end
-	end
+	-- local function CompleteBabyAilments()
+	-- 	if ClientData.get_data()[Player.Name]["team"] ~= "Babies" then return end
+	-- 	if #ClientData.get("char_wrapper")["ailments_monitor"]["ailments"] == 0 then
+	-- 		return
+	-- 	end
+	-- 	for _, m in pairs(ClientData.get("char_wrapper")["ailments_monitor"]["ailments"]) do
+	-- 		if m["id"] == m["id"] then
+	-- 			RouterClient.get("MonitorAPI/AddRate"):InvokeServer(m["id"], 100)
+	-- 			return
+	-- 		end
+	-- 	end
+	-- end
 
+	-- game:GetService("Players").LocalPlayer.PlayerGui:GetChildren()["ailments_list"].SurfaceGui.Container:GetChildren()["Ailment"]
 
-	game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildAdded:Connect(function(ailment)
+	task.spawn(function()
+		while true do
+			task.wait(30)
+			print("about to do pet task")
+			removeHandHeldItem()
+			CompletePetAilments()
+		end
+	end)
 		
-		-- if isInMiniGame then
-		-- 	game:Shutdown()
-		-- end
-		if getgenv().feedAgeUpPotionToggle then return end
-		if stopDoingTasks then return end
-		removeHandHeldItem()
-		CompletePetAilments()
-		CompleteBabyAilments()
-	end)
 
-	game.Players.LocalPlayer.PlayerGui.AilmentsMonitorApp.Ailments.ChildRemoved:Connect(function(ailment)
-		if getgenv().feedAgeUpPotionToggle then return end
-		if stopDoingTasks then return end
+	-- Player.PlayerGui.AilmentsMonitorApp.Ailments.ChildRemoved:Connect(function(ailment)
+	-- 	if getgenv().feedAgeUpPotionToggle then return end
+	-- 	if stopDoingTasks then return end
 
-		if not SETTINGS.FOCUS_FARM_AGE_POTION then
-			SwitchOutFullyGrown()
-			task.wait(2)
-		else
-			getPet()
-		end
+	-- 	if not SETTINGS.FOCUS_FARM_AGE_POTION then
+	-- 		SwitchOutFullyGrown()
+	-- 		task.wait(2)
+	-- 	else
+	-- 		getPet()
+	-- 	end
 
-		CompletePetAilments()
-		CompleteBabyAilments()
-	end)
+	-- 	CompletePetAilments()
+	-- 	CompleteBabyAilments()
+	-- end)
 
 
 	-- For text that popups on bottom ui
@@ -1265,7 +1325,7 @@ local function autoFarm()
 			if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("CRICKET'S TILE HOP") then
 				stopDoingTasks = true
 				print("stop doing task")
-				Player.Character.Humanoid.WalkSpeed = 0
+				-- Player.Character.Humanoid.WalkSpeed = 0
 				task.wait(rng:NextInteger(20, 30))
 				
 				stopDoingTasks = false
@@ -1353,8 +1413,6 @@ local function autoFarm()
 				Teleport.DeleteMainMapParts()
 
 				Teleport.BeachParty2()
-				CompletePetAilments()
-				CompleteBabyAilments()
 			end
 		end
 	end)
@@ -1413,9 +1471,6 @@ local function autoFarm()
 	task.wait()
 	getPet()
 	task.wait()
-	CompletePetAilments()
-	CompleteBabyAilments()
-	task.wait()
 	getTradeLicense()
 
 	Player.Idled:Connect(function()
@@ -1466,6 +1521,7 @@ end
 
 local function SendMessage(url, message, userId)
 	local http = game:GetService("HttpService")
+	local request = request or http_request
 	local headers = {
 		["Content-Type"] = "application/json",
 	}
@@ -1479,7 +1535,9 @@ local function SendMessage(url, message, userId)
 		Headers = headers,
 		Body = body,
 	})
-	print("Sent")
+	for i, v in response do
+		print(i, v)
+	end
 end
 
 local function dailyLoginAppClick()
@@ -1519,6 +1577,15 @@ local function onTextChanged()
 		FireButton("Okay")
 	end
 end
+
+local function isMuleTrading()
+	if ClientData.get_data()[Player.Name].in_active_trade then
+		return true
+	else
+		return false
+	end
+end
+
 -----------------------------------------------------------------------------------------------
 --[[ Handling ]]--
 -----------------------------------------------------------------------------------------------
@@ -1997,7 +2064,7 @@ local Window = Rayfield:CreateWindow({
 		Subtitle = "Key System",
 		Note = "No method of obtaining the key is provided",
 		FileName = "Key", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
-		SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
+		SaveKey = false, -- The user's key will be saved, but if you change the key, they will be unable to use your script
 		GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
 		Key = { "Hello" }, -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
 	},
@@ -2570,7 +2637,9 @@ DailyClaimConnection:Disconnect()
 
 task.delay(5, function()
 	if Players.LocalPlayer.Name == SETTINGS.TRADE_COLLECTOR_NAME and SETTINGS.ENABLE_TRADE_COLLECTOR == true then
-		getgenv().AutoTradeToggle:Set(true)
+		task.spawn(function()
+			getgenv().AutoTradeToggle:Set(true)
+		end)
 	end
 end)
 
