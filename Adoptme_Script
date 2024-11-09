@@ -1211,25 +1211,25 @@ local function autoFarm()
 				Player.Character.HumanoidRootPart.CFrame = workspace.HouseInteriors.furniture:FindFirstChild("AilmentsRefresh2024FireHydrant", true).PrimaryPart.CFrame + Vector3.new(5, 5, 5)
 				-- waitForTaskToFinish(petUnique, key)
 				break
-			elseif key == "ride" then
-				Teleport.DownloadMainMap()
-				task.wait(5)
-				Player.Character.HumanoidRootPart.CFrame = workspace.HouseInteriors.furniture:FindFirstChild("AilmentsRefresh2024FireHydrant", true).PrimaryPart.CFrame + Vector3.new(5, 5, 5)
-				task.wait(1)
-				local uniqueId = GetInventory:GetUniqueId("transport")
-				local canSpawn = nil
-				repeat
-					if not canSpawn then
-						canSpawn = game:GetService("ReplicatedStorage").API:FindFirstChild("ToolAPI/Equip"):InvokeServer(uniqueId, {})
-					end
-					task.wait()
-					print("waiting for ride task to finish")
-					Keyboard:keyPressForMoving()
-					local taskActive = if ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][key] then true else false
-					task.wait()
-				until not taskActive
-				game:GetService("ReplicatedStorage").API:FindFirstChild("ToolAPI/Unequip"):InvokeServer(uniqueId, {})
-				break
+			-- elseif key == "ride" then
+			-- 	Teleport.DownloadMainMap()
+			-- 	task.wait(5)
+			-- 	Player.Character.HumanoidRootPart.CFrame = workspace.HouseInteriors.furniture:FindFirstChild("AilmentsRefresh2024FireHydrant", true).PrimaryPart.CFrame + Vector3.new(5, 5, 5)
+			-- 	task.wait(1)
+			-- 	local uniqueId = GetInventory:GetUniqueId("transport")
+			-- 	local canSpawn = nil
+			-- 	repeat
+			-- 		if not canSpawn then
+			-- 			canSpawn = game:GetService("ReplicatedStorage").API:FindFirstChild("ToolAPI/Equip"):InvokeServer(uniqueId, {})
+			-- 		end
+			-- 		task.wait()
+			-- 		print("waiting for ride task to finish")
+			-- 		Keyboard:keyPressForMoving()
+			-- 		local taskActive = if ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][key] then true else false
+			-- 		task.wait()
+			-- 	until not taskActive
+			-- 	game:GetService("ReplicatedStorage").API:FindFirstChild("ToolAPI/Unequip"):InvokeServer(uniqueId, {})
+			-- 	break
 			elseif key == "play" then
 				local args = {
 					[1] = "__Enum_PetObjectCreatorType_1",
@@ -1268,14 +1268,12 @@ local function autoFarm()
 	-- game:GetService("Players").LocalPlayer.PlayerGui:GetChildren()["ailments_list"].SurfaceGui.Container:GetChildren()["Ailment"]
 
 	task.spawn(function()
-		pcall(function()
-			while true do
-				task.wait(30)
-				print("about to do pet task")
-				removeHandHeldItem()
-				CompletePetAilments()
-			end
-		end)
+		while true do
+			task.wait(30)
+			print("about to do pet task")
+			removeHandHeldItem()
+			CompletePetAilments()
+		end
 	end)
 		
 
