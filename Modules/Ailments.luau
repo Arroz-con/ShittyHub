@@ -36,31 +36,10 @@ function Ailments:ClickMysteryAilment()
             return
         end
     end
-    
+
     task.wait(1)
     endpressEKey()
 end
 
--- step 1
--- press E
-
-
--- step 2
--- check icon to see thats it a ? (mystery)
--- End is the imageButton
-
-
--- firesignal(game:GetService("Players").LocalPlayer.PlayerGui.FocusPetApp.Frame.Ailments:GetChildren()[3].End.Background.Icon)
-
--- game:GetService("Players").LocalPlayer.PlayerGui.FocusPetApp.Frame.Tooltip.AilmentCard
-
--- mystery clicked choices
-task.wait(1)
--- firesignal(game:GetService("Players").LocalPlayer.PlayerGui.FocusPetApp.ChooseAilment.Choices:GetChildren()[math.random(1, 3)].MouseButton1Click)
-
-
-keypress(0x45)
-task.wait()
-keyrelease(0x45)
 
 return Ailments
