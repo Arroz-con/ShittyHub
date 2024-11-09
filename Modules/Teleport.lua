@@ -41,7 +41,7 @@ local function floorPart()
 	local part = Instance.new("Part")
 	part.Position = game.Workspace.Interiors:FindFirstChild(
 		tostring(game.Workspace.Interiors:FindFirstChildWhichIsA("Model"))
-	).Static.Campsite.MarshmallowChair.VintageChair.Union.Position + Vector3.new(0, -2, 0)
+	).Static.Campsite.MarshmallowChair.VintageChair.Union.Position + Vector3.new(0, -3, 0)
 	part.Size = Vector3.new(2000, 2, 2000)
 	part.Anchored = true
 	part.Name = "FloorPart1"
@@ -219,7 +219,7 @@ function Teleport.BeachParty2()
 	Teleport.DeleteMainMapParts()
 end
 
-function Teleport.PlayGround()
+function Teleport.PlayGround(vec: Vector3)
 	Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
 	local isAlreadyOnMainMap = workspace:FindFirstChild("Interiors"):FindFirstChild("center_map_plot", true)
 	if not isAlreadyOnMainMap then
@@ -230,7 +230,7 @@ function Teleport.PlayGround()
 	Player.Character.PrimaryPart.CFrame = workspace
 		:WaitForChild("StaticMap")
 		:WaitForChild("Park")
-		:WaitForChild("Roundabout").PrimaryPart.CFrame + Vector3.new(20, 10, math.random(15, 30))
+		:WaitForChild("Roundabout").PrimaryPart.CFrame + vec
 
 	Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
 	Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
