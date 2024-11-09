@@ -71,11 +71,9 @@ function GetInventory:PetRarityAndAge(rarity: string, age: number)
     end
 end
 
-function GetInventory:GetUniqueId(tabId, nameId)
+function GetInventory:GetUniqueId(tabId)
     for _, v in ClientData.get_data()[Player.Name].inventory[tabId] do
-        if v.id == nameId then
-            return v.unique
-        end
+        return v.unique
     end
     return nil
 end
