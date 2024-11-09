@@ -71,11 +71,17 @@ function GetInventory:PetRarityAndAge(rarity: string, age: number)
     end
 end
 
-function GetInventory:GetUniqueId(tabId)
+
+function GetInventory:GetUniqueId(tabId, nameId)
+    -- need to buy car because it could get something wrong
     for _, v in ClientData.get_data()[Player.Name].inventory[tabId] do
-        return v.unique
+        if v.id == nameId then
+            return v.unique
+        end
     end
     return nil
 end
+
+
 
 return GetInventory
