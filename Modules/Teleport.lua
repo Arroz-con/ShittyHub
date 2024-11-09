@@ -130,7 +130,7 @@ function Teleport.MainMap()
 		:WaitForChild("CampsiteOrigin").CFrame + Vector3.new(math.random(1, 5), 10, math.random(1, 5))
 	Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
 	Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
-	Player.Character.Humanoid.WalkSpeed = 0
+	-- Player.Character.Humanoid.WalkSpeed = 0
 	Teleport.DeleteMainMapParts()
 	task.wait(2)
 end
@@ -145,7 +145,7 @@ function Teleport.Nursery()
 		:WaitForChild("Root").CFrame + Vector3.new(-8, 10, 0)
 	Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
 	Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
-	Player.Character.Humanoid.WalkSpeed = 0
+	-- Player.Character.Humanoid.WalkSpeed = 0
 end
 
 function Teleport.CampSite()
@@ -163,7 +163,7 @@ function Teleport.CampSite()
 		:WaitForChild("CampsiteOrigin").CFrame + Vector3.new(math.random(1, 5), 10, math.random(1, 5))
 	Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
 	Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
-	Player.Character.Humanoid.WalkSpeed = 0
+	-- Player.Character.Humanoid.WalkSpeed = 0
 	Teleport.DeleteMainMapParts()
 end
 
@@ -182,7 +182,7 @@ function Teleport.CampSite2()
 		:WaitForChild("CampsiteOrigin").CFrame + Vector3.new(math.random(1, 5), -15, math.random(55, 60))
 	Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
 	Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
-	Player.Character.Humanoid.WalkSpeed = 0
+	-- Player.Character.Humanoid.WalkSpeed = 0
 	Teleport.DeleteMainMapParts()
 end
 
@@ -198,7 +198,7 @@ function Teleport.BeachParty()
 		+ Vector3.new(math.random(1, 20), 10, math.random(1, 20))
 	Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
 	Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
-	Player.Character.Humanoid.WalkSpeed = 0
+	-- Player.Character.Humanoid.WalkSpeed = 0
 	Teleport.DeleteMainMapParts()
 end
 
@@ -215,7 +215,7 @@ function Teleport.BeachParty2()
 		+ Vector3.new(-160, -10, 40)
 	Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
 	Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
-	Player.Character.Humanoid.WalkSpeed = 0
+	-- Player.Character.Humanoid.WalkSpeed = 0
 	Teleport.DeleteMainMapParts()
 end
 
@@ -234,7 +234,7 @@ function Teleport.PlayGround()
 
 	Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
 	Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
-	Player.Character.Humanoid.WalkSpeed = 0
+	-- Player.Character.Humanoid.WalkSpeed = 0
 	Teleport.DeleteMainMapParts()
 end
 
@@ -256,7 +256,7 @@ function Teleport.SkyCastle()
 	Player.Character.PrimaryPart.CFrame = skyCastle.Potions.GrowPotion.Part.CFrame + Vector3.new(math.random(1, 5), 10, math.random(-5, -1))
 	Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
 	Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
-	Player.Character.Humanoid.WalkSpeed = 0
+	-- Player.Character.Humanoid.WalkSpeed = 0
 end
 
 function Teleport.Neighborhood()
@@ -269,7 +269,7 @@ function Teleport.Neighborhood()
 	Player.Character.PrimaryPart.CFrame = workspace.Interiors["Neighborhood!Fall"].InteriorOrigin.CFrame + Vector3.new(0, -10, 0)
 	Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
 	Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
-	Player.Character.Humanoid.WalkSpeed = 0
+	-- Player.Character.Humanoid.WalkSpeed = 0
 end
 
 return Teleport
