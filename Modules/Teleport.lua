@@ -238,6 +238,22 @@ function Teleport.PlayGround()
 	Teleport.DeleteMainMapParts()
 end
 
+function Teleport.DownloadMainMap()
+	Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
+	SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
+	task.wait(1)
+	workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
+	Player.Character.PrimaryPart.CFrame = workspace
+		:WaitForChild("StaticMap")
+		:WaitForChild("Park")
+		:WaitForChild("Roundabout").PrimaryPart.CFrame + Vector3.new(20, 10, math.random(15, 30))
+
+	Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
+	Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+	-- Player.Character.Humanoid.WalkSpeed = 0
+	Teleport.DeleteMainMapParts()
+end
+
 function Teleport.SkyCastle()
 	Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
 	local isAlreadyOnSkyCastle = workspace:WaitForChild("Interiors"):FindFirstChild("SkyCastle")
