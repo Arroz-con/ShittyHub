@@ -22,5 +22,33 @@ function Keyboard:keyPressForMoving2()
     task.wait()
 end
 
+function Keyboard:SetStartPosition()
+    local distance = 5
+
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+
+    local startPosition = character.HumanoidRootPart.Position
+
+    local pointA = startPosition + Vector3.new(distance, 0, 0)
+    local pointB = startPosition - Vector3.new(distance, 0, 0)
+
+    return pointA, pointB
+end
+
+function Keyboard:MoveBackAndForth(pointA, pointB)
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:WaitForChild("Humanoid")
+
+    -- Move to point A
+    humanoid:MoveTo(pointA)
+    humanoid.MoveToFinished:Wait()  -- Wait until character reaches point A
+
+    -- Move to point B
+    humanoid:MoveTo(pointB)
+    humanoid.MoveToFinished:Wait()  -- Wait until character reaches point B
+end
+
 return Keyboard
 
