@@ -1129,7 +1129,13 @@ local function autoFarm()
 				ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("Hospital")
 				task.wait(2)
 				local doctor = workspace.HouseInteriors.furniture:FindFirstChild("Doctor", true)
-
+				if not doctor then
+					repeat
+						task.wait(1)
+						ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("Hospital")
+						doctor = workspace.HouseInteriors.furniture:FindFirstChild("Doctor", true)
+					until doctor
+				end
 				local args = {
 					[1] = doctor:GetAttribute("furniture_unique"),
 					[2] = "UseBlock",
@@ -1213,12 +1219,16 @@ local function autoFarm()
 				-- waitForTaskToFinish(petUnique, key)
 				break
 			elseif key == "ride" then
-				Teleport.PlayGround(Vector3.new(40, 10, math.random(15, 30)))
+				Teleport.DownloadMainMap()
 				task.wait(5)
+				Player.Character.HumanoidRootPart.CFrame = workspace.HouseInteriors.furniture:FindFirstChild("AilmentsRefresh2024FireHydrant", true).PrimaryPart.CFrame + Vector3.new(5, 5, 5)
+				task.wait(1)
 				local uniqueId = GetInventory:GetUniqueId("transport")
+				local canSpawn = nil
 				repeat
-					local canSpawn = game:GetService("ReplicatedStorage").API:FindFirstChild("ToolAPI/Equip"):InvokeServer(uniqueId, {})
-					print(canSpawn)
+					if not canSpawn then
+						canSpawn = game:GetService("ReplicatedStorage").API:FindFirstChild("ToolAPI/Equip"):InvokeServer(uniqueId, {})
+					end
 					task.wait()
 					print("waiting for ride task to finish")
 					Keyboard:keyPressForMoving()
@@ -2647,4 +2657,4 @@ task.delay(5, function()
 	end
 end)
 
-print("Loaded. lastest update 11/2/2024  mm/dd/yyyy")
+print("Loaded. lastest update 11/9/2024  mm/dd/yyyy")
