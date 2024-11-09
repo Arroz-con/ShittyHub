@@ -1268,12 +1268,14 @@ local function autoFarm()
 	-- game:GetService("Players").LocalPlayer.PlayerGui:GetChildren()["ailments_list"].SurfaceGui.Container:GetChildren()["Ailment"]
 
 	task.spawn(function()
-		while true do
-			task.wait(30)
-			print("about to do pet task")
-			removeHandHeldItem()
-			CompletePetAilments()
-		end
+		pcall(function()
+			while true do
+				task.wait(30)
+				print("about to do pet task")
+				removeHandHeldItem()
+				CompletePetAilments()
+			end
+		end)
 	end)
 		
 
