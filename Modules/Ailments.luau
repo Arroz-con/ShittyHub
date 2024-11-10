@@ -1,10 +1,17 @@
 local Players = game:GetService("Players")
 
-local Keyboard = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Keyboard.luau"))()
-
 local localPlayer = Players.LocalPlayer
 
 local Ailments = {}
+
+local function pressEKey()
+    for _, v in game:GetService("Players").LocalPlayer.PlayerGui.InteractionsApp.BasicSelects:GetChildren() do
+        if v.Name == "Template" and v.Visible then
+            firesignal(v.TapButton.MouseButton1Click)
+            break
+        end
+    end
+end
 
 local function findMysteryIcon()
     local questionMarkIcon = "rbxassetid://18939211149"
@@ -20,7 +27,7 @@ local function findMysteryIcon()
 end
 
 function Ailments:ClickMysteryAilment()
-    Keyboard:PressEKey()
+    pressEKey()
     task.wait(1)
     findMysteryIcon()
     task.wait(1)
@@ -34,7 +41,7 @@ function Ailments:ClickMysteryAilment()
     end
 
     task.wait(1)
-    Keyboard:PressEKey()
+    pressEKey()
 end
 
 
