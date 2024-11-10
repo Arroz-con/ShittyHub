@@ -2689,6 +2689,15 @@ end
 
 dailyLoginAppClick()
 
+if not ClientData.get_data()[Player.Name].ddlm_2024_manager.stamp_claimed_today then
+	game:GetService("ReplicatedStorage").API["DdlmAPI/ClaimStamp"]:FireServer()
+end
+
+if ClientData.get_data()[Player.Name].ddlm_2024_manager.stamps_collected == 8 and not ClientData.get_data()[Player.Name].ddlm_2024_manager.has_claimed_jaguar then
+	game:GetService("ReplicatedStorage").API:FindFirstChild("DdlmAPI/ClaimJaguar"):FireServer()
+end
+
+
 startAutoFarm()
 
 DailyClaimConnection:Disconnect()
@@ -2700,15 +2709,6 @@ task.delay(5, function()
 		end)
 	end
 end)
-
-if not ClientData.get_data()[Player.Name].ddlm_2024_manager.stamp_claimed_today then
-	game:GetService("ReplicatedStorage").API["DdlmAPI/ClaimStamp"]:FireServer()
-end
-
-if ClientData.get_data()[Player.Name].ddlm_2024_manager.stamps_collected == 8 and not ClientData.get_data()[Player.Name].ddlm_2024_manager.has_claimed_jaguar then
-	game:GetService("ReplicatedStorage").API:FindFirstChild("DdlmAPI/ClaimJaguar"):FireServer()
-
-end
 
 -- stamps_collected
 -- has_claimed_jaguar
