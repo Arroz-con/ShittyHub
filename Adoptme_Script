@@ -2691,4 +2691,8 @@ task.delay(5, function()
 	end
 end)
 
+if not ClientData.get_data()[Player.Name].ddlm_2024_manager.stamp_claimed_today then
+	game:GetService("ReplicatedStorage").API["DdlmAPI/ClaimStamp"]:FireServer()
+end
+
 print("Loaded. lastest update 11/9/2024  mm/dd/yyyy")
