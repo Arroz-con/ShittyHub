@@ -4,13 +4,17 @@ local localPlayer = Players.LocalPlayer
 
 local Ailments = {}
 
-local function pressEKey()
+local function openGuiOfTasks()
     for _, v in game:GetService("Players").LocalPlayer.PlayerGui.InteractionsApp.BasicSelects:GetChildren() do
         if v.Name == "Template" and v.Visible then
             firesignal(v.TapButton.MouseButton1Click)
             break
         end
     end
+end
+
+local function pressBackButton()
+    firesignal(localPlayer.PlayerGui.FocusPetApp.BackButton)
 end
 
 local function findMysteryIcon()
@@ -26,8 +30,8 @@ local function findMysteryIcon()
 end
 
 function Ailments:ClickMysteryAilment()
-    pressEKey()
-    task.wait(1)
+    openGuiOfTasks()
+    task.wait(2)
     findMysteryIcon()
     task.wait(1)
 
@@ -40,7 +44,7 @@ function Ailments:ClickMysteryAilment()
     end
 
     task.wait(1)
-    pressEKey()
+    pressBackButton()
 end
 
 
