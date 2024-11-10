@@ -12,9 +12,12 @@ function Keyboard:keyPressForMoving()
 end
 
 function Keyboard:PressEKey()
-    game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.E, false, game)
-    task.wait(.01)
-    game:GetService("VirtualInputManager"):SendKeyEvent(false, Enum.KeyCode.E, false, game)
+    for _, v in game:GetService("Players").LocalPlayer.PlayerGui.InteractionsApp.BasicSelects:GetChildren() do
+        if v.Name == "Template" and v.Visible then
+            firesignal(v.TapButton.MouseButton1Click)
+            break
+        end
+    end
 end
 
 function Keyboard:keyPressForMoving2()
