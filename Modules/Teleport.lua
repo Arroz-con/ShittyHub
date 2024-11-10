@@ -189,10 +189,11 @@ end
 
 function Teleport.BeachParty()
 	Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
-	local isAlreadyOnMainMap = workspace:FindFirstChild("Interiors"):FindFirstChild("center_map_plot", true)
-	if not isAlreadyOnMainMap then
-		SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
-	end
+	-- local isAlreadyOnMainMap = workspace:FindFirstChild("Interiors"):FindFirstChild("center_map_plot", true)
+	-- if not isAlreadyOnMainMap then
+	-- 	SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
+	-- end
+	SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
 	task.wait(1)
 	workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
 	Player.Character.PrimaryPart.CFrame = workspace.StaticMap.Beach.BeachPartyAilmentTarget.CFrame
@@ -222,10 +223,11 @@ end
 
 function Teleport.PlayGround(vec: Vector3)
 	Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
-	local isAlreadyOnMainMap = workspace:FindFirstChild("Interiors"):FindFirstChild("center_map_plot", true)
-	if not isAlreadyOnMainMap then
-		SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
-	end
+	-- local isAlreadyOnMainMap = workspace:FindFirstChild("Interiors"):FindFirstChild("center_map_plot", true)
+	-- if not isAlreadyOnMainMap then
+	-- 	SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
+	-- end
+	SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
 	task.wait(1)
 	workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
 	Player.Character.PrimaryPart.CFrame = workspace
