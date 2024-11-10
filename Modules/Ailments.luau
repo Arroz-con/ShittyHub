@@ -19,7 +19,6 @@ local function findMysteryIcon()
 
     for _, v in ailments:GetDescendants() do
         if v:IsA("ImageLabel") and v.Image == questionMarkIcon then
-            print(v.Parent.Parent)
             firesignal(v.Parent.Parent.MouseButton1Click)
             return
         end
