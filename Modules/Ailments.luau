@@ -14,6 +14,8 @@ local function openGuiOfTasks()
 end
 
 local function pressBackButton()
+    if not localPlayer.PlayerGui.FocusPetApp then return end
+    if not localPlayer.PlayerGui.FocusPetApp.BackButton then return end
     firesignal(localPlayer.PlayerGui.FocusPetApp.BackButton.MouseButton1Click)
 end
 
