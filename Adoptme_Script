@@ -1211,7 +1211,7 @@ local function autoFarm()
 				-- waitForTaskToFinish(petUnique, key)
 				break
 			elseif key == "beach_party" then
-				Teleport.BeachParty2()
+				Teleport.BeachParty()
 				equipOrUnequip()
 				-- waitForTaskToFinish(petUnique, key)
 				break
@@ -1460,7 +1460,7 @@ local function autoFarm()
 				RemoveGameOverButton()
 				Teleport.DeleteMainMapParts()
 
-				Teleport.BeachParty2()
+				Teleport.BeachParty()
 			end
 		end
 	end)
@@ -2694,5 +2694,13 @@ end)
 if not ClientData.get_data()[Player.Name].ddlm_2024_manager.stamp_claimed_today then
 	game:GetService("ReplicatedStorage").API["DdlmAPI/ClaimStamp"]:FireServer()
 end
+
+if ClientData.get_data()[Player.Name].ddlm_2024_manager.stamps_collected == 8 and not ClientData.get_data()[Player.Name].ddlm_2024_manager.has_claimed_jaguar then
+	game:GetService("ReplicatedStorage").API:FindFirstChild("DdlmAPI/ClaimJaguar"):FireServer()
+
+end
+
+-- stamps_collected
+-- has_claimed_jaguar
 
 print("Loaded. lastest update 11/9/2024  mm/dd/yyyy")
