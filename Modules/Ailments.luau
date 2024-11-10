@@ -14,7 +14,7 @@ local function openGuiOfTasks()
 end
 
 local function pressBackButton()
-    firesignal(localPlayer.PlayerGui.FocusPetApp.BackButton)
+    firesignal(localPlayer.PlayerGui.FocusPetApp.BackButton.MouseButton1Click)
 end
 
 local function findMysteryIcon()
