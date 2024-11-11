@@ -124,7 +124,7 @@ UICorner_3.CornerRadius = UDim.new(0, 12)
 UICorner_3.Parent = TextLabel_3
 
 
-function StatsGui:UpdateText()
+function StatsGuis:UpdateText()
     local MainFrame = LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("StatsGui"):WaitForChild("MainFrame")
     MainFrame:WaitForChild("NameFrame"):WaitForChild("TextLabel").Text = LocalPlayer.Name
 end
