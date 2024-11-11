@@ -127,6 +127,13 @@ TextLabel_3.TextWrapped = true
 UICorner_3.CornerRadius = UDim.new(0, 12)
 UICorner_3.Parent = TextLabel_3
 
+local currencyIndicator = localPlayer.PlayerGui:WaitForChild("BucksIndicatorApp"):WaitForChild("CurrencyIndicator")
+currencyIndicator.Container.Amount:GetPropertyChangedSignal("Text"):Connect(function(amount)
+    print(amount)
+end)
+
+
+
 local function timeOnline()
     
 end
