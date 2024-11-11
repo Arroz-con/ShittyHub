@@ -46,8 +46,9 @@ local Fusion = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-
 local GetInventory = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/GetInventory.lua"))()
 local Trade = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Trade.lua"))()
 local Teleport = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Teleport.lua"))()
-local Keyboard = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Keyboard.luau"))()
-local Ailments = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Ailments.luau"))()
+-- local Keyboard = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Keyboard.luau"))()
+-- local Ailments = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Ailments.luau"))()
+local StatsGuis = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/StatsGuis.luau"))()
 
 -- local Halloween = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Halloween2024.luau"))()
 
@@ -750,7 +751,6 @@ local function useStroller()
 	}
 	
 	ReplicatedStorage.API:FindFirstChild("AdoptAPI/UseStroller"):InvokeServer(unpack(args))
-	
 end
 
 
@@ -1152,7 +1152,6 @@ local function autoFarm()
 		if not ClientData.get_data()[Player.Name].ailments_manager.ailments then print("guard2") return end
 		if not ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique] then print("guard3") return end
 
-
 		for key, v in ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique] do
 			if key == "hungry" then
 				print("🍖 Doing hungry task 🍖")
@@ -1209,6 +1208,7 @@ local function autoFarm()
 				-- waitForTaskToFinish(petUnique, key)
 				break
 			elseif key == "bored" then
+				reEquipPet()
 				print("🥱 Doing bored task 🥱")
 				if Piano then
 					PianoAilment(Piano)
@@ -1218,6 +1218,7 @@ local function autoFarm()
 				-- waitForTaskToFinish(petUnique, key)
 				break
 			elseif key == "sleepy" then
+				reEquipPet()
 				print("😴 Doing sleep task 😴")
 				-- subToHouse()
 				-- task.wait(2)
@@ -1234,6 +1235,7 @@ local function autoFarm()
 				break
 			
 			elseif key == "dirty" then
+				reEquipPet()
 				print("🧼 Doing dirty task 🧼")
 				DayNightAilments(Shower)
 				-- waitForTaskToFinish(petUnique, key)
@@ -1303,7 +1305,7 @@ local function autoFarm()
 					isStuck = if (tick() - stuckCount) >= 60 then true else false
 				until not taskActive or isStuck
 				if isStuck then
-					print("⛔ Ride task is stuck so exiting task ⛔")
+					print("⛔ Ride task is stuck so exited task ⛔")
 				else
 					print("🎉 Ride task finished 🎉")
 				end
@@ -1316,10 +1318,10 @@ local function autoFarm()
 				local toyId = GetInventory:GetUniqueId("toys", "raw_bone")
 				if not toyId then
 					ReplicatedStorage.API:FindFirstChild("ShopAPI/BuyItem"):InvokeServer("toys", "raw_bone", {})
-					task.wait(1)
+					task.wait(3)
 				end
 				toyId = GetInventory:GetUniqueId("toys", "raw_bone")
-				if not toyId then return end
+				if not toyId then print(`⛔ Doesn't have toy ⛔`) return end
 				local args = {
 					[1] = "__Enum_PetObjectCreatorType_1",
 					[2] = {
@@ -1344,9 +1346,6 @@ local function autoFarm()
 			elseif key:match("mystery") then
 				print("❓ Picking mystery task ❓") 
 				pickMysteryTask(key, petUnique)
-					-- openGuiOfTasks()
-					-- task.wait(2)
-					-- Ailments:ClickMysteryAilment()
 				break
 			end
 		end
@@ -1373,6 +1372,8 @@ local function autoFarm()
 			task.wait(30)
 			removeHandHeldItem()
 			CompletePetAilments()
+			StatsGuis:UpdateText("BucksAndPotionFrame")
+			StatsGuis:UpdateText("TimeFrame")
 		end
 	end)
 		
@@ -1995,6 +1996,10 @@ end)
 repeat
 	task.wait(1)
 until Player.PlayerGui.NewsApp.Enabled or Player.Character or Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible
+
+StatsGuis:UpdateText("NameFrame")
+StatsGuis:UpdateText("BucksAndPotionFrame")
+StatsGuis:UpdateText("TimeFrame")
 
 StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Captures, false)
 -- Player:WaitForChild("PlayerGui", 600)
