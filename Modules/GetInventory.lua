@@ -73,7 +73,6 @@ end
 
 
 function GetInventory:GetUniqueId(tabId, nameId)
-    -- need to buy car because it could get something wrong
     for _, v in ClientData.get_data()[Player.Name].inventory[tabId] do
         if v.id == nameId then
             return v.unique
