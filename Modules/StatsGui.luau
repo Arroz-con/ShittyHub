@@ -125,8 +125,8 @@ UICorner_3.Parent = TextLabel_3
 
 
 function StatsGui:UpdateText()
-    local MainFrame = LocalPlayer.PlayerGui.StatsGui.MainFrame
-    MainFrame.NameFrame.TextLabel.Text = LocalPlayer.Name
+    local MainFrame = LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("StatsGui"):WaitForChild("MainFrame")
+    MainFrame:WaitForChild("NameFrame"):WaitForChild("TextLabel").Text = LocalPlayer.Name
 end
 
 return StatsGui
