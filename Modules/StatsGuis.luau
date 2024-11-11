@@ -152,6 +152,7 @@ startCount = agePotionCount()
 startBucksAmount = bucksAmount()
 
 function StatsGuis:UpdateText(nameOfFrame: string)
+    print(nameOfFrame)
     local MainFrame = localPlayer.PlayerGui.StatsGui.MainFrame
 
     if nameOfFrame == "TimeFrame" then
