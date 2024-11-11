@@ -1258,13 +1258,21 @@ local function autoFarm()
 				-- local pointA, pointB = Keyboard:SetStartPosition()
 				ReplicatedStorage.API["AdoptAPI/HoldBaby"]:FireServer(ClientData.get("pet_char_wrappers")[1]["char"])
 				print("⏳ Waiting for walk task to finish ⏳")
+				local stuckCount = tick()
+				local isStuck
 				repeat
 					babyJump()
 					task.wait(0.2)
 					local taskActive = if ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique] and ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][key] then true else false
 					task.wait(0.1)
-				until not taskActive
-				print("🎉 Walk task finished 🎉")
+					isStuck = if (tick() - stuckCount) >= 60 then true else false
+				until not taskActive or isStuck
+				if isStuck then
+					print("⛔ Walk task is stuck so exiting task ⛔")
+				else
+					print("🎉 Walk task finished 🎉")
+				end
+				
 				ReplicatedStorage.API:FindFirstChild("AdoptAPI/EjectBaby"):FireServer(ClientData.get("pet_char_wrappers")[1]["char"])
 				break
 			elseif key == "toilet" then
@@ -1285,13 +1293,21 @@ local function autoFarm()
 				useStroller()
 				-- local pointA, pointB = Keyboard:SetStartPosition()
 				print("⏳ Waiting for ride task to finish ⏳")
+				local stuckCount = tick()
+				local isStuck
 				repeat
 					babyJump()
 					task.wait(0.2)
 					local taskActive = if ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique] and ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][key] then true else false
 					task.wait(0.1)
-				until not taskActive
-				print("🎉 ride task finished 🎉")
+					isStuck = if (tick() - stuckCount) >= 60 then true else false
+				until not taskActive or isStuck
+				if isStuck then
+					print("⛔ Ride task is stuck so exiting task ⛔")
+				else
+					print("🎉 Ride task finished 🎉")
+				end
+				
 				-- ReplicatedStorage.API:FindFirstChild("AdoptAPI/EjectBaby"):FireServer(ClientData.get("pet_char_wrappers")[1]["char"])
 				ReplicatedStorage.API:FindFirstChild("ToolAPI/Unequip"):InvokeServer(strollerId, {})
 				break
