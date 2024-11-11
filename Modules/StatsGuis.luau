@@ -23,6 +23,7 @@ local UICorner_3 = Instance.new("UICorner")
 
 local startCount = 0
 local startBucksAmount = 0
+local startTime = nil
 --Properties:
 
 StatsGui.Name = "StatsGui"
@@ -128,10 +129,10 @@ TextLabel_3.TextWrapped = true
 UICorner_3.CornerRadius = UDim.new(0, 12)
 UICorner_3.Parent = TextLabel_3
 
-
-
-local function timeOnline()
-    
+local function formatTime(currentTime)
+	local hours = math.floor(currentTime / 3600)
+	local minutes = math.floor((currentTime % 3600) / 60)
+	return string.format("%02d:%02d", hours, minutes)
 end
 
 local function bucksAmount()
@@ -150,13 +151,16 @@ end
 
 startCount = agePotionCount()
 startBucksAmount = bucksAmount()
+startTime = DateTime.now().UnixTimestamp
 
 function StatsGuis:UpdateText(nameOfFrame: string)
     print(nameOfFrame)
     local MainFrame = localPlayer.PlayerGui.StatsGui.MainFrame
 
     if nameOfFrame == "TimeFrame" then
-        MainFrame.TimeFrame.TextLabel.Text = localPlayer.Name
+        local currentTime = DateTime.now().UnixTimestamp
+        local timeElapsed = currentTime - startTime
+        MainFrame.TimeFrame.TextLabel.Text = `🕒 {formatTime(timeElapsed)}`
     elseif nameOfFrame == "BucksAndPotionFrame" then
         local potionCount = agePotionCount() - startCount
         local bucks = bucksAmount() - startBucksAmount
