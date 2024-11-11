@@ -1,6 +1,6 @@
 local Players = game:GetService("Players")
 
-local StatsGui = {}
+local StatsGuis = {}
 
 local LocalPlayer = Players.LocalPlayer
 -- Instances:
@@ -129,4 +129,4 @@ function StatsGui:UpdateText()
     MainFrame:WaitForChild("NameFrame"):WaitForChild("TextLabel").Text = LocalPlayer.Name
 end
 
-return StatsGui
+return StatsGuis
