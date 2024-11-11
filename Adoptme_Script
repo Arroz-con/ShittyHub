@@ -1072,7 +1072,7 @@ local function tradeCollector(namePassOn)
 	end
 end
 
-local function equipOrUnequip()
+local function reEquipPet()
 	ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {})
 	print("Unequip pet")
 	task.wait(1)
@@ -1142,7 +1142,7 @@ local function autoFarm()
 
 		if not ClientData.get("pet_char_wrappers")[1] then
 			print("no pet so requipping")
-			equipOrUnequip()
+			reEquipPet()
 			return
 		end
 
@@ -1241,13 +1241,13 @@ local function autoFarm()
 			elseif key == "beach_party" then
 				print("🏖️ Doing beach party 🏖️")
 				Teleport.BeachParty()
-				equipOrUnequip()
+				reEquipPet()
 				-- waitForTaskToFinish(petUnique, key)
 				break
 			elseif key == "camping" then
 				print("🏕️ Doing camping task 🏕️")
 				Teleport.CampSite()
-				equipOrUnequip()
+				reEquipPet()
 				-- waitForTaskToFinish(petUnique, key)
 				if not ClientData.get_data()[Player.Name].ddlm_2024_manager.stamp_claimed_today then
 					ReplicatedStorage.API["DdlmAPI/ClaimStamp"]:FireServer()
@@ -1275,7 +1275,7 @@ local function autoFarm()
 					Teleport.DownloadMainMap()
 					task.wait(5)
 					Player.Character.HumanoidRootPart.CFrame = workspace.HouseInteriors.furniture:FindFirstChild("AilmentsRefresh2024FireHydrant", true).PrimaryPart.CFrame + Vector3.new(5, 5, 5)
-					equipOrUnequip()
+					reEquipPet()
 				end
 				
 				break
@@ -1321,7 +1321,7 @@ local function autoFarm()
 				until not taskActive or count >= 10
 				if count >= 10 then
 					print(`Play task got stuck so requiping pet`)
-					equipOrUnequip()
+					reEquipPet()
 					break
 				end
 				break
