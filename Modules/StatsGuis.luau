@@ -22,6 +22,7 @@ local TextLabel_3 = Instance.new("TextLabel")
 local UICorner_3 = Instance.new("UICorner")
 
 local startCount = 0
+local startBucksAmount = 0
 --Properties:
 
 StatsGui.Name = "StatsGui"
@@ -127,15 +128,14 @@ TextLabel_3.TextWrapped = true
 UICorner_3.CornerRadius = UDim.new(0, 12)
 UICorner_3.Parent = TextLabel_3
 
-local currencyIndicator = localPlayer.PlayerGui:WaitForChild("BucksIndicatorApp"):WaitForChild("CurrencyIndicator")
-currencyIndicator.Container.Amount:GetPropertyChangedSignal("Text"):Connect(function(amount)
-    print(amount)
-end)
-
 
 
 local function timeOnline()
     
+end
+
+local function bucksAmount()
+    return ClientData.get_data()[localPlayer.Name].money or 0
 end
 
 local function agePotionCount()
@@ -149,16 +149,19 @@ local function agePotionCount()
 end
 
 startCount = agePotionCount()
+startBucksAmount = bucksAmount()
 
-function StatsGuis:UpdateText(nameOfFrame: string, ChangeTextTo: string?)
+function StatsGuis:UpdateText(nameOfFrame: string)
     local MainFrame = localPlayer.PlayerGui.StatsGui.MainFrame
 
     if nameOfFrame == "TimeFrame" then
         MainFrame.TimeFrame.TextLabel.Text = localPlayer.Name
     elseif nameOfFrame == "BucksAndPotionFrame" then
         local potionCount = agePotionCount() - startCount
+        local bucks = bucksAmount() - startBucksAmount
         if potionCount <= 0 then potionCount = 0 end
-        MainFrame.BucksAndPotionFrame.TextLabel.Text = `🧪 {potionCount} 💰 {ChangeTextTo}`
+        if bucks <= 0 then bucks = 0 end
+        MainFrame.BucksAndPotionFrame.TextLabel.Text = `🧪 {potionCount} 💰 {bucks}`
     elseif nameOfFrame == "NameFrame" then
         MainFrame.NameFrame.TextLabel.Text = localPlayer.Name
     end
