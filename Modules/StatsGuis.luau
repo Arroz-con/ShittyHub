@@ -1,8 +1,11 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
+
+local ClientData = require(ReplicatedStorage:WaitForChild("ClientModules"):WaitForChild("Core"):WaitForChild("ClientData"))
 
 local StatsGuis = {}
 
-local LocalPlayer = Players.LocalPlayer
+local localPlayer = Players.LocalPlayer
 -- Instances:
 
 local StatsGui = Instance.new("ScreenGui")
@@ -18,12 +21,13 @@ local BucksAndPotionFrame = Instance.new("Frame")
 local TextLabel_3 = Instance.new("TextLabel")
 local UICorner_3 = Instance.new("UICorner")
 
+local startCount = 0
 --Properties:
 
 StatsGui.Name = "StatsGui"
 StatsGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 StatsGui.ResetOnSpawn = false
-StatsGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+StatsGui.Parent = localPlayer:WaitForChild("PlayerGui")
 
 MainFrame.Name = "MainFrame"
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -123,11 +127,34 @@ TextLabel_3.TextWrapped = true
 UICorner_3.CornerRadius = UDim.new(0, 12)
 UICorner_3.Parent = TextLabel_3
 
+local function timeOnline()
+    
+end
 
-function StatsGuis:UpdateText()
-    print("working")
-    local MainFrame = LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("StatsGui"):WaitForChild("MainFrame")
-    MainFrame:WaitForChild("NameFrame"):WaitForChild("TextLabel").Text = LocalPlayer.Name
+local function agePotionCount()
+    local count = 0
+    for _, v in ClientData.get_data()[localPlayer.Name].inventory.food do
+        if v.id == "pet_age_potion" then
+            count += 1
+        end
+    end
+    return count
+end
+
+startCount = agePotionCount()
+
+function StatsGuis:UpdateText(nameOfFrame: string, ChangeTextTo: string?)
+    local MainFrame = localPlayer.PlayerGui.StatsGui.MainFrame
+
+    if nameOfFrame == "TimeFrame" then
+        MainFrame.TimeFrame.TextLabel.Text = localPlayer.Name
+    elseif nameOfFrame == "BucksAndPotionFrame" then
+        local potionCount = agePotionCount() - startCount
+        if potionCount <= 0 then potionCount = 0 end
+        MainFrame.BucksAndPotionFrame.TextLabel.Text = `🧪 {potionCount} 💰 {ChangeTextTo}`
+    elseif nameOfFrame == "NameFrame" then
+        MainFrame.NameFrame.TextLabel.Text = localPlayer.Name
+    end
 end
 
 return StatsGuis
