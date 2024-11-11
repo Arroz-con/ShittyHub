@@ -1111,22 +1111,23 @@ local ailmentsList = {
 
 local function pickMysteryTask(mysteryId, petUnique)
 	print(`mystery id: {mysteryId}`)
-	local count = rng:NextInteger(1, 3)
-	for _, ailment in ipairs(ailmentsList) do
-		print(`card: {count}, ailment: {ailment}`)
-		ReplicatedStorage.API["AilmentsAPI/ChooseMysteryAilment"]:FireServer(mysteryId, count, ailment)
-		task.wait(2)
-		if not ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][mysteryId] then
-			print("mystery picked")
-			return
+	for i = 1, 3 do
+		for _, ailment in ipairs(ailmentsList) do
+			print(`card: {i}, ailment: {ailment}`)
+			ReplicatedStorage.API["AilmentsAPI/ChooseMysteryAilment"]:FireServer(mysteryId, i, ailment)
+			task.wait(2)
+			if not ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][mysteryId] then
+				print("mystery picked")
+				return
+			end
 		end
 	end
 end
 
 local function babyJump()
 	-- ReplicatedStorage.API["AdoptAPI/BabyJump"]:FireServer(Player.Character)
+	if Player.Character.Humanoid:GetState() == Enum.HumanoidStateType.Freefall then return end
 	Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-    task.wait(0.25)
 end
 
 local function autoFarm()
@@ -1259,6 +1260,7 @@ local function autoFarm()
 				print("⏳ Waiting for walk task to finish ⏳")
 				repeat
 					babyJump()
+					task.wait(0.2)
 					local taskActive = if ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique] and ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][key] then true else false
 					task.wait(0.1)
 				until not taskActive
@@ -1285,8 +1287,9 @@ local function autoFarm()
 				print("⏳ Waiting for ride task to finish ⏳")
 				repeat
 					babyJump()
+					task.wait(0.2)
 					local taskActive = if ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique] and ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][key] then true else false
-					task.wait(1)
+					task.wait(0.1)
 				until not taskActive
 				print("🎉 ride task finished 🎉")
 				-- ReplicatedStorage.API:FindFirstChild("AdoptAPI/EjectBaby"):FireServer(ClientData.get("pet_char_wrappers")[1]["char"])
