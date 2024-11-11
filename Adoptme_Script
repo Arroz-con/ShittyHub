@@ -75,6 +75,7 @@ local NewTaskBool = true
 local NewClaimBool = true
 local isMainMap = false
 local stopDoingTasks = false
+local isCurrentlyDoingTasks = false
 local guiCooldown = false
 local tutorialDebonce = false
 local stopEquip = false
@@ -86,6 +87,7 @@ local Shower
 local Piano
 local normalLure
 local LitterBox
+local strollerId
 
 local baitId
 local selectedPlayer
@@ -427,7 +429,6 @@ local function isMuleInGame()
 	return false
 end
 
-
 local function subToHouse()
 	game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/SubscribeToHouse"):FireServer(Player)
 end
@@ -481,7 +482,7 @@ local function buyLure()
 		},
 	}
 
-	game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/BuyFurnitures"):InvokeServer(unpack(args))
+	ReplicatedStorage.API:FindFirstChild("HousingAPI/BuyFurnitures"):InvokeServer(unpack(args))
 end
 
 
@@ -497,7 +498,7 @@ local function placeBait(baitIdPasson)
 		[5] = game:GetService("Players").LocalPlayer.Character,
 	}
 
-	game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/ActivateFurniture"):InvokeServer(unpack(args))
+	ReplicatedStorage.API:FindFirstChild("HousingAPI/ActivateFurniture"):InvokeServer(unpack(args))
 end
 
 local function getBaitReward(baitId)
@@ -509,7 +510,7 @@ local function getBaitReward(baitId)
 		[5] = game:GetService("Players").LocalPlayer.Character
 	}
 	
-	game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/ActivateFurniture"):InvokeServer(unpack(args))
+	ReplicatedStorage.API:FindFirstChild("HousingAPI/ActivateFurniture"):InvokeServer(unpack(args))
 end
 
 local function findBait(baitPassOn)
@@ -731,7 +732,7 @@ local function PianoAilment(pianoId: string)
 		ClientData.get("pet_char_wrappers")[1]["char"]
 	}
 	
-	game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/ActivateFurniture"):InvokeServer(unpack(args))
+	ReplicatedStorage.API:FindFirstChild("HousingAPI/ActivateFurniture"):InvokeServer(unpack(args))
 end
 
 
@@ -740,6 +741,16 @@ local function removeHandHeldItem()
 	if tool then
 		ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(tool.unique.Value, {})
 	end
+end
+
+local function useStroller()
+	local args = {
+		[1] = ClientData.get("pet_char_wrappers")[1].char,
+		[2] = Player.Character.StrollerTool.ModelHandle.TouchToSits.TouchToSit
+	}
+	
+	ReplicatedStorage.API:FindFirstChild("AdoptAPI/UseStroller"):InvokeServer(unpack(args))
+	
 end
 
 
@@ -1062,14 +1073,12 @@ local function tradeCollector(namePassOn)
 end
 
 local function equipOrUnequip()
-	stopDoingTasks = true
 	ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(PetCurrentlyFarming, {})
 	print("Unequip pet")
 	task.wait(1)
 	ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(PetCurrentlyFarming, {})
 	print("equip pet")
 	task.wait(1)
-	stopDoingTasks = false
 end
 
 local function waitForTaskToFinish(petUnique, ailment)
@@ -1106,7 +1115,7 @@ local function pickMysteryTask(mysteryId, petUnique)
 	for _, ailment in ipairs(ailmentsList) do
 		print(`card: {count}, ailment: {ailment}`)
 		ReplicatedStorage.API["AilmentsAPI/ChooseMysteryAilment"]:FireServer(mysteryId, count, ailment)
-		task.wait(3)
+		task.wait(2)
 		if not ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][mysteryId] then
 			print("mystery picked")
 			return
@@ -1114,13 +1123,10 @@ local function pickMysteryTask(mysteryId, petUnique)
 	end
 end
 
-local function openGuiOfTasks()
-    for _, v in game:GetService("Players").LocalPlayer.PlayerGui.InteractionsApp.BasicSelects:GetChildren() do
-        if v.Name == "Template" and v.Visible then
-            firesignal(v.TapButton.MouseButton1Click)
-            break
-        end
-    end
+local function babyJump()
+	-- ReplicatedStorage.API["AdoptAPI/BabyJump"]:FireServer(Player.Character)
+	Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+    task.wait(0.25)
 end
 
 local function autoFarm()
@@ -1182,7 +1188,7 @@ local function autoFarm()
 					[4] = game:GetService("Players").LocalPlayer.Character
 				}
 				
-				game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/ActivateInteriorFurniture"):InvokeServer(unpack(args))
+				ReplicatedStorage.API:FindFirstChild("HousingAPI/ActivateInteriorFurniture"):InvokeServer(unpack(args))
 				
 				-- waitForTaskToFinish(petUnique, key)
 				break
@@ -1243,25 +1249,24 @@ local function autoFarm()
 				equipOrUnequip()
 				-- waitForTaskToFinish(petUnique, key)
 				if not ClientData.get_data()[Player.Name].ddlm_2024_manager.stamp_claimed_today then
-					game:GetService("ReplicatedStorage").API["DdlmAPI/ClaimStamp"]:FireServer()
+					ReplicatedStorage.API["DdlmAPI/ClaimStamp"]:FireServer()
 				end
 				break
 			elseif key == "walk" then
 				print("🦮 Doing walking task 🦮")
-				local pointA, pointB = Keyboard:SetStartPosition()
-				game:GetService("ReplicatedStorage").API["AdoptAPI/HoldBaby"]:FireServer(ClientData.get("pet_char_wrappers")[1]["char"])
+				-- local pointA, pointB = Keyboard:SetStartPosition()
+				ReplicatedStorage.API["AdoptAPI/HoldBaby"]:FireServer(ClientData.get("pet_char_wrappers")[1]["char"])
 				print("⏳ Waiting for walk task to finish ⏳")
 				repeat
-					Keyboard:MoveBackAndForth(pointA, pointB)
+					babyJump()
 					local taskActive = if ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique] and ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][key] then true else false
-					task.wait()
+					task.wait(0.1)
 				until not taskActive
 				print("🎉 Walk task finished 🎉")
-				game:GetService("ReplicatedStorage").API:FindFirstChild("AdoptAPI/EjectBaby"):FireServer(ClientData.get("pet_char_wrappers")[1]["char"])
+				ReplicatedStorage.API:FindFirstChild("AdoptAPI/EjectBaby"):FireServer(ClientData.get("pet_char_wrappers")[1]["char"])
 				break
 			elseif key == "toilet" then
 				print("🚽 Doing toilet task 🚽")
-
 				if LitterBox then
 					DayNightAilments(LitterBox)
 				else
@@ -1272,30 +1277,26 @@ local function autoFarm()
 				end
 				
 				break
-			-- elseif key == "ride" then
-			-- 	Teleport.DownloadMainMap()
-			-- 	task.wait(5)
-			-- 	Player.Character.HumanoidRootPart.CFrame = workspace.HouseInteriors.furniture:FindFirstChild("AilmentsRefresh2024FireHydrant", true).PrimaryPart.CFrame + Vector3.new(5, 5, 5)
-			-- 	task.wait(1)
-			-- 	local uniqueId = GetInventory:GetUniqueId("transport")
-			-- 	local canSpawn = nil
-			-- 	repeat
-			-- 		if not canSpawn then
-			-- 			canSpawn = game:GetService("ReplicatedStorage").API:FindFirstChild("ToolAPI/Equip"):InvokeServer(uniqueId, {})
-			-- 		end
-			-- 		task.wait()
-			-- 		print("waiting for ride task to finish")
-			-- 		Keyboard:keyPressForMoving()
-			-- 		local taskActive = if ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique] and ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][key] then true else false
-			-- 		task.wait()
-			-- 	until not taskActive
-			-- 	game:GetService("ReplicatedStorage").API:FindFirstChild("ToolAPI/Unequip"):InvokeServer(uniqueId, {})
-			-- 	break
+			elseif key == "ride" then
+				ReplicatedStorage.API:FindFirstChild("ToolAPI/Equip"):InvokeServer(strollerId, {})
+				task.wait(1)
+				useStroller()
+				-- local pointA, pointB = Keyboard:SetStartPosition()
+				print("⏳ Waiting for ride task to finish ⏳")
+				repeat
+					babyJump()
+					local taskActive = if ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique] and ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][key] then true else false
+					task.wait(1)
+				until not taskActive
+				print("🎉 ride task finished 🎉")
+				-- ReplicatedStorage.API:FindFirstChild("AdoptAPI/EjectBaby"):FireServer(ClientData.get("pet_char_wrappers")[1]["char"])
+				ReplicatedStorage.API:FindFirstChild("ToolAPI/Unequip"):InvokeServer(strollerId, {})
+				break
 			elseif key == "play" then
 				print("🦴 Doing play task 🦴")
 				local toyId = GetInventory:GetUniqueId("toys", "raw_bone")
 				if not toyId then
-					game:GetService("ReplicatedStorage").API:FindFirstChild("ShopAPI/BuyItem"):InvokeServer("toys", "raw_bone", {})
+					ReplicatedStorage.API:FindFirstChild("ShopAPI/BuyItem"):InvokeServer("toys", "raw_bone", {})
 					task.wait(1)
 				end
 				toyId = GetInventory:GetUniqueId("toys", "raw_bone")
@@ -1309,13 +1310,17 @@ local function autoFarm()
 				}
 				local count = 0
 				repeat
-					game:GetService("ReplicatedStorage").API:FindFirstChild("PetObjectAPI/CreatePetObject"):InvokeServer(unpack(args))
+					ReplicatedStorage.API:FindFirstChild("PetObjectAPI/CreatePetObject"):InvokeServer(unpack(args))
 					print("🦴 Throwing toy 🦴")
 					local taskActive = if ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique] and ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][key] then true else false
 					count += 1
 					task.wait(6)
-				until not taskActive or count > 10
-				
+				until not taskActive or count >= 10
+				if count >= 10 then
+					print(`Play task got stuck so requiping pet`)
+					equipOrUnequip()
+					break
+				end
 				break
 			elseif key:match("mystery") then
 				print("❓ Picking mystery task ❓") 
@@ -2096,10 +2101,12 @@ if not Bed then buyFurniture("basiccrib") end
 if not Piano then buyFurniture("piano") end
 if not LitterBox then buyFurniture("ailments_refresh_2024_litter_box") end
 task.wait(1)
+strollerId  = GetInventory:GetUniqueId("strollers", "stroller-default")
 findFurniture()
+
 print(`Has Bed: {Bed} 🛏️ | Has Piano: {Piano} 🎹 | Has LitterBox: {LitterBox} 💩`)
 
-game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/SetDoorLocked"):InvokeServer(true)
+ReplicatedStorage:WaitForChild("API"):WaitForChild("HousingAPI/SetDoorLocked"):InvokeServer(true)
 
 
 ReplicatedStorage.API["TeamAPI/ChooseTeam"]:InvokeServer("Babies", {["dont_send_back_home"] = true})
@@ -2714,12 +2721,12 @@ end
 dailyLoginAppClick()
 
 if not ClientData.get_data()[Player.Name].ddlm_2024_manager.stamp_claimed_today then
-	game:GetService("ReplicatedStorage").API["DdlmAPI/ClaimStamp"]:FireServer()
+	ReplicatedStorage.API["DdlmAPI/ClaimStamp"]:FireServer()
 end
 task.wait(1)
 
 if ClientData.get_data()[Player.Name].ddlm_2024_manager.stamps_collected == 8 and not ClientData.get_data()[Player.Name].ddlm_2024_manager.has_claimed_jaguar then
-	game:GetService("ReplicatedStorage").API:FindFirstChild("DdlmAPI/ClaimJaguar"):FireServer()
+	ReplicatedStorage.API:FindFirstChild("DdlmAPI/ClaimJaguar"):FireServer()
 end
 
 
