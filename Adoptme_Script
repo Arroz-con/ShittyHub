@@ -1788,7 +1788,7 @@ end)
 RoleChooserDialogConnection = Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog:GetPropertyChangedSignal("Visible"):Connect(function()
 	task.wait()
 	if Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
-		firesignal(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby.MouseButton1Click)
+		firesignal(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.ChooseParent.MouseButton1Click)
 		RoleChooserDialogConnection:Disconnect()
 	end
 end)
@@ -2063,8 +2063,8 @@ if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
 end
 
 
-if Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
-	firesignal(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby.MouseButton1Click)
+if Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then --Baby, ChooseParent
+	firesignal(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.ChooseParent.MouseButton1Click)
 	RoleChooserDialogConnection:Disconnect()
 end
 
@@ -2108,9 +2108,8 @@ print(`Has Bed: {Bed} 🛏️ | Has Piano: {Piano} 🎹 | Has LitterBox: {Litter
 
 ReplicatedStorage:WaitForChild("API"):WaitForChild("HousingAPI/SetDoorLocked"):InvokeServer(true)
 
-
-ReplicatedStorage.API["TeamAPI/ChooseTeam"]:InvokeServer("Babies", {["dont_send_back_home"] = true})
-
+-- ReplicatedStorage.API["TeamAPI/ChooseTeam"]:InvokeServer("Babies", {["dont_send_back_home"] = true})
+ReplicatedStorage.API["TeamAPI/ChooseTeam"]:InvokeServer("Parents", {["dont_send_back_home"] = true})
 
 if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Thanks for subscribing!") then
 	FireButton("Okay")
@@ -2745,4 +2744,4 @@ end)
 -- stamps_collected
 -- has_claimed_jaguar
 
-print("Loaded. lastest update 11/9/2024  mm/dd/yyyy")
+print("Loaded. lastest update 11/10/2024  mm/dd/yyyy")
