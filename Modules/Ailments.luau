@@ -71,9 +71,9 @@ local function babyJump()
 end
 
 local function reEquipPet()
-	ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(getgenv().PetCurrentlyFarming, {})
+	ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(ClientData.get_data()[localPlayer.Name].last_equipped_pets[1], {})
 	task.wait(1)
-	ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(getgenv().PetCurrentlyFarming, {})
+	ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(ClientData.get_data()[localPlayer.Name].last_equipped_pets[1], {})
 	task.wait(1)
 end
 
