@@ -156,7 +156,7 @@ local function babyWaitForTaskToFinish(ailment: string)
     local count = 0
     repeat
         task.wait(5)
-        local taskActive = if ClientData.get_data()[localPlayer.Name].ailments_manager.baby_ailments and ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[ailment] then true else false
+        local taskActive = if ClientData.get_data()[localPlayer.Name].ailments_manager.baby_ailments and ClientData.get_data()[localPlayer.Name].ailments_manager.baby_ailments[ailment] then true else false
         count += 5
     until not taskActive or count >= 60
     if count >= 60 then
