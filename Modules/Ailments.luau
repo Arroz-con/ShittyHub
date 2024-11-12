@@ -233,19 +233,19 @@ end
 
 function Ailments:BeachPartyAilment(petUnique: string)
     print("🏖️ Doing beach party 🏖️")
-    ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(getgenv().PetCurrentlyFarming, {})
+    ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(ClientData.get_data()[localPlayer.Name].last_equipped_pets[1], {})
     Teleport.BeachParty()
     task.wait(2)
-    ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(getgenv().PetCurrentlyFarming, {})
+    ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(ClientData.get_data()[localPlayer.Name].last_equipped_pets[1], {})
     waitForTaskToFinish("beach_party", petUnique)
 end
 
 function Ailments:CampingAilment(petUnique: string)
     print("🏕️ Doing camping task 🏕️")
-    ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(getgenv().PetCurrentlyFarming, {})
+    ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(ClientData.get_data()[localPlayer.Name].last_equipped_pets[1], {})
     Teleport.CampSite()
     task.wait(2)
-    ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(getgenv().PetCurrentlyFarming, {})
+    ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(ClientData.get_data()[localPlayer.Name].last_equipped_pets[1], {})
     waitForTaskToFinish("camping", petUnique)
     if not ClientData.get_data()[localPlayer.Name].ddlm_2024_manager.stamp_claimed_today then
         ReplicatedStorage.API["DdlmAPI/ClaimStamp"]:FireServer()
