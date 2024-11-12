@@ -74,7 +74,7 @@ local function reEquipPet()
 	ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(getgenv().PetCurrentlyFarming, {})
 	task.wait(1)
 	ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(getgenv().PetCurrentlyFarming, {})
-	task.wait(0.1)
+	task.wait(1)
 end
 
 local function pickMysteryTask(mysteryId: string, petUnique: string)
@@ -136,6 +136,7 @@ function Ailments:SickAilment()
 end
 
 local function waitForTaskToFinish(ailment: string, petUnique: string)
+    print(`⏳ Waiting for {string.upper(ailment)} to finish ⏳`)
     local count = 0
     repeat
         task.wait(10)
@@ -151,6 +152,7 @@ local function waitForTaskToFinish(ailment: string, petUnique: string)
 end
 
 local function waitForJumpingToFinish(ailment: string, petUnique: string)
+    print(`⏳ Waiting for {string.upper(ailment)} to finish ⏳`)
     local stuckCount = tick()
     local isStuck = false
     repeat
@@ -169,24 +171,28 @@ end
 
 
 function Ailments:SalonAilment(ailment: string, petUnique: string)
+    reEquipPet()
     print("👗 Doing salon task 👗")
     ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("Salon")
     waitForTaskToFinish(ailment, petUnique)
 end
 
 function Ailments:PizzaPartyAilment(ailment: string, petUnique: string)
+    reEquipPet()
     print("🍕 Doing pizza party task 🍕")
     ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("PizzaShop")
     waitForTaskToFinish(ailment, petUnique)
 end
 
 function Ailments:SchoolAilment(ailment: string, petUnique: string)
+    reEquipPet()
     print("🏫 Doing school task 🏫")
     ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("School")
     waitForTaskToFinish(ailment, petUnique)
 end
 
 function Ailments:BoredAilment(pianoId: string, petUnique: string)
+    reEquipPet()
     print("🥱 Doing bored task 🥱")
     if pianoId then
         PianoAilment(pianoId)
@@ -197,18 +203,21 @@ function Ailments:BoredAilment(pianoId: string, petUnique: string)
 end
 
 function Ailments:SleepyAilment(bedId: string, petUnique: string)
+    reEquipPet()
     print("😴 Doing sleep task 😴")
     furnitureAilments(bedId)
     waitForTaskToFinish("sleepy", petUnique)
 end
 
 function Ailments:DirtyAilment(showerId: string, petUnique: string)
+    reEquipPet()
     print("🧼 Doing dirty task 🧼")
     furnitureAilments(showerId)
     waitForTaskToFinish("dirty", petUnique)
 end
 
 function Ailments:ToiletAilment(litterBoxId: string, petUnique: string)
+    reEquipPet()
     print("🚽 Doing toilet task 🚽")
     if litterBoxId then
         furnitureAilments(litterBoxId)
@@ -216,7 +225,10 @@ function Ailments:ToiletAilment(litterBoxId: string, petUnique: string)
         Teleport.DownloadMainMap()
         task.wait(5)
         localPlayer.Character.HumanoidRootPart.CFrame = workspace.HouseInteriors.furniture:FindFirstChild("AilmentsRefresh2024FireHydrant", true).PrimaryPart.CFrame + Vector3.new(5, 5, 5)
+        task.wait(2)
+        reEquipPet()
     end
+    waitForTaskToFinish("toilet", petUnique)
 end
 
 function Ailments:BeachPartyAilment(petUnique: string)
@@ -237,6 +249,7 @@ function Ailments:CampingAilment(petUnique: string)
 end
 
 function Ailments:WalkAilment(petUnique: string)
+    reEquipPet()
     print("🦮 Doing walking task 🦮")
     ReplicatedStorage.API["AdoptAPI/HoldBaby"]:FireServer(ClientData.get("pet_char_wrappers")[1]["char"])
     print("⏳ Waiting for walk task to finish ⏳")
@@ -245,6 +258,7 @@ function Ailments:WalkAilment(petUnique: string)
 end
 
 function Ailments:RideAilment(strollerId: string, petUnique: string)
+    reEquipPet()
     ReplicatedStorage.API:FindFirstChild("ToolAPI/Equip"):InvokeServer(strollerId, {})
     task.wait(1)
     useStroller()
