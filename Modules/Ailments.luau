@@ -139,11 +139,11 @@ local function waitForTaskToFinish(ailment: string, petUnique: string)
     print(`⏳ Waiting for {string.upper(ailment)} to finish ⏳`)
     local count = 0
     repeat
-        task.wait(10)
+        task.wait(5)
         local taskActive = if ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique] and ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique][ailment] then true else false
-        count += 10
-    until not taskActive or count >= 90
-    if count >= 90 then
+        count += 5
+    until not taskActive or count >= 60
+    if count >= 60 then
         print(`⚠️ Waited too long for ailment: {ailment}, must be stuck ⚠️`)
         return
     else
@@ -233,15 +233,19 @@ end
 
 function Ailments:BeachPartyAilment(petUnique: string)
     print("🏖️ Doing beach party 🏖️")
+    ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(getgenv().PetCurrentlyFarming, {})
     Teleport.BeachParty()
-    reEquipPet()
+    task.wait(2)
+    ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(getgenv().PetCurrentlyFarming, {})
     waitForTaskToFinish("beach_party", petUnique)
 end
 
 function Ailments:CampingAilment(petUnique: string)
     print("🏕️ Doing camping task 🏕️")
+    ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(getgenv().PetCurrentlyFarming, {})
     Teleport.CampSite()
-    reEquipPet()
+    task.wait(2)
+    ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(getgenv().PetCurrentlyFarming, {})
     waitForTaskToFinish("camping", petUnique)
     if not ClientData.get_data()[localPlayer.Name].ddlm_2024_manager.stamp_claimed_today then
         ReplicatedStorage.API["DdlmAPI/ClaimStamp"]:FireServer()
@@ -252,7 +256,6 @@ function Ailments:WalkAilment(petUnique: string)
     reEquipPet()
     print("🦮 Doing walking task 🦮")
     ReplicatedStorage.API["AdoptAPI/HoldBaby"]:FireServer(ClientData.get("pet_char_wrappers")[1]["char"])
-    print("⏳ Waiting for walk task to finish ⏳")
     waitForJumpingToFinish("walk", petUnique)
     ReplicatedStorage.API:FindFirstChild("AdoptAPI/EjectBaby"):FireServer(ClientData.get("pet_char_wrappers")[1]["char"])
 end
@@ -262,7 +265,6 @@ function Ailments:RideAilment(strollerId: string, petUnique: string)
     ReplicatedStorage.API:FindFirstChild("ToolAPI/Equip"):InvokeServer(strollerId, {})
     task.wait(1)
     useStroller()
-    print("⏳ Waiting for ride task to finish ⏳")
     waitForJumpingToFinish("ride", petUnique)
     ReplicatedStorage.API:FindFirstChild("AdoptAPI/EjectBaby"):FireServer(ClientData.get("pet_char_wrappers")[1]["char"])
     task.wait()
@@ -289,16 +291,18 @@ function Ailments:PlayAilment(ailment: string, petUnique: string)
     }
     local count = 0
     repeat
-        ReplicatedStorage.API:FindFirstChild("PetObjectAPI/CreatePetObject"):InvokeServer(unpack(args))
         print("🦴 Throwing toy 🦴")
+        ReplicatedStorage.API:FindFirstChild("PetObjectAPI/CreatePetObject"):InvokeServer(unpack(args))
+        task.wait(10)
         local taskActive = if ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique] and ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique][ailment] then true else false
         count += 1
-        task.wait(10)
     until not taskActive or count >= 6
-    if count >= 10 then
+    if count >= 6 then
         print(`Play task got stuck so requiping pet`)
         reEquipPet()
+        return
     end
+    print(`🎉 {ailment} ailment finished 🎉`)
 end
 
 function Ailments:MysteryAilment(mysteryId: string, petUnique: string)
