@@ -74,6 +74,11 @@ local function babyJump()
 	localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
 end
 
+local function getUpFromSitting()
+    if localPlayer.Character.Humanoid:GetState() ~= Enum.HumanoidStateType.Seated then return end
+	localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+end
+
 local function reEquipPet()
 	ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(ClientData.get_data()[localPlayer.Name].last_equipped_pets[1], {})
 	task.wait(1)
@@ -163,8 +168,6 @@ local function babyWaitForTaskToFinish(ailment: string)
     else
         print(`🎉 {string.upper(ailment)} task finished 🎉`)
     end
-    print(`Jumping out of {ailment} task`)
-    ReplicatedStorage.API:FindFirstChild("AdoptAPI/BabyJump"):FireServer(localPlayer.Character)
 end
 
 
@@ -377,27 +380,30 @@ end
 
 function Ailments:BabyBoredAilment(pianoId: string)
     print("👶🥱 Doing bored task 👶🥱")
+    getUpFromSitting()
     if pianoId then
         PianoAilment(pianoId, localPlayer.Character)
     else
         Teleport.PlayGround(Vector3.new(20, 10, math.random(15, 30)))
     end
-    ReplicatedStorage.API:FindFirstChild("AdoptAPI/BabyJump"):FireServer(localPlayer.Character)
     babyWaitForTaskToFinish("bored")
+    getUpFromSitting()
 end
 
 function Ailments:BabySleepyAilment(bedId: string)
     print("👶😴 Doing sleepy task 👶😴")
-    ReplicatedStorage.API:FindFirstChild("AdoptAPI/BabyJump"):FireServer(localPlayer.Character)
+    getUpFromSitting()
     furnitureAilments(bedId, localPlayer.Character)
     babyWaitForTaskToFinish("sleepy")
+    getUpFromSitting()
 end
 
 function Ailments:BabyDirtyAilment(showerId: string)
     print("👶🧼 Doing dirty task 👶🧼")
-    ReplicatedStorage.API:FindFirstChild("AdoptAPI/BabyJump"):FireServer(localPlayer.Character)
+    getUpFromSitting()
     furnitureAilments(showerId, localPlayer.Character)
     babyWaitForTaskToFinish("dirty")
+    getUpFromSitting()
 end
 
 
