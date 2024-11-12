@@ -75,9 +75,10 @@ local function babyJump()
 end
 
 local function getUpFromSitting()
-    if localPlayer.Character.Humanoid:GetState() ~= Enum.HumanoidStateType.Seated then return end
-	localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-    task.wait(1)
+    if localPlayer.Character.Humanoid:GetState() == Enum.HumanoidStateType.Seated then
+        localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping) 
+    end
+    task.wait(.1)
 end
 
 local function reEquipPet()
