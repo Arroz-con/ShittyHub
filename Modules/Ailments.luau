@@ -127,7 +127,6 @@ local function waitForTaskToFinish(ailment: string, petUnique: string)
     until not taskActive or count >= 60
     if count >= 60 then
         print(`⚠️ Waited too long for ailment: {ailment}, must be stuck ⚠️`)
-        return
     else
         print(`🎉 {ailment} task finished 🎉`)
     end
@@ -383,17 +382,20 @@ function Ailments:BabyBoredAilment(pianoId: string)
     else
         Teleport.PlayGround(Vector3.new(20, 10, math.random(15, 30)))
     end
+    ReplicatedStorage.API:FindFirstChild("AdoptAPI/BabyJump"):FireServer(localPlayer.Character)
     babyWaitForTaskToFinish("bored")
 end
 
 function Ailments:BabySleepyAilment(bedId: string)
-    print("👶😴 Doing sleep task 👶😴")
+    print("👶😴 Doing sleepy task 👶😴")
+    ReplicatedStorage.API:FindFirstChild("AdoptAPI/BabyJump"):FireServer(localPlayer.Character)
     furnitureAilments(bedId, localPlayer.Character)
     babyWaitForTaskToFinish("sleepy")
 end
 
 function Ailments:BabyDirtyAilment(showerId: string)
     print("👶🧼 Doing dirty task 👶🧼")
+    ReplicatedStorage.API:FindFirstChild("AdoptAPI/BabyJump"):FireServer(localPlayer.Character)
     furnitureAilments(showerId, localPlayer.Character)
     babyWaitForTaskToFinish("dirty")
 end
