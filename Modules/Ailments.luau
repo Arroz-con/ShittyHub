@@ -83,7 +83,7 @@ local function pickMysteryTask(mysteryId: string, petUnique: string)
 		for _, ailment in ailmentsList do
 			print(`card: {i}, ailment: {ailment}`)
 			ReplicatedStorage.API["AilmentsAPI/ChooseMysteryAilment"]:FireServer(mysteryId, i, ailment)
-			task.wait(3)
+			task.wait(1)
 			if not ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique][mysteryId] then
 				print(`👉 Picked {ailment} ailment from mystery card 👈`)
 				return
