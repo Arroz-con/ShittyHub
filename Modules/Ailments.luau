@@ -266,8 +266,10 @@ function Ailments:RideAilment(strollerId: string, petUnique: string)
     task.wait(1)
     useStroller()
     waitForJumpingToFinish("ride", petUnique)
+    print("Eject Baby")
     ReplicatedStorage.API:FindFirstChild("AdoptAPI/EjectBaby"):FireServer(ClientData.get("pet_char_wrappers")[1]["char"])
     task.wait()
+    print("Unequip stroller")
     ReplicatedStorage.API:FindFirstChild("ToolAPI/Unequip"):InvokeServer(strollerId, {})
 end
 
