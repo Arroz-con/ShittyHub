@@ -106,15 +106,13 @@ local function babyGetFoodAndEat(FoodPassOn)
 	end
 end
 
-
-
 local function pickMysteryTask(mysteryId: string, petUnique: string)
 	print(`mystery id: {mysteryId}`)
 	for i = 1, 3 do
 		for _, ailment in ailmentsList do
 			print(`card: {i}, ailment: {ailment}`)
 			ReplicatedStorage.API["AilmentsAPI/ChooseMysteryAilment"]:FireServer(mysteryId, i, ailment)
-			task.wait(1)
+			task.wait(3)
 			if not ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique][mysteryId] then
 				print(`👉 Picked {ailment} ailment from mystery card 👈`)
 				return
