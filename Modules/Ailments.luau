@@ -164,6 +164,7 @@ local function babyWaitForTaskToFinish(ailment: string)
     else
         print(`🎉 {string.upper(ailment)} task finished 🎉`)
     end
+    print(`Jumping out of {ailment} task`)
     ReplicatedStorage.API:FindFirstChild("AdoptAPI/BabyJump"):FireServer(localPlayer.Character)
 end
 
