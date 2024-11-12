@@ -161,10 +161,10 @@ local function babyWaitForTaskToFinish(ailment: string)
     until not taskActive or count >= 60
     if count >= 60 then
         print(`⚠️ Waited too long for ailment: {ailment}, must be stuck ⚠️`)
-        return
     else
         print(`🎉 {string.upper(ailment)} task finished 🎉`)
     end
+    ReplicatedStorage.API:FindFirstChild("AdoptAPI/BabyJump"):FireServer(localPlayer.Character)
 end
 
 
