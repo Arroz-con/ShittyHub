@@ -33,6 +33,10 @@ local function FoodAilments(FoodPassOn) --FoodPassOn means "icecream" for this e
 	end
 end
 
+local function useToolOnBaby(uniqueId)
+    ReplicatedStorage.API["ToolAPI/ServerUseTool"]:FireServer(uniqueId, "END")
+end
+
 local function PianoAilment(pianoId: string)
 	local args = {
 		localPlayer,
@@ -77,6 +81,27 @@ local function reEquipPet()
 	task.wait(1)
 end
 
+local function babyGetFoodAndEat(FoodPassOn)
+    local hasFood = false
+	for _, v in ClientData.get_data()[localPlayer.Name].inventory.food do
+		if v.id == FoodPassOn then
+			hasFood = true
+			ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, {})
+			task.wait(1)
+			useToolOnBaby(v.unique)
+			return
+		end
+	end
+
+	if not hasFood then
+		ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("food", FoodPassOn, {})
+		task.wait(1)
+		babyGetFoodAndEat(FoodPassOn)
+	end
+end
+
+
+
 local function pickMysteryTask(mysteryId: string, petUnique: string)
 	print(`mystery id: {mysteryId}`)
 	for i = 1, 3 do
@@ -90,6 +115,25 @@ local function pickMysteryTask(mysteryId: string, petUnique: string)
 			end
 		end
 	end
+end
+
+
+function Ailments:BabyHungryAilment()
+    print(`👶🍴 Doing baby hungry task 👶🍴`)
+    repeat
+        babyGetFoodAndEat("marshmallow_on_a_stick")
+        task.wait(1)
+    until not ClientData.get_data()[localPlayer.Name].ailments_manager.baby_ailments["hungry"]
+    print(`👶🍴 Baby hungry task Finished 👶🍴`)
+end
+
+function Ailments:BabyThirstyAilment()
+    print(`👶🥛 Doing baby water task 👶🥛`)
+    repeat
+        babyGetFoodAndEat("water")
+        task.wait(1)
+    until not ClientData.get_data()[localPlayer.Name].ailments_manager.baby_ailments["thirsty"]
+    print(`👶🥛 Baby water task Finished 👶🥛`)
 end
 
 function Ailments:HungryAilment()
