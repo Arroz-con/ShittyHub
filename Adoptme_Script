@@ -214,8 +214,10 @@ local function FireButton(PassOn, dialogFrame)
 	for i, v in pairs(Player.PlayerGui.DialogApp.Dialog[dialogFrame].Buttons:GetDescendants()) do
 		if v.Name == "TextLabel" then
 			if v.Text == PassOn then
-				clickGuiButton(v.Parent.Parent)
-				-- firesignal(v.Parent.Parent.MouseButton1Click)
+				-- clickGuiButton(v.Parent.Parent)
+				firesignal(v.Parent.Parent.MouseButton1Down)
+				firesignal(v.Parent.Parent.MouseButton1Click)
+				firesignal(v.Parent.Parent.MouseButton1Up)
 				break
 			end
 		end
@@ -884,7 +886,7 @@ local function ClickTradeWindowPopUps()
 				or v.Text == "I understand"
 				or v.Text == "No"
 			then
-				clickGuiButton(v.Parent.Parent)
+				FireButton(v.Parent.Parent)
 				return
 			end
 		end
@@ -893,7 +895,7 @@ local function ClickTradeWindowPopUps()
 	for _, v in pairs(Player.PlayerGui.DialogApp.Dialog.HeaderDialog.Buttons:GetDescendants()) do
 		if v.Name == "TextLabel" then
 			if v.Text == "Accept" or v.Text == "Okay" or v.Text == "Next" or v.Text == "I understand" then
-				clickGuiButton(v.Parent.Parent)
+				FireButton(v.Parent.Parent)
 				return
 			end
 		end
@@ -1115,7 +1117,7 @@ local function pickMysteryTask(mysteryId, petUnique)
 		for _, ailment in ipairs(ailmentsList) do
 			print(`card: {i}, ailment: {ailment}`)
 			ReplicatedStorage.API["AilmentsAPI/ChooseMysteryAilment"]:FireServer(mysteryId, i, ailment)
-			task.wait(2)
+			task.wait(3)
 			if not ClientData.get_data()[Player.Name].ailments_manager.ailments[petUnique][mysteryId] then
 				print("mystery picked")
 				return
@@ -1314,6 +1316,7 @@ local function autoFarm()
 				ReplicatedStorage.API:FindFirstChild("ToolAPI/Unequip"):InvokeServer(strollerId, {})
 				break
 			elseif key == "play" then
+				reEquipPet()
 				print("🦴 Doing play task 🦴")
 				local toyId = GetInventory:GetUniqueId("toys", "raw_bone")
 				if not toyId then
@@ -1344,6 +1347,7 @@ local function autoFarm()
 				end
 				break
 			elseif key:match("mystery") then
+				-- maybe check if mystery task to do it last?
 				print("❓ Picking mystery task ❓") 
 				pickMysteryTask(key, petUnique)
 				break
@@ -1449,7 +1453,10 @@ local function autoFarm()
 			if v.Name == "TextLabel" then
 				if v.Text == "NICE!" then
 					task.wait(1)
-					clickGuiButton(v.Parent.Parent, 30, 60)
+					-- clickGuiButton(v.Parent.Parent, 30, 60)
+					firesignal(v.Parent.Parent.MouseButton1Down)
+					firesignal(v.Parent.Parent.MouseButton1Click)
+					firesignal(v.Parent.Parent.MouseButton1Up)
 					break
 				end
 			end
@@ -1654,16 +1661,21 @@ local function dailyLoginAppClick()
 	for _, v in Player.PlayerGui.DailyLoginApp.Frame.Body.Buttons:GetDescendants() do
 		if v.Name == "TextLabel" then
 			if v.Text == "CLOSE" then
-				clickGuiButton(v.Parent.Parent) -- Close button
+				-- clickGuiButton(v.Parent.Parent) -- Close button
 				task.wait(1)
 				GrabDailyReward()
 			elseif v.Text == "CLAIM!" then
-				clickGuiButton(v.Parent.Parent) -- Claim button
-				task.wait(.1)
-				clickGuiButton(v.Parent.Parent) -- Close button
-				task.wait(1)
-				-- firesignal(v.Parent.Parent.MouseButton1Click) --claim button
-				-- firesignal(v.Parent.Parent.MouseButton1Click) --close button
+				-- clickGuiButton(v.Parent.Parent) -- Claim button
+				-- task.wait(.1)
+				-- clickGuiButton(v.Parent.Parent) -- Close button
+				-- task.wait(1)
+				firesignal(v.Parent.Parent.MouseButton1Down)
+				firesignal(v.Parent.Parent.MouseButton1Click)
+				firesignal(v.Parent.Parent.MouseButton1Up) --claim button
+				task.wait(.2)
+				firesignal(v.Parent.Parent.MouseButton1Down)
+				firesignal(v.Parent.Parent.MouseButton1Click)
+				firesignal(v.Parent.Parent.MouseButton1Up) --close button
 				GrabDailyReward()
 			end
 		end
@@ -1747,7 +1759,7 @@ WelcomeScreen = Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChange
 	end
 end)
 
---// Main Adopt me Screen (Play! Button)
+-- // Main Adopt me Screen (Play! Button)
 -- NewsAppConnection = Player.PlayerGui.NewsApp:GetPropertyChangedSignal("Enabled"):Connect(function()
 -- 	if Player.PlayerGui.NewsApp.Enabled then
 -- 		local AbsPlay = Player.PlayerGui.NewsApp
@@ -1777,8 +1789,15 @@ PickColorConn = Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog:GetPropertyCh
         if not colorButton then
             return
         end
-        clickGuiButton(colorButton)
-        clickGuiButton(doneButton)
+        -- clickGuiButton(colorButton)
+        -- clickGuiButton(doneButton)
+		firesignal(colorButton.MouseButton1Down)
+		firesignal(colorButton.MouseButton1Click)
+		firesignal(colorButton.MouseButton1Up)
+		task.wait(1)
+		firesignal(doneButton.MouseButton1Down)
+		firesignal(doneButton.MouseButton1Click)
+		firesignal(doneButton.MouseButton1Up)
 
         tutorialDebonce = false
         PickColorConn:Disconnect()
@@ -1808,7 +1827,10 @@ end)
 RoleChooserDialogConnection = Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog:GetPropertyChangedSignal("Visible"):Connect(function()
 	task.wait()
 	if Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
+		-- firesignal(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.ChooseParent.MouseButton1Click)
+		firesignal(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.ChooseParent.MouseButton1Down)
 		firesignal(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.ChooseParent.MouseButton1Click)
+		firesignal(Player.PlayerGui.DialogApp.Dialog.RoleChooserDialog.ChooseParent.MouseButton1Up)
 		RoleChooserDialogConnection:Disconnect()
 	end
 end)
@@ -1822,7 +1844,10 @@ RobuxProductDialogConnection1 = Player.PlayerGui.DialogApp.Dialog.RobuxProductDi
 	for _, v in Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Buttons:GetDescendants() do
 		if v.Name == "TextLabel" then
 			if v.Text == "No Thanks" then
-				clickGuiButton(v.Parent.Parent) -- no thanks button
+				-- clickGuiButton(v.Parent.Parent) -- no thanks button
+				firesignal(v.Parent.Parent.MouseButton1Down)
+				firesignal(v.Parent.Parent.MouseButton1Click)
+				firesignal(v.Parent.Parent.MouseButton1Up)
 				RobuxProductDialogConnection1:Disconnect()
 			end
 		end
@@ -1839,7 +1864,10 @@ RobuxProductDialogConnection2 = Player.PlayerGui.DialogApp.Dialog:GetPropertyCha
 	for _, v in Player.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Buttons:GetDescendants() do
 		if v.Name == "TextLabel" then
 			if v.Text == "No Thanks" then
-				clickGuiButton(v.Parent.Parent) -- no thanks button
+				-- clickGuiButton(v.Parent.Parent) -- no thanks button
+				firesignal(v.Parent.Parent.MouseButton1Down)
+				firesignal(v.Parent.Parent.MouseButton1Click)
+				firesignal(v.Parent.Parent.MouseButton1Up)
 				RobuxProductDialogConnection2:Disconnect()
 			end
 		end
@@ -2052,8 +2080,10 @@ if Player.PlayerGui.NewsApp.Enabled then
 		:WaitForChild("MainFrame")
 		:WaitForChild("Contents")
 		:WaitForChild("PlayButton")
-	clickGuiButton(AbsPlay)
-	-- firesignal(AbsPlay.MouseButton1Click)
+	-- clickGuiButton(AbsPlay)
+	firesignal(AbsPlay.MouseButton1Down)
+	firesignal(AbsPlay.MouseButton1Click)
+	firesignal(AbsPlay.MouseButton1Up)
 	-- NewsAppConnection:Disconnect()
 end
 
@@ -2071,9 +2101,15 @@ if Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
 	if not colorButton then
 		return
 	end
-	clickGuiButton(colorButton)
-	clickGuiButton(doneButton)
-
+	-- clickGuiButton(colorButton)
+	-- clickGuiButton(doneButton)
+	firesignal(doneButton.MouseButton1Down)
+	firesignal(doneButton.MouseButton1Click)
+	firesignal(doneButton.MouseButton1Up)
+	task.wait(1)
+	firesignal(doneButton.MouseButton1Down)
+	firesignal(doneButton.MouseButton1Click)
+	firesignal(doneButton.MouseButton1Up)
 	tutorialDebonce = false
 	PickColorConn:Disconnect()
 end

@@ -18,7 +18,7 @@ local function inActiveTrade()
     until ClientData.get_data()[Player.Name].in_active_trade or timeOut <= 0
 
     if timeOut <= 0 then
-        return
+        return 
     end
 
     if #ClientData.get_data()[Player.Name].trade.sender_offer.items >= 18 then
