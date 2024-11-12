@@ -118,6 +118,9 @@ local function pickMysteryTask(mysteryId: string, petUnique: string)
 end
 
 
+----------------------
+--[[ Baby Ailments ]]--
+----------------------
 function Ailments:BabyHungryAilment()
     print(`👶🍴 Doing baby hungry task 👶🍴`)
     repeat
@@ -136,6 +139,10 @@ function Ailments:BabyThirstyAilment()
     print(`👶🥛 Baby water task Finished 👶🥛`)
 end
 
+
+----------------------
+--[[ Pet Ailments ]]--
+----------------------
 function Ailments:HungryAilment()
     print("🍖 Doing hungry task 🍖")
     FoodAilments("icecream")
