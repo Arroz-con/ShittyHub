@@ -37,25 +37,25 @@ local function useToolOnBaby(uniqueId)
     ReplicatedStorage.API["ToolAPI/ServerUseTool"]:FireServer(uniqueId, "END")
 end
 
-local function PianoAilment(pianoId: string)
+local function PianoAilment(pianoId: string, petCharOrPlayerChar: Instance)
 	local args = {
 		localPlayer,
 		pianoId,
 		"Seat1",
 		{["cframe"] = localPlayer.Character.HumanoidRootPart.CFrame},
-		ClientData.get("pet_char_wrappers")[1]["char"]
+        petCharOrPlayerChar
 	}
 	
 	ReplicatedStorage.API:FindFirstChild("HousingAPI/ActivateFurniture"):InvokeServer(unpack(args))
 end
 
-local function furnitureAilments(nameId: string)
+local function furnitureAilments(nameId: string, petCharOrPlayerChar: Instance)
 	ReplicatedStorage.API["HousingAPI/ActivateFurniture"]:InvokeServer(
 		localPlayer,
 		nameId,
 		"UseBlock",
 		{ ["cframe"] = localPlayer.Character.HumanoidRootPart.CFrame},
-		ClientData.get("pet_char_wrappers")[1]["char"]
+		petCharOrPlayerChar
 	)
 end
 
@@ -117,26 +117,54 @@ local function pickMysteryTask(mysteryId: string, petUnique: string)
 	end
 end
 
-
-----------------------
---[[ Baby Ailments ]]--
-----------------------
-function Ailments:BabyHungryAilment()
-    print(`👶🍴 Doing baby hungry task 👶🍴`)
+local function waitForTaskToFinish(ailment: string, petUnique: string)
+    print(`⏳ Waiting for {string.upper(ailment)} to finish ⏳`)
+    local count = 0
     repeat
-        babyGetFoodAndEat("marshmallow_on_a_stick")
-        task.wait(1)
-    until not ClientData.get_data()[localPlayer.Name].ailments_manager.baby_ailments["hungry"]
-    print(`👶🍴 Baby hungry task Finished 👶🍴`)
+        task.wait(5)
+        local taskActive = if ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique] and ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique][ailment] then true else false
+        count += 5
+    until not taskActive or count >= 60
+    if count >= 60 then
+        print(`⚠️ Waited too long for ailment: {ailment}, must be stuck ⚠️`)
+        return
+    else
+        print(`🎉 {ailment} task finished 🎉`)
+    end
 end
 
-function Ailments:BabyThirstyAilment()
-    print(`👶🥛 Doing baby water task 👶🥛`)
+local function waitForJumpingToFinish(ailment: string, petUnique: string)
+    print(`⏳ Waiting for {string.upper(ailment)} to finish ⏳`)
+    local stuckCount = tick()
+    local isStuck = false
     repeat
-        babyGetFoodAndEat("water")
-        task.wait(1)
-    until not ClientData.get_data()[localPlayer.Name].ailments_manager.baby_ailments["thirsty"]
-    print(`👶🥛 Baby water task Finished 👶🥛`)
+        babyJump()
+        task.wait(0.2)
+        local taskActive = if ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique] and ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique][ailment] then true else false
+        task.wait(0.1)
+        isStuck = if (tick() - stuckCount) >= 120 then true else false
+    until not taskActive or isStuck
+    if isStuck then
+        print(`⛔ {ailment} ailment is stuck so exiting task ⛔`)
+    else
+        print(`🎉 {ailment} ailment finished 🎉`)
+    end
+end
+
+local function babyWaitForTaskToFinish(ailment: string)
+    print(`⏳ Waiting for BABY {string.upper(ailment)} to finish ⏳`)
+    local count = 0
+    repeat
+        task.wait(5)
+        local taskActive = if ClientData.get_data()[localPlayer.Name].ailments_manager.baby_ailments and ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[ailment] then true else false
+        count += 5
+    until not taskActive or count >= 60
+    if count >= 60 then
+        print(`⚠️ Waited too long for ailment: {ailment}, must be stuck ⚠️`)
+        return
+    else
+        print(`🎉 {string.upper(ailment)} task finished 🎉`)
+    end
 end
 
 
@@ -186,41 +214,6 @@ function Ailments:SickAilment()
     end
 end
 
-local function waitForTaskToFinish(ailment: string, petUnique: string)
-    print(`⏳ Waiting for {string.upper(ailment)} to finish ⏳`)
-    local count = 0
-    repeat
-        task.wait(5)
-        local taskActive = if ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique] and ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique][ailment] then true else false
-        count += 5
-    until not taskActive or count >= 60
-    if count >= 60 then
-        print(`⚠️ Waited too long for ailment: {ailment}, must be stuck ⚠️`)
-        return
-    else
-        print(`🎉 {ailment} task finished 🎉`)
-    end
-end
-
-local function waitForJumpingToFinish(ailment: string, petUnique: string)
-    print(`⏳ Waiting for {string.upper(ailment)} to finish ⏳`)
-    local stuckCount = tick()
-    local isStuck = false
-    repeat
-        babyJump()
-        task.wait(0.2)
-        local taskActive = if ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique] and ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique][ailment] then true else false
-        task.wait(0.1)
-        isStuck = if (tick() - stuckCount) >= 120 then true else false
-    until not taskActive or isStuck
-    if isStuck then
-        print(`⛔ {ailment} ailment is stuck so exiting task ⛔`)
-    else
-        print(`🎉 {ailment} ailment finished 🎉`)
-    end
-end
-
-
 function Ailments:SalonAilment(ailment: string, petUnique: string)
     reEquipPet()
     print("👗 Doing salon task 👗")
@@ -246,7 +239,7 @@ function Ailments:BoredAilment(pianoId: string, petUnique: string)
     reEquipPet()
     print("🥱 Doing bored task 🥱")
     if pianoId then
-        PianoAilment(pianoId)
+        PianoAilment(pianoId, ClientData.get("pet_char_wrappers")[1]["char"])
     else
         Teleport.PlayGround(Vector3.new(20, 10, math.random(15, 30)))
     end
@@ -256,14 +249,14 @@ end
 function Ailments:SleepyAilment(bedId: string, petUnique: string)
     reEquipPet()
     print("😴 Doing sleep task 😴")
-    furnitureAilments(bedId)
+    furnitureAilments(bedId, ClientData.get("pet_char_wrappers")[1]["char"])
     waitForTaskToFinish("sleepy", petUnique)
 end
 
 function Ailments:DirtyAilment(showerId: string, petUnique: string)
     reEquipPet()
     print("🧼 Doing dirty task 🧼")
-    furnitureAilments(showerId)
+    furnitureAilments(showerId, ClientData.get("pet_char_wrappers")[1]["char"])
     waitForTaskToFinish("dirty", petUnique)
 end
 
@@ -271,7 +264,7 @@ function Ailments:ToiletAilment(litterBoxId: string, petUnique: string)
     reEquipPet()
     print("🚽 Doing toilet task 🚽")
     if litterBoxId then
-        furnitureAilments(litterBoxId)
+        furnitureAilments(litterBoxId, ClientData.get("pet_char_wrappers")[1]["char"])
     else
         Teleport.DownloadMainMap()
         task.wait(5)
@@ -358,6 +351,50 @@ end
 function Ailments:MysteryAilment(mysteryId: string, petUnique: string)
     print("❓ Picking mystery task ❓") 
     pickMysteryTask(mysteryId, petUnique)
+end
+
+
+----------------------
+--[[ Baby Ailments ]]--
+----------------------
+function Ailments:BabyHungryAilment()
+    print(`👶🍴 Doing baby hungry task 👶🍴`)
+    repeat
+        babyGetFoodAndEat("marshmallow_on_a_stick")
+        task.wait(1)
+    until not ClientData.get_data()[localPlayer.Name].ailments_manager.baby_ailments["hungry"]
+    print(`👶🍴 Baby hungry task Finished 👶🍴`)
+end
+
+function Ailments:BabyThirstyAilment()
+    print(`👶🥛 Doing baby water task 👶🥛`)
+    repeat
+        babyGetFoodAndEat("water")
+        task.wait(1)
+    until not ClientData.get_data()[localPlayer.Name].ailments_manager.baby_ailments["thirsty"]
+    print(`👶🥛 Baby water task Finished 👶🥛`)
+end
+
+function Ailments:BabyBoredAilment(pianoId: string)
+    print("👶🥱 Doing bored task 👶🥱")
+    if pianoId then
+        PianoAilment(pianoId, localPlayer.Character)
+    else
+        Teleport.PlayGround(Vector3.new(20, 10, math.random(15, 30)))
+    end
+    babyWaitForTaskToFinish("bored")
+end
+
+function Ailments:BabySleepyAilment(bedId: string)
+    print("👶😴 Doing sleep task 👶😴")
+    furnitureAilments(bedId, localPlayer.Character)
+    babyWaitForTaskToFinish("sleepy")
+end
+
+function Ailments:BabyDirtyAilment(showerId: string)
+    print("👶🧼 Doing dirty task 👶🧼")
+    furnitureAilments(showerId, localPlayer.Character)
+    babyWaitForTaskToFinish("dirty")
 end
 
 
