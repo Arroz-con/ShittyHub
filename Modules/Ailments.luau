@@ -63,6 +63,26 @@ local function furnitureAilments(nameId: string, petCharOrPlayerChar: Instance)
     end)
 end
 
+local function isDoctorLoaded()
+    local stuckCount = 0
+    local isStuck = false
+
+    local doctor = workspace.HouseInteriors.furniture:FindFirstChild("Doctor", true)
+    if not doctor then
+        repeat
+            task.wait(1)
+            doctor = workspace.HouseInteriors.furniture:FindFirstChild("Doctor", true)
+            stuckCount += 1
+            local isStuck = if stuckCount > 30 then true else false
+        until doctor or isStuck
+    end
+    if isStuck then
+        print("⚠️ Wasn't able to find Doctor Id ⚠️")
+        return false
+    end
+    return true
+end
+
 local function getDoctorId()
     if doctorId then print(`Doctor Id: {doctorId}`) return end
     print("🩹 Getting Doctor ID 🩹")
@@ -228,7 +248,7 @@ function Ailments:SickAilment()
     if doctorId then
         print("🩹 Doing sick task 🩹")
         ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("Hospital")
-        task.wait(1)
+        if not isDoctorLoaded() then print(`🩹⚠️ Doctor didnt load 🩹⚠️`) return end
         local args = {
             [1] = doctorId,
             [2] = "UseBlock",
