@@ -50,13 +50,13 @@ local function PianoAilment(pianoId: string, petCharOrPlayerChar: Instance)
 end
 
 local function furnitureAilments(nameId: string, petCharOrPlayerChar: Instance)
-	ReplicatedStorage.API["HousingAPI/ActivateFurniture"]:InvokeServer(
+	print(ReplicatedStorage.API["HousingAPI/ActivateFurniture"]:InvokeServer(
 		localPlayer,
 		nameId,
 		"UseBlock",
 		{ ["cframe"] = localPlayer.Character.HumanoidRootPart.CFrame},
 		petCharOrPlayerChar
-	)
+	))
 end
 
 local function useStroller()
@@ -75,9 +75,7 @@ local function babyJump()
 end
 
 local function getUpFromSitting()
-    if localPlayer.Character.Humanoid:GetState() == Enum.HumanoidStateType.Seated then
-        localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping) 
-    end
+    ReplicatedStorage.API["AdoptAPI/BabyJump"]:FireServer(localPlayer.Character)
     task.wait(.1)
 end
 
