@@ -223,8 +223,7 @@ function Ailments:ThirstyAilment()
     print("🥛 Finished thirsty task 🥛")
 end
 
--- TESTING
-function Ailments:SickAilment2()
+function Ailments:SickAilment()
     if doctorId then
         print("🩹 Doing sick task 🩹")
         -- ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("Hospital")
@@ -238,39 +237,6 @@ function Ailments:SickAilment2()
         ReplicatedStorage.API:FindFirstChild("HousingAPI/ActivateInteriorFurniture"):InvokeServer(unpack(args))
     else
         getDoctorId()
-    end
-end
-
-
--- production
-function Ailments:SickAilment()
-    print("🩹 Doing sick task 🩹")
-    local stuckCount = 0
-    local isStuck = nil
-    ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("Hospital")
-    task.wait(1)
-    local doctor = workspace.HouseInteriors.furniture:FindFirstChild("Doctor", true)
-    if not doctor then
-        repeat
-            task.wait(1)
-            doctor = workspace.HouseInteriors.furniture:FindFirstChild("Doctor", true)
-            stuckCount += 1
-            local isStuck = if stuckCount > 30 then true else false
-        until doctor or isStuck
-    end
-    if isStuck then
-        print("⚠️ Wasn't able to find Doctor ⚠️")
-        return
-    else
-        local args = {
-            [1] = doctor:GetAttribute("furniture_unique"),
-            [2] = "UseBlock",
-            [3] = "Yes",
-            [4] = game:GetService("Players").LocalPlayer.Character
-        }
-        
-        ReplicatedStorage.API:FindFirstChild("HousingAPI/ActivateInteriorFurniture"):InvokeServer(unpack(args))
-        print("🩹 Doing sick task 🩹")
     end
 end
 
