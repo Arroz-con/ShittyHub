@@ -52,13 +52,13 @@ end
 
 local function furnitureAilments(nameId: string, petCharOrPlayerChar: Instance)
     task.spawn(function()
-        print(ReplicatedStorage.API["HousingAPI/ActivateFurniture"]:InvokeServer(
+        ReplicatedStorage.API["HousingAPI/ActivateFurniture"]:InvokeServer(
 		localPlayer,
 		nameId,
 		"UseBlock",
 		{ ["cframe"] = localPlayer.Character.HumanoidRootPart.CFrame},
 		petCharOrPlayerChar
-	))
+	)
     end)
 end
 
