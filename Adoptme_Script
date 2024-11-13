@@ -1183,8 +1183,9 @@ local function autoFarm()
 			if not CompletePetAilments() then
 				completeBabyAilments()
 			end
-			StatsGuis:UpdateText("BucksAndPotionFrame")
 			StatsGuis:UpdateText("TimeFrame")
+			StatsGuis:UpdateText("BucksAndPotionFrame")
+			StatsGuis:UpdateText("TotalPotionFrame")
 			print(`⏱️ Waiting for 5 secs ⏱️`)
 			task.wait(5)
 		end
@@ -1835,8 +1836,9 @@ repeat
 until Player.PlayerGui.NewsApp.Enabled or Player.Character or Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible
 
 StatsGuis:UpdateText("NameFrame")
-StatsGuis:UpdateText("BucksAndPotionFrame")
 StatsGuis:UpdateText("TimeFrame")
+StatsGuis:UpdateText("BucksAndPotionFrame")
+StatsGuis:UpdateText("TotalPotionFrame")
 
 StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Captures, false)
 -- Player:WaitForChild("PlayerGui", 600)
