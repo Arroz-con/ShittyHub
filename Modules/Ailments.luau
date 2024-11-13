@@ -83,10 +83,20 @@ local function getUpFromSitting()
 end
 
 local function reEquipPet()
+    local hasPetChar = false
+    local EquipTimeout = 0
 	ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(ClientData.get_data()[localPlayer.Name].last_equipped_pets[1], {})
 	task.wait(1)
 	ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(ClientData.get_data()[localPlayer.Name].last_equipped_pets[1], {})
-	task.wait(1)
+	repeat
+        task.wait(1)
+        hasPetChar = if ClientData.get("pet_char_wrappers")[1] and ClientData.get("pet_char_wrappers")[1]["char"] then true else false
+        EquipTimeout += 1
+    until hasPetChar or EquipTimeout >= 10
+    if EquipTimeout >= 10 then
+        print(`⚠️ Waited too long for Equipping pet so trying again ⚠️`)
+        reEquipPet()
+    end
 end
 
 local function babyGetFoodAndEat(FoodPassOn)
