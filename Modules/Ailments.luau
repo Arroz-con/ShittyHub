@@ -45,18 +45,21 @@ local function PianoAilment(pianoId: string, petCharOrPlayerChar: Instance)
 		{["cframe"] = localPlayer.Character.HumanoidRootPart.CFrame},
         petCharOrPlayerChar
 	}
-	
-	ReplicatedStorage.API:FindFirstChild("HousingAPI/ActivateFurniture"):InvokeServer(unpack(args))
+	task.spawn(function()
+        ReplicatedStorage.API:FindFirstChild("HousingAPI/ActivateFurniture"):InvokeServer(unpack(args))
+    end)
 end
 
 local function furnitureAilments(nameId: string, petCharOrPlayerChar: Instance)
-	print(ReplicatedStorage.API["HousingAPI/ActivateFurniture"]:InvokeServer(
+    task.spawn(function()
+        print(ReplicatedStorage.API["HousingAPI/ActivateFurniture"]:InvokeServer(
 		localPlayer,
 		nameId,
 		"UseBlock",
 		{ ["cframe"] = localPlayer.Character.HumanoidRootPart.CFrame},
 		petCharOrPlayerChar
 	))
+    end)
 end
 
 local function useStroller()
