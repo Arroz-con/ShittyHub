@@ -227,7 +227,8 @@ end
 function Ailments:SickAilment()
     if doctorId then
         print("🩹 Doing sick task 🩹")
-        -- ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("Hospital")
+        ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("Hospital")
+        task.wait(1)
         local args = {
             [1] = doctorId,
             [2] = "UseBlock",
