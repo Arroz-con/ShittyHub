@@ -67,7 +67,7 @@ local function getDoctorId()
     if doctorId then print(`Doctor Id: {doctorId}`) return end
     print("🩹 Getting Doctor ID 🩹")
     local stuckCount = 0
-    local isStuck = nil
+    local isStuck = false
     ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("Hospital")
     task.wait(1)
     local doctor = workspace.HouseInteriors.furniture:FindFirstChild("Doctor", true)
