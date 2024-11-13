@@ -257,6 +257,7 @@ function Ailments:SickAilment()
         }
         
         ReplicatedStorage.API:FindFirstChild("HousingAPI/ActivateInteriorFurniture"):InvokeServer(unpack(args))
+        print("🩹 SICK task Finished 🩹")
     else
         getDoctorId()
     end
