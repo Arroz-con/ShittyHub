@@ -84,6 +84,7 @@ local function getDoctorId()
         return
     end
     if doctor then
+        doctorId = doctor:GetAttribute("furniture_unique")
         print(`Found doctor Id: {doctorId}`)
     end
 end
