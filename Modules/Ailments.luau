@@ -8,6 +8,7 @@ local Teleport = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arro
 
 local localPlayer = Players.LocalPlayer
 
+local doctorId = nil
 local Ailments = {}
 
 local ailmentsList = {"beach_party", "salon", "dirty", "thirsty", "hungry", "sleepy",
@@ -60,6 +61,31 @@ local function furnitureAilments(nameId: string, petCharOrPlayerChar: Instance)
 		petCharOrPlayerChar
 	)
     end)
+end
+
+local function getDoctorId()
+    if doctorId then print(`Doctor Id: {doctorId}`) return end
+    print("🩹 Getting Doctor ID 🩹")
+    local stuckCount = 0
+    local isStuck = nil
+    ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("Hospital")
+    task.wait(1)
+    local doctor = workspace.HouseInteriors.furniture:FindFirstChild("Doctor", true)
+    if not doctor then
+        repeat
+            task.wait(1)
+            doctor = workspace.HouseInteriors.furniture:FindFirstChild("Doctor", true)
+            stuckCount += 1
+            local isStuck = if stuckCount > 30 then true else false
+        until doctor or isStuck
+    end
+    if isStuck then
+        print("⚠️ Wasn't able to find Doctor Id ⚠️")
+        return
+    end
+    if doctor then
+        print(`Found doctor Id: {doctorId}`)
+    end
 end
 
 local function useStroller()
@@ -197,6 +223,26 @@ function Ailments:ThirstyAilment()
     print("🥛 Finished thirsty task 🥛")
 end
 
+-- TESTING
+function Ailments:SickAilment2()
+    if doctorId then
+        print("🩹 Doing sick task 🩹")
+        -- ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("Hospital")
+        local args = {
+            [1] = doctorId,
+            [2] = "UseBlock",
+            [3] = "Yes",
+            [4] = game:GetService("Players").LocalPlayer.Character
+        }
+        
+        ReplicatedStorage.API:FindFirstChild("HousingAPI/ActivateInteriorFurniture"):InvokeServer(unpack(args))
+    else
+        getDoctorId()
+    end
+end
+
+
+-- production
 function Ailments:SickAilment()
     print("🩹 Doing sick task 🩹")
     local stuckCount = 0
@@ -209,7 +255,7 @@ function Ailments:SickAilment()
             task.wait(1)
             doctor = workspace.HouseInteriors.furniture:FindFirstChild("Doctor", true)
             stuckCount += 1
-            local isStuck = if stuckCount > 10 then true else false
+            local isStuck = if stuckCount > 30 then true else false
         until doctor or isStuck
     end
     if isStuck then
