@@ -46,6 +46,7 @@ local Fusion = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-
 local GetInventory = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/GetInventory.lua"))()
 local Trade = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Trade.lua"))()
 local Teleport = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Teleport.lua"))()
+local BuyItems = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/BuyItems.luau"))()
 -- local Keyboard = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Keyboard.luau"))()
 local Ailments = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Ailments.luau"))()
 local StatsGuis = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/StatsGuis.luau"))()
@@ -2606,6 +2607,9 @@ if ClientData.get_data()[Player.Name].ddlm_2024_manager.stamps_collected == 8 an
 	ReplicatedStorage.API:FindFirstChild("DdlmAPI/ClaimJaguar"):FireServer()
 end
 
+if getgenv().BUY_BEFORE_FARMING then
+	BuyItems:BuyPets(getgenv().BUY_BEFORE_FARMING)
+end
 
 startAutoFarm()
 
