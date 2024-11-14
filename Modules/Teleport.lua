@@ -114,6 +114,28 @@ function Teleport.DeleteMainMapParts()
 	-- end
 end
 
+-- TESTING ONLY
+function Teleport.TestMainMap()
+	-- local isAlreadyOnMainMap = workspace:FindFirstChild("Interiors"):FindFirstChild("center_map_plot", true)
+	-- if isAlreadyOnMainMap then
+	-- 	return
+	-- end
+	CollisionsClient.set_collidable(false)
+	Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
+	SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
+	-- workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
+	-- floorPart()
+	-- Player.Character.PrimaryPart.CFrame = workspace
+	-- 	:WaitForChild("StaticMap")
+	-- 	:WaitForChild("Campsite")
+	-- 	:WaitForChild("CampsiteOrigin").CFrame + Vector3.new(math.random(1, 5), 10, math.random(1, 5))
+	Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
+	Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+	-- Player.Character.Humanoid.WalkSpeed = 0
+	Teleport.DeleteMainMapParts()
+	task.wait(2)
+end
+
 function Teleport.MainMap()
 	local isAlreadyOnMainMap = workspace:FindFirstChild("Interiors"):FindFirstChild("center_map_plot", true)
 	if isAlreadyOnMainMap then
