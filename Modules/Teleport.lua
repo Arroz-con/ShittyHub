@@ -10,6 +10,7 @@ local get_thread_identity = get_thread_identity or gti or getthreadidentity or g
 local set_thread_identity = set_thread_context or sti or setthreadcontext or setidentity or syn.set_thread_identity or fluxus.set_thread_identity
 
 local SetLocationTP
+local rng = Random.new()
 
 local Teleport = {}
 
@@ -31,6 +32,31 @@ local function SetLocationFunc(a, b, c)
 	SetLocationTP(a, b, c)
 	set_thread_identity(k)
 end
+
+function Teleport.PlaceFloorAtCampSite()
+	if workspace:FindFirstChild("CampingLocation") then return end
+
+	local part = Instance.new("Part")
+	part.Position = workspace.StaticMap.AnalyticsKeyLocations.Campsite.Position + Vector3.new(0, -20, 0)
+	part.Size = Vector3.new(200, 2, 200)
+	part.Anchored = true
+    part.Transparency = 1
+	part.Name = "CampingLocation"
+	part.Parent = workspace
+end
+
+function Teleport.PlaceFloorAtBeachParty()
+	if workspace:FindFirstChild("BeachPartyLocation") then return end
+
+	local part = Instance.new("Part")
+	part.Position = workspace.StaticMap.Beach.BeachPartyAilmentTarget.Position + Vector3.new(-160, -10, 40)
+	part.Size = Vector3.new(200, 2, 200)
+	part.Anchored = true
+    part.Transparency = 1
+	part.Name = "BeachPartyLocation"
+	part.Parent = workspace
+end
+
 
 local function floorPart()
 	for _, v in workspace:GetChildren() do
@@ -84,19 +110,22 @@ function Teleport.placeFloorOnJoinZone()
 end
 
 function Teleport.DeleteMainMapParts()
-	-- local MainMap = workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
-	-- if not MainMap then
-	-- 	print("not in mainmap")
-	-- 	return
-	-- end
-
-	-- MainMap:WaitForChild("Static")
-	-- workspace:WaitForChild("StaticMap")
+	local MainMap = workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
+	if not MainMap then
+		print("not in mainmap")
+		return
+	end
 
 	if workspace:FindFirstChildWhichIsA("Terrain") then
         workspace.Terrain:Clear()
     end
 
+	for _, v in workspace:GetChildren() do
+		if v.Name == "Pets" then continue end
+		if v:IsA("Folder") or v:IsA("Model") then
+			v:Destroy()
+		end
+	end
 	-- if workspace.StaticMap:FindFirstChild("Balloon") then
 	-- 	workspace.StaticMap:FindFirstChild("Balloon"):Destroy()
 	-- 	MainMap.Static:FindFirstChild("Campsite"):Destroy()
@@ -123,12 +152,12 @@ function Teleport.TestMainMap()
 	CollisionsClient.set_collidable(false)
 	Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
 	SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
-	-- workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
+	workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
 	-- floorPart()
-	-- Player.Character.PrimaryPart.CFrame = workspace
-	-- 	:WaitForChild("StaticMap")
-	-- 	:WaitForChild("Campsite")
-	-- 	:WaitForChild("CampsiteOrigin").CFrame + Vector3.new(math.random(1, 5), 10, math.random(1, 5))
+	Player.Character.PrimaryPart.CFrame = workspace
+		:WaitForChild("StaticMap")
+		:WaitForChild("Campsite")
+		:WaitForChild("CampsiteOrigin").CFrame + Vector3.new(math.random(1, 5), 10, math.random(1, 5))
 	Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
 	Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
 	-- Player.Character.Humanoid.WalkSpeed = 0
@@ -179,7 +208,7 @@ function Teleport.CampSite()
 	SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
 	task.wait(1)
 	workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
-	floorPart()
+	
 	Player.Character.PrimaryPart.CFrame = workspace
 		:WaitForChild("StaticMap")
 		:WaitForChild("Campsite")
