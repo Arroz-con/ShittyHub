@@ -120,12 +120,12 @@ function Teleport.DeleteMainMapParts()
         workspace.Terrain:Clear()
     end
 
-	for _, v in workspace:GetChildren() do
-		if v.Name == "Pets" then continue end
-		if v:IsA("Folder") or v:IsA("Model") then
-			v:Destroy()
-		end
-	end
+	-- for _, v in workspace:GetChildren() do
+	-- 	if v.Name == "Pets" then continue end
+	-- 	if v:IsA("Folder") or v:IsA("Model") then
+	-- 		v:Destroy()
+	-- 	end
+	-- end
 	-- if workspace.StaticMap:FindFirstChild("Balloon") then
 	-- 	workspace.StaticMap:FindFirstChild("Balloon"):Destroy()
 	-- 	MainMap.Static:FindFirstChild("Campsite"):Destroy()
