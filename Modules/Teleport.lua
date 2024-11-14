@@ -72,7 +72,7 @@ function Teleport.PlaceFloorAtCampSite()
 
 	local campsite = workspace.StaticMap.Campsite.CampsiteOrigin
 	local part = Instance.new("Part")
-	part.Position = campsite.Position + Vector3.new(0, -20, 0)
+	part.Position = campsite.Position + Vector3.new(0, -1, 0)
 	part.Size = Vector3.new(200, 2, 200)
 	part.Anchored = true
     part.Transparency = 1
@@ -84,7 +84,7 @@ function Teleport.PlaceFloorAtBeachParty()
 	if workspace:FindFirstChild("BeachPartyLocation") then return end
 
 	local part = Instance.new("Part")
-	part.Position = workspace.StaticMap.Beach.BeachPartyAilmentTarget.Position + Vector3.new(0, -20, 0) --Vector3.new(-240, 0, 40)
+	part.Position = workspace.StaticMap.Beach.BeachPartyAilmentTarget.Position + Vector3.new(0, -10, 0) --Vector3.new(-240, 0, 40)
 	part.Size = Vector3.new(200, 2, 200)
 	part.Anchored = true
     part.Transparency = 1
