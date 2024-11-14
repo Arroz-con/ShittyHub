@@ -72,7 +72,7 @@ function Teleport.PlaceFloorAtCampSite()
 
 	local campsite = workspace.StaticMap.AnalyticsKeyLocations.Campsite
 	local part = Instance.new("Part")
-	part.Position = campsite.Position + Vector3.new(0, (campsite.Size.Y/2) + 5, 0)
+	part.Position = campsite.Position + Vector3.new(0, (-campsite.Size.Y/2) + 5, 0)
 	part.Size = Vector3.new(200, 2, 200)
 	part.Anchored = true
     part.Transparency = 1
