@@ -191,8 +191,7 @@ end
 local function pickMysteryTask(mysteryId: string, petUnique: string)
 	print(`mystery id: {mysteryId}`)
     local ailmentsList = {}
-    for i, v in ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique][mysteryId]["components"]["mystery"]["components"] do
-        if not v.preference_status then continue end
+    for i, _ in ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique][mysteryId]["components"]["mystery"]["components"] do
         table.insert(ailmentsList, i)
     end
 
