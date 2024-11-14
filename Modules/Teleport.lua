@@ -37,7 +37,7 @@ function Teleport.PlaceFloorAtFarmingHome()
 	if workspace:FindFirstChild("FarmingHomeLocation") then return end
 
 	local part = Instance.new("Part")
-	part.Position = Vector3.new(0, 0, 0)
+	part.Position = Vector3.new(1000, 0, 1000)
 	part.Size = Vector3.new(200, 2, 200)
 	part.Anchored = true
     part.Transparency = 0
@@ -138,21 +138,6 @@ function Teleport.DeleteMainMapParts()
 	-- 	if v:IsA("Folder") or v:IsA("Model") then
 	-- 		v:Destroy()
 	-- 	end
-	-- end
-	-- if workspace.StaticMap:FindFirstChild("Balloon") then
-	-- 	workspace.StaticMap:FindFirstChild("Balloon"):Destroy()
-	-- 	MainMap.Static:FindFirstChild("Campsite"):Destroy()
-	-- 	MainMap.Static:FindFirstChild("Bridges"):Destroy()
-	-- 	MainMap.Static:FindFirstChild("Boundaries"):Destroy()
-	-- 	MainMap.Static:FindFirstChild("Props"):Destroy()
-	-- 	MainMap.Static:FindFirstChild("Terrain"):FindFirstChild("Mountains"):Destroy()
-	-- 	MainMap.Static:FindFirstChild("Terrain"):FindFirstChild("Road"):Destroy()
-	-- 	MainMap.Static:FindFirstChild("Terrain"):FindFirstChild("RiverEdge"):Destroy()
-	-- 	MainMap.Static:FindFirstChild("ThemeArea"):Destroy()
-	-- 	MainMap.Static:FindFirstChild("Beach"):Destroy()
-	-- 	MainMap:FindFirstChild("Park"):Destroy()
-		-- MainMap:FindFirstChild("Buildings"):Destroy()
-		-- MainMap:FindFirstChild("Event"):Destroy()
 	-- end
 end
 
