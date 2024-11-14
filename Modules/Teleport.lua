@@ -47,7 +47,7 @@ function Teleport.PlaceFloorAtFarmingHome()
 	part.Name = "FarmingHomeLocation"
 	part.Parent = workspace
 
-	SurfaceGui.Parent = game.Workspace.Part
+	SurfaceGui.Parent = part
 	SurfaceGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 	SurfaceGui.AlwaysOnTop = true
 	SurfaceGui.CanvasSize = Vector2.new(600, 600)
