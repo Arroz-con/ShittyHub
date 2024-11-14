@@ -37,7 +37,7 @@ function Teleport.PlaceFloorAtCampSite()
 	if workspace:FindFirstChild("CampingLocation") then return end
 
 	local part = Instance.new("Part")
-	part.Position = workspace.StaticMap.AnalyticsKeyLocations.Campsite.Position + Vector3.new(0, -20, 0)
+	part.Position = workspace.StaticMap.AnalyticsKeyLocations.Campsite.Position + Vector3.new(0, -100, 0)
 	part.Size = Vector3.new(200, 2, 200)
 	part.Anchored = true
     part.Transparency = 1
