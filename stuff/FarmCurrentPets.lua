@@ -1,3 +1,8 @@
+getgenv().BUY_BEFORE_FARMING = {
+	{NameId = "ddlm_2024_grave_owl", MaxAmount = 160},
+	{NameId = "ddlm_2024_golden_jaguar", MaxAmount = 160},
+}
+
 getgenv().SETTINGS = {
 	WEBHOOK = {
 		URL = "",
@@ -107,13 +112,3 @@ getgenv().SETTINGS = {
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Adoptme_Script"))()
 
----[[
-local BuyItems = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/BuyItems.luau"))()
-
-local petsToBuy = {
-	{NameId = "ddlm_2024_grave_owl", MaxAmount = 160},
-	{NameId = "ddlm_2024_golden_jaguar", MaxAmount = 160},
-}
-
-BuyItems:BuyPets(petsToBuy)
---]]
