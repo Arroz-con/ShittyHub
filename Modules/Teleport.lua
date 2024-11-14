@@ -33,6 +33,18 @@ local function SetLocationFunc(a, b, c)
 	set_thread_identity(k)
 end
 
+function Teleport.PlaceFloorAtFarmingHome()
+	if workspace:FindFirstChild("FarmingHomeLocation") then return end
+
+	local part = Instance.new("Part")
+	part.Position = Vector3.new(0, 0, 0)
+	part.Size = Vector3.new(200, 2, 200)
+	part.Anchored = true
+    part.Transparency = 1
+	part.Name = "FarmingHomeLocation"
+	part.Parent = workspace
+end
+
 function Teleport.PlaceFloorAtCampSite()
 	if workspace:FindFirstChild("CampingLocation") then return end
 
