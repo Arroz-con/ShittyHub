@@ -209,10 +209,7 @@ function Teleport.CampSite()
 	task.wait(1)
 	workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
 	
-	Player.Character.PrimaryPart.CFrame = workspace
-		:WaitForChild("StaticMap")
-		:WaitForChild("Campsite")
-		:WaitForChild("CampsiteOrigin").CFrame + Vector3.new(math.random(1, 5), 10, math.random(1, 5))
+	Player.Character.PrimaryPart.CFrame = workspace.CampingLocation.CFrame + Vector3.new(math.random(1, 20), 5, math.random(1, 20))
 	Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
 	Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
 	-- Player.Character.Humanoid.WalkSpeed = 0
@@ -247,8 +244,7 @@ function Teleport.BeachParty()
 	SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
 	task.wait(1)
 	workspace.Interiors:WaitForChild(tostring(workspace.Interiors:FindFirstChildWhichIsA("Model")))
-	Player.Character.PrimaryPart.CFrame = workspace.StaticMap.Beach.BeachPartyAilmentTarget.CFrame
-		+ Vector3.new(math.random(1, 20), 10, math.random(1, 20))
+	Player.Character.PrimaryPart.CFrame = workspace.BeachPartyLocation.CFrame + Vector3.new(math.random(1, 20), 5, math.random(1, 20))
 	Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
 	Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
 	-- Player.Character.Humanoid.WalkSpeed = 0
