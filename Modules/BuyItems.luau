@@ -31,7 +31,7 @@ end
 local function buyPet(petNameId: string, howManyToBuy: number)
     for i = 1, howManyToBuy do
         local hasMoney = game.ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", petNameId, {})
-        if hasMoney == "too little money" then
+        if hasMoney ~= "success" then
             return false
         end
         task.wait(.1)
@@ -48,7 +48,7 @@ function BuyItems:BuyPets(petsToBuy: table)
             continue 
         end
         if not buyPet(myPet.NameId, amount) then
-            print(`has no money to buy more so breaking out of loop`)
+            print(`Has no money to buy more or something went wrong.`)
             break 
         end
         print(`bought all pets needed: {myPet.NameId}`)
