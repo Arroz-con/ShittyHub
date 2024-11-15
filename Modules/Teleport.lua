@@ -126,7 +126,7 @@ function Teleport.FarmingHome()
 	-- CollisionsClient.set_collidable(false)
 	Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
 	-- SetLocationFunc("MainMap", "Neighborhood/MainDoor", {})
-	Player.Character.HumanoidRootPart.CFrame = workspace.FarmingHomeLocation.CFrame * CFrame.new(rng:NextInteger(1, 30), 10, rng:NextInteger(1, 30))
+	Player.Character.HumanoidRootPart.CFrame = workspace.FarmingHomeLocation.CFrame * CFrame.new(rng:NextInteger(1, 40), 10, rng:NextInteger(1, 40))
 
 	Player.Character:WaitForChild("HumanoidRootPart").Anchored = false
 	Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
