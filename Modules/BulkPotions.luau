@@ -3,7 +3,6 @@ local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 
 local Fusion = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Fusion.lua"))()
-local StatsGuis = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/StatsGuis.luau"))()
 local ClientData = require(ReplicatedStorage:WaitForChild("ClientModules"):WaitForChild("Core"):WaitForChild("ClientData"))
 
 local BulkPotions = {}
@@ -93,10 +92,6 @@ local function ageAllPetsOfSameName(petId)
     if not hasPet then return print(`no {petId} so moving to next pet or stopping`) end
     
     while true do
-        StatsGuis:UpdateText("TimeFrame")
-        StatsGuis:UpdateText("BucksAndPotionFrame")
-        StatsGuis:UpdateText("TotalPotionFrame")
-
         local age = ClientData.get("pet_char_wrappers")[1]["pet_progression"]["age"]
         if age >= 6 then print("pet's age is 6") break end
 
