@@ -87,7 +87,7 @@ local debounce = false
 local Bed
 local Shower
 local Piano
-local normalLure
+local NormalLure
 local LitterBox
 local strollerId
 
@@ -290,7 +290,7 @@ local function findFurniture()
 		elseif value.id == "piano" then
 			Piano = key
 		elseif value.id == "lures_2023_normal_lure" then
-			normalLure = key
+			NormalLure = key
 		elseif value.id == "ailments_refresh_2024_litter_box" then
 			LitterBox = key
 		end
@@ -491,10 +491,10 @@ end
 
 
 -- give cookie bait to lure
-local function placeBait(baitIdPasson)
+local function placeBaitOrPickUp(baitIdPasson)
 	local args = {
 		[1] = game:GetService("Players").LocalPlayer,
-		[2] = normalLure,
+		[2] = NormalLure,
 		[3] = "UseBlock",
 		[4] = {
 			["bait_unique"] = baitIdPasson,
@@ -505,17 +505,23 @@ local function placeBait(baitIdPasson)
 	ReplicatedStorage.API:FindFirstChild("HousingAPI/ActivateFurniture"):InvokeServer(unpack(args))
 end
 
-local function getBaitReward(baitId)
-	local args = {
-		[1] = game:GetService("Players").LocalPlayer,
-		[2] = baitId,
-		[3] = "UseBlock",
-		[4] = false,
-		[5] = game:GetService("Players").LocalPlayer.Character
-	}
+-- local function getBaitReward()
+-- 	local args = {
+-- 		[1] = game:GetService("Players").LocalPlayer,
+-- 		[2] = NormalLure,
+-- 		[3] = "UseBlock",
+-- 		[4] = true,
+-- 		[5] = game:GetService("Players").LocalPlayer.Character
+-- 	}
 	
-	ReplicatedStorage.API:FindFirstChild("HousingAPI/ActivateFurniture"):InvokeServer(unpack(args))
-end
+-- 	local response = ReplicatedStorage.API:FindFirstChild("HousingAPI/ActivateFurniture"):InvokeServer(unpack(args))
+-- 	print(response)
+-- 	if response then
+-- 		print(`Got reward from lure box: {response}`)
+-- 	else
+-- 		print(`Lure Box not Ready`)
+-- 	end
+-- end
 
 local function findBait(baitPassOn)
 	local bait
@@ -1038,9 +1044,6 @@ local function completeBabyAilments()
 		elseif key == "sleepy" then
 			Ailments:BabySleepyAilment(Bed)
 			-- need baby to do task too
-			getBaitReward(baitId) -- check to see if this is really working
-			task.wait(1)
-			placeBait(baitId)
 			return
 		elseif key == "dirty" then
 			Ailments:BabyDirtyAilment(Shower)
@@ -1114,9 +1117,9 @@ local function autoFarm()
 			elseif key == "sleepy" then
 				Ailments:SleepyAilment(Bed, petUnique)
 				-- need baby to do task too
-				getBaitReward(baitId) -- check to see if this is really working
-				task.wait(1)
-				placeBait(baitId)
+				-- getBaitReward() -- check to see if this is really working
+				task.wait(3)
+				placeBaitOrPickUp(baitId)
 				return true
 			elseif key == "dirty" then
 				Ailments:DirtyAilment(Shower, petUnique)
@@ -1873,25 +1876,6 @@ for i, v in debug.getupvalue(RouterClient.init, 7) do
 	v.Name = i
 end
 
-if not normalLure then
-	buyLure()
-end
-
--- "lures_2023_campfire_cookies"  "lures_2023_flame_swirl_pie"
-baitId = findBait("fire_dimension_2024_burnt_bites_bait")
-
-if baitId == nil then
-	baitId = findBait("lures_2023_flame_swirl_pie")
-	if baitId == nil then
-		baitId = findBait("lures_2023_campfire_cookies")
-	end
-end
-
--- task.wait(1)
--- will place bait but it will also collect pet
-placeBait(baitId)
-task.wait(1)
-placeBait(baitId)
 
 if Player.PlayerGui.NewsApp.Enabled then
 	local AbsPlay = Player.PlayerGui.NewsApp
@@ -1979,11 +1963,22 @@ findFurniture()
 if not Bed then buyFurniture("basiccrib") end
 if not Piano then buyFurniture("piano") end
 if not LitterBox then buyFurniture("ailments_refresh_2024_litter_box") end
+if not NormalLure then buyFurniture("lures_2023_normal_lure") end
+
+baitId = findBait("lures_2023_campfire_cookies")
+
+print(`🍪 Found baitId: {baitId} 🍪`)
+-- task.wait(1)
+-- will place bait but it will also collect pet
+-- getBaitReward()
+placeBaitOrPickUp(baitId)
 task.wait(1)
+placeBaitOrPickUp(baitId)
+
 strollerId  = GetInventory:GetUniqueId("strollers", "stroller-default")
 findFurniture()
 
-print(`Has Bed: {Bed} 🛏️ | Has Piano: {Piano} 🎹 | Has LitterBox: {LitterBox} 💩`)
+print(`Has Bed: {Bed} 🛏️ | Has Piano: {Piano} 🎹 | Has LitterBox: {LitterBox} 💩 | Has Lure: {NormalLure}`)
 
 ReplicatedStorage:WaitForChild("API"):WaitForChild("HousingAPI/SetDoorLocked"):InvokeServer(true)
 
