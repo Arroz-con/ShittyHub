@@ -22,6 +22,7 @@ local function FoodAilments(FoodPassOn) --FoodPassOn means "icecream" for this e
 			hasFood = true
 			ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, {})
 			task.wait(1)
+            if not ClientData.get("pet_char_wrappers")[1] then print("⚠️ Trying to feed pet but no pet equipped ⚠️") return end
 			ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(v.unique, ClientData.get("pet_char_wrappers")[1].pet_unique)
 			return
 		end
