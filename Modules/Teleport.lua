@@ -1,7 +1,9 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
+local ClientData = require(ReplicatedStorage:WaitForChild("ClientModules"):WaitForChild("Core"):WaitForChild("ClientData"))
 local CollisionsClient = require(ReplicatedStorage.ClientModules.Game.CollisionsClient)
+
 
 local Player = Players.LocalPlayer
 local getconstants = getconstants or debug.getconstants
@@ -185,6 +187,21 @@ function Teleport.CampSite()
 	Teleport.DeleteWater()
 end
 
+function Teleport.TEST_CampSite()
+	Teleport.DeleteWater()
+	ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("MainMap", Player, ClientData.get_data()[Player.Name].LiveOpsMapType)
+	task.wait(1)
+	Player.Character.PrimaryPart.CFrame = workspace.CampingLocation.CFrame + Vector3.new(rng:NextInteger(1, 30), 5, rng:NextInteger(1, 30))
+	Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+end
+
+function Teleport.TEST_BeachParty()
+	Teleport.DeleteWater()
+	ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("MainMap", Player, ClientData.get_data()[Player.Name].LiveOpsMapType)
+	task.wait(1)
+	Player.Character.PrimaryPart.CFrame = workspace.BeachPartyLocation.CFrame + Vector3.new(math.random(1, 30), 5, math.random(1, 30))
+	Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+end
 
 function Teleport.BeachParty()
 	-- Player.Character:WaitForChild("HumanoidRootPart").Anchored = true
