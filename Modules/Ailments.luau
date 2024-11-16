@@ -393,7 +393,7 @@ end
 function Ailments:CampingAilment(petUnique: string)
     print("🏕️ Doing camping task 🏕️")
     ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(ClientData.get_data()[localPlayer.Name].last_equipped_pets[1], {})
-    ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("MainMap", localPlayer, ClientData.get_data()[localPlayer.Name].LiveOpsMapType)
+    Teleport.CampSite()
     task.wait(2)
     ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(ClientData.get_data()[localPlayer.Name].last_equipped_pets[1], {})
     waitForTaskToFinish("camping", petUnique)
