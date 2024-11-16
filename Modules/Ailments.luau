@@ -450,7 +450,7 @@ function Ailments:BabyThirstyAilment()
     print(`👶🥛 Doing baby water task 👶🥛`)
     local stuckCount = 0
     repeat
-        babyGetFoodAndEat("water")
+        babyGetFoodAndEat("lemonade")
         stuckCount += 1
         task.wait(1)
     until not ClientData.get_data()[localPlayer.Name].ailments_manager.baby_ailments["thirsty"] or stuckCount >= 30
