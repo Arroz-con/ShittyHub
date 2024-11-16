@@ -361,26 +361,6 @@ function Ailments:BeachPartyAilment(petUnique: string)
     waitForTaskToFinish("beach_party", petUnique)
 end
 
--- TESTING
-function Ailments:TEST_BeachPartyAilment(petUnique: string)
-    print("🏖️ Doing beach party 🏖️")
-    ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(ClientData.get_data()[localPlayer.Name].last_equipped_pets[1], {})
-    Teleport.TEST_BeachParty()
-    task.wait(2)
-    ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(ClientData.get_data()[localPlayer.Name].last_equipped_pets[1], {})
-    waitForTaskToFinish("beach_party", petUnique)
-end
-
--- TESTING
-function Ailments:TEST_CampingAilment(petUnique: string)
-    print("🏕️ Doing camping task 🏕️")
-    ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(ClientData.get_data()[localPlayer.Name].last_equipped_pets[1], {})
-    Teleport.TEST_CampSite()
-    task.wait(2)
-    ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(ClientData.get_data()[localPlayer.Name].last_equipped_pets[1], {})
-    waitForTaskToFinish("camping", petUnique)
-end
-
 function Ailments:CampingAilment(petUnique: string)
     print("🏕️ Doing camping task 🏕️")
     ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(ClientData.get_data()[localPlayer.Name].last_equipped_pets[1], {})
