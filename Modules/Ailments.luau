@@ -361,6 +361,43 @@ function Ailments:BeachPartyAilment(petUnique: string)
     waitForTaskToFinish("beach_party", petUnique)
 end
 
+-- TESTING
+function Ailments:TEST_BeachPartyAilment(petUnique: string)
+    print("🏖️ Doing beach party 🏖️")
+    ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(ClientData.get_data()[localPlayer.Name].last_equipped_pets[1], {})
+    -- Teleport.BeachParty()
+    task.wait(2)
+    ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(ClientData.get_data()[localPlayer.Name].last_equipped_pets[1], {})
+    local args = {
+        [1] = "MainMap",
+        [2] = game:GetService("Players").LocalPlayer,
+        [3] = "Desert"
+    }
+    
+    game:GetService("ReplicatedStorage").API:FindFirstChild("LocationAPI/SetLocation"):FireServer(unpack(args))
+    
+
+    waitForTaskToFinish("beach_party", petUnique)
+end
+
+-- TESTING
+function Ailments:TEST_CampingAilment(petUnique: string)
+    print("🏕️ Doing camping task 🏕️")
+    ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(ClientData.get_data()[localPlayer.Name].last_equipped_pets[1], {})
+    -- Teleport.CampSite()
+    task.wait(2)
+    ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(ClientData.get_data()[localPlayer.Name].last_equipped_pets[1], {})
+    local args = {
+        [1] = "MainMap",
+        [2] = game:GetService("Players").LocalPlayer,
+        [3] = "Desert"
+    }
+    
+    game:GetService("ReplicatedStorage").API:FindFirstChild("LocationAPI/SetLocation"):FireServer(unpack(args))
+    
+    waitForTaskToFinish("camping", petUnique)
+end
+
 function Ailments:CampingAilment(petUnique: string)
     print("🏕️ Doing camping task 🏕️")
     ReplicatedStorage.API["ToolAPI/Unequip"]:InvokeServer(ClientData.get_data()[localPlayer.Name].last_equipped_pets[1], {})
