@@ -1594,7 +1594,7 @@ WelcomeScreen = Player.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChange
 				completeStarterTutorial()
 				getTradeLicense()
 				task.wait(1)
-				game:Shutdown()
+				-- game:Shutdown()
 				WelcomeScreen:Disconnect()
 			end
 		end)
