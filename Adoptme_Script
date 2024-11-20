@@ -1533,6 +1533,8 @@ local function onTextChanged()
 		FireButton("I understand")
 	elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("4.5%% Legendary") then
 		FireButton("Okay")
+	elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Let's start the day") then
+		FireButton("Start")
 	end
 end
 
