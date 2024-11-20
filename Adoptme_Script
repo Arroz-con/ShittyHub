@@ -233,9 +233,11 @@ local function FireButton(PassOn, dialogFrame)
 		if v.Name == "TextLabel" then
 			if v.Text == PassOn then
 				-- clickGuiButton(v.Parent.Parent)
-				firesignal(v.Parent.Parent.MouseButton1Down)
-				firesignal(v.Parent.Parent.MouseButton1Click)
-				firesignal(v.Parent.Parent.MouseButton1Up)
+				pcall(function()
+					firesignal(v.Parent.Parent.MouseButton1Down)
+					firesignal(v.Parent.Parent.MouseButton1Click)
+					firesignal(v.Parent.Parent.MouseButton1Up)
+				end)
 				break
 			end
 		end
@@ -298,7 +300,7 @@ end
 
 -- "basiccrib"  "stylishshower"  "modernshower"  "piano" "lures2023normallure"
 local function findFurniture()
-	if Bed and Piano and LitterBox then return end
+	if Bed and Piano and LitterBox and NormalLure then return end
 	for key, value in ClientData.get_data()[Player.Name].house_interior.furniture do
 		if value.id == "basiccrib" then
 			Bed = key
@@ -1072,6 +1074,7 @@ local function autoFarm()
 	Teleport.PlaceFloorAtFarmingHome()
 	Teleport.PlaceFloorAtCampSite()
 	Teleport.PlaceFloorAtBeachParty()
+	-- game.Players.LocalPlayer.Character:MoveTo(Vector3.new(-27, 25,-1056))
 	Teleport.FarmingHome()
 	local function CompletePetAilments()
 		-- if ClientData.get("pet_char_wrappers")[1] == nil then
@@ -1145,6 +1148,7 @@ local function autoFarm()
 				-- need baby to do task too
 				return true
 			elseif key == "toilet" then
+				if not LitterBox then print("DOEST HAVE LITTER BOX") end
 				Ailments:ToiletAilment(LitterBox, petUnique)
 				-- baby doesnt have this task?
 				return true
