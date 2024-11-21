@@ -1864,6 +1864,7 @@ end)
 --[[ Main ]]--
 -------------------------------------------------------------------------------------------------------------------
 repeat
+	print("waiting")
 	task.wait(1)
 until Player.PlayerGui.NewsApp.Enabled or Player.Character or Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible
 
