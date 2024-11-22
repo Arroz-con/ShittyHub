@@ -268,6 +268,7 @@ local function completeStarterTutorial()
 	pcall(function()
 		LegacyTutorial.cancel_tutorial()
 		task.wait()
+		ReplicatedStorage.API["LegacyTutorialAPI/MarkTutorialCompleted"]:FireServer()
 		-- Bypass("TutorialClient").cancel()
 		task.wait()
 		ReplicatedStorage.API["LegacyTutorialAPI/EquipTutorialEgg"]:FireServer()
@@ -294,7 +295,7 @@ local function completeStarterTutorial()
 		end
 
 		feedStartEgg("sandwich-default")
-		ReplicatedStorage.API["TeamAPI/ChooseTeam"]:InvokeServer("Babies", {["dont_send_back_home"] = true})
+		-- ReplicatedStorage.API["TeamAPI/ChooseTeam"]:InvokeServer("Babies", {["dont_send_back_home"] = true})
 	end)
 end
 
@@ -1535,6 +1536,8 @@ local function onTextChanged()
 		FireButton("Okay")
 	elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Let's start the day") then
 		FireButton("Start")
+	elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Are you subscribed") then
+		FireButton("Yes")
 	end
 end
 
@@ -1864,7 +1867,6 @@ end)
 --[[ Main ]]--
 -------------------------------------------------------------------------------------------------------------------
 repeat
-	print("waiting")
 	task.wait(1)
 until Player.PlayerGui.NewsApp.Enabled or Player.Character or Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible
 
@@ -1912,6 +1914,7 @@ if Player.PlayerGui.NewsApp.Enabled then
 	-- NewsAppConnection:Disconnect()
 end
 
+--[[
 if Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
 	if tutorialDebonce then
 		return
@@ -1938,7 +1941,7 @@ if Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
 	tutorialDebonce = false
 	PickColorConn:Disconnect()
 end
-
+--]]
 
 if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
 	if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("ban") then
@@ -1960,11 +1963,9 @@ if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
 	end
 end
 
-
 NewClaim()
 task.wait()
 NewTask()
-
 
 for _, pettable in pairs({ pets_common, pets_uncommon, pets_rare, pets_ultrarare }) do
 	for j, petlist in pairs(pettable) do
@@ -1979,7 +1980,7 @@ for _, pettable in pairs({ pets_legendary, pets_ultrarare, pets_rare, pets_uncom
 	end
 end
 
- 
+
 findFurniture()
 
 if not Bed then buyFurniture("basiccrib") end
@@ -2004,8 +2005,15 @@ print(`Has Bed: {Bed} 🛏️ | Has Piano: {Piano} 🎹 | Has LitterBox: {Litter
 
 ReplicatedStorage:WaitForChild("API"):WaitForChild("HousingAPI/SetDoorLocked"):InvokeServer(true)
 
-ReplicatedStorage.API["TeamAPI/ChooseTeam"]:InvokeServer("Babies", {["dont_send_back_home"] = true})
--- ReplicatedStorage.API["TeamAPI/ChooseTeam"]:InvokeServer("Parents", {["dont_send_back_home"] = true})
+if not Player.Character then
+	print("get player character so waiting")
+	Player.CharacterAdded:Wait()
+end
+
+if Player.Character:WaitForChild("HumanoidRootPart") then
+	ReplicatedStorage.API["TeamAPI/ChooseTeam"]:InvokeServer("Babies", {["dont_send_back_home"] = true})
+	-- ReplicatedStorage.API["TeamAPI/ChooseTeam"]:InvokeServer("Parents", {["dont_send_back_home"] = true})
+end
 
 if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Thanks for subscribing!") then
 	FireButton("Okay")
@@ -2054,16 +2062,16 @@ local Window = Rayfield:CreateWindow({
 	},
 })
 
-local function notify(content: string)
-	Rayfield:Notify({
-		Title = "Notification",
-		Content = content,
-		Duration = 6.5,
-		Image = 4483362458,
-		Actions = {
-		},
-	})
-end
+-- local function notify(content: string)
+-- 	Rayfield:Notify({
+-- 		Title = "Notification",
+-- 		Content = content,
+-- 		Duration = 6.5,
+-- 		Image = 4483362458,
+-- 		Actions = {
+-- 		},
+-- 	})
+-- end
 
 
 ClipboardButton.Activated:Connect(function()
