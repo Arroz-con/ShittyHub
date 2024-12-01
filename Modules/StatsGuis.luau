@@ -10,6 +10,7 @@ local localPlayer = Players.LocalPlayer
 
 local StatsGui = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
+local BlackScreenFrame = Instance.new("Frame")
 local NameFrame = Instance.new("Frame")
 local TextLabel = Instance.new("TextLabel")
 local UICorner = Instance.new("UICorner")
@@ -30,24 +31,34 @@ local startTime = nil
 --Properties:
 
 StatsGui.Name = "StatsGui"
+StatsGui.ScreenInsets = Enum.ScreenInsets.None
 StatsGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 StatsGui.ResetOnSpawn = false
 StatsGui.Parent = localPlayer:WaitForChild("PlayerGui")
 
+BlackScreenFrame.Name = "BlackScreen"
+BlackScreenFrame.AnchorPoint = Vector2.new(0, 0)
+BlackScreenFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+BlackScreenFrame.BackgroundTransparency = 0
+BlackScreenFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+BlackScreenFrame.BorderSizePixel = 0
+BlackScreenFrame.Size = UDim2.new(1, 0, 1, 0)
+BlackScreenFrame.Parent = StatsGui
+
 MainFrame.Name = "MainFrame"
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-MainFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-MainFrame.BackgroundTransparency = 1.000
-MainFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+MainFrame.BackgroundColor3 = Color3.fromRGB(8, 217, 214)
+MainFrame.BackgroundTransparency = 1
+MainFrame.BorderColor3 = Color3.fromRGB(255, 255, 255)
 MainFrame.BorderSizePixel = 0
-MainFrame.Position = UDim2.new(0.743189096, 0, 0.443002731, 0)
-MainFrame.Size = UDim2.new(0.300000012, 0, 0.400000006, 0)
+MainFrame.Position = UDim2.new(0.64, 0, 0.48, 0)
+MainFrame.Size = UDim2.new(0.6, 0, 0.7, 0)
 MainFrame.Parent = StatsGui
 
 NameFrame.Name = "NameFrame"
 NameFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 NameFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-NameFrame.BackgroundTransparency = 1.000
+NameFrame.BackgroundTransparency = 1
 NameFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
 NameFrame.BorderSizePixel = 0
 NameFrame.Position = UDim2.new(0.5, 0, 0.119999997, 0)
@@ -55,8 +66,8 @@ NameFrame.Size = UDim2.new(1, 0, 0.25, 0)
 NameFrame.Parent = MainFrame
 
 TextLabel.AnchorPoint = Vector2.new(0.5, 0.5)
-TextLabel.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-TextLabel.BackgroundTransparency = 0.500
+TextLabel.BackgroundColor3 = Color3.fromRGB(250, 129, 47)
+TextLabel.BackgroundTransparency = 0
 TextLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
 TextLabel.BorderSizePixel = 0
 TextLabel.Position = UDim2.new(0.498873174, 0, 0.496309608, 0)
