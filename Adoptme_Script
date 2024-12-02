@@ -1553,6 +1553,8 @@ local function onTextChanged()
 		FireButton("Start")
 	elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Are you subscribed") then
 		FireButton("Yes")
+	elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("your inventory") then
+		FireButton("Awesome!")
 	end
 end
 
