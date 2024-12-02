@@ -1432,10 +1432,8 @@ local function autoFarm()
 
 	--// Code below runs once when auto farm is enabled
 	if getgenv().SETTINGS.PET_AUTO_FUSION then
-		task.spawn(function()
-			Fusion:MakeMega(false)
-			Fusion:MakeMega(true)
-		end)
+		Fusion:MakeMega(false)
+		Fusion:MakeMega(true)
 	end
 
 
@@ -1448,9 +1446,9 @@ local function autoFarm()
 		VirtualUser:ClickButton2(Vector2.new())
 	end)
 
-	for _, v in getconnections(Player.Idled) do
-		v:Disable()
-	end
+	-- for _, v in getconnections(Player.Idled) do
+	-- 	v:Disable()
+	-- end
 
 	-- if not Bypass("ClientData").get_data()[Player.Name].inventory.toys.trade_license then
 	--     getTradeLicense()
