@@ -1,7 +1,6 @@
--- getgenv().BUY_BEFORE_FARMING = {
--- 	{NameId = "ddlm_2024_grave_owl", MaxAmount = 200},
--- 	{NameId = "ddlm_2024_golden_jaguar", MaxAmount = 500},
--- }
+getgenv().BUY_BEFORE_FARMING = {
+	{NameId = "snow_2022_ribbon_seal", MaxAmount = 80}
+}
 
 getgenv().SETTINGS = {
 	WEBHOOK = {
