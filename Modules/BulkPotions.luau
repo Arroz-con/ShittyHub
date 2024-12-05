@@ -1,4 +1,5 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local VirtualUser = game:GetService("VirtualUser")
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 
@@ -119,9 +120,15 @@ function BulkPotions:StartAgingPets(petsTable: table)
     end
 end
 
-for _, v in getconnections(Player.Idled) do
-    v:Disable()
-end
+Player.Idled:Connect(function()
+    VirtualUser:ClickButton2(Vector2.new())
+end)
+
+-- for _, v in getconnections(Player.Idled) do
+--     v:Disable()
+-- end
+
+
 
 -- if not ClientData.get("pet_char_wrappers")[1] 
 --     or petName ~= ClientData.get("pet_char_wrappers")[1]["pet_id"] then
