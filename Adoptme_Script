@@ -1338,6 +1338,7 @@ local function autoFarm()
 	end
 
 	local function onTextChangedMiniGame()
+		if not getgenv().SETTINGS.EVENT.DO_MINIGAME then return end
 		isInMiniGame = true
 		FireButton("Yes")
 	end
