@@ -69,6 +69,7 @@ end
 
 local startCount = 0
 local startBucksAmount = 0
+local startgingerbreadAmount = 0
 local startTime = nil
 
 setupScreenGui()
@@ -97,9 +98,12 @@ local function formatNumber(num)
 	end
 end
 
-
 local function bucksAmount()
     return ClientData.get_data()[localPlayer.Name].money or 0
+end
+
+local function gingerbreadAmount()
+    return ClientData.get_data()[localPlayer.Name].gingerbread_2024 or 0
 end
 
 local function agePotionCount()
@@ -114,6 +118,7 @@ end
 
 startCount = agePotionCount()
 startBucksAmount = bucksAmount()
+startgingerbreadAmount = gingerbreadAmount()
 startTime = DateTime.now().UnixTimestamp
 
 function StatsGuis:UpdateText(nameOfFrame: string)
@@ -126,13 +131,16 @@ function StatsGuis:UpdateText(nameOfFrame: string)
     elseif nameOfFrame == "BucksAndPotionFrame" then
         local potionCount = agePotionCount() - startCount
         local bucks = bucksAmount() - startBucksAmount
+        local gingerbread = startgingerbreadAmount() - startgingerbreadAmount
         if potionCount <= 0 then potionCount = 0 end
         if bucks <= 0 then bucks = 0 end
-        MainFrame.BucksAndPotionFrame.TextLabel.Text = `🧪 {formatNumber(potionCount)} 💰 {formatNumber(bucks)} 🍪 {0}`
+        if gingerbread <= 0 then gingerbread = 0 end
+        MainFrame.BucksAndPotionFrame.TextLabel.Text = `🧪 {formatNumber(potionCount)} 💰 {formatNumber(bucks)} 🍪{formatNumber(gingerbread)}`
     elseif nameOfFrame == "TotalFrame" then
         local potionCount = agePotionCount()
         local bucks = bucksAmount()
-        MainFrame.TotalFrame.TextLabel.Text = `🧪 {formatNumber(potionCount)} 💰 {formatNumber(bucks)} 🍪 {0}`
+        local gingerbread = startgingerbreadAmount()
+        MainFrame.TotalFrame.TextLabel.Text = `🧪 {formatNumber(potionCount)} 💰 {formatNumber(bucks)} 🍪{formatNumber(gingerbread)}`
     elseif nameOfFrame == "NameFrame" then
         MainFrame.NameFrame.TextLabel.Text = `🤖 {localPlayer.Name}`
     end
