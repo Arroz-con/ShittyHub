@@ -84,7 +84,7 @@ local function formatTime(currentTime)
 	return string.format("%02d:%02d", hours, minutes)
 end
 
-function formatNumber(num)
+local function formatNumber(num)
 	if num >= 1e6 then
 		-- Millions
 		return string.format("%.1fM", num / 1e6)
