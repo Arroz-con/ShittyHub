@@ -1287,12 +1287,12 @@ local function autoFarm()
 		end
 	end)
 
-	Player.PlayerGui.MinigameInGameApp.Body.Left.Container.ValueLabel:GetPropertyChangedSignal("Text"):Connect(function()
-		local eventTime = Player.PlayerGui.MinigameInGameApp.Body.Left.Container.ValueLabel.Text
-		if eventTime == "00:10" then
-			Player.Character.HumanoidRootPart.Anchored = false
-		end
-	end)
+	-- Player.PlayerGui.MinigameInGameApp.Body.Left.Container.ValueLabel:GetPropertyChangedSignal("Text"):Connect(function()
+	-- 	local eventTime = Player.PlayerGui.MinigameInGameApp.Body.Left.Container.ValueLabel.Text
+	-- 	if eventTime == "00:10" then
+	-- 		Player.Character.HumanoidRootPart.Anchored = false
+	-- 	end
+	-- end)
 
 	--// Fires when inside the minigame
 	Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(function()
@@ -1303,8 +1303,8 @@ local function autoFarm()
 			Player.PlayerGui.MinigameInGameApp.Body.Middle.Container:WaitForChild("TitleLabel")
 			if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("MELT OFF") then
 				isInMiniGame = true
-				task.wait(2)
-				Player.Character.HumanoidRootPart.Anchored = true
+				-- task.wait(2)
+				-- Player.Character.HumanoidRootPart.Anchored = true
 			end
 		end
 	end)
