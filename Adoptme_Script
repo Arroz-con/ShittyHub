@@ -72,7 +72,7 @@ local DailyClaimConnection
 local counter = 0
 -- local diedCounter = 0
 
--- local isInMiniGame = false
+local isInMiniGame = false
 -- local DailyBoolean = true
 local NewTaskBool = true
 local NewClaimBool = true
@@ -1228,15 +1228,23 @@ local function autoFarm()
 
 	task.delay(30, function()
 		while true do
-			removeHandHeldItem()
-			if not CompletePetAilments() then
-				completeBabyAilments()
-			end
-			StatsGuis:UpdateText("TimeFrame")
-			StatsGuis:UpdateText("BucksAndPotionFrame")
-			StatsGuis:UpdateText("TotalFrame")
-			-- print(`⏱️ Waiting for 5 secs ⏱️`)
-			task.wait(5)
+			pcall(function()
+				if isInMiniGame then
+					repeat
+						print(`⏱️ Waiting for 10 secs [inside minigame] ⏱️`)
+						task.wait(10)
+					until not isInMiniGame
+				end
+				removeHandHeldItem()
+				if not CompletePetAilments() then
+					completeBabyAilments()
+				end
+				StatsGuis:UpdateText("TimeFrame")
+				StatsGuis:UpdateText("BucksAndPotionFrame")
+				StatsGuis:UpdateText("TotalFrame")
+				-- print(`⏱️ Waiting for 5 secs ⏱️`)
+				task.wait(5)
+			end)
 		end
 	end)
 		
@@ -1279,12 +1287,12 @@ local function autoFarm()
 		end
 	end)
 
-	Player.PlayerGui.MinigameInGameApp.Body.Left.Container.ValueLabel:GetPropertyChangedSignal("Text"):Connect(function()
-		local eventTime = Player.PlayerGui.MinigameInGameApp.Body.Left.Container.ValueLabel.Text
-		if eventTime == "00:00" then
-			game:Shutdown()
-		end
-	end)
+	-- Player.PlayerGui.MinigameInGameApp.Body.Left.Container.ValueLabel:GetPropertyChangedSignal("Text"):Connect(function()
+	-- 	local eventTime = Player.PlayerGui.MinigameInGameApp.Body.Left.Container.ValueLabel.Text
+	-- 	if eventTime == "00:00" then
+	-- 		game:Shutdown()
+	-- 	end
+	-- end)
 
 	--// Fires when inside the minigame
 	Player.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal("Enabled"):Connect(function()
@@ -1293,14 +1301,10 @@ local function autoFarm()
 			Player.PlayerGui.MinigameInGameApp.Body:WaitForChild("Middle")
 			Player.PlayerGui.MinigameInGameApp.Body.Middle:WaitForChild("Container")
 			Player.PlayerGui.MinigameInGameApp.Body.Middle.Container:WaitForChild("TitleLabel")
-			if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("CRICKET'S TILE HOP") then
-				-- stopDoingTasks = true
-				print("stop doing task")
-				-- Player.Character.Humanoid.WalkSpeed = 0
-				task.wait(rng:NextInteger(20, 30))
-				
-				-- stopDoingTasks = false
-				print("start doing task")
+			if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("MELT OFF") then
+				isInMiniGame = true
+				task.wait(2)
+				Player.Character.HumanoidRootPart.Anchored = true
 			end
 		end
 	end)
@@ -1311,7 +1315,7 @@ local function autoFarm()
 		for _, v in pairs(Player.PlayerGui.MinigameRewardsApp.Body.Button:GetDescendants()) do
 			if v.Name == "TextLabel" then
 				if v.Text == "NICE!" then
-					task.wait(1)
+					task.wait(5)
 					-- clickGuiButton(v.Parent.Parent, 30, 60)
 					firesignal(v.Parent.Parent.MouseButton1Down)
 					firesignal(v.Parent.Parent.MouseButton1Click)
@@ -1323,7 +1327,7 @@ local function autoFarm()
 	end
 
 	local function onTextChangedMiniGame()
-		-- nothing for now
+		FireButton("Yes")
 	end
 
 	-- fires when it ask you if you want to join minigame
@@ -1334,7 +1338,7 @@ local function autoFarm()
 					NormalDialogChild:WaitForChild("Info")
 					NormalDialogChild.Info:WaitForChild("TextLabel")
 					NormalDialogChild.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
-						if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Cricket's Tile Hop") then
+						if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Melt Off") then
 							onTextChangedMiniGame()
 						elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("invitation") then
 							game:Shutdown()
@@ -1353,7 +1357,7 @@ local function autoFarm()
 			Player.PlayerGui.DialogApp.Dialog.NormalDialog:WaitForChild("Info")
 			Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info:WaitForChild("TextLabel")
 			Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
-				if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Cricket's Tile Hop") then
+				if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Melt Off") then
 					onTextChangedMiniGame()
 				elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("invitation") then
 					game:Shutdown()
@@ -1384,9 +1388,8 @@ local function autoFarm()
 			if Player.PlayerGui.MinigameRewardsApp.Body.Button.Face.TextLabel.Text:match("NICE!") then
 				Player.Character.HumanoidRootPart.Anchored = false
 				RemoveGameOverButton()
-				-- Teleport.DeleteMainMapParts()
-
-				Teleport.BeachParty()
+				isInMiniGame = false
+				Teleport.FarmingHome()
 			end
 		end
 	end)
