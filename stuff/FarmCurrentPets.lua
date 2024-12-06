@@ -9,7 +9,7 @@ getgenv().SETTINGS = {
 	},
 
 	EVENT = {
-		DO_MINIGAME = false,
+		DO_MINIGAME = true,
 		IS_AUTO_BUY = false,
 		BUY = "halloween_2024_scarebear"
 	},
