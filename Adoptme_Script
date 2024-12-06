@@ -50,6 +50,7 @@ local BuyItems = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arro
 -- local Keyboard = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Keyboard.luau"))()
 local Ailments = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Ailments.luau"))()
 local StatsGuis = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/StatsGuis.luau"))()
+local Christmas2024 = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Christmas2024.lua"))()
 
 -- local Halloween = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Halloween2024.luau"))()
 
@@ -1091,6 +1092,7 @@ local function autoFarm()
 	Teleport.PlaceFloorAtBeachParty()
 	-- game.Players.LocalPlayer.Character:MoveTo(Vector3.new(-27, 25,-1056))
 	Teleport.FarmingHome()
+	Christmas2024.getGingerbread()
 	local function CompletePetAilments()
 		-- if ClientData.get("pet_char_wrappers")[1] == nil then
 		-- 	ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(PetCurrentlyFarming, {})
@@ -1191,6 +1193,7 @@ local function autoFarm()
 				Teleport.PlaceFloorAtCampSite()
 				Ailments:CampingAilment(petUnique)
 				Teleport.FarmingHome()
+				Christmas2024.getGingerbread()
 				-- should already do baby task when pet does it
 				return true
 			end
@@ -1432,8 +1435,10 @@ local function autoFarm()
 
 	--// Code below runs once when auto farm is enabled
 	if getgenv().SETTINGS.PET_AUTO_FUSION then
-		Fusion:MakeMega(false)
-		Fusion:MakeMega(true)
+		task.spawn(function()
+			Fusion:MakeMega(false)
+			Fusion:MakeMega(true)
+		end)
 	end
 
 
@@ -1446,6 +1451,7 @@ local function autoFarm()
 		VirtualUser:ClickButton2(Vector2.new())
 	end)
 
+
 	-- for _, v in getconnections(Player.Idled) do
 	-- 	v:Disable()
 	-- end
@@ -1457,7 +1463,7 @@ local function autoFarm()
 	-- ReplicatedStorage.API["EventAPI/ClaimObbyReward"]:InvokeServer(1)
 
 	-- adopt me code
-	ReplicatedStorage.API["CodeRedemptionAPI/AttemptRedeemCode"]:InvokeServer("AMTRUCK2024")
+	-- ReplicatedStorage.API["CodeRedemptionAPI/AttemptRedeemCode"]:InvokeServer("AMTRUCK2024")
 
 	-- setfpscap(SETTINGS.SET_FPS)
 end
