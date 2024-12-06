@@ -256,4 +256,8 @@ function Teleport.Neighborhood()
 	-- Player.Character.Humanoid.WalkSpeed = 0
 end
 
+function Teleport.SpleefMinigame()
+	SetLocationFunc("Interiors", "SpleefMinigame", {})
+end
+
 return Teleport
