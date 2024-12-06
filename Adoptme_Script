@@ -1289,7 +1289,7 @@ local function autoFarm()
 
 	Player.PlayerGui.MinigameInGameApp.Body.Left.Container.ValueLabel:GetPropertyChangedSignal("Text"):Connect(function()
 		local eventTime = Player.PlayerGui.MinigameInGameApp.Body.Left.Container.ValueLabel.Text
-		if eventTime == "00:00" then
+		if eventTime == "00:10" then
 			Player.Character.HumanoidRootPart.Anchored = false
 		end
 	end)
