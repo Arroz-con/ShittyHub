@@ -131,7 +131,7 @@ function StatsGuis:UpdateText(nameOfFrame: string)
     elseif nameOfFrame == "BucksAndPotionFrame" then
         local potionCount = agePotionCount() - startCount
         local bucks = bucksAmount() - startBucksAmount
-        local gingerbread = startgingerbreadAmount() - startgingerbreadAmount
+        local gingerbread = gingerbreadAmount() - startgingerbreadAmount
         if potionCount <= 0 then potionCount = 0 end
         if bucks <= 0 then bucks = 0 end
         if gingerbread <= 0 then gingerbread = 0 end
@@ -139,7 +139,7 @@ function StatsGuis:UpdateText(nameOfFrame: string)
     elseif nameOfFrame == "TotalFrame" then
         local potionCount = agePotionCount()
         local bucks = bucksAmount()
-        local gingerbread = startgingerbreadAmount()
+        local gingerbread = gingerbreadAmount()
         MainFrame.TotalFrame.TextLabel.Text = `🧪 {formatNumber(potionCount)} 💰 {formatNumber(bucks)} 🍪{formatNumber(gingerbread)}`
     elseif nameOfFrame == "NameFrame" then
         MainFrame.NameFrame.TextLabel.Text = `🤖 {localPlayer.Name}`
