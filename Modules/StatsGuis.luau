@@ -128,7 +128,7 @@ function StatsGuis:UpdateText(nameOfFrame: string)
         local bucks = bucksAmount() - startBucksAmount
         if potionCount <= 0 then potionCount = 0 end
         if bucks <= 0 then bucks = 0 end
-        MainFrame.BucksAndPotionFrame.TextLabel.Text = `🧪 {potionCount} 💰 {bucks} 🍪 {0}`
+        MainFrame.BucksAndPotionFrame.TextLabel.Text = `🧪 {formatNumber(potionCount)} 💰 {formatNumber(bucks)} 🍪 {0}`
     elseif nameOfFrame == "TotalFrame" then
         local potionCount = agePotionCount()
         local bucks = bucksAmount()
