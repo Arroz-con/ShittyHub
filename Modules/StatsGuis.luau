@@ -84,6 +84,20 @@ local function formatTime(currentTime)
 	return string.format("%02d:%02d", hours, minutes)
 end
 
+function formatNumber(num)
+	if num >= 1e6 then
+		-- Millions
+		return string.format("%.1fM", num / 1e6)
+	elseif num >= 1e3 then
+		-- Thousands
+		return string.format("%.0fk", num / 1e3)
+	else
+		-- Less than a thousand
+		return tostring(num)
+	end
+end
+
+
 local function bucksAmount()
     return ClientData.get_data()[localPlayer.Name].money or 0
 end
@@ -118,7 +132,7 @@ function StatsGuis:UpdateText(nameOfFrame: string)
     elseif nameOfFrame == "TotalFrame" then
         local potionCount = agePotionCount()
         local bucks = bucksAmount()
-        MainFrame.TotalFrame.TextLabel.Text = `🧪 {potionCount} 💰 {bucks} 🍪 {0}`
+        MainFrame.TotalFrame.TextLabel.Text = `🧪 {formatNumber(potionCount)} 💰 {formatNumber(bucks)} 🍪 {0}`
     elseif nameOfFrame == "NameFrame" then
         MainFrame.NameFrame.TextLabel.Text = `🤖 {localPlayer.Name}`
     end
