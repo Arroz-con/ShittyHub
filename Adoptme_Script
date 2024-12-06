@@ -1231,7 +1231,7 @@ local function autoFarm()
 			end
 			StatsGuis:UpdateText("TimeFrame")
 			StatsGuis:UpdateText("BucksAndPotionFrame")
-			StatsGuis:UpdateText("TotalPotionFrame")
+			StatsGuis:UpdateText("TotalFrame")
 			-- print(`⏱️ Waiting for 5 secs ⏱️`)
 			task.wait(5)
 		end
