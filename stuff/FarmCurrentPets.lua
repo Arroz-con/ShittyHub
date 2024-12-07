@@ -1,6 +1,6 @@
-getgenv().BUY_BEFORE_FARMING = {
-	{NameId = "snow_2022_ribbon_seal", MaxAmount = 80}
-}
+-- getgenv().BUY_BEFORE_FARMING = {
+-- 	{NameId = "snow_2022_ribbon_seal", MaxAmount = 80}
+-- }
 
 getgenv().SETTINGS = {
 	WEBHOOK = {
@@ -9,7 +9,7 @@ getgenv().SETTINGS = {
 	},
 
 	EVENT = {
-		DO_MINIGAME = false,
+		DO_MINIGAME = true,
 		IS_AUTO_BUY = false,
 		BUY = "halloween_2024_scarebear"
 	},
