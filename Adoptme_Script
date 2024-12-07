@@ -1299,7 +1299,7 @@ local function autoFarm()
 	
 		local floor = workspace.Interiors:WaitForChild("SpleefMinigame"):WaitForChild("Minigame"):WaitForChild("Floor")
 		local part = Instance.new("Part")
-		part.Position = floor.Position + Vector3.new(0, 50, 0)
+		part.Position = floor.Position + Vector3.new(0, 100, 0)
 		part.Size = Vector3.new(200, 2, 200)
 		part.Anchored = true
 		part.Transparency = 0
