@@ -1582,6 +1582,8 @@ local function onTextChanged()
 		FireButton("Yes")
 	elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("your inventory") then
 		FireButton("Awesome!")
+	elseif Player.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Gingerbread!") then
+		FireButton("Awesome!")
 	end
 end
 
