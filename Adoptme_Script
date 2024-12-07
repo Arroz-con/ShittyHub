@@ -1123,6 +1123,7 @@ local function autoFarm()
 				return true
 			elseif key == "thirsty" then
 				Ailments:ThirstyAilment()
+				Christmas2024.getGingerbread()
 				return true
 			elseif key == "sick" then
 				Ailments:SickAilment()
@@ -1193,7 +1194,6 @@ local function autoFarm()
 				Teleport.PlaceFloorAtCampSite()
 				Ailments:CampingAilment(petUnique)
 				Teleport.FarmingHome()
-				Christmas2024.getGingerbread()
 				-- should already do baby task when pet does it
 				return true
 			end
@@ -1229,10 +1229,12 @@ local function autoFarm()
 	task.delay(30, function()
 		while true do
 			if isInMiniGame then
+				local count = 0
 				repeat
 					print(`⏱️ Waiting for 10 secs [inside minigame] ⏱️`)
+					count += 10
 					task.wait(10)
-				until not isInMiniGame
+				until not isInMiniGame or count > 180
 			end
 			removeHandHeldItem()
 			if not CompletePetAilments() then
