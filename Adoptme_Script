@@ -1946,7 +1946,7 @@ for i, v in debug.getupvalue(RouterClient.init, 7) do
 	v.Name = i
 end
 
-
+print("clicking Play! button")
 if Player.PlayerGui.NewsApp.Enabled then
 	local AbsPlay = Player.PlayerGui.NewsApp
 		:WaitForChild("EnclosingFrame")
