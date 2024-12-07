@@ -1337,11 +1337,11 @@ local function autoFarm()
 	end
 
 	local function onTextChangedMiniGame()
-		if not getgenv().SETTINGS.EVENT or not getgenv().SETTINGS.EVENT.DO_MINIGAME then 
+		if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME then 
+			FireButton("Yes")
+		else
 			FireButton("No")
-			return 
 		end
-		FireButton("Yes")
 	end
 
 	-- fires when it ask you if you want to join minigame
