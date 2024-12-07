@@ -1315,6 +1315,7 @@ local function autoFarm()
 			Player.PlayerGui.MinigameInGameApp.Body.Middle:WaitForChild("Container")
 			Player.PlayerGui.MinigameInGameApp.Body.Middle.Container:WaitForChild("TitleLabel")
 			if Player.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("MELT OFF") then
+				isInMiniGame = true
 				PlaceFloorAtSpleefMinigame()
 			end
 		end
@@ -1339,7 +1340,6 @@ local function autoFarm()
 
 	local function onTextChangedMiniGame()
 		if not getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME then return end
-		isInMiniGame = true
 		FireButton("Yes")
 	end
 
