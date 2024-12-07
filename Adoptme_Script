@@ -1228,23 +1228,21 @@ local function autoFarm()
 
 	task.delay(30, function()
 		while true do
-			pcall(function()
-				if isInMiniGame then
-					repeat
-						print(`⏱️ Waiting for 10 secs [inside minigame] ⏱️`)
-						task.wait(10)
-					until not isInMiniGame
-				end
-				removeHandHeldItem()
-				if not CompletePetAilments() then
-					completeBabyAilments()
-				end
-				StatsGuis:UpdateText("TimeFrame")
-				StatsGuis:UpdateText("BucksAndPotionFrame")
-				StatsGuis:UpdateText("TotalFrame")
-				-- print(`⏱️ Waiting for 5 secs ⏱️`)
-				task.wait(5)
-			end)
+			if isInMiniGame then
+				repeat
+					print(`⏱️ Waiting for 10 secs [inside minigame] ⏱️`)
+					task.wait(10)
+				until not isInMiniGame
+			end
+			removeHandHeldItem()
+			if not CompletePetAilments() then
+				completeBabyAilments()
+			end
+			StatsGuis:UpdateText("TimeFrame")
+			StatsGuis:UpdateText("BucksAndPotionFrame")
+			StatsGuis:UpdateText("TotalFrame")
+			-- print(`⏱️ Waiting for 5 secs ⏱️`)
+			task.wait(5)
 		end
 	end)
 		
