@@ -1235,6 +1235,7 @@ local function autoFarm()
 					count += 10
 					task.wait(10)
 				until not isInMiniGame or count > 180
+				isInMiniGame = false
 			end
 			removeHandHeldItem()
 			if not CompletePetAilments() then
