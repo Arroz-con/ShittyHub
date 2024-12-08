@@ -374,8 +374,10 @@ end
 function Ailments:WalkAilment(petUnique: string)
     reEquipPet()
     -- print("🦮 Doing walking task 🦮")
+    if not ClientData.get("pet_char_wrappers")[1] and ClientData.get("pet_char_wrappers")[1]["char"] then return end
     ReplicatedStorage.API["AdoptAPI/HoldBaby"]:FireServer(ClientData.get("pet_char_wrappers")[1]["char"])
     waitForJumpingToFinish("walk", petUnique)
+    if not ClientData.get("pet_char_wrappers")[1] and ClientData.get("pet_char_wrappers")[1]["char"] then return end
     ReplicatedStorage.API:FindFirstChild("AdoptAPI/EjectBaby"):FireServer(ClientData.get("pet_char_wrappers")[1]["char"])
 end
 
