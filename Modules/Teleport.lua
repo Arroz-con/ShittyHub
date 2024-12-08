@@ -258,8 +258,8 @@ end
 
 function Teleport.SpleefMinigame()
 	SetLocationFunc("SpleefMinigame", "MainDoor", {})
-	workspace:WaitForChild("SpleefLocation")
-	Player.Character.PrimaryPart.CFrame = workspace.SpleefLocation.CFrame + Vector3.new(0, 5, 0)
+	-- workspace:WaitForChild("SpleefLocation")
+	-- Player.Character.PrimaryPart.CFrame = workspace.SpleefLocation.CFrame + Vector3.new(0, 5, 0)
 end
 
 return Teleport
