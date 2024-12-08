@@ -258,7 +258,7 @@ end
 
 function Teleport.SpleefMinigame()
 	SetLocationFunc("SpleefMinigame", "MainDoor", {})
-	local interiorOrigin = workspace.Interiors:WaitForChild("SpleefMinigame"):WaitForChild("InteriorOrigin")
+	local interiorOrigin = workspace:WaitForChild("Interiors"):WaitForChild("SpleefMinigame"):WaitForChild("InteriorOrigin")
 	
 	if not workspace:FindFirstChild("SpleefLocation") then
 		local part = Instance.new("Part")
