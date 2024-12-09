@@ -1,6 +1,6 @@
-getgenv().BUY_BEFORE_FARMING = {
-	{NameId = "winter_2024_bauble_buddies", MaxAmount = 8}
-}
+-- getgenv().BUY_BEFORE_FARMING = {
+-- 	{NameId = "winter_2024_bauble_buddies", MaxAmount = 8}
+-- }
 
 getgenv().SETTINGS = {
 	WEBHOOK = {
@@ -112,7 +112,7 @@ getgenv().SETTINGS = {
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Adoptme_Script"))()
 
----[[
+--[[
 local BulkPotions = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/BulkPotions.luau"))()
 local petsToAge = {
 	"winter_2024_bauble_buddies"
