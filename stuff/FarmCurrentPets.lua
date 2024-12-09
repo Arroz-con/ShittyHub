@@ -1,6 +1,6 @@
--- getgenv().BUY_BEFORE_FARMING = {
--- 	{NameId = "snow_2022_ribbon_seal", MaxAmount = 80}
--- }
+getgenv().BUY_BEFORE_FARMING = {
+	{NameId = "winter_2024_bauble_buddies", MaxAmount = 8}
+}
 
 getgenv().SETTINGS = {
 	WEBHOOK = {
@@ -18,7 +18,7 @@ getgenv().SETTINGS = {
 
 	FOCUS_FARM_AGE_POTION = true, -- if true, this will only farm 1 pet an keep aging to get aging potions
 
-	ENABLE_AUTO_FARM = true,
+	ENABLE_AUTO_FARM = false,
 	SET_FPS = 1,
 	PET_NEON_PRIORITY = true,
 	PET_AUTO_FUSION = true,
@@ -111,3 +111,10 @@ getgenv().SETTINGS = {
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Adoptme_Script"))()
 
+---[[
+local BulkPotions = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/BulkPotions.luau"))()
+local petsToAge = {
+	"winter_2024_bauble_buddies"
+}
+BulkPotions:StartAgingPets(petsToAge)
+--]]
