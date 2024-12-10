@@ -186,7 +186,7 @@ function StatsGuis2.Setup()
 end
 
 
-function StatsGuis2:UpdateTextFor(labelName: string, amount: number)
+function StatsGuis2:UpdateTextFor(labelName: string, amount: number?)
 	if labelName == "TimeLabel" then
 		local currentTime = DateTime.now().UnixTimestamp
 		local timeElapsed = currentTime - amount
