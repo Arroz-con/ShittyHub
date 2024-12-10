@@ -198,11 +198,14 @@ function StatsGuis2:UpdateTextFor(labelName: string, amount: number?)
     elseif labelName == "TempGingerbread" then
         self.label.Text = `🍪 {amount}`
     elseif labelName == "TotalPotion" then
-        self.label.Text = `🧪 {formatNumber(agePotionCount())}`
+        local formatted = formatNumber(agePotionCount())
+        self.label.Text = `🧪 {formatted}`
     elseif labelName == "TotalBucks" then
-        self.label.Text = `💰 {formatNumber(bucksAmount())}`
+        local formatted = formatNumber(agePotionCount())
+        self.label.Text = `💰 {formatted}`
     elseif labelName == "TotalGingerbread" then
-        self.label.Text = `🍪 {formatNumber(gingerbreadAmount())}`
+        local formatted = formatNumber(agePotionCount())
+        self.label.Text = `🍪 {formatted}`
 	end
 end
 
