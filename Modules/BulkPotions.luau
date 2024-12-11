@@ -5,7 +5,6 @@ local Player = Players.LocalPlayer
 
 local Fusion = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Fusion.lua"))()
 local ClientData = require(ReplicatedStorage:WaitForChild("ClientModules"):WaitForChild("Core"):WaitForChild("ClientData"))
-local StatsGuis2 = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/StatsGuis2.luau"))()
 
 local BulkPotions = {}
 
@@ -71,7 +70,8 @@ local function feedAgePotion()
             print("feeding")
             ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(v.unique, ClientData.get("pet_char_wrappers")[1].pet_unique)
             task.wait()
-            StatsGuis2:UpdateTextFor("TotalPotions")
+            local TotalPotions = Player.PlayerGui.StatsGui.MainFrame.MiddleFrame.TotalPotions
+            TotalPotions.Text = `🧪 {agePotionCount()}`
             break
         end
     end
