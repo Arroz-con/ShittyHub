@@ -114,6 +114,7 @@ local function ageAllPetsOfSameName(petId)
 end
 
 function BulkPotions:StartAgingPets(petsTable: table)
+    if typeof(petsTable) ~= "table" then print("is not a table") return end
     for _, petId in ipairs(petsTable) do
         if stopAging then print("stop aging is true, so stopped") return end
         ageAllPetsOfSameName(petId)
