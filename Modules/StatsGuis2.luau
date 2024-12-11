@@ -21,7 +21,7 @@ local function formatNumber(num)
 		return string.format("%.2fM", num / 1e6)
 	elseif num >= 1e3 then
 		-- Thousands
-		return string.format("%.1fk", num / 1e3)
+		return string.format("%.1fK", num / 1e3)
 	else
 		-- Less than a thousand
 		return tostring(num)
@@ -192,11 +192,11 @@ function StatsGuis2:UpdateTextFor(labelName: string, amount: number?)
 		local timeElapsed = currentTime - amount
 		Players.LocalPlayer.PlayerGui.StatsGui.MainFrame.TimeLabel.Text = `⏱️ {formatTime(timeElapsed)}`
 	elseif labelName == "TempPotions" then
-		self.label.Text = `🧪 {amount}`
+		self.label.Text = `🧪 {formatNumber(amount)}`
 	elseif labelName == "TempBucks" then
-		self.label.Text = `💰 {amount}`
+		self.label.Text = `💰 {formatNumber(amount)}`
     elseif labelName == "TempGingerbreads" then
-        self.label.Text = `🍪 {amount}`
+        self.label.Text = `🍪 {formatNumber(amount)}`
     elseif labelName == "TotalPotions" then
         local formatted = formatNumber(agePotionCount())
         self.label.Text = `🧪 {formatted}`
@@ -208,7 +208,6 @@ function StatsGuis2:UpdateTextFor(labelName: string, amount: number?)
         self.label.Text = `🍪 {formatted}`
 	end
 end
-
 
 
 return StatsGuis2
