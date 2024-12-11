@@ -13,6 +13,7 @@ end
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
+local Lighting = game:GetService("Lighting")
 -- local VirtualInputManager = game:GetService("VirtualInputManager")
 local UserGameSettings = UserSettings():GetService("UserGameSettings")
 -- local UserInputService = game:GetService("UserInputService")
@@ -49,7 +50,7 @@ local Teleport = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arro
 local BuyItems = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/BuyItems.luau"))()
 -- local Keyboard = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Keyboard.luau"))()
 local Ailments = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Ailments.luau"))()
-local StatsGuis = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/StatsGuis.luau"))()
+local StatsGuis2 = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/StatsGuis2.luau"))()
 local Christmas2024 = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Christmas2024.lua"))()
 
 -- local Halloween = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Halloween2024.luau"))()
@@ -84,6 +85,24 @@ local tutorialDebonce = false
 -- local stopEquip = false
 local discordCooldown = false
 local debounce = false
+
+StatsGuis2.Setup()
+
+local startTime
+local startPotionAmount = 0
+-- local startBucksAmount
+-- local startGingerbreadAmount
+
+local potionsGained = 0
+local bucksGained = 0
+local gingerbreadsGained = 0
+
+local TempPotions = StatsGuis2.new("TempPotions")
+local TempBucks = StatsGuis2.new("TempBucks")
+local TempGingerbreads = StatsGuis2.new("TempGingerbreads")
+local TotalPotions = StatsGuis2.new("TotalPotions")
+local TotalBucks = StatsGuis2.new("TotalBucks")
+local TotalGingerbreads = StatsGuis2.new("TotalGingerbreads")
 
 local Bed
 local Shower
@@ -607,6 +626,17 @@ local function GetGiftPet()
 	end
 end
 --]]
+
+local function agePotionCount()
+    local count = 0
+    for _, v in ClientData.get_data()[Player.Name].inventory.food do
+        if v.id == "pet_age_potion" then
+            count += 1
+        end
+    end
+    return count
+end
+
 
 local function priorityEgg()
 	local found_pet = false
@@ -1241,9 +1271,13 @@ local function autoFarm()
 			if not CompletePetAilments() then
 				completeBabyAilments()
 			end
-			StatsGuis:UpdateText("TimeFrame")
-			StatsGuis:UpdateText("BucksAndPotionFrame")
-			StatsGuis:UpdateText("TotalFrame")
+			StatsGuis2:UpdateTextFor("TimeLabel", startTime)
+			potionsGained = agePotionCount() - startPotionAmount
+			if potionsGained < 0 then potionsGained = 0 end
+			TempPotions:UpdateTextFor("TempPotions", potionsGained)
+			TotalPotions:UpdateTextFor("TotalPotions")
+			TotalBucks:UpdateTextFor("TotalBucks")
+			TotalGingerbreads:UpdateTextFor("TotalGingerbreads")
 			-- print(`⏱️ Waiting for 5 secs ⏱️`)
 			task.wait(5)
 		end
@@ -1265,34 +1299,6 @@ local function autoFarm()
 	-- 	CompleteBabyAilments()
 	-- end)
 
-
-	-- For text that popups on bottom ui
-	Player.PlayerGui.HintApp.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
-		if Player.PlayerGui.HintApp.TextLabel.Text:match("Bucks") then
-			-- local text = Player.PlayerGui.HintApp.TextLabel.Text:match("%d+")
-			-- if not text then return end
-			-- print(text)
-			-- print(typeof(text))
-			-- StatsGuis:UpdateText_TEST("BucksAndPotionFrame", {name = "bucks", amount = text})
-		elseif Player.PlayerGui.HintApp.TextLabel.Text:match("aged up!") then
-			if getgenv().feedAgeUpPotionToggle then
-				return
-			end
-			if getgenv().SETTINGS.PET_AUTO_FUSION then
-				Fusion:MakeMega(false) -- makes neon
-				Fusion:MakeMega(true) -- makes mega
-			end
-			task.wait(2) -- gives it time for pet to fully equipped
-			if not getgenv().SETTINGS.FOCUS_FARM_AGE_POTION then
-				SwitchOutFullyGrown()
-			end
-		elseif Player.PlayerGui.HintApp.TextLabel.Text:match("You have left the queue") then
-			-- if workspace.Interiors:FindFirstChild("Winter2023Shop") then
-			-- 	Player.Character.PrimaryPart.CFrame = workspace.Interiors.Winter2023Shop.PetRescue.JoinZone.Collider.CFrame
-			-- 		+ Vector3.new(0, -14, 0)
-			-- end
-		end
-	end)
 
 	-- Player.PlayerGui.MinigameInGameApp.Body.Left.Container.ValueLabel:GetPropertyChangedSignal("Text"):Connect(function()
 	-- 	local eventTime = Player.PlayerGui.MinigameInGameApp.Body.Left.Container.ValueLabel.Text
@@ -1336,7 +1342,7 @@ local function autoFarm()
 		for _, v in pairs(Player.PlayerGui.MinigameRewardsApp.Body.Button:GetDescendants()) do
 			if v.Name == "TextLabel" then
 				if v.Text == "NICE!" then
-					task.wait(5)
+					task.wait(1)
 					-- clickGuiButton(v.Parent.Parent, 30, 60)
 					firesignal(v.Parent.Parent.MouseButton1Down)
 					firesignal(v.Parent.Parent.MouseButton1Click)
@@ -1417,8 +1423,16 @@ local function autoFarm()
 			Player.PlayerGui.MinigameRewardsApp.Body:WaitForChild("Button")
 			Player.PlayerGui.MinigameRewardsApp.Body.Button:WaitForChild("Face")
 			Player.PlayerGui.MinigameRewardsApp.Body.Button.Face:WaitForChild("TextLabel")
+			Player.PlayerGui.MinigameRewardsApp.Body:WaitForChild("Reward")
+			Player.PlayerGui.MinigameRewardsApp.Body.Reward:WaitForChild("TitleLabel")
 			if Player.PlayerGui.MinigameRewardsApp.Body.Button.Face.TextLabel.Text:match("NICE!") then
 				Player.Character.HumanoidRootPart.Anchored = false
+				local amount = Player.PlayerGui.MinigameRewardsApp.Body.Reward.TitleLabel.Text:match("%d+")
+				if amount then
+					gingerbreadsGained += tonumber(amount)
+					TempGingerbreads:UpdateTextFor("TempGingerbreads", gingerbreadsGained)
+				end
+				
 				RemoveGameOverButton()
 				isInMiniGame = false
 				Teleport.FarmingHome()
@@ -1610,6 +1624,48 @@ end
 -----------------------------------------------------------------------------------------------
 --[[ Handling ]]--
 -----------------------------------------------------------------------------------------------
+
+-- For text that popups on bottom ui
+Player.PlayerGui.HintApp.TextLabel:GetPropertyChangedSignal("Text"):Connect(function()
+	if Player.PlayerGui.HintApp.TextLabel.Text:match("Bucks") then
+		-- local text = Player.PlayerGui.HintApp.TextLabel.Text:match("%d+")
+		local text = Player.PlayerGui.HintApp.TextLabel.Text
+		if not text then return end
+		local amount = text:split("+")[2]:split(" ")[1]
+		bucksGained += tonumber(amount)
+		TempBucks:UpdateTextFor("TempBucks", bucksGained)
+	elseif Player.PlayerGui.HintApp.TextLabel.Text:match("Gingerbread") then
+		local amount = Player.PlayerGui.HintApp.TextLabel.Text:match("%d+")
+		if not amount then return end
+		gingerbreadsGained += tonumber(amount)
+		TempGingerbreads:UpdateTextFor("TempGingerbreads", gingerbreadsGained)
+	elseif Player.PlayerGui.HintApp.TextLabel.Text:match("aged up!") then
+		if getgenv().feedAgeUpPotionToggle then
+			return
+		end
+		if getgenv().SETTINGS.PET_AUTO_FUSION then
+			Fusion:MakeMega(false) -- makes neon
+			Fusion:MakeMega(true) -- makes mega
+		end
+		task.wait(2) -- gives it time for pet to fully equipped
+		if not getgenv().SETTINGS.FOCUS_FARM_AGE_POTION then
+			SwitchOutFullyGrown()
+		end
+	-- elseif Player.PlayerGui.HintApp.TextLabel.Text:match("You have left the queue") then
+		-- if workspace.Interiors:FindFirstChild("Winter2023Shop") then
+		-- 	Player.Character.PrimaryPart.CFrame = workspace.Interiors.Winter2023Shop.PetRescue.JoinZone.Collider.CFrame
+		-- 		+ Vector3.new(0, -14, 0)
+		-- end
+	end
+end)
+
+Lighting:GetPropertyChangedSignal("ClockTime"):Connect(function()
+	if Lighting.ClockTime == 13 then
+		task.wait(5)
+		print("got gingerbread?")
+		Christmas2024.getGingerbread()
+	end
+end)
 
 -- Player.CharacterAdded:Connect(function(character: Model)
 -- 	findFurniture()
@@ -1928,10 +1984,18 @@ repeat
 	task.wait(1)
 until Player.PlayerGui.NewsApp.Enabled or Player.Character or Player.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible
 
-StatsGuis:UpdateText("NameFrame")
-StatsGuis:UpdateText("TimeFrame")
-StatsGuis:UpdateText("BucksAndPotionFrame")
-StatsGuis:UpdateText("TotalFrame")
+startTime = DateTime.now().UnixTimestamp
+startPotionAmount = agePotionCount()
+
+StatsGuis2:UpdateTextFor("TimeLabel", startTime)
+
+TempPotions:UpdateTextFor("TempPotions", potionsGained)
+TempBucks:UpdateTextFor("TempBucks", bucksGained)
+TempGingerbreads:UpdateTextFor("TempGingerbreads", gingerbreadsGained)
+
+TotalPotions:UpdateTextFor("TotalPotions")
+TotalBucks:UpdateTextFor("TotalBucks")
+TotalGingerbreads:UpdateTextFor("TotalGingerbreads")
 
 StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Captures, false)
 -- Player:WaitForChild("PlayerGui", 600)
@@ -2683,6 +2747,11 @@ dailyLoginAppClick()
 
 if getgenv().BUY_BEFORE_FARMING then
 	BuyItems:BuyPets(getgenv().BUY_BEFORE_FARMING)
+end
+
+if getgenv().AGE_PETS_BEFORE_FARMING then
+	local BulkPotions = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/BulkPotions.luau"))()
+	BulkPotions:StartAgingPets(getgenv().AGE_PETS_BEFORE_FARMING)
 end
 
 startAutoFarm()
