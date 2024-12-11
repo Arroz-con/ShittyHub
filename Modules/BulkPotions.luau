@@ -5,6 +5,7 @@ local Player = Players.LocalPlayer
 
 local Fusion = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Fusion.lua"))()
 local ClientData = require(ReplicatedStorage:WaitForChild("ClientModules"):WaitForChild("Core"):WaitForChild("ClientData"))
+local StatsGuis2 = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/StatsGuis2.luau"))()
 
 local BulkPotions = {}
 
@@ -62,7 +63,6 @@ local function isSameUnique()
 end
 
 local function feedAgePotion()
-    print(`age up potions: {agePotionCount()}`)
     if isSameUnique() then return end
 
     for _, v in ClientData.get_data()[Player.Name].inventory.food do
@@ -70,6 +70,8 @@ local function feedAgePotion()
             sameUnqiue = v.unique
             print("feeding")
             ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(v.unique, ClientData.get("pet_char_wrappers")[1].pet_unique)
+            task.wait()
+            StatsGuis2:UpdateTextFor("TotalPotions")
             break
         end
     end
