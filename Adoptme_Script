@@ -565,7 +565,7 @@ local function getRewardFromAdventCalendar()
 	if claimed then
 		-- print(`Reward already claimed for day {date["Day"]}`)
 	else
-		ReplicatedStorage.API["WinterfestAPI/AdventCalendarTryTakeReward"]:InvokeServer(date["Day"])
+		ReplicatedStorage.API["WinterEventAPI/AdventCalendarTryTakeReward"]:InvokeServer(date["Day"])
 		print(`🎉 Reward claimed: day {date["Day"]} 🎉`)
 	end
 end
