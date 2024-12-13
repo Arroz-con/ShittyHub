@@ -5,7 +5,7 @@ local ClientData = require(ReplicatedStorage:WaitForChild("ClientModules"):WaitF
 local Christmas2024 = {}
 
 local function createLobby()
-    print(ReplicatedStorage.API["MinigameAPI/LobbyCreate"]:InvokeServer("frostclaws_revenge"))
+    return ReplicatedStorage.API["MinigameAPI/LobbyCreate"]:InvokeServer("frostclaws_revenge")
 end
 
 local function startLobby()
@@ -43,10 +43,14 @@ local function hitEnemy(name, gameId)
     ReplicatedStorage.API["MinigameAPI/MessageServer"]:FireServer(unpack(args))
 end
 
-function Christmas2024.StartGame()
-    createLobby()
+function Christmas2024.CreateAndStartLobby()
+    if not createLobby() then
+        createLobby()
+    end
     startLobby()
+end
 
+function Christmas2024.StartGame()
     local minigameId = getMinigameId()
     if not minigameId then return end
 
