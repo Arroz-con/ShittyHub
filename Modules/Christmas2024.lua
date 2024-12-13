@@ -86,7 +86,12 @@ function Christmas2024.init()
         child.Icon.Container:WaitForChild("Button")
         print(child.Icon.Container.Button)
         task.wait(1)
-        firesignal(child.Icon.Container.Button.Activated)
+        local count = 0
+        repeat
+            firesignal(child.Icon.Container.Button.Activated)
+            count += 1
+            task.wait(1)
+        until not localPlayer.PlayerGui.FrostclawsRevengeUpgradeApp.Enabled or count > 15
     end)
 end
 
