@@ -74,5 +74,17 @@ function Christmas2024.getGingerbread()
     ReplicatedStorage.API:FindFirstChild("WinterEventAPI/RedeemPendingGingerbread"):FireServer()
 end
 
+function Christmas2024.init()
+    localPlayer.PlayerGui.FrostclawsRevengeUpgradeApp.Background.Upgrades.ChildAdded:Connect(function(child)
+        if child.Name ~= "Upgrade1" then return end
+        child:WaitForChild("Icon")
+        child.Icon:WaitForChild("Container")
+        child.Icon.Container:WaitForChild("Button")
+
+        firesignal(child.Icon.Container.Button.MouseButton1Down)
+        firesignal(child.Icon.Container.Button.MouseButton1Click)
+        firesignal(child.Icon.Container.Button.MouseButton1Up)
+    end)
+end
 
 return Christmas2024
