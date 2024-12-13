@@ -60,7 +60,7 @@ function Christmas2024.StartGame()
         local minigameStateFolder = workspace.StaticMap:FindFirstChild(`frostclaws_revenge::{minigameId}_minigame_state`)
         if not minigameStateFolder then print("game over or no folder") break end
         isGameActive = minigameStateFolder:WaitForChild("is_game_active").Value
-        task.wait(1)
+        task.wait()
     end
 end
 
@@ -81,7 +81,7 @@ function Christmas2024.init()
         child.Icon:WaitForChild("Container")
         child.Icon.Container:WaitForChild("Button")
         print(child.Icon.Container.Button)
-        task.wait(1)
+        task.wait()
         firesignal(child.Icon.Container.Button.Activated)
     end)
 end
