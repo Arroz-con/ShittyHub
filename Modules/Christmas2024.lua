@@ -80,7 +80,7 @@ function Christmas2024.init()
         child:WaitForChild("Icon")
         child.Icon:WaitForChild("Container")
         child.Icon.Container:WaitForChild("Button")
-
+        print(child.Icon.Container.Button)
         firesignal(child.Icon.Container.Button.MouseButton1Down)
         firesignal(child.Icon.Container.Button.MouseButton1Click)
         firesignal(child.Icon.Container.Button.MouseButton1Up)
