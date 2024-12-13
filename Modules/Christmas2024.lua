@@ -85,7 +85,7 @@ function Christmas2024.init()
         child.Icon:WaitForChild("Container")
         child.Icon.Container:WaitForChild("Button")
         print(child.Icon.Container.Button)
-        task.wait()
+        task.wait(1)
         firesignal(child.Icon.Container.Button.Activated)
     end)
 end
