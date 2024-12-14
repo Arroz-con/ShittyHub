@@ -20,8 +20,8 @@ local function getMinigameId()
             task.wait(1)
             count += 1
             folderName = workspace.Minigames:FindFirstChildWhichIsA("Folder")
-        until folderName  or count > 60
-        if count > 60 then
+        until folderName  or count > 30
+        if count > 30 then
             print("wouldnt get minigame id")
             return nil
         end
@@ -59,7 +59,12 @@ function Christmas2024.CreateAndStartLobby()
             name = model.Name:match("FrostclawsRevengeInterior")
             print(name)
         end
-    until name or count > 30
+    until name == "FrostclawsRevengeInterior" or count > 30
+    if count > 30 then
+        return false
+    end
+    
+    return true
 end
 
 function Christmas2024.StartGame()
