@@ -84,8 +84,6 @@ function Christmas2024.init()
         child:WaitForChild("Icon")
         child.Icon:WaitForChild("Container")
         child.Icon.Container:WaitForChild("Button")
-        print(child.Icon.Container.Button)
-        task.wait(1)
         local count = 0
         repeat
             firesignal(child.Icon.Container.Button.Activated)
