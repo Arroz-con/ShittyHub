@@ -1,10 +1,10 @@
-getgenv().BUY_BEFORE_FARMING = {
-	{NameId = "winter_2024_bauble_buddies", MaxAmount = 8}
-}
+-- getgenv().BUY_BEFORE_FARMING = {
+-- 	{NameId = "winter_2024_bauble_buddies", MaxAmount = 8}
+-- }
 
-getgenv().AGE_PETS_BEFORE_FARMING = {
-	"winter_2024_bauble_buddies"
-}
+-- getgenv().AGE_PETS_BEFORE_FARMING = {
+-- 	"winter_2024_bauble_buddies"
+-- }
 
 getgenv().SETTINGS = {
 	WEBHOOK = {
