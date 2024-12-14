@@ -192,9 +192,9 @@ function StatsGuis2:UpdateTextFor(labelName: string, amount: number?)
 		local timeElapsed = currentTime - amount
 		Players.LocalPlayer.PlayerGui.StatsGui.MainFrame.TimeLabel.Text = `⏱️ {formatTime(timeElapsed)}`
 	elseif labelName == "TempPotions" then
-		self.label.Text = `⚗️ {formatNumber(amount)}`
+		self.label.Text = `🧪 {formatNumber(amount)}`
     elseif labelName == "TempTinyPotions" then
-        self.label.Text = `🧪 {formatNumber(amount)}`
+        self.label.Text = `⚗️ {formatNumber(amount)}`
 	elseif labelName == "TempBucks" then
 		self.label.Text = `💰 {formatNumber(amount)}`
     elseif labelName == "TempGingerbreads" then
@@ -204,7 +204,7 @@ function StatsGuis2:UpdateTextFor(labelName: string, amount: number?)
         self.label.Text = `🧪 {formatted}`
     elseif labelName == "TotalTinyPotions" then
         local formatted = formatNumber(agePotionCount("tiny_pet_age_potion"))
-        self.label.Text = `🧪 {formatted}`
+        self.label.Text = `⚗️ {formatted}`
     elseif labelName == "TotalBucks" then
         local formatted = formatNumber(bucksAmount())
         self.label.Text = `💰 {formatted}`
