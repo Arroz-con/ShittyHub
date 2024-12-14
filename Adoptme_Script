@@ -2833,7 +2833,7 @@ if getgenv().SETTINGS.ENABLE_AUTO_FARM and getgenv().SETTINGS.EVENT.DO_FROSTCLAW
 			if Christmas2024.CreateAndStartLobby() then
 				Christmas2024.StartGame()
 			end
-			task.wait(10)
+			task.wait(30)
 		end
 	end)
 end
