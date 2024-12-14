@@ -13,21 +13,33 @@ local function startLobby()
 end
 
 local function getMinigameId()
-    local folderName = workspace.Minigames:FindFirstChildWhichIsA("Folder")
-    if not folderName then
+    local gameId
+    local model = workspace.Interiors:FindFirstChildWhichIsA("Model")
+    if not model then
         local count = 0
         repeat
             task.wait(1)
             count += 1
-            folderName = workspace.Minigames:FindFirstChildWhichIsA("Folder")
-        until folderName  or count > 30
+            model = workspace.Interiors:FindFirstChildWhichIsA("Model")
+        until model  or count > 30
         if count > 30 then
-            print("wouldnt get minigame id")
+            print("wouldnt get model")
             return nil
         end
     end
 
-    return folderName.Name:split("::")[2]
+    if model then
+        local count = 0
+        repeat
+            if model.Name:match("FrostclawsRevengeInterior") then
+                gameId = model.Name:split("::")[2]
+            end
+            count += 1
+            task.wait(1)
+        until gameId or count > 30
+    end
+  
+    return gameId
 end
 
 local function hitEnemy(name, gameId)
@@ -63,7 +75,7 @@ function Christmas2024.CreateAndStartLobby()
     if count > 30 then
         return false
     end
-    
+
     return true
 end
 
