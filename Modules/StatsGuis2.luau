@@ -58,7 +58,7 @@ function StatsGuis2.new(name)
 	self.label.BorderSizePixel = 0
 	self.label.Size = UDim2.new(0.330000013, 0, 0.486617982, 0)
 	self.label.Font = Enum.Font.FredokaOne
-	self.label.RichText = true
+	self.label.RichText = false
 	self.label.Text = "label"
 	self.label.TextColor3 = Color3.fromRGB(255, 255, 255)
 	self.label.TextScaled = true
@@ -107,7 +107,7 @@ function StatsGuis2.Setup()
 	TimeLabel.BorderSizePixel = 0
 	TimeLabel.Size = UDim2.new(1, 0, 0.200000018, 0)
 	TimeLabel.Font = Enum.Font.FredokaOne
-	TimeLabel.RichText = true
+	TimeLabel.RichText = false
 	TimeLabel.Text = "⏱️ time"
 	TimeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 	TimeLabel.TextScaled = true
@@ -130,8 +130,8 @@ function StatsGuis2.Setup()
 
 	UIGridLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	UIGridLayout.CellPadding = UDim2.new(0.00999999978, 0, 0.00999999978, 0)
-	UIGridLayout.CellSize = UDim2.new(0.326000005, 0, 0.5, 0)
-	UIGridLayout.FillDirectionMaxCells = 3
+	UIGridLayout.CellSize = UDim2.new(0.242, 0, 0.5, 0)
+	UIGridLayout.FillDirectionMaxCells = 0
 	UIGridLayout.Parent = MiddleFrame
 
 	NameLabel.Name = "NameLabel"
