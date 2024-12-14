@@ -2833,10 +2833,7 @@ if getgenv().SETTINGS.ENABLE_AUTO_FARM and getgenv().SETTINGS.EVENT.DO_FROSTCLAW
 			if Christmas2024.CreateAndStartLobby() then
 				Christmas2024.StartGame()
 			end
-			if isMuleInGame() then
-				ReplicatedStorage.API["MinigameAPI/LobbyLeave"]:FireServer()
-				tradeCollector(getgenv().SETTINGS.TRADE_COLLECTOR_NAME)
-			end
+			
 			task.wait(1)
 		end
 	end)
