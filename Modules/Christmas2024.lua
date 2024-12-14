@@ -53,7 +53,7 @@ function Christmas2024.CreateAndStartLobby()
         startLobby()
         count += 1
         task.wait(2)
-    until workspace.Interiors:FindFirstChildWhichIsA("Model"):match("FrostclawsRevengeInterior") or count > 30
+    until workspace.Interiors:FindFirstChildWhichIsA("Model").Name:match("FrostclawsRevengeInterior") or count > 30
 end
 
 function Christmas2024.StartGame()
