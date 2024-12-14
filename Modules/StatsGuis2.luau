@@ -36,10 +36,10 @@ local function gingerbreadAmount()
     return ClientData.get_data()[localPlayer.Name].gingerbread_2024 or 0
 end
 
-local function agePotionCount()
+local function agePotionCount(nameId)
     local count = 0
     for _, v in ClientData.get_data()[localPlayer.Name].inventory.food do
-        if v.id == "pet_age_potion" then
+        if v.id == nameId then
             count += 1
         end
     end
@@ -192,13 +192,18 @@ function StatsGuis2:UpdateTextFor(labelName: string, amount: number?)
 		local timeElapsed = currentTime - amount
 		Players.LocalPlayer.PlayerGui.StatsGui.MainFrame.TimeLabel.Text = `⏱️ {formatTime(timeElapsed)}`
 	elseif labelName == "TempPotions" then
-		self.label.Text = `🧪 {formatNumber(amount)}`
+		self.label.Text = `⚗️ {formatNumber(amount)}`
+    elseif labelName == "TempTinyPotions" then
+        self.label.Text = `🧪 {formatNumber(amount)}`
 	elseif labelName == "TempBucks" then
 		self.label.Text = `💰 {formatNumber(amount)}`
     elseif labelName == "TempGingerbreads" then
         self.label.Text = `🍪 {formatNumber(amount)}`
     elseif labelName == "TotalPotions" then
-        local formatted = formatNumber(agePotionCount())
+        local formatted = formatNumber(agePotionCount("pet_age_potion"))
+        self.label.Text = `🧪 {formatted}`
+    elseif labelName == "TotalTinyPotions" then
+        local formatted = formatNumber(agePotionCount("tiny_pet_age_potion"))
         self.label.Text = `🧪 {formatted}`
     elseif labelName == "TotalBucks" then
         local formatted = formatNumber(bucksAmount())
