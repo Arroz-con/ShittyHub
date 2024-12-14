@@ -56,7 +56,7 @@ function Christmas2024.CreateAndStartLobby()
         task.wait(2)
         local model = workspace.Interiors:FindFirstChildWhichIsA("Model")
         if model then
-            local name = model.Name:match("FrostclawsRevengeInterior")
+            name = model.Name:match("FrostclawsRevengeInterior")
             print(name)
         end
     until name or count > 30
