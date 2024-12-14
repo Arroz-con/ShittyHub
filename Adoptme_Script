@@ -471,6 +471,7 @@ end
 
 local function isMuleInGame()
 	for _, player in Players:GetPlayers() do
+		if player.Name == Player.Name then continue end
 		if player.Name == getgenv().SETTINGS.TRADE_COLLECTOR_NAME then
 			return true
 		end
@@ -2803,6 +2804,9 @@ if getgenv().AGE_PETS_BEFORE_FARMING then
 	BulkPotions:StartAgingPets(getgenv().AGE_PETS_BEFORE_FARMING)
 end
 
+if isMuleInGame() then
+	tradeCollector(getgenv().SETTINGS.TRADE_COLLECTOR_NAME)
+end
 
 startAutoFarm()
 
