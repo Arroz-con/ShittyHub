@@ -95,6 +95,12 @@ function Christmas2024.StartGame()
         isGameActive = minigameStateFolder:WaitForChild("is_game_active").Value
         task.wait()
     end
+
+    local count = 0
+    repeat
+        count += 1
+        task.wait(1)
+    until not workspace.Minigames:FindFirstChild(`FrostclawsRevengeInterior::{minigameId}`) or count > 30
 end
 
 function Christmas2024.getGingerbread()
