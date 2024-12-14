@@ -47,7 +47,11 @@ function Christmas2024.CreateAndStartLobby()
     if not createLobby() then
         createLobby()
     end
-    startLobby()
+
+    repeat
+        startLobby()
+        task.wait(2)
+    until workspace.Interiors:FindFirstChildWhichIsA("Model"):match("FrostclawsRevengeInterior")
 end
 
 function Christmas2024.StartGame()
