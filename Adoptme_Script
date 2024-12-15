@@ -235,7 +235,7 @@ local pets_eggs = {}
 local Pets_commonto_ultrarare = {}
 local pets_legendary_to_common = {}
 
-local rng = Random.new()
+-- local rng = Random.new()
 -----------------------------------------------------------------------------------------------
 --[[ Private Functions ]]--
 -----------------------------------------------------------------------------------------------
@@ -411,7 +411,6 @@ local function NewTask()
 			task.wait()
 		elseif v["entry_name"]:match("tutorial") then
 			ReplicatedStorage.API["QuestAPI/ClaimQuest"]:InvokeServer(v["unique_id"])
-			-- ClaimRemote:InvokeServer(v["unique_id"])
 			task.wait()
 		elseif v["entry_name"]:match("celestial_2024_small_open_gift") then
 			-- open small gift
@@ -431,7 +430,6 @@ local function NewTask()
 					task.wait()
 				elseif not NeonTable[v["entry_name"]] and ReRollCount() >= 1 then
 					ReplicatedStorage.API["QuestAPI/RerollQuest"]:FireServer(v["unique_id"])
-					-- RerollRemote:FireServer(v["unique_id"])
 					task.wait()
 				end
 			elseif QuestCount() > 1 then
@@ -2133,9 +2131,9 @@ if Player.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
 	end
 end
 
-NewClaim()
-task.wait()
-NewTask()
+-- NewClaim()
+-- task.wait()
+-- NewTask()
 
 for _, pettable in pairs({ pets_common, pets_uncommon, pets_rare, pets_ultrarare }) do
 	for j, petlist in pairs(pettable) do
