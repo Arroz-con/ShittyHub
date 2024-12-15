@@ -39,10 +39,10 @@ local function isPetNeon(petName: string)
     end
 end
 
-local function agePotionCount()
+local function agePotionCount(nameId)
     local count = 0
     for _, v in ClientData.get_data()[Player.Name].inventory.food do
-        if v.id == "pet_age_potion" then
+        if v.id == nameId then
             count += 1
         end
     end
@@ -51,7 +51,7 @@ end
 
 local function isSameUnique()
     for _, v in ClientData.get_data()[Player.Name].inventory.food do
-        if v.id == "pet_age_potion" then
+        if v.id == "pet_age_potion" or v.id == "tiny_pet_age_potion" then
             if sameUnqiue == v.unique then
                 print("has same unqiue age up potion")
                 return true
@@ -67,19 +67,31 @@ local function feedAgePotion()
     for _, v in ClientData.get_data()[Player.Name].inventory.food do
         if v.id == "pet_age_potion" then
             sameUnqiue = v.unique
-            print("feeding")
+            print("feeding normal age-up potion")
             ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(v.unique, ClientData.get("pet_char_wrappers")[1].pet_unique)
             task.wait()
             local TotalPotions = Player.PlayerGui.StatsGui.MainFrame.MiddleFrame.TotalPotions
-            TotalPotions.Text = `🧪 {agePotionCount()}`
-            break
+            TotalPotions.Text = `🧪 {agePotionCount("pet_age_potion")}`
+            return
+        end
+    end
+
+    for _, v in ClientData.get_data()[Player.Name].inventory.food do
+        if v.id == "tiny_pet_age_potion" then
+            sameUnqiue = v.unique
+            print("feeding tiny age-up potion")
+            ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(v.unique, ClientData.get("pet_char_wrappers")[1].pet_unique)
+            task.wait()
+            local TotalTinyPotions = Player.PlayerGui.StatsGui.MainFrame.MiddleFrame.TotalTinyPotions
+            TotalTinyPotions.Text = `⚗️ {agePotionCount("tiny_pet_age_potion")}`
+            return
         end
     end
 end
 
 local function hasAgeUpPotion()
     for _, v in ClientData.get_data()[Player.Name].inventory.food do
-        if v.id == "pet_age_potion" then
+        if v.id == "pet_age_potion" or v.id == "tiny_pet_age_potion" then
             return true
         end
     end
