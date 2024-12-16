@@ -12,7 +12,6 @@ local function formatTime(currentTime)
 	local hours = math.floor(currentTime / 3600)
 	local minutes = math.floor((currentTime % 3600) / 60)
 	local seconds = currentTime % 60
-	print(hours)
 	if hours > 10 then
 		game:Shutdown()
 	end
