@@ -6,9 +6,9 @@
 -- 	"winter_2024_ice_tray"
 -- }
 
--- getgenv().AGE_PETS_BEFORE_FARMING = {
--- 	"winter_2024_partridge"
--- }
+getgenv().AGE_PETS_BEFORE_FARMING = {
+	"winter_2024_partridge"
+}
 
 getgenv().SETTINGS = {
 	WEBHOOK = {
