@@ -2347,8 +2347,17 @@ do
                     self.SameUnqiue = v.unique
 
                     print('feeding normal age-up potion')
-                    ReplicatedStorage.API['PetAPI/ConsumeFoodItem']:FireServer(v.unique, ClientData.get('pet_char_wrappers')[1].pet_unique)
-                    task.wait()
+
+                    local args = {
+                        [1] = '__Enum_PetObjectCreatorType_2',
+                        [2] = {
+                            ['pet_unique'] = ClientData.get('pet_char_wrappers')[1].pet_unique,
+                            ['unique_id'] = v.unique,
+                        },
+                    }
+
+                    ReplicatedStorage.API['PetObjectAPI/CreatePetObject']:InvokeServer(unpack(args))
+                    task.wait(6)
 
                     TotalPotions.Text = `\u{1f9ea} {agePotionCount('pet_age_potion')}`
 
@@ -2360,8 +2369,17 @@ do
                     self.SameUnqiue = v.unique
 
                     print('feeding tiny age-up potion')
-                    ReplicatedStorage.API['PetAPI/ConsumeFoodItem']:FireServer(v.unique, ClientData.get('pet_char_wrappers')[1].pet_unique)
-                    task.wait()
+
+                    local args = {
+                        [1] = '__Enum_PetObjectCreatorType_2',
+                        [2] = {
+                            ['pet_unique'] = ClientData.get('pet_char_wrappers')[1].pet_unique,
+                            ['unique_id'] = v.unique,
+                        },
+                    }
+
+                    ReplicatedStorage.API['PetObjectAPI/CreatePetObject']:InvokeServer(unpack(args))
+                    task.wait(6)
 
                     TotalTinyPotions.Text = `\u{2697}\u{fe0f} {agePotionCount('tiny_pet_age_potion')}`
 
