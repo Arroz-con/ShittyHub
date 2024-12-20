@@ -2342,6 +2342,8 @@ do
                 print(`\u{26a0}\u{fe0f} Waited too long for Equipping pet so Stopping aging \u{26a0}\u{fe0f}`)
 
                 self.StopAging = true
+
+                return true
             end
 
             local isEgg = if table.find(self.EggsTable, ClientData.get('pet_char_wrappers')[1]['pet_id'])then true else false
@@ -2353,7 +2355,7 @@ do
                 return
             end
             if self:IsEgg() then
-                return print('Pet Equipped is a EGG!')
+                return print('Pet Equipped is a EGG! or No pet Equipped')
             end
 
             local TotalPotions = localPlayer.PlayerGui.StatsGui.MainFrame.MiddleFrame.TotalPotions
