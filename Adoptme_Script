@@ -2327,6 +2327,23 @@ do
             self.EggsTable = newEggTable
         end
         function BulkPotions:IsEgg()
+            local EquipTimeout = 0
+            local hasPetChar = false
+
+            repeat
+                task.wait(0.1)
+
+                hasPetChar = if ClientData.get('pet_char_wrappers')[1] and ClientData.get('pet_char_wrappers')[1]['char']then true else false
+
+                EquipTimeout += 1
+            until hasPetChar or EquipTimeout >= 30
+
+            if EquipTimeout >= 30 then
+                print(`\u{26a0}\u{fe0f} Waited too long for Equipping pet so Stopping aging \u{26a0}\u{fe0f}`)
+
+                self.StopAging = true
+            end
+
             local isEgg = if table.find(self.EggsTable, ClientData.get('pet_char_wrappers')[1]['pet_id'])then true else false
 
             return isEgg
