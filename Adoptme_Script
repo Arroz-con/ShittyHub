@@ -2331,7 +2331,7 @@ do
             local hasPetChar = false
 
             repeat
-                task.wait(0.1)
+                task.wait(1)
 
                 hasPetChar = if ClientData.get('pet_char_wrappers')[1] and ClientData.get('pet_char_wrappers')[1]['char']then true else false
 
