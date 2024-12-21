@@ -2335,6 +2335,7 @@ do
             end
 
             ReplicatedStorage.API:FindFirstChild('WinterEventAPI/RedeemPendingGingerbread'):FireServer()
+            print('Redeemed Gingerbread')
         end
         function Christmas2024.init()
             localPlayer.PlayerGui.FrostclawsRevengeUpgradeApp.Background.Upgrades.ChildAdded:Connect(function(
@@ -4887,6 +4888,7 @@ if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match
 end
 
 dailyLoginAppClick()
+Teleport.FarmingHome()
 
 if getgenv().BUY_BEFORE_FARMING then
     BuyItems:BuyPets(getgenv().BUY_BEFORE_FARMING)
