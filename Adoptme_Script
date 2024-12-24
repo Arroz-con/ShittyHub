@@ -2722,6 +2722,7 @@ if game.PlaceId ~= 920587237 then
 end
 
 local Players = game:GetService('Players')
+local Workspace = game:GetService('Workspace')
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
 local UserInputService = game:GetService('UserInputService')
 local Lighting = game:GetService('Lighting')
@@ -2758,6 +2759,7 @@ local banMessageConnection
 local DailyClaimConnection
 local counter = 0
 local isInMiniGame = false
+local isBuyingOrAging = false
 local guiCooldown = false
 local tutorialDebonce = false
 local discordCooldown = false
@@ -2789,6 +2791,7 @@ local LitterBox
 local strollerId
 local baitId
 local selectedPlayer
+local selectedItem
 local selectedPet
 local selectedGift
 local selectedToy
@@ -2900,6 +2903,11 @@ local pets_uncommon = {}
 local pets_common = {}
 local Pets_commonto_ultrarare = {}
 local pets_legendary_to_common = {}
+
+repeat
+    task.wait(1)
+until localPlayer.PlayerGui.NewsApp.Enabled or localPlayer.Character or localPlayer.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible
+
 local fireButton = function(button)
     local success, errorMessage = pcall(function()
         firesignal(button.MouseButton1Down)
@@ -3020,7 +3028,7 @@ local placeBaitOrPickUp = function(baitIdPasson)
         [5] = game:GetService('Players').LocalPlayer.Character,
     }
 
-    ReplicatedStorage.API:FindFirstChild('HousingAPI/ActivateFurniture'):InvokeServer(unpack(args))
+    print(ReplicatedStorage.API:FindFirstChild('HousingAPI/ActivateFurniture'):InvokeServer(unpack(args)))
 end
 local agePotionCount = function(nameId)
     local count = 0
@@ -3196,6 +3204,9 @@ local CheckifEgg = function()
     getPet()
 end
 local SwitchOutFullyGrown = function()
+    if isBuyingOrAging then
+        return
+    end
     if ClientData.get('pet_char_wrappers')[1] == nil or false then
         getPet()
 
@@ -3398,11 +3409,11 @@ local tradeCollector = function(namePassOn)
     end
 end
 local PlaceFloorAtSpleefMinigame = function()
-    if workspace:FindFirstChild('SpleefLocation') then
+    if Workspace:FindFirstChild('SpleefLocation') then
         return
     end
 
-    local interiorOrigin = workspace:WaitForChild('Interiors'):WaitForChild('SpleefMinigame'):WaitForChild('InteriorOrigin')
+    local interiorOrigin = Workspace:WaitForChild('Interiors'):WaitForChild('SpleefMinigame'):WaitForChild('InteriorOrigin')
     local part = Instance.new('Part')
 
     part.Position = interiorOrigin.Position
@@ -3410,15 +3421,15 @@ local PlaceFloorAtSpleefMinigame = function()
     part.Anchored = true
     part.Transparency = 0
     part.Name = 'SpleefLocation'
-    part.Parent = workspace
+    part.Parent = Workspace
 end
 local removeGameOverButton = function()
+    task.wait()
     localPlayer.PlayerGui.MinigameRewardsApp.Body.Button:WaitForChild('Face')
 
     for _, v in pairs(localPlayer.PlayerGui.MinigameRewardsApp.Body.Button:GetDescendants())do
         if v.Name == 'TextLabel' then
             if v.Text == 'NICE!' then
-                task.wait(10)
                 fireButton(v.Parent.Parent)
 
                 break
@@ -3601,7 +3612,6 @@ local autoFarm = function()
     Teleport.PlaceFloorAtCampSite()
     Teleport.PlaceFloorAtBeachParty()
     Teleport.FarmingHome()
-    Christmas2024.getGingerbread()
     task.delay(30, function()
         while true do
             if isInMiniGame then
@@ -4059,11 +4069,7 @@ localPlayer.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal('Enabled'):Conn
             PlaceFloorAtSpleefMinigame()
             task.wait(2)
 
-            localPlayer.Character.PrimaryPart.CFrame = workspace:WaitForChild('SpleefLocation').CFrame + Vector3.new(0, 5, 0)
-        elseif localPlayer.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match("FROSTCLAW'S REVENGE") then
-            if Christmas2024.CreateAndStartLobby() then
-                Christmas2024.StartGame()
-            end
+            localPlayer.Character.PrimaryPart.CFrame = Workspace:WaitForChild('SpleefLocation').CFrame + Vector3.new(0, 5, 0)
         end
     end
 end)
@@ -4106,9 +4112,9 @@ localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal('Vi
         end)
     end
 end)
-workspace.StaticMap.spleef_minigame_minigame_state.players_loading:GetPropertyChangedSignal('Value'):Connect(function(
+Workspace.StaticMap.spleef_minigame_minigame_state.players_loading:GetPropertyChangedSignal('Value'):Connect(function(
 )
-    if workspace.StaticMap.spleef_minigame_minigame_state.players_loading.Value then
+    if Workspace.StaticMap.spleef_minigame_minigame_state.players_loading.Value then
         task.wait(1)
 
         if getgenv().SETTINGS.EVENT.DO_FROSTCLAW_MINIGAME then
@@ -4331,6 +4337,7 @@ ClipboardButton.Activated:Connect(function()
 
     guiCooldown = false
 end)
+Rayfield:Minimise()
 GuiPopupButton.MouseButton1Click:Connect(function()
     if guiCooldown then
         return
@@ -4343,6 +4350,7 @@ GuiPopupButton.MouseButton1Click:Connect(function()
 
     guiCooldown = false
 end)
+Rayfield:Hide()
 
 local FarmTab = Window:CreateTab('Misc', 4483362458)
 
@@ -4358,6 +4366,7 @@ FarmTab:CreateButton({
         clipboard:CopyPetInfo()
     end,
 })
+FarmTab:CreateSection('1 Click = ALL Neon/Mega')
 FarmTab:CreateButton({
     Name = 'Make Neons',
     Callback = function()
@@ -4891,12 +4900,18 @@ dailyLoginAppClick()
 Teleport.FarmingHome()
 
 if getgenv().BUY_BEFORE_FARMING then
+    isBuyingOrAging = true
+
     BuyItems:BuyPets(getgenv().BUY_BEFORE_FARMING)
 end
 if getgenv().OPEN_ITEMS_BEFORE_FARMING then
+    isBuyingOrAging = true
+
     BuyItems:OpenItems(getgenv().OPEN_ITEMS_BEFORE_FARMING)
 end
 if getgenv().AGE_PETS_BEFORE_FARMING then
+    isBuyingOrAging = true
+
     local BulkPotions = __DARKLUA_BUNDLE_MODULES.load('m')
     local bulkPotions = BulkPotions.new()
 
@@ -4904,6 +4919,9 @@ if getgenv().AGE_PETS_BEFORE_FARMING then
     bulkPotions:StartAgingPets(getgenv().AGE_PETS_BEFORE_FARMING)
     print('DONE aging pets')
 end
+
+isBuyingOrAging = false
+
 if isMuleInGame() then
     tradeCollector(getgenv().SETTINGS.TRADE_COLLECTOR_NAME)
 end
@@ -4935,7 +4953,8 @@ if getgenv().SETTINGS.ENABLE_AUTO_FARM and getgenv().SETTINGS.EVENT.DO_FROSTCLAW
                 Christmas2024.StartGame()
             end
 
-            task.wait(1)
+            task.wait(5)
+            placeBaitOrPickUp(baitId)
         end
     end)
 end
