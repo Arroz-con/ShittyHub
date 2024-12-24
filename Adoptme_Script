@@ -4936,6 +4936,7 @@ task.delay(5, function()
 end)
 print('Loaded. lastest update 12/13/2024  mm/dd/yyyy')
 Christmas2024.getGingerbread()
+getRewardFromAdventCalendar()
 task.wait(2)
 startAutoFarm()
 
