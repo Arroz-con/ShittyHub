@@ -2925,7 +2925,7 @@ local findButton = function(text, dialogFramePassOn)
     for _, v in localPlayer.PlayerGui.DialogApp.Dialog[dialogFrame].Buttons:GetDescendants()do
         if v:IsA('TextLabel') then
             if v.Text == text then
-                fireButton(v)
+                fireButton(v.Parent.Parent)
 
                 break
             end
