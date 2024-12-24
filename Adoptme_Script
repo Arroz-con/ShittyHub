@@ -2751,7 +2751,6 @@ local localPlayer = Players.LocalPlayer
 local clipboard = Clipboard.new()
 local taskBoard = TaskBoard.new()
 local PickColorConn
-local WelcomeScreen
 local RoleChooserDialogConnection
 local RobuxProductDialogConnection1
 local RobuxProductDialogConnection2
@@ -3798,26 +3797,6 @@ localPlayer.OnTeleport:Connect(function(State)
     end
 end)
 
-WelcomeScreen = localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal('Visible'):Connect(function(
-)
-    if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
-        localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog:WaitForChild('Info')
-        localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info:WaitForChild('TextLabel')
-        localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal('Text'):Connect(function(
-        )
-            if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Welcome to Adopt Me!') then
-                findButton('Next')
-                task.wait(1)
-                findButton('Start')
-                task.wait(1)
-                Tutorials.CompleteStarterTutorial()
-                TradeLicense.Get(ClientData, localPlayer.Name)
-                task.wait(1)
-                WelcomeScreen:Disconnect()
-            end
-        end)
-    end
-end)
 PickColorConn = localPlayer.PlayerGui.DialogApp.Dialog.ThemeColorDialog:GetPropertyChangedSignal('Visible'):Connect(function(
 )
     if localPlayer.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
