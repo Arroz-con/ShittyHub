@@ -2376,7 +2376,7 @@ do
 
             local success, errorMessage = pcall(function()
                 ReplicatedStorage.API:FindFirstChild('SettingsAPI/SetBooleanFlag'):FireServer('has_talked_to_trade_quest_npc', true)
-                task.wait()
+                task.wait(1)
                 ReplicatedStorage.API:FindFirstChild('TradeAPI/BeginQuiz'):FireServer()
                 task.wait(1)
 
@@ -2402,15 +2402,15 @@ do
         function Tutorials.CompleteStarterTutorial()
             pcall(function()
                 LegacyTutorial.cancel_tutorial()
-                task.wait()
+                task.wait(1)
                 ReplicatedStorage.API['LegacyTutorialAPI/MarkTutorialCompleted']:FireServer()
-                task.wait()
+                task.wait(1)
                 ReplicatedStorage.API['LegacyTutorialAPI/EquipTutorialEgg']:FireServer()
-                task.wait()
+                task.wait(1)
                 ReplicatedStorage.API['LegacyTutorialAPI/AddTutorialQuest']:FireServer()
-                task.wait()
+                task.wait(1)
                 ReplicatedStorage.API['LegacyTutorialAPI/AddHungryAilmentToTutorialEgg']:FireServer()
-                task.wait()
+                task.wait(1)
 
                 local feedStartEgg = function(SandwichPassOn)
                     local Foodid2
@@ -2427,7 +2427,16 @@ do
                         ['use_sound_delay'] = true,
                     })
                     task.wait(1)
-                    ReplicatedStorage.API['PetAPI/ConsumeFoodItem']:FireServer(Foodid2, ClientData.get('pet_char_wrappers')[1].pet_unique)
+
+                    local args = {
+                        [1] = '__Enum_PetObjectCreatorType_2',
+                        [2] = {
+                            ['pet_unique'] = ClientData.get('pet_char_wrappers')[1].pet_unique,
+                            ['unique_id'] = Foodid2,
+                        },
+                    }
+
+                    ReplicatedStorage.API['PetObjectAPI/CreatePetObject']:InvokeServer(unpack(args))
                 end
 
                 feedStartEgg('sandwich-default')
@@ -2751,6 +2760,7 @@ local localPlayer = Players.LocalPlayer
 local clipboard = Clipboard.new()
 local taskBoard = TaskBoard.new()
 local PickColorConn
+local WelcomeScreen
 local RoleChooserDialogConnection
 local RobuxProductDialogConnection1
 local RobuxProductDialogConnection2
@@ -3797,6 +3807,26 @@ localPlayer.OnTeleport:Connect(function(State)
     end
 end)
 
+WelcomeScreen = localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal('Visible'):Connect(function(
+)
+    if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
+        localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog:WaitForChild('Info')
+        localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info:WaitForChild('TextLabel')
+        localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal('Text'):Connect(function(
+        )
+            if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Welcome to Adopt Me!') then
+                findButton('Next')
+                task.wait(1)
+                findButton('Start')
+                task.wait(1)
+                Tutorials.CompleteStarterTutorial()
+                TradeLicense.Get(ClientData, localPlayer.Name)
+                task.wait(1)
+                WelcomeScreen:Disconnect()
+            end
+        end)
+    end
+end)
 PickColorConn = localPlayer.PlayerGui.DialogApp.Dialog.ThemeColorDialog:GetPropertyChangedSignal('Visible'):Connect(function(
 )
     if localPlayer.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
