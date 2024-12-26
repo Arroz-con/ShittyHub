@@ -2329,11 +2329,13 @@ do
             for _, id in gingerbeadIds['Winter2024Shop']do
                 if not gingerbreadCaptured['Winter2024Shop'] or not gingerbreadCaptured['Winter2024Shop'][id] then
                     ReplicatedStorage.API:FindFirstChild('WinterEventAPI/PickUpGingerbread'):InvokeServer('Winter2024Shop', id)
+                    task.wait()
                 end
             end
             for _, id in gingerbeadIds['MainMap!Snow']do
                 if not gingerbreadCaptured['MainMap!Snow'] or not gingerbreadCaptured['MainMap!Snow'][id] then
                     ReplicatedStorage.API:FindFirstChild('WinterEventAPI/PickUpGingerbread'):InvokeServer('MainMap!Snow', id)
+                    task.wait()
                 end
             end
 
@@ -2396,64 +2398,6 @@ do
         return TradeLicense
     end
     function __DARKLUA_BUNDLE_MODULES.l()
-        local ReplicatedStorage = game:GetService('ReplicatedStorage')
-        local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
-        local localPlayer = game:GetService('Players').LocalPlayer
-        local Tutorials = {}
-
-        function Tutorials.CompleteStarterTutorial()
-            local success, errorMessage = pcall(function()
-                print('START DOING TUTORIAL')
-                task.wait(10)
-                ReplicatedStorage.API['LegacyTutorialAPI/MarkTutorialCompleted']:FireServer()
-                print('MarkTutorialCompleted')
-                task.wait(10)
-                ReplicatedStorage.API['LegacyTutorialAPI/EquipTutorialEgg']:FireServer()
-                print('EquipTutorialEgg')
-                task.wait(10)
-                ReplicatedStorage.API['LegacyTutorialAPI/AddTutorialQuest']:FireServer()
-                print('AddTutorialQuest')
-                task.wait(10)
-                ReplicatedStorage.API['LegacyTutorialAPI/AddHungryAilmentToTutorialEgg']:FireServer()
-                print('AddHungryAilmentToTutorialEgg')
-                task.wait(10)
-
-                local feedStartEgg = function(SandwichPassOn)
-                    local Foodid2
-
-                    for _, v in pairs(ClientData.get_data()[localPlayer.Name].inventory.food)do
-                        if v.id == SandwichPassOn then
-                            Foodid2 = v.unique
-
-                            break
-                        end
-                    end
-
-                    ReplicatedStorage.API['ToolAPI/Equip']:InvokeServer(Foodid2, {
-                        ['use_sound_delay'] = true,
-                    })
-                    task.wait(1)
-
-                    local args = {
-                        [1] = '__Enum_PetObjectCreatorType_2',
-                        [2] = {
-                            ['pet_unique'] = ClientData.get('pet_char_wrappers')[1].pet_unique,
-                            ['unique_id'] = Foodid2,
-                        },
-                    }
-
-                    ReplicatedStorage.API['PetObjectAPI/CreatePetObject']:InvokeServer(unpack(args))
-                end
-
-                feedStartEgg('sandwich-default')
-            end)
-
-            print('tutorial', success, errorMessage)
-        end
-
-        return Tutorials
-    end
-    function __DARKLUA_BUNDLE_MODULES.m()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local VirtualUser = game:GetService('VirtualUser')
         local Players = game:GetService('Players')
@@ -2729,6 +2673,66 @@ do
 
         return BulkPotions
     end
+    function __DARKLUA_BUNDLE_MODULES.m()
+        local ReplicatedStorage = game:GetService('ReplicatedStorage')
+        local LegacyTutorial = require(ReplicatedStorage.ClientModules:WaitForChild('Game'):WaitForChild('Tutorial'):WaitForChild('LegacyTutorial'))
+        local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
+        local localPlayer = game:GetService('Players').LocalPlayer
+        local Tutorials = {}
+
+        function Tutorials.CompleteStarterTutorial()
+            local success, errorMessage = pcall(function()
+                print('START DOING TUTORIAL')
+                LegacyTutorial.cancel_tutorial()
+                task.wait(1)
+                ReplicatedStorage.API['LegacyTutorialAPI/MarkTutorialCompleted']:FireServer()
+                print('MarkTutorialCompleted')
+                task.wait(1)
+                ReplicatedStorage.API['LegacyTutorialAPI/EquipTutorialEgg']:FireServer()
+                print('EquipTutorialEgg')
+                task.wait(1)
+                ReplicatedStorage.API['LegacyTutorialAPI/AddTutorialQuest']:FireServer()
+                print('AddTutorialQuest')
+                task.wait(1)
+                ReplicatedStorage.API['LegacyTutorialAPI/AddHungryAilmentToTutorialEgg']:FireServer()
+                print('AddHungryAilmentToTutorialEgg')
+                task.wait(1)
+
+                local feedStartEgg = function(SandwichPassOn)
+                    local Foodid2
+
+                    for _, v in pairs(ClientData.get_data()[localPlayer.Name].inventory.food)do
+                        if v.id == SandwichPassOn then
+                            Foodid2 = v.unique
+
+                            break
+                        end
+                    end
+
+                    ReplicatedStorage.API['ToolAPI/Equip']:InvokeServer(Foodid2, {
+                        ['use_sound_delay'] = true,
+                    })
+                    task.wait(1)
+
+                    local args = {
+                        [1] = '__Enum_PetObjectCreatorType_2',
+                        [2] = {
+                            ['pet_unique'] = ClientData.get('pet_char_wrappers')[1].pet_unique,
+                            ['unique_id'] = Foodid2,
+                        },
+                    }
+
+                    ReplicatedStorage.API['PetObjectAPI/CreatePetObject']:InvokeServer(unpack(args))
+                end
+
+                feedStartEgg('sandwich-default')
+            end)
+
+            print('tutorial', success, errorMessage)
+        end
+
+        return Tutorials
+    end
 end
 
 if not game:IsLoaded() then
@@ -2876,7 +2880,8 @@ local StatsGuis2 = __DARKLUA_BUNDLE_MODULES.load('h')
 local Clipboard = __DARKLUA_BUNDLE_MODULES.load('i')
 local Christmas2024 = __DARKLUA_BUNDLE_MODULES.load('j')
 local TradeLicense = __DARKLUA_BUNDLE_MODULES.load('k')
-local Tutorials = __DARKLUA_BUNDLE_MODULES.load('l')
+local BulkPotions = __DARKLUA_BUNDLE_MODULES.load('l')
+local Tutorials = __DARKLUA_BUNDLE_MODULES.load('m')
 local clipboard = Clipboard.new()
 local taskBoard = TaskBoard.new()
 
@@ -3107,9 +3112,6 @@ local updateStatsGui = function()
     TotalPotions:UpdateTextFor('TotalPotions')
     TotalBucks:UpdateTextFor('TotalBucks')
     TotalGingerbreads:UpdateTextFor('TotalGingerbreads')
-end
-local getRewardFromAdventCalendar = function()
-    ReplicatedStorage.API['WinterEventAPI/AdventCalendarTryTakeReward']:InvokeServer(25)
 end
 local findBait = function(baitPassOn)
     local bait
@@ -3607,7 +3609,6 @@ local CompletePetAilments = function()
 
             return true
         elseif key == 'camping' then
-            getRewardFromAdventCalendar()
             Teleport.PlaceFloorAtCampSite()
             Ailments:CampingAilment(petUnique)
             Teleport.FarmingHome()
@@ -3751,12 +3752,13 @@ local onTextChangedNormalDialog = function()
     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('4.5%% Legendary') then
         findButton('Okay')
     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Welcome to Adopt Me!') then
-        print('pressed next on welcome screen')
-        findButton('Next')
         print('doing tutorial')
-        task.wait(10)
+        Tutorials.CompleteStarterTutorial()
+        task.wait(1)
         print('doing trade license')
-        task.wait(10)
+        task.wait(1)
+        TradeLicense.Get(ClientData, localPlayer.Name)
+        findButton('Next')
     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Let's start the day") then
         findButton('Start')
     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Are you subscribed') then
@@ -4927,10 +4929,6 @@ ClipboardButton.TextSize = 14
 ClipboardButton.TextWrapped = true
 ClipboardButton.Parent = TestGui
 
-if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Cricket's Tile Hop") then
-    findButton('No')
-end
-
 dailyLoginAppClick()
 Teleport.FarmingHome()
 
@@ -4947,7 +4945,6 @@ end
 if getgenv().AGE_PETS_BEFORE_FARMING then
     isBuyingOrAging = true
 
-    local BulkPotions = __DARKLUA_BUNDLE_MODULES.load('m')
     local bulkPotions = BulkPotions.new()
 
     bulkPotions:SetEggTable(GetInventory:GetPetEggs())
@@ -4974,7 +4971,7 @@ task.delay(5, function()
     end
 end)
 print('Loaded. lastest update 12/13/2024  mm/dd/yyyy')
-getRewardFromAdventCalendar()
+Christmas2024.getGingerbread()
 task.wait(2)
 startAutoFarm()
 
@@ -4994,7 +4991,6 @@ if getgenv().SETTINGS.ENABLE_AUTO_FARM and getgenv().SETTINGS.EVENT.DO_FROSTCLAW
 
             task.wait(5)
             placeBaitOrPickUp(baitId)
-            getRewardFromAdventCalendar()
         end
     end)
 end
