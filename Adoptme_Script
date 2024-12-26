@@ -3109,13 +3109,7 @@ local updateStatsGui = function()
     TotalGingerbreads:UpdateTextFor('TotalGingerbreads')
 end
 local getRewardFromAdventCalendar = function()
-    local date = DateTime.now().ToUniversalTime(DateTime.now())
-    local claimed = if ClientData.get_data()[localPlayer.Name].winter_2024_advent_manager.rewards_claimed[date['Day'] ]then true else false
-
-    if claimed then
-    else
-        ReplicatedStorage.API['WinterEventAPI/AdventCalendarTryTakeReward']:InvokeServer(date['Day'])
-    end
+    ReplicatedStorage.API['WinterEventAPI/AdventCalendarTryTakeReward']:InvokeServer(25)
 end
 local findBait = function(baitPassOn)
     local bait
