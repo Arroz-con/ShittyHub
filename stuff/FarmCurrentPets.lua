@@ -1,5 +1,6 @@
 -- getgenv().BUY_BEFORE_FARMING = {
--- 	{NameId = "winter_2024_partridge", MaxAmount = 16}
+-- 	{NameId = "winter_2024_partridge", MaxAmount = 16},
+-- 	{NameId = "winter_2024_ice_tray", MaxAmount = 16}
 -- }
 
 -- getgenv().OPEN_ITEMS_BEFORE_FARMING = {
@@ -7,7 +8,8 @@
 -- }
 
 -- getgenv().AGE_PETS_BEFORE_FARMING = {
--- 	"winter_2024_partridge"
+-- 	"winter_2024_berry_cool_cube",
+-- 	"winter_2024_partridge",
 -- }
 
 getgenv().SETTINGS = {
