@@ -2746,7 +2746,9 @@ local Players = game:GetService('Players')
 local Workspace = game:GetService('Workspace')
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
 local UserInputService = game:GetService('UserInputService')
-local Lighting = game:GetService('Lighting')
+
+game:GetService('Lighting')
+
 local UserGameSettings = UserSettings():GetService('UserGameSettings')
 local VirtualUser = game:GetService('VirtualUser')
 local CoreGui = game:GetService('CoreGui')
@@ -3823,11 +3825,6 @@ localPlayer.PlayerGui.HintApp.TextLabel:GetPropertyChangedSignal('Text'):Connect
         if not getgenv().SETTINGS.FOCUS_FARM_AGE_POTION then
             SwitchOutFullyGrown()
         end
-    end
-end)
-Lighting:GetPropertyChangedSignal('ClockTime'):Connect(function()
-    if Lighting.ClockTime == 13 then
-        task.wait(5)
     end
 end)
 UserInputService.InputBegan:Connect(function(input, processed)
@@ -4970,8 +4967,6 @@ task.delay(5, function()
         end)
     end
 end)
-print('Loaded. lastest update 12/13/2024  mm/dd/yyyy')
-Christmas2024.getGingerbread()
 task.wait(2)
 startAutoFarm()
 
@@ -4994,3 +4989,5 @@ if getgenv().SETTINGS.ENABLE_AUTO_FARM and getgenv().SETTINGS.EVENT.DO_FROSTCLAW
         end
     end)
 end
+
+print('Loaded. lastest update 12/26/2024  mm/dd/yyyy')
