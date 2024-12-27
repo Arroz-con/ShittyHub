@@ -1032,9 +1032,15 @@ do
             return nil
         end
         local hasPetMaxAmount = function(nameId, maxAmount)
+            local category = getCategory(nameId)
+
+            if not category then
+                return print('no category')
+            end
+
             local count = 0
 
-            for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
+            for _, pet in ClientData.get_data()[localPlayer.Name].inventory[category]do
                 if nameId == pet.id then
                     count += 1
                 end
@@ -4989,6 +4995,13 @@ if getgenv().SETTINGS.ENABLE_AUTO_FARM and getgenv().SETTINGS.EVENT.DO_FROSTCLAW
             end
 
             task.wait(5)
+
+            baitId = findBait('winter_2024_winter_deer_bait')
+
+            if not baitId then
+                baitId = findBait('lures_2023_campfire_cookies')
+            end
+
             placeBaitOrPickUp(baitId)
             task.wait(1)
             placeBaitOrPickUp(baitId)
