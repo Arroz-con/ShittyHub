@@ -5011,16 +5011,6 @@ if getgenv().SETTINGS.ENABLE_AUTO_FARM and getgenv().SETTINGS.EVENT.DO_FROSTCLAW
             end
 
             task.wait(5)
-
-            baitId = findBait('winter_2024_winter_deer_bait')
-
-            if not baitId then
-                baitId = findBait('lures_2023_campfire_cookies')
-            end
-
-            placeBaitOrPickUp(baitId)
-            task.wait(1)
-            placeBaitOrPickUp(baitId)
         end
     end)
 end
