@@ -2405,6 +2405,7 @@ do
     end
     function __DARKLUA_BUNDLE_MODULES.l()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
+        local Workspace = game:GetService('Workspace')
         local VirtualUser = game:GetService('VirtualUser')
         local Players = game:GetService('Players')
         local localPlayer = Players.LocalPlayer
@@ -2494,6 +2495,17 @@ do
 
             return count
         end
+        local consumeItem = function(potionName)
+            local agePotion = Workspace.PetObjects:WaitForChild(potionName, 6)
+
+            if not agePotion then
+                print('no age potion in workspace')
+
+                return
+            end
+
+            ReplicatedStorage.API['PetAPI/ConsumeFoodObject']:FireServer(agePotion, ClientData.get('pet_char_wrappers')[1].pet_unique)
+        end
 
         function BulkPotions:IsSameUnique()
             for _, v in ClientData.get_data()[localPlayer.Name].inventory.food do
@@ -2537,11 +2549,11 @@ do
             return isEgg
         end
         function BulkPotions:FeedAgePotion()
-            if self:IsSameUnique() then
-                return
-            end
             if self:IsEgg() then
                 return print('Pet Equipped is a EGG! or No pet Equipped')
+            end
+            if self:IsSameUnique() then
+                return
             end
 
             local TotalPotions = localPlayer.PlayerGui.StatsGui.MainFrame.MiddleFrame.TotalPotions
@@ -2562,7 +2574,8 @@ do
                     }
 
                     ReplicatedStorage.API['PetObjectAPI/CreatePetObject']:InvokeServer(unpack(args))
-                    task.wait(6)
+                    task.wait(1)
+                    consumeItem('AgePotion')
 
                     TotalPotions.Text = `\u{1f9ea} {agePotionCount('pet_age_potion')}`
 
@@ -2584,7 +2597,8 @@ do
                     }
 
                     ReplicatedStorage.API['PetObjectAPI/CreatePetObject']:InvokeServer(unpack(args))
-                    task.wait(6)
+                    task.wait(1)
+                    consumeItem('TinyAgePotion')
 
                     TotalTinyPotions.Text = `\u{2697}\u{fe0f} {agePotionCount('tiny_pet_age_potion')}`
 
@@ -2644,7 +2658,7 @@ do
                 end
 
                 self:FeedAgePotion()
-                task.wait(1)
+                task.wait()
             end
 
             if self.StopAging then
@@ -4349,6 +4363,9 @@ findFurniture()
 print(`Has Bed: {Bed} \u{1f6cf}\u{fe0f} | Has Piano: {Piano} \u{1f3b9} | Has LitterBox: {LitterBox} \u{1f4a9} | Has Lure: {NormalLure}`)
 ReplicatedStorage:WaitForChild('API'):WaitForChild('HousingAPI/SetDoorLocked'):InvokeServer(true)
 
+if not localPlayer.Character then
+    localPlayer.CharacterAdded:Wait()
+end
 if localPlayer.Character:WaitForChild('HumanoidRootPart') then
     ReplicatedStorage.API['TeamAPI/ChooseTeam']:InvokeServer('Babies', {
         ['dont_send_back_home'] = true,
@@ -4937,7 +4954,6 @@ ClipboardButton.TextWrapped = true
 ClipboardButton.Parent = TestGui
 
 dailyLoginAppClick()
-Teleport.FarmingHome()
 
 if getgenv().BUY_BEFORE_FARMING then
     isBuyingOrAging = true
