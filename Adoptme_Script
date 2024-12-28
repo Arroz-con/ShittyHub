@@ -2231,9 +2231,11 @@ do
                     count += 1
 
                     model = Workspace.Interiors:FindFirstChildWhichIsA('Model')
-                until model or count > 30
+                until model or count > 120
 
-                if count > 30 then
+                print(`model name: {model.Name}`)
+
+                if count > 120 then
                     print('couldnt get model')
 
                     return nil
@@ -2252,6 +2254,11 @@ do
                     task.wait(1)
                 until gameId or count > 30
             end
+            if not gameId then
+                return nil
+            end
+
+            print(`game id: {gameId}`)
 
             return gameId
         end
@@ -2292,6 +2299,8 @@ do
                 return false
             end
 
+            print('STEP 1', name)
+
             return true
         end
         function Christmas2024.StartGame()
@@ -2301,9 +2310,17 @@ do
                 return
             end
 
+            print('STEP 2', minigameId)
+
             local isGameActive = true
 
             while isGameActive do
+                if not Workspace.Minigames:FindFirstChild(`FrostclawsRevengeInterior::{minigameId}`) then
+                    print(`\u{26a0}\u{fe0f} NO FrostclawsRevengeInterior Folder with id found \u{26a0}\u{fe0f}`)
+
+                    return
+                end
+
                 for _, v in Workspace.Minigames[`FrostclawsRevengeInterior::{minigameId}`]:WaitForChild('FrostclawsRevengeEnemies'):GetChildren()do
                     hitEnemy(v.Name, minigameId)
                 end
@@ -2327,7 +2344,10 @@ do
                 count += 1
 
                 task.wait(1)
-            until not Workspace.Minigames:FindFirstChild(`FrostclawsRevengeInterior::{minigameId}`) or count > 30
+            until not Workspace.Minigames:FindFirstChild(`FrostclawsRevengeInterior::{minigameId}`) or count > 60
+
+            print(`STEP 3  Count: {count}`)
+            task.wait()
         end
         function Christmas2024.getGingerbread()
             local gingerbreadCaptured = ClientData.get_data()[localPlayer.Name].winter_2024_ice_skating_manager.gingerbread_captured_set_by_interior
@@ -2766,9 +2786,6 @@ local Players = game:GetService('Players')
 local Workspace = game:GetService('Workspace')
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
 local UserInputService = game:GetService('UserInputService')
-
-game:GetService('Lighting')
-
 local UserGameSettings = UserSettings():GetService('UserGameSettings')
 local VirtualUser = game:GetService('VirtualUser')
 local CoreGui = game:GetService('CoreGui')
@@ -3084,8 +3101,11 @@ local placeBaitOrPickUp = function(baitIdPasson)
         },
         [5] = game:GetService('Players').LocalPlayer.Character,
     }
+    local success, errorMessage = pcall(function()
+        ReplicatedStorage.API:FindFirstChild('HousingAPI/ActivateFurniture'):InvokeServer(unpack(args))
+    end)
 
-    print(ReplicatedStorage.API:FindFirstChild('HousingAPI/ActivateFurniture'):InvokeServer(unpack(args)))
+    print('FIRING BAITBOX', success, errorMessage)
 end
 local agePotionCount = function(nameId)
     local count = 0
@@ -5010,6 +5030,16 @@ if getgenv().SETTINGS.ENABLE_AUTO_FARM and getgenv().SETTINGS.EVENT.DO_FROSTCLAW
                 Christmas2024.StartGame()
             end
 
+            baitId = findBait('winter_2024_winter_deer_bait')
+
+            if not baitId then
+                baitId = findBait('lures_2023_campfire_cookies')
+            end
+
+            task.wait(2)
+            placeBaitOrPickUp(baitId)
+            task.wait(2)
+            placeBaitOrPickUp(baitId)
             task.wait(5)
         end
     end)
