@@ -39,7 +39,7 @@ local function pickColorTutorial()
 
 	if not colorButton then return end
 	fireButton(colorButton)
-	task.wait(2)
+	task.wait(5)
 
 	local doneButton = localPlayer.PlayerGui.DialogApp.Dialog.ThemeColorDialog
 		:WaitForChild("Buttons")
@@ -63,7 +63,7 @@ pickColorConn = localPlayer.PlayerGui.DialogApp.Dialog.ThemeColorDialog:GetPrope
 end)
 
 repeat
-	task.wait(1)
+	task.wait(5)
 until localPlayer.PlayerGui.NewsApp.Enabled or localPlayer.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible
 
 for i, v in debug.getupvalue(RouterClient.init, 7) do
@@ -85,7 +85,7 @@ end
 -- 	task.wait(1)
 -- 	pickColorTutorial()
 -- end
-task.wait(5)
+task.wait(10)
 print("START DOING TUTORIAL")
 LegacyTutorial.cancel_tutorial()
 task.wait(1)
