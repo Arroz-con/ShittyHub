@@ -2722,21 +2722,22 @@ do
 
         function Tutorials.CompleteStarterTutorial()
             local success, errorMessage = pcall(function()
+                task.wait(5)
                 print('START DOING TUTORIAL')
                 LegacyTutorial.cancel_tutorial()
-                task.wait(1)
+                task.wait(5)
                 ReplicatedStorage.API['LegacyTutorialAPI/MarkTutorialCompleted']:FireServer()
                 print('MarkTutorialCompleted')
-                task.wait(1)
+                task.wait(5)
                 ReplicatedStorage.API['LegacyTutorialAPI/EquipTutorialEgg']:FireServer()
                 print('EquipTutorialEgg')
-                task.wait(1)
+                task.wait(5)
                 ReplicatedStorage.API['LegacyTutorialAPI/AddTutorialQuest']:FireServer()
                 print('AddTutorialQuest')
-                task.wait(1)
+                task.wait(5)
                 ReplicatedStorage.API['LegacyTutorialAPI/AddHungryAilmentToTutorialEgg']:FireServer()
                 print('AddHungryAilmentToTutorialEgg')
-                task.wait(1)
+                task.wait(5)
 
                 local feedStartEgg = function(SandwichPassOn)
                     local Foodid2
@@ -3821,7 +3822,7 @@ local pickColorTutorial = function()
     end
 
     fireButton(colorButton)
-    task.wait(2)
+    task.wait(5)
 
     local doneButton = localPlayer.PlayerGui.DialogApp.Dialog.ThemeColorDialog:WaitForChild('Buttons'):WaitForChild('ButtonTemplate')
 
@@ -4092,7 +4093,7 @@ Players.PlayerAdded:Connect(function(player)
         if tostring(player.Name) ~= getgenv().SETTINGS.TRADE_COLLECTOR_NAME then
             return
         end
-
+        
         task.wait(math.random(10, 20))
         tradeCollector(tostring(player.Name))
     end)
@@ -4244,7 +4245,7 @@ localPlayer.PlayerGui.BattlePassApp.Body:GetPropertyChangedSignal('Visible'):Con
 end)
 
 repeat
-    task.wait(1)
+    task.wait(5)
 until localPlayer.PlayerGui.NewsApp.Enabled or localPlayer.Character or localPlayer.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible
 
 startTime = DateTime.now().UnixTimestamp
