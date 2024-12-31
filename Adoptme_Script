@@ -489,6 +489,20 @@ do
 
             return true
         end
+
+        local isMuleInGame = function(selectedPlayer)
+            for _, mule in Players:GetPlayers()do
+                if mule.Name == localPlayer.Name then
+                    continue
+                end
+                if mule.Name == selectedPlayer then
+                    return true
+                end
+            end
+
+            return false
+        end
+
         function Trade:SendTradeRequest(selectedPlayer)
             if typeof(selectedPlayer) ~= 'string' then
                 return
@@ -498,9 +512,14 @@ do
             end
             if not localPlayer.PlayerGui.TradeApp.Frame.Visible then
                 repeat
-                    ReplicatedStorage.API:FindFirstChild('TradeAPI/SendTradeRequest'):FireServer(Players[selectedPlayer])
+                    local muleBool = isMuleInGame(selectedPlayer)
+
+                    if muleBool then
+                        ReplicatedStorage.API:FindFirstChild('TradeAPI/SendTradeRequest'):FireServer(Players[selectedPlayer])
+                    end
+
                     task.wait(10)
-                until localPlayer.PlayerGui.TradeApp.Frame.Visible or not Players[selectedPlayer]
+                until not muleBool or localPlayer.PlayerGui.TradeApp.Frame.Visible
             end
         end
         function Trade:SelectTabAndTrade(tab, selectedItem)
@@ -748,6 +767,115 @@ do
                     task.wait(0.1)
                 end
             end
+        end
+        function Trade:CheckInventory()
+            if not isMuleInGame(getgenv().SETTINGS.TRADE_COLLECTOR_NAME) then
+                print('Collecter no longer ingame')
+
+                return false
+            end
+            if getgenv().SETTINGS.TRADE_ONLY_LUMINOUS_MEGA then
+                for _, v in ClientData.get_data()[localPlayer.Name].inventory do
+                    for _, item in v do
+                        if table.find(getgenv().SETTINGS.TRADE_LIST, item.id) or (item.properties.neon and item.properties.age == 6) or item.properties.mega_neon then
+                            return true
+                        end
+                    end
+                end
+            else
+                for _, v in ClientData.get_data()[localPlayer.Name].inventory do
+                    for _, item in v do
+                        if table.find(getgenv().SETTINGS.TRADE_LIST, item.id) or item.properties.age == 6 or (item.properties.neon and item.properties.age == 6) or item.properties.mega_neon then
+                            return true
+                        end
+                    end
+                end
+            end
+
+            return false
+        end
+        function Trade:TradeCollector(namePassOn)
+            local isInventoryFull = false
+
+            if typeof(namePassOn) ~= 'string' then
+                return print(`\u{1f6ab} {namePassOn} is not a string`)
+            end
+            if typeof(getgenv().SETTINGS.TRADE_LIST) ~= 'table' then
+                return print('TRADE_LIST is not a table')
+            end
+
+            while getgenv().SETTINGS.ENABLE_TRADE_COLLECTOR and getgenv().SETTINGS.TRADE_COLLECTOR_NAME do
+                if not isMuleInGame(getgenv().SETTINGS.TRADE_COLLECTOR_NAME) then
+                    return print('\u{26a0}\u{fe0f} MULE NOT INGAME \u{26a0}\u{fe0f}')
+                end
+                if not Trade:CheckInventory() then
+                    return print('\u{1f6ab} NO ITEMS TO TRADE')
+                end
+
+                Trade:SendTradeRequest(namePassOn)
+
+                if getgenv().SETTINGS.TRADE_ONLY_LUMINOUS_MEGA then
+                    for _, v in ClientData.get_data()[localPlayer.Name].inventory do
+                        if isInventoryFull then
+                            break
+                        end
+
+                        for _, item in v do
+                            if table.find(getgenv().SETTINGS.TRADE_LIST, item.id) or (item.properties.neon and item.properties.age == 6) or item.properties.mega_neon then
+                                if not ClientData.get_data()[localPlayer.Name].in_active_trade then
+                                    return
+                                end
+
+                                ReplicatedStorage.API:FindFirstChild('TradeAPI/AddItemToOffer'):FireServer(item.unique)
+
+                                if #ClientData.get_data()[localPlayer.Name].trade.sender_offer.items >= 18 then
+                                    isInventoryFull = true
+
+                                    break
+                                end
+
+                                task.wait(0.1)
+                            end
+                        end
+                    end
+                else
+                    for _, v in ClientData.get_data()[localPlayer.Name].inventory do
+                        if isInventoryFull then
+                            break
+                        end
+
+                        for _, item in v do
+                            if table.find(getgenv().SETTINGS.TRADE_LIST, item.id) or item.properties.age == 6 or (item.properties.neon and item.properties.age == 6) or item.properties.mega_neon then
+                                if not ClientData.get_data()[localPlayer.Name].in_active_trade then
+                                    return
+                                end
+
+                                ReplicatedStorage.API:FindFirstChild('TradeAPI/AddItemToOffer'):FireServer(item.unique)
+
+                                if #ClientData.get_data()[localPlayer.Name].trade.sender_offer.items >= 18 then
+                                    isInventoryFull = true
+
+                                    break
+                                end
+
+                                task.wait(0.1)
+                            end
+                        end
+                    end
+                end
+
+                local hasPets = Trade:AcceptNegotiationAndConfirm()
+
+                if not hasPets then
+                    print('\u{1f389} DONE TRADING ITEMS \u{1f389}')
+
+                    return
+                end
+
+                isInventoryFull = false
+            end
+
+            return
         end
 
         return Trade
@@ -1638,7 +1766,7 @@ do
         local gingerbreadAmount = function()
             return ClientData.get_data()[localPlayer.Name].gingerbread_2024 or 0
         end
-        local agePotionCount = function(nameId)
+        local foodItemCount = function(nameId)
             local count = 0
 
             for _, v in ClientData.get_data()[localPlayer.Name].inventory.food do
@@ -1682,11 +1810,6 @@ do
             local UICorner = Instance.new('UICorner')
             local MiddleFrame = Instance.new('Frame')
             local UIGridLayout = Instance.new('UIGridLayout')
-
-            Instance.new('UICorner')
-
-            local NameLabel = Instance.new('TextLabel')
-            local UICorner_3 = Instance.new('UICorner')
             local TextButton = Instance.new('TextButton')
 
             StatsGui.Name = 'StatsGui'
@@ -1730,24 +1853,6 @@ do
             UIGridLayout.CellSize = UDim2.new(0.242, 0, 0.5, 0)
             UIGridLayout.FillDirectionMaxCells = 0
             UIGridLayout.Parent = MiddleFrame
-            NameLabel.Name = 'NameLabel'
-            NameLabel.BackgroundColor3 = Color3.fromRGB(250, 129, 47)
-            NameLabel.BackgroundTransparency = 0.25
-            NameLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
-            NameLabel.BorderSizePixel = 0
-            NameLabel.Position = UDim2.new(0, 0, 0.797292352, 0)
-            NameLabel.Size = UDim2.new(1, 0, 0.200000018, 0)
-            NameLabel.Font = Enum.Font.FredokaOne
-            NameLabel.RichText = true
-            NameLabel.Text = `\u{1f916}`
-            NameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-            NameLabel.TextScaled = true
-            NameLabel.TextSize = 14
-            NameLabel.TextStrokeTransparency = 0
-            NameLabel.TextWrapped = true
-            NameLabel.Parent = MainFrame
-            UICorner_3.CornerRadius = UDim.new(0, 16)
-            UICorner_3.Parent = NameLabel
             TextButton.AnchorPoint = Vector2.new(0.5, 0.5)
             TextButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
             TextButton.BackgroundTransparency = 1
@@ -1764,11 +1869,14 @@ do
             TextButton.TextXAlignment = Enum.TextXAlignment.Left
             TextButton.Parent = StatsGui
 
-            NameLabel.MouseEnter:Connect(function()
-                NameLabel.Text = `\u{1f916} {localPlayer.Name}`
+            local TIME_SAVED = nil
+
+            TimeLabel.MouseEnter:Connect(function()
+                TIME_SAVED = TimeLabel.Text
+                TimeLabel.Text = `\u{1f916} {localPlayer.Name}`
             end)
-            NameLabel.MouseLeave:Connect(function()
-                NameLabel.Text = `\u{1f916}`
+            TimeLabel.MouseLeave:Connect(function()
+                TimeLabel.Text = TIME_SAVED
             end)
 
             local isVisible = true
@@ -1793,11 +1901,11 @@ do
             elseif labelName == 'TempGingerbreads' then
                 self.label.Text = `\u{1f36a} {formatNumber(amount)}`
             elseif labelName == 'TotalPotions' then
-                local formatted = formatNumber(agePotionCount('pet_age_potion'))
+                local formatted = formatNumber(foodItemCount('pet_age_potion'))
 
                 self.label.Text = `\u{1f9ea} {formatted}`
             elseif labelName == 'TotalTinyPotions' then
-                local formatted = formatNumber(agePotionCount('tiny_pet_age_potion'))
+                local formatted = formatNumber(foodItemCount('tiny_pet_age_potion'))
 
                 self.label.Text = `\u{2697}\u{fe0f} {formatted}`
             elseif labelName == 'TotalBucks' then
@@ -1808,6 +1916,10 @@ do
                 local formatted = formatNumber(gingerbreadAmount())
 
                 self.label.Text = `\u{1f36a} {formatted}`
+            elseif labelName == 'TotalWinterBaits' then
+                local formatted = formatNumber(foodItemCount('winter_2024_winter_deer_bait'))
+
+                self.label.Text = `\u{2744}\u{fe0f} {formatted}`
             end
         end
 
@@ -2368,6 +2480,22 @@ do
             ReplicatedStorage.API:FindFirstChild('WinterEventAPI/RedeemPendingGingerbread'):FireServer()
             print('Redeemed Gingerbread')
         end
+        function Christmas2024:LeaveMinigame()
+            local minigameId = getMinigameId()
+
+            if not minigameId then
+                return
+            end
+
+            print('Leaving frostclaw minigame')
+
+            local args = {
+                [1] = `frostclaws_revenge::{minigameId}`,
+                [2] = false,
+            }
+
+            ReplicatedStorage.API['MinigameAPI/AttemptJoin']:FireServer(unpack(args))
+        end
         function Christmas2024.init()
             localPlayer.PlayerGui.FrostclawsRevengeUpgradeApp.Background.Upgrades.ChildAdded:Connect(function(
                 child
@@ -2722,7 +2850,7 @@ do
 
         function Tutorials.CompleteStarterTutorial()
             local success, errorMessage = pcall(function()
-                task.wait(5)
+                task.wait(10)
                 print('START DOING TUTORIAL')
                 LegacyTutorial.cancel_tutorial()
                 task.wait(5)
@@ -2803,7 +2931,7 @@ local RobuxProductDialogConnection2
 local banMessageConnection
 local DailyClaimConnection
 local counter = 0
-local isNewAccount = false
+local isTradingMule = false
 local isInMiniGame = false
 local isBuyingOrAging = false
 local guiCooldown = false
@@ -2935,6 +3063,7 @@ local TotalPotions = StatsGuis2.new('TotalPotions')
 local TotalTinyPotions = StatsGuis2.new('TotalTinyPotions')
 local TotalBucks = StatsGuis2.new('TotalBucks')
 local TotalGingerbreads = StatsGuis2.new('TotalGingerbreads')
+local TotalWinterBaits = StatsGuis2.new('TotalWinterBaits')
 local petsTable = GetInventory:TabId('pets')
 
 if #petsTable == 0 then
@@ -3063,6 +3192,8 @@ local isMuleInGame = function()
             continue
         end
         if player.Name == getgenv().SETTINGS.TRADE_COLLECTOR_NAME then
+            print('\u{1f911} Mule ingame \u{1f911}')
+
             return true
         end
     end
@@ -3155,6 +3286,7 @@ local updateStatsGui = function()
     TotalPotions:UpdateTextFor('TotalPotions')
     TotalBucks:UpdateTextFor('TotalBucks')
     TotalGingerbreads:UpdateTextFor('TotalGingerbreads')
+    TotalWinterBaits:UpdateTextFor('TotalWinterBaits')
 end
 local findBait = function(baitPassOn)
     local bait
@@ -3309,171 +3441,6 @@ local ClickTradeWindowPopUps = function()
                 return
             end
         end
-    end
-end
-local checkInventory = function()
-    if not Players[getgenv().SETTINGS.TRADE_COLLECTOR_NAME] then
-        return false, 'false', nil
-    end
-
-    for _, accessory in pairs(ClientData.get_data()[localPlayer.Name].inventory.pet_accessories)do
-        if not getgenv().SETTINGS.TRADE_LIST.PET_WEAR_TABLE[1] then
-            break
-        end
-
-        for _, v2 in getgenv().SETTINGS.TRADE_LIST.PET_WEAR_TABLE do
-            if accessory.id == v2 then
-                return true, 'pet_accessories', getgenv().SETTINGS.TRADE_LIST.PET_WEAR_TABLE
-            end
-        end
-    end
-    for _, vehicle in pairs(ClientData.get_data()[localPlayer.Name].inventory.transport)do
-        if not getgenv().SETTINGS.TRADE_LIST.VEHICLES_TABLE[1] then
-            break
-        end
-
-        for _, v2 in getgenv().SETTINGS.TRADE_LIST.VEHICLES_TABLE do
-            if vehicle.id == v2 then
-                return true, 'transport', getgenv().SETTINGS.TRADE_LIST.VEHICLES_TABLE
-            end
-        end
-    end
-    for _, food in pairs(ClientData.get_data()[localPlayer.Name].inventory.food)do
-        if not getgenv().SETTINGS.TRADE_LIST.FOOD_TABLE[1] then
-            break
-        end
-
-        for _, v2 in getgenv().SETTINGS.TRADE_LIST.FOOD_TABLE do
-            if food.id == v2 then
-                return true, 'food', getgenv().SETTINGS.TRADE_LIST.FOOD_TABLE
-            end
-        end
-    end
-    for _, gift in pairs(ClientData.get_data()[localPlayer.Name].inventory.gifts)do
-        if not getgenv().SETTINGS.TRADE_LIST.GIFTS_TABLE[1] then
-            break
-        end
-
-        for _, v2 in getgenv().SETTINGS.TRADE_LIST.GIFTS_TABLE do
-            if gift.id == v2 then
-                return true, 'gifts', getgenv().SETTINGS.TRADE_LIST.GIFTS_TABLE
-            end
-        end
-    end
-    for _, toy in pairs(ClientData.get_data()[localPlayer.Name].inventory.toys)do
-        if not getgenv().SETTINGS.TRADE_LIST.TOYS_TABLE[1] then
-            break
-        end
-
-        for _, v2 in getgenv().SETTINGS.TRADE_LIST.TOYS_TABLE do
-            if toy.id == v2 then
-                return true, 'toys', getgenv().SETTINGS.TRADE_LIST.TOYS_TABLE
-            end
-        end
-    end
-
-    if getgenv().SETTINGS.TRADE_ONLY_LUMINOUS_MEGA then
-        for _, pet in pairs(ClientData.get_data()[localPlayer.Name].inventory.pets)do
-            for _, v2 in getgenv().SETTINGS.TRADE_LIST.PETS_TABLE do
-                if pet.id == v2 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon == true then
-                    return true, 'pets', getgenv().SETTINGS.TRADE_LIST.PETS_TABLE
-                end
-            end
-        end
-    else
-        for _, pet in pairs(ClientData.get_data()[localPlayer.Name].inventory.pets)do
-            for _, v2 in getgenv().SETTINGS.TRADE_LIST.PETS_TABLE do
-                if pet.id == v2 or pet.properties.age == 6 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon == true then
-                    return true, 'pets', getgenv().SETTINGS.TRADE_LIST.PETS_TABLE
-                end
-            end
-        end
-    end
-
-    return false, 'false', nil
-end
-local tradeCollector = function(namePassOn)
-    while getgenv().SETTINGS.ENABLE_TRADE_COLLECTOR and getgenv().SETTINGS.TRADE_COLLECTOR_NAME and Players[namePassOn] do
-        local tabBoolean, tabName, tables = checkInventory()
-
-        if not tabBoolean then
-            return
-        end
-
-        pcall(function()
-            repeat
-                if not localPlayer.PlayerGui.TradeApp.Frame.Visible then
-                    ReplicatedStorage.API:FindFirstChild('TradeAPI/SendTradeRequest'):FireServer(Players[namePassOn])
-                    task.wait(math.random(8, 15))
-                end
-
-                ClickTradeWindowPopUps()
-                task.wait()
-            until localPlayer.PlayerGui.TradeApp.Frame.Visible
-
-            ClickTradeWindowPopUps()
-            task.wait(1)
-            ClickTradeWindowPopUps()
-
-            local petCounter = 0
-
-            if getgenv().SETTINGS.TRADE_ONLY_LUMINOUS_MEGA then
-                for _, pet in pairs(ClientData.get_data()[localPlayer.Name].inventory[tabName])do
-                    for _, v2 in tables do
-                        if pet.id == v2 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon == true then
-                            ReplicatedStorage.API:FindFirstChild('TradeAPI/AddItemToOffer'):FireServer(pet.unique)
-
-                            petCounter = petCounter + 1
-
-                            if petCounter >= 18 then
-                                break
-                            end
-
-                            task.wait()
-                        end
-                    end
-                end
-            else
-                for _, pet in pairs(ClientData.get_data()[localPlayer.Name].inventory[tabName])do
-                    for _, v2 in tables do
-                        if pet.id == v2 or pet.properties.age == 6 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon == true then
-                            ReplicatedStorage.API:FindFirstChild('TradeAPI/AddItemToOffer'):FireServer(pet.unique)
-
-                            petCounter = petCounter + 1
-
-                            if petCounter >= 18 then
-                                break
-                            end
-
-                            task.wait()
-                        end
-                    end
-                end
-            end
-
-            local stuck = 30
-
-            repeat
-                local lock = localPlayer.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.LockIcon.Visible
-
-                stuck -= 1
-
-                task.wait(1)
-            until not lock or stuck <= 0
-
-            ClickTradeWindowPopUps()
-            task.wait(1)
-            ReplicatedStorage.API:FindFirstChild('TradeAPI/AcceptNegotiation'):FireServer()
-            task.wait(3)
-            ReplicatedStorage.API:FindFirstChild('TradeAPI/ConfirmTrade'):FireServer()
-
-            petCounter = 0
-
-            ClickTradeWindowPopUps()
-        end)
-        task.wait(1)
-        ClickTradeWindowPopUps()
-        task.wait()
     end
 end
 local PlaceFloorAtSpleefMinigame = function()
@@ -3886,8 +3853,6 @@ end)
 PickColorConn = localPlayer.PlayerGui.DialogApp.Dialog.ThemeColorDialog:GetPropertyChangedSignal('Visible'):Connect(function(
 )
     if localPlayer.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
-        isNewAccount = true
-
         print('picking color')
         pickColorTutorial()
 
@@ -4093,9 +4058,18 @@ Players.PlayerAdded:Connect(function(player)
         if tostring(player.Name) ~= getgenv().SETTINGS.TRADE_COLLECTOR_NAME then
             return
         end
-        
+        if getgenv().SETTINGS.EVENT.DO_FROSTCLAW_MINIGAME then
+            task.wait(math.random(1, 20))
+
+            isTradingMule = true
+
+            Christmas2024:LeaveMinigame()
+        end
+
         task.wait(math.random(10, 20))
-        tradeCollector(tostring(player.Name))
+        Trade:TradeCollector(getgenv().SETTINGS.TRADE_COLLECTOR_NAME)
+
+        isTradingMule = false
     end)
 end)
 
@@ -4262,6 +4236,7 @@ TotalPotions:UpdateTextFor('TotalPotions')
 TotalTinyPotions:UpdateTextFor('TotalTinyPotions')
 TotalBucks:UpdateTextFor('TotalBucks')
 TotalGingerbreads:UpdateTextFor('TotalGingerbreads')
+TotalWinterBaits:UpdateTextFor('TotalWinterBaits')
 StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Captures, false)
 
 if gethui then
@@ -4999,7 +4974,11 @@ end
 isBuyingOrAging = false
 
 if isMuleInGame() then
-    tradeCollector(getgenv().SETTINGS.TRADE_COLLECTOR_NAME)
+    isTradingMule = true
+
+    Trade:TradeCollector(getgenv().SETTINGS.TRADE_COLLECTOR_NAME)
+
+    isTradingMule = false
 end
 if DailyClaimConnection then
     DailyClaimConnection:Disconnect()
@@ -5024,6 +5003,12 @@ if getgenv().SETTINGS.ENABLE_AUTO_FARM and getgenv().SETTINGS.EVENT.DO_FROSTCLAW
     end)
     task.spawn(function()
         while true do
+            if isTradingMule then
+                repeat
+                    task.wait(5)
+                until not isTradingMule
+            end
+
             print('running frostclaw event')
             updateStatsGui()
 
@@ -5046,4 +5031,4 @@ if getgenv().SETTINGS.ENABLE_AUTO_FARM and getgenv().SETTINGS.EVENT.DO_FROSTCLAW
     end)
 end
 
-print('Loaded. lastest update 12/26/2024  mm/dd/yyyy')
+print('Loaded. lastest update 12/30/2024  mm/dd/yyyy')
