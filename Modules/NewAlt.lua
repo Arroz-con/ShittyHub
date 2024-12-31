@@ -81,11 +81,11 @@ if localPlayer.PlayerGui.NewsApp.Enabled then
 	-- NewsAppConnection:Disconnect()
 end
 
-if localPlayer.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
-	task.wait(1)
-	pickColorTutorial()
-end
-
+-- if localPlayer.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
+-- 	task.wait(1)
+-- 	pickColorTutorial()
+-- end
+task.wait(5)
 print("START DOING TUTORIAL")
 LegacyTutorial.cancel_tutorial()
 task.wait(1)
