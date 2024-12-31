@@ -4378,6 +4378,115 @@ Teleport.PlaceFloorAtFarmingHome()
 Teleport.PlaceFloorAtCampSite()
 Teleport.PlaceFloorAtBeachParty()
 
+GuiPopupButton.Text = 'Gui Popup'
+GuiPopupButton.AnchorPoint = Vector2.new(0.5, 0.5)
+GuiPopupButton.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+GuiPopupButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+GuiPopupButton.BorderSizePixel = 0
+GuiPopupButton.Position = UDim2.new(0.65, 0, 0.91, 0)
+GuiPopupButton.Size = UDim2.new(0.1, 0, 0.1, 0)
+GuiPopupButton.Font = Enum.Font.SourceSans
+GuiPopupButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+GuiPopupButton.TextScaled = true
+GuiPopupButton.TextSize = 14
+GuiPopupButton.TextWrapped = true
+GuiPopupButton.Parent = TestGui
+ClipboardButton.Text = 'Account Clipboard'
+ClipboardButton.AnchorPoint = Vector2.new(0.5, 0.5)
+ClipboardButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
+ClipboardButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+ClipboardButton.BorderSizePixel = 0
+ClipboardButton.Position = UDim2.new(0.78, 0, 0.91, 0)
+ClipboardButton.Size = UDim2.new(0.1, 0, 0.1, 0)
+ClipboardButton.Font = Enum.Font.SourceSans
+ClipboardButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ClipboardButton.TextScaled = true
+ClipboardButton.TextSize = 14
+ClipboardButton.TextWrapped = true
+ClipboardButton.Parent = TestGui
+
+dailyLoginAppClick()
+
+if getgenv().BUY_BEFORE_FARMING then
+    isBuyingOrAging = true
+
+    BuyItems:BuyPets(getgenv().BUY_BEFORE_FARMING)
+end
+if getgenv().OPEN_ITEMS_BEFORE_FARMING then
+    isBuyingOrAging = true
+
+    BuyItems:OpenItems(getgenv().OPEN_ITEMS_BEFORE_FARMING)
+end
+if getgenv().AGE_PETS_BEFORE_FARMING then
+    isBuyingOrAging = true
+
+    local bulkPotions = BulkPotions.new()
+
+    bulkPotions:SetEggTable(GetInventory:GetPetEggs())
+    bulkPotions:StartAgingPets(getgenv().AGE_PETS_BEFORE_FARMING)
+    print('DONE aging pets')
+end
+
+isBuyingOrAging = false
+
+if isMuleInGame() then
+    isTradingMule = true
+
+    Trade:TradeCollector(getgenv().SETTINGS.TRADE_COLLECTOR_NAME)
+
+    isTradingMule = false
+end
+if DailyClaimConnection then
+    DailyClaimConnection:Disconnect()
+
+    DailyClaimConnection = nil
+end
+
+task.delay(5, function()
+    if Players.LocalPlayer.Name == getgenv().SETTINGS.TRADE_COLLECTOR_NAME and getgenv().SETTINGS.ENABLE_TRADE_COLLECTOR == true then
+        task.spawn(function()
+            getgenv().AutoTradeToggle:Set(true)
+        end)
+    end
+end)
+task.wait(2)
+startAutoFarm()
+
+if getgenv().SETTINGS.ENABLE_AUTO_FARM and getgenv().SETTINGS.EVENT.DO_FROSTCLAW_MINIGAME then
+    Christmas2024.init()
+    localPlayer.Idled:Connect(function()
+        VirtualUser:ClickButton2(Vector2.new())
+    end)
+    task.spawn(function()
+        while true do
+            if isTradingMule then
+                repeat
+                    task.wait(5)
+                until not isTradingMule
+            end
+
+            print('running frostclaw event')
+            updateStatsGui()
+
+            if Christmas2024.CreateAndStartLobby() then
+                Christmas2024.StartGame()
+            end
+
+            baitId = findBait('winter_2024_winter_deer_bait')
+
+            if not baitId then
+                baitId = findBait('lures_2023_campfire_cookies')
+            end
+
+            task.wait(2)
+            placeBaitOrPickUp(baitId)
+            task.wait(2)
+            placeBaitOrPickUp(baitId)
+            task.wait(5)
+        end
+    end)
+end
+
 local Window = Rayfield:CreateWindow({
     Name = localPlayer.Name,
     LoadingTitle = 'Rayfield Interface Suite',
@@ -4921,114 +5030,4 @@ NewAltTab:CreateButton({
         buyFurniture('basiccrib')
     end,
 })
-
-GuiPopupButton.Text = 'Gui Popup'
-GuiPopupButton.AnchorPoint = Vector2.new(0.5, 0.5)
-GuiPopupButton.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
-GuiPopupButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
-GuiPopupButton.BorderSizePixel = 0
-GuiPopupButton.Position = UDim2.new(0.65, 0, 0.91, 0)
-GuiPopupButton.Size = UDim2.new(0.1, 0, 0.1, 0)
-GuiPopupButton.Font = Enum.Font.SourceSans
-GuiPopupButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-GuiPopupButton.TextScaled = true
-GuiPopupButton.TextSize = 14
-GuiPopupButton.TextWrapped = true
-GuiPopupButton.Parent = TestGui
-ClipboardButton.Text = 'Account Clipboard'
-ClipboardButton.AnchorPoint = Vector2.new(0.5, 0.5)
-ClipboardButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
-ClipboardButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
-ClipboardButton.BorderSizePixel = 0
-ClipboardButton.Position = UDim2.new(0.78, 0, 0.91, 0)
-ClipboardButton.Size = UDim2.new(0.1, 0, 0.1, 0)
-ClipboardButton.Font = Enum.Font.SourceSans
-ClipboardButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ClipboardButton.TextScaled = true
-ClipboardButton.TextSize = 14
-ClipboardButton.TextWrapped = true
-ClipboardButton.Parent = TestGui
-
-dailyLoginAppClick()
-
-if getgenv().BUY_BEFORE_FARMING then
-    isBuyingOrAging = true
-
-    BuyItems:BuyPets(getgenv().BUY_BEFORE_FARMING)
-end
-if getgenv().OPEN_ITEMS_BEFORE_FARMING then
-    isBuyingOrAging = true
-
-    BuyItems:OpenItems(getgenv().OPEN_ITEMS_BEFORE_FARMING)
-end
-if getgenv().AGE_PETS_BEFORE_FARMING then
-    isBuyingOrAging = true
-
-    local bulkPotions = BulkPotions.new()
-
-    bulkPotions:SetEggTable(GetInventory:GetPetEggs())
-    bulkPotions:StartAgingPets(getgenv().AGE_PETS_BEFORE_FARMING)
-    print('DONE aging pets')
-end
-
-isBuyingOrAging = false
-
-if isMuleInGame() then
-    isTradingMule = true
-
-    Trade:TradeCollector(getgenv().SETTINGS.TRADE_COLLECTOR_NAME)
-
-    isTradingMule = false
-end
-if DailyClaimConnection then
-    DailyClaimConnection:Disconnect()
-
-    DailyClaimConnection = nil
-end
-
-task.delay(5, function()
-    if Players.LocalPlayer.Name == getgenv().SETTINGS.TRADE_COLLECTOR_NAME and getgenv().SETTINGS.ENABLE_TRADE_COLLECTOR == true then
-        task.spawn(function()
-            getgenv().AutoTradeToggle:Set(true)
-        end)
-    end
-end)
-task.wait(2)
-startAutoFarm()
-
-if getgenv().SETTINGS.ENABLE_AUTO_FARM and getgenv().SETTINGS.EVENT.DO_FROSTCLAW_MINIGAME then
-    Christmas2024.init()
-    localPlayer.Idled:Connect(function()
-        VirtualUser:ClickButton2(Vector2.new())
-    end)
-    task.spawn(function()
-        while true do
-            if isTradingMule then
-                repeat
-                    task.wait(5)
-                until not isTradingMule
-            end
-
-            print('running frostclaw event')
-            updateStatsGui()
-
-            if Christmas2024.CreateAndStartLobby() then
-                Christmas2024.StartGame()
-            end
-
-            baitId = findBait('winter_2024_winter_deer_bait')
-
-            if not baitId then
-                baitId = findBait('lures_2023_campfire_cookies')
-            end
-
-            task.wait(2)
-            placeBaitOrPickUp(baitId)
-            task.wait(2)
-            placeBaitOrPickUp(baitId)
-            task.wait(5)
-        end
-    end)
-end
-
 print('Loaded. lastest update 12/30/2024  mm/dd/yyyy')
