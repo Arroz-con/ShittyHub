@@ -37,45 +37,26 @@ getgenv().SETTINGS = {
 	TRADE_ONLY_LUMINOUS_MEGA = true,
 	TRADE_COLLECTOR_NAME = "candymine8", -- your account username (case sensitive) that will collect the pets.
 	TRADE_LIST = {
-		PET_WEAR_TABLE = {},
+		"rgb_reward_box",
+		"halloween_2023_scarecrow_box",
+		"halloween_2022_wolf_box",
+		"summerfest_2023_hermit_crab_box",
+		"winter_2021_walrus_box",
+		"winter_2022_pony_box",
+		"lny_2023_moon_bear_box",
+		"springfest_2023_duckling_box",
+		"lunar_2024_silk_bag",
+		"lunar_2024_special_lunar_new_year_gift_box",
 
-		VEHICLES_TABLE = {
-			-- "lunar_2024_dragonster",
-		},
-
-		GIFTS_TABLE = {
-			"rgb_reward_box",
-			"halloween_2023_scarecrow_box",
-			"halloween_2022_wolf_box",
-			"summerfest_2023_hermit_crab_box",
-			"winter_2021_walrus_box",
-			"winter_2022_pony_box",
-			"lny_2023_moon_bear_box",
-			"springfest_2023_duckling_box",
-			"lunar_2024_silk_bag",
-			"lunar_2024_special_lunar_new_year_gift_box",
-		},
-
-		FOOD_TABLE = {
-			-- "cure_all_potion",
-		},
-
-		TOYS_TABLE = {
-			-- "paint_2023_colored_hair_spray_sealer",
-		},
-
-		-- the pets in here will be traded no matter what age they are
-		PETS_TABLE = {
-			"lures_2023_blazing_lion",
-			-- "winter_2024_bauble_buddies",
-			-- "winter_2024_berry_cool_cube",
-			-- "halloween_2024_pumpkin_friend",
-			-- "celestial_2024_moonlight_moth",
-			-- "celestial_2024_glormy_hound",
-			-- "summerfest_2024_punk_pony",
-			-- "summerfest_2024_pretty_pony",
-			-- "summerfest_2024_majestic_pony"
-		},
+		"lures_2023_blazing_lion",
+		-- "winter_2024_bauble_buddies",
+		-- "winter_2024_berry_cool_cube",
+		-- "halloween_2024_pumpkin_friend",
+		-- "celestial_2024_moonlight_moth",
+		-- "celestial_2024_glormy_hound",
+		-- "summerfest_2024_punk_pony",
+		-- "summerfest_2024_pretty_pony",
+		-- "summerfest_2024_majestic_pony"
 	},
 
 	HATCH_EGG_PRIORITY = true,
