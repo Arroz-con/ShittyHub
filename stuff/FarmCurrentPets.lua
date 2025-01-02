@@ -7,9 +7,9 @@ getgenv().BUY_BEFORE_FARMING = {
 -- 	"winter_2024_ice_tray"
 -- }
 
-getgenv().AGE_PETS_BEFORE_FARMING = {
-	"winter_2024_great_pyrenees"
-}
+-- getgenv().AGE_PETS_BEFORE_FARMING = {
+-- 	"winter_2024_great_pyrenees"
+-- }
 
 getgenv().SETTINGS = {
 	WEBHOOK = {
