@@ -128,5 +128,4 @@ end
 
 feedStartEgg("sandwich-default")
 
-localPlayer:Kick("New Alt is ready")
 
