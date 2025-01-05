@@ -81,24 +81,20 @@ if localPlayer.PlayerGui.NewsApp.Enabled then
 	-- NewsAppConnection:Disconnect()
 end
 
--- if localPlayer.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
--- 	task.wait(1)
--- 	pickColorTutorial()
--- end
 task.wait(10)
 print("START DOING TUTORIAL")
 LegacyTutorial.cancel_tutorial()
-task.wait(1)
+task.wait(10)
 ReplicatedStorage.API["LegacyTutorialAPI/MarkTutorialCompleted"]:FireServer()
 print("MarkTutorialCompleted")
 -- Bypass("TutorialClient").cancel()
-task.wait(1)
+task.wait(10)
 ReplicatedStorage.API["LegacyTutorialAPI/EquipTutorialEgg"]:FireServer()
 print("EquipTutorialEgg")
-task.wait(1)
+task.wait(10)
 ReplicatedStorage.API["LegacyTutorialAPI/AddTutorialQuest"]:FireServer()
 print("AddTutorialQuest")
-task.wait(1)
+task.wait(10)
 ReplicatedStorage.API["LegacyTutorialAPI/AddHungryAilmentToTutorialEgg"]:FireServer()
 print("AddHungryAilmentToTutorialEgg")
 task.wait(1)
