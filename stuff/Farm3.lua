@@ -1,7 +1,7 @@
--- getgenv().BUY_BEFORE_FARMING = {
--- 	{NameId = "winter_2024_winter_deer_bait", MaxAmount = 6},
--- 	{NameId = "winter_2024_frostbite_cub", MaxAmount = 72}
--- }
+getgenv().BUY_BEFORE_FARMING = {
+	{NameId = "winter_2024_winter_deer_bait", MaxAmount = 6},
+	{NameId = "winter_2024_frostclaw", MaxAmount = 100}
+}
 
 -- getgenv().OPEN_ITEMS_BEFORE_FARMING = {
 -- 	"winter_2024_ice_tray"
