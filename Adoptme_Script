@@ -6775,6 +6775,8 @@ Check the Developer Console for more information.]],
                 return
             end
 
+            self.SameUnqiueCount = 0
+
             local TotalPotions = localPlayer.PlayerGui.StatsGui.MainFrame.MiddleFrame.TotalPotions
             local TotalTinyPotions = localPlayer.PlayerGui.StatsGui.MainFrame.MiddleFrame.TotalTinyPotions
 
