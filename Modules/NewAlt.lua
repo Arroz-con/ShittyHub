@@ -18,6 +18,17 @@ local pickColorConn
 
 local localPlayer = Players.LocalPlayer
 
+localPlayer:WaitForChild("PlayerGui", 240)
+localPlayer.PlayerGui:WaitForChild("NewsApp", 240)
+localPlayer.PlayerGui:WaitForChild("DialogApp", 240)
+localPlayer.PlayerGui.DialogApp:WaitForChild("Dialog", 240)
+localPlayer.PlayerGui.DialogApp.Dialog:WaitForChild("ThemeColorDialog", 240)
+
+repeat
+	task.wait(5)
+until localPlayer.PlayerGui.NewsApp.Enabled or localPlayer.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible
+
+
 local function fireButton(button)
 	print(`fire button: {button}`)
 	local success, errorMessage = pcall(function()
@@ -59,9 +70,6 @@ pickColorConn = localPlayer.PlayerGui.DialogApp.Dialog.ThemeColorDialog:GetPrope
 	end
 end)
 
-repeat
-	task.wait(5)
-until localPlayer.PlayerGui.NewsApp.Enabled or localPlayer.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible
 
 UserGameSettings.GraphicsQualityLevel = 1
 UserGameSettings.MasterVolume = 0
