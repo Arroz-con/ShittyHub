@@ -9,13 +9,10 @@ end
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserGameSettings = UserSettings():GetService("UserGameSettings")
-UserGameSettings.GraphicsQualityLevel = 1
-UserGameSettings.MasterVolume = 0
 
-
-local LegacyTutorial = require(ReplicatedStorage.ClientModules:WaitForChild("Game"):WaitForChild("Tutorial"):WaitForChild("LegacyTutorial"))
+local LegacyTutorial = require(ReplicatedStorage:WaitForChild("ClientModules"):WaitForChild("Game"):WaitForChild("Tutorial"):WaitForChild("LegacyTutorial"))
 local ClientData = require(ReplicatedStorage:WaitForChild("ClientModules"):WaitForChild("Core"):WaitForChild("ClientData"))
-local RouterClient = require(ReplicatedStorage.ClientModules.Core:WaitForChild("RouterClient"):WaitForChild("RouterClient"))
+local RouterClient = require(ReplicatedStorage.ClientModules:WaitForChild("Core"):WaitForChild("RouterClient"):WaitForChild("RouterClient"))
 
 local pickColorConn
 
@@ -65,6 +62,9 @@ end)
 repeat
 	task.wait(5)
 until localPlayer.PlayerGui.NewsApp.Enabled or localPlayer.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible
+
+UserGameSettings.GraphicsQualityLevel = 1
+UserGameSettings.MasterVolume = 0
 
 for i, v in debug.getupvalue(RouterClient.init, 7) do
 	v.Name = i
