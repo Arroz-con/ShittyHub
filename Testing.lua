@@ -1633,37 +1633,6 @@ do
     end
 end
 
-getgenv().SETTINGS = {
-    WEBHOOK = {
-        URL = '',
-        USER_ID = '',
-    },
-    EVENT = {
-        DO_FROSTCLAW_MINIGAME = true,
-        DO_MINIGAME = false,
-        IS_AUTO_BUY = false,
-        BUY = 'halloween_2024_chick_box',
-    },
-    PET_TO_BUY = 'garden_2024_egg',
-    FOCUS_FARM_AGE_POTION = true,
-    ENABLE_AUTO_FARM = true,
-    SET_FPS = 1,
-    PET_NEON_PRIORITY = true,
-    PET_AUTO_FUSION = true,
-    ENABLE_TRADE_COLLECTOR = true,
-    TRADE_ONLY_LUMINOUS_MEGA = true,
-    TRADE_COLLECTOR_NAME = 'RozgaElwer544',
-    TRADE_LIST = {
-        'lures_2023_blazing_lion',
-    },
-    HATCH_EGG_PRIORITY = false,
-    HATCH_EGG_PRIORITY_NAMES = {
-        'garden_2024_egg',
-    },
-    PET_ONLY_PRIORITY = false,
-    PET_ONLY_PRIORITY_NAMES = {},
-}
-
 if not game:IsLoaded() then
     game.Loaded:Wait()
 end
