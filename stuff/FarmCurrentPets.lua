@@ -1,6 +1,9 @@
 getgenv().BUY_BEFORE_FARMING = {
-	{NameId = "winter_2024_winter_deer_bait", MaxAmount = 6},
+	{NameId = "winter_2024_winter_deer_bait", MaxAmount = 32},
+	{NameId = "winter_2024_ice_tray", MaxAmount = 32},
+	{NameId = "winter_2024_bauble_buddies", MaxAmount = 32},
 	{NameId = "winter_2024_great_pyrenees", MaxAmount = 64},
+	{NameId = "winter_2024_mistletroll", MaxAmount = 64},
 }
 
 -- getgenv().OPEN_ITEMS_BEFORE_FARMING = {
