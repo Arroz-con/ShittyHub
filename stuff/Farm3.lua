@@ -1,15 +1,15 @@
 getgenv().BUY_BEFORE_FARMING = {
 	{NameId = "winter_2024_winter_deer_bait", MaxAmount = 6},
-	{NameId = "winter_2024_frostclaw", MaxAmount = 1000}
+	{NameId = "winter_2024_frostbite_cub", MaxAmount = 1000}
 }
 
 -- getgenv().OPEN_ITEMS_BEFORE_FARMING = {
 -- 	"winter_2024_ice_tray"
 -- }
 
--- getgenv().AGE_PETS_BEFORE_FARMING = {
--- 	"winter_2024_frostbite_cub"
--- }
+getgenv().AGE_PETS_BEFORE_FARMING = {
+	"winter_2024_frostbite_cub"
+}
 
 getgenv().SETTINGS = {
 	WEBHOOK = {
