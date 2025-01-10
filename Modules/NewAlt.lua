@@ -18,6 +18,7 @@ local RouterClient = require(ReplicatedStorage.ClientModules:WaitForChild("Core"
 local pickColorConn
 
 local localPlayer = Players.LocalPlayer
+local debounce = false
 
 localPlayer:WaitForChild("PlayerGui", 240)
 localPlayer.PlayerGui:WaitForChild("NewsApp", 240)
@@ -92,7 +93,7 @@ end
 
 task.wait(10)
 print("START DOING TUTORIAL")
--- LegacyTutorial.cancel_tutorial()
+LegacyTutorial.cancel_tutorial()
 -- task.wait(10)
 ReplicatedStorage.API["LegacyTutorialAPI/MarkTutorialCompleted"]:FireServer()
 print("MarkTutorialCompleted")
