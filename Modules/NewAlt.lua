@@ -8,6 +8,7 @@ end
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local VirtualUser = game:GetService('VirtualUser')
 local UserGameSettings = UserSettings():GetService("UserGameSettings")
 
 local LegacyTutorial = require(ReplicatedStorage:WaitForChild("ClientModules"):WaitForChild("Game"):WaitForChild("Tutorial"):WaitForChild("LegacyTutorial"))
@@ -132,4 +133,6 @@ end
 
 feedStartEgg("sandwich-default")
 
-
+localPlayer.Idled:Connect(function()
+	VirtualUser:ClickButton2(Vector2.new())
+end)
