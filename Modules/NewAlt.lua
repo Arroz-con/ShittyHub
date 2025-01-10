@@ -92,8 +92,8 @@ end
 
 task.wait(10)
 print("START DOING TUTORIAL")
-LegacyTutorial.cancel_tutorial()
-task.wait(10)
+-- LegacyTutorial.cancel_tutorial()
+-- task.wait(10)
 ReplicatedStorage.API["LegacyTutorialAPI/MarkTutorialCompleted"]:FireServer()
 print("MarkTutorialCompleted")
 -- Bypass("TutorialClient").cancel()
