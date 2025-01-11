@@ -36,7 +36,7 @@ getgenv().SETTINGS = {
 
 	ENABLE_TRADE_COLLECTOR = true,
 	TRADE_ONLY_LUMINOUS_MEGA = true,
-	TRADE_COLLECTOR_NAME = "RozgaElwer544", -- your account username (case sensitive) that will collect the pets.
+	TRADE_COLLECTOR_NAME = "candymine8", -- your account username (case sensitive) that will collect the pets.
 	TRADE_LIST = {
 		"rgb_reward_box",
 		"halloween_2023_scarecrow_box",
