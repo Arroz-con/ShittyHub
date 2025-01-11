@@ -65,6 +65,21 @@ getgenv().SETTINGS = {
 
 	PET_ONLY_PRIORITY = true,
 	PET_ONLY_PRIORITY_NAMES = {
+		"winter_2024_ratatoskr",
+		"winter_2024_bauble_buddies",
+		"winter_2024_mistletroll",
+		"winter_2024_ice_tray",
+		"winter_2024_ice_cube",
+		"winter_2024_cold_cube",
+		"winter_2024_berry_cool_cube",
+		"winter_2024_partridge",
+		"winter_2024_great_pyrenees",
+		"winter_2024_winter_fawn",
+		"winter_2024_winter_doe",
+		"winter_2024_winter_buck",
+		"winter_2024_frostclaw",
+		"winter_2024_frostbite_cub",
+		
 		"ddlm_2024_golden_jaguar",
 		"halloween_2024_headless_horse",
 		"ddlm_2024_grave_owl",

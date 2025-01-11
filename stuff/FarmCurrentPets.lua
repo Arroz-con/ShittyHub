@@ -11,9 +11,13 @@ getgenv().BUY_BEFORE_FARMING = {
 -- 	"winter_2024_ice_tray"
 -- }
 
--- getgenv().AGE_PETS_BEFORE_FARMING = {
--- 	"winter_2024_great_pyrenees"
--- }
+getgenv().AGE_PETS_BEFORE_FARMING = {
+	"winter_2024_frostbite_cub",
+	"winter_2024_winter_buck",
+	"winter_2024_great_pyrenees",
+	"winter_2024_bauble_buddies",
+	"winter_2024_mistletroll"
+}
 
 getgenv().SETTINGS = {
 	WEBHOOK = {
@@ -68,6 +72,21 @@ getgenv().SETTINGS = {
 
 	PET_ONLY_PRIORITY = true,
 	PET_ONLY_PRIORITY_NAMES = {
+		"winter_2024_ratatoskr",
+		"winter_2024_bauble_buddies",
+		"winter_2024_mistletroll",
+		"winter_2024_ice_tray",
+		"winter_2024_ice_cube",
+		"winter_2024_cold_cube",
+		"winter_2024_berry_cool_cube",
+		"winter_2024_partridge",
+		"winter_2024_great_pyrenees",
+		"winter_2024_winter_fawn",
+		"winter_2024_winter_doe",
+		"winter_2024_winter_buck",
+		"winter_2024_frostclaw",
+		"winter_2024_frostbite_cub",
+		
 		"ddlm_2024_golden_jaguar",
 		"halloween_2024_headless_horse",
 		"ddlm_2024_grave_owl",
@@ -81,26 +100,18 @@ getgenv().SETTINGS = {
 		"halloween_2024_ghost_chick",
 		"halloween_2024_zombie_chick",
 		"halloween_2024_franken_feline",
-		-- "halloween_2024_grim_dragon",
+		"halloween_2024_grim_dragon",
 		"summerfest_2024_majestic_pony",
-		-- "summerfest_2024_corn_doggo",
+		"summerfest_2024_corn_doggo",
 		"sunshine_2024_cheetah",
 		"celestial_2024_glormy_hound",
 		"celestial_2024_glormy_leo",
 		"garden_2024_rosy_maple_moth",
 		"garden_2024_mushroom_friend",
-		-- "celestial_2024_moonlight_moth",
+		"celestial_2024_moonlight_moth",
 		"ocean_2024_kraken",
-		-- "ocean_2024_sea_angel",
-		-- "ocean_2024_lionfish",
-		-- "ocean_2024_dracula_fish",
-		-- "ocean_2024_urchin",
-		-- "garden_2024_praying_mantis",
-		-- "garden_2024_skunk",
-		-- "garden_2024_weevil",
-		-- "garden_2024_blue_jay",
-		-- "garden_2024_mole",
-		-- "summerfest_2024_kid_goat",
+		"ocean_2024_sea_angel",
+		"summerfest_2024_kid_goat",
 		"summerfest_2024_punk_pony",
 		"summerfest_2024_pretty_pony",
 	},
