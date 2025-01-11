@@ -8,7 +8,8 @@ getgenv().BUY_BEFORE_FARMING = {
 -- }
 
 getgenv().AGE_PETS_BEFORE_FARMING = {
-	"winter_2024_frostbite_cub"
+	"winter_2024_frostbite_cub",
+	"ddlm_2024_grave_owl",
 }
 
 getgenv().SETTINGS = {

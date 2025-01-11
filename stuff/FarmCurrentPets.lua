@@ -16,7 +16,8 @@ getgenv().AGE_PETS_BEFORE_FARMING = {
 	"winter_2024_winter_buck",
 	"winter_2024_great_pyrenees",
 	"winter_2024_bauble_buddies",
-	"winter_2024_mistletroll"
+	"winter_2024_mistletroll",
+	"ddlm_2024_grave_owl",
 }
 
 getgenv().SETTINGS = {
@@ -86,7 +87,7 @@ getgenv().SETTINGS = {
 		"winter_2024_winter_buck",
 		"winter_2024_frostclaw",
 		"winter_2024_frostbite_cub",
-		
+
 		"ddlm_2024_golden_jaguar",
 		"halloween_2024_headless_horse",
 		"ddlm_2024_grave_owl",
