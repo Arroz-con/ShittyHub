@@ -5334,9 +5334,6 @@ Check the Developer Console for more information.]],
                 if v.id == FoodPassOn then
                     hasFood = true
 
-                    ReplicatedStorage.API['ToolAPI/Equip']:InvokeServer(v.unique, {})
-                    task.wait(1)
-
                     if not ClientData.get('pet_char_wrappers')[1] then
                         print('\u{26a0}\u{fe0f} Trying to feed pet but no pet equipped \u{26a0}\u{fe0f}')
 
@@ -6570,18 +6567,12 @@ if game.PlaceId ~= 920587237 then
 end
 
 local Players = game:GetService('Players')
-
-game:GetService('Workspace')
-
+local Workspace = game:GetService('Workspace')
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
 local UserInputService = game:GetService('UserInputService')
 local UserGameSettings = UserSettings():GetService('UserGameSettings')
 local VirtualUser = game:GetService('VirtualUser')
-local CoreGui = game:GetService('CoreGui')
 local StarterGui = game:GetService('StarterGui')
-
-game:GetService('HttpService')
-
 local localPlayer = Players.LocalPlayer
 
 localPlayer:WaitForChild('PlayerGui', 600)
@@ -6591,10 +6582,9 @@ local PickColorConn
 local RoleChooserDialogConnection
 local RobuxProductDialogConnection1
 local RobuxProductDialogConnection2
-local banMessageConnection
 local DailyClaimConnection
 local counter = 0
-local isTradingMule = false
+local newAccount = false
 local isInMiniGame = false
 local isBuyingOrAging = false
 local guiCooldown = false
@@ -6639,7 +6629,9 @@ getgenv().feedAgeUpPotionToggle = false
 getgenv().PetCurrentlyFarming = ''
 
 local Egg2Buy = getgenv().SETTINGS.PET_TO_BUY
-local TestGui = Instance.new('ScreenGui')
+
+Instance.new('ScreenGui')
+
 local GuiPopupButton = Instance.new('TextButton')
 local ClipboardButton = Instance.new('TextButton')
 local PetToggle
@@ -6750,13 +6742,16 @@ if #foodTable == 0 then
     }
 end
 
+local peteggs = GetInventory:GetPetEggs()
+
 local function fireButton(button)
     print(`fire button: {button}`)
 
     local success, errorMessage = pcall(function()
         firesignal(button.MouseButton1Down)
+        task.wait(1)
         firesignal(button.MouseButton1Click)
-        firesignal(button.MouseButton1Up)
+        task.wait(1)
     end)
 
     print(button, success, errorMessage)
@@ -6853,6 +6848,48 @@ local function isMuleInGame()
     end
 
     return false
+end
+local function consumeItem(potionName)
+    local agePotion = Workspace.PetObjects:WaitForChild(potionName, 15)
+
+    if not agePotion then
+        print('no age potion in workspace')
+
+        return
+    end
+
+    ReplicatedStorage.API['PetAPI/ConsumeFoodObject']:FireServer(agePotion, ClientData.get('pet_char_wrappers')[1].pet_unique)
+end
+local function agePotion(FoodPassOn)
+    for _, v in pairs(ClientData.get_data()[localPlayer.Name].inventory.food)do
+        if v.id == FoodPassOn then
+            if not ClientData.get('pet_char_wrappers')[1] then
+                return
+            end
+
+            local isEgg = if table.find(peteggs, ClientData.get('pet_char_wrappers')[1]['pet_id'])then true else false
+            local petAge = ClientData.get('pet_char_wrappers')[1]['pet_progression']['age']
+
+            if isEgg or petAge >= 6 then
+                return
+            end
+
+            local args = {
+                [1] = '__Enum_PetObjectCreatorType_2',
+                [2] = {
+                    ['pet_unique'] = ClientData.get('pet_char_wrappers')[1].pet_unique,
+                    ['unique_id'] = v.unique,
+                },
+            }
+
+            ReplicatedStorage.API['PetObjectAPI/CreatePetObject']:InvokeServer(unpack(args))
+            consumeItem('AgePotion')
+
+            return
+        end
+    end
+
+    return
 end
 local function getPlayersInGame()
     local playerTable = {
@@ -7181,7 +7218,6 @@ local function CompletePetAilments()
     for key, _ in ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique]do
         if key == 'hungry' then
             Ailments:HungryAilment()
-            task.wait(1)
 
             return true
         elseif key == 'thirsty' then
@@ -7213,8 +7249,6 @@ local function CompletePetAilments()
             return true
         elseif key == 'sleepy' then
             Ailments:SleepyAilment(Bed, petUnique)
-            task.wait(3)
-            placeBaitOrPickUp(baitId)
 
             return true
         elseif key == 'dirty' then
@@ -7279,6 +7313,8 @@ local function autoFarm()
     Teleport.PlaceFloorAtBeachParty()
     Teleport.FarmingHome()
     task.delay(30, function()
+        local baitboxCount = 0
+
         while true do
             if isInMiniGame then
                 local count = 0
@@ -7299,17 +7335,39 @@ local function autoFarm()
             if not CompletePetAilments() then
                 completeBabyAilments()
             end
+            if baitboxCount > 240 then
+                baitId = findBait('winter_2024_winter_deer_bait')
+
+                if not baitId then
+                    baitId = findBait('lures_2023_campfire_cookies')
+                end
+
+                placeBaitOrPickUp(baitId)
+                task.wait(2)
+                placeBaitOrPickUp(baitId)
+
+                baitboxCount = 0
+            end
+            if not getgenv().SETTINGS.FOCUS_FARM_AGE_POTION then
+                if ClientData.get('pet_char_wrappers')[1] and table.find(getgenv().SETTINGS.PET_ONLY_PRIORITY_NAMES, ClientData.get('pet_char_wrappers')[1].pet_unique) then
+                    print('FEEDING AGE POTION')
+                    agePotion('pet_age_potion')
+                    task.wait()
+                    agePotion('tiny_pet_age_potion')
+                end
+            end
 
             updateStatsGui()
-            task.wait(5)
+
+            baitboxCount += 10
+
+            task.wait(10)
         end
     end)
 
     if getgenv().SETTINGS.PET_AUTO_FUSION then
-        task.spawn(function()
-            Fusion:MakeMega(false)
-            Fusion:MakeMega(true)
-        end)
+        Fusion:MakeMega(false)
+        Fusion:MakeMega(true)
     end
 
     task.wait()
@@ -7357,6 +7415,7 @@ local function dailyLoginAppClick()
         return
     end
 
+    print('Clicking on Daily login app')
     localPlayer.PlayerGui.DailyLoginApp:WaitForChild('Frame')
     localPlayer.PlayerGui.DailyLoginApp.Frame:WaitForChild('Body')
     localPlayer.PlayerGui.DailyLoginApp.Frame.Body:WaitForChild('Buttons')
@@ -7388,6 +7447,10 @@ local function onTextChangedNormalDialog()
     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Any items lost') then
         findButton('I understand')
     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('4.5%% Legendary') then
+        findButton('Okay')
+    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('You have been awarded') then
+        findButton('Awesome!')
+    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Thanks for subscribing!') then
         findButton('Okay')
     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Let's start the day") then
         findButton('Start')
@@ -7429,8 +7492,7 @@ local function pickColorTutorial()
     end
 
     fireButton(doneButton)
-    task.wait(10)
-    doStarterTutorial()
+    print('PICKED COLOR')
 end
 
 localPlayer.Idled:Connect(function()
@@ -7483,32 +7545,12 @@ UserInputService.InputBegan:Connect(function(input, processed)
     end
 end)
 
-banMessageConnection = localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal('Visible'):Connect(function(
-)
-    if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
-        localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog:WaitForChild('Info')
-        localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info:WaitForChild('TextLabel')
-        localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal('Text'):Connect(function(
-        )
-            if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('ban') then
-                findButton('Okay')
-
-                if banMessageConnection then
-                    banMessageConnection:Disconnect()
-
-                    banMessageConnection = nil
-                end
-            elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('You have been awarded') then
-                findButton('Awesome!')
-            end
-        end)
-    end
-end)
 RoleChooserDialogConnection = localPlayer.PlayerGui.DialogApp.Dialog.RoleChooserDialog:GetPropertyChangedSignal('Visible'):Connect(function(
 )
     task.wait()
 
     if localPlayer.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
+        print('Clicking on baby dialog button')
         firesignal(localPlayer.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby.MouseButton1Click)
 
         if RoleChooserDialogConnection then
@@ -7530,6 +7572,7 @@ RobuxProductDialogConnection1 = localPlayer.PlayerGui.DialogApp.Dialog.RobuxProd
     for _, v in localPlayer.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Buttons:GetDescendants()do
         if v.Name == 'TextLabel' then
             if v.Text == 'No Thanks' then
+                print('clicking on no thanks for robux')
                 firesignal(v.Parent.Parent.MouseButton1Click)
 
                 if RobuxProductDialogConnection1 then
@@ -7816,7 +7859,57 @@ end)
 
 repeat
     task.wait(5)
-until localPlayer.PlayerGui.NewsApp.Enabled or localPlayer.Character or localPlayer.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible
+until localPlayer.PlayerGui.NewsApp.Enabled or localPlayer.Character
+
+for i, v in debug.getupvalue(RouterClient.init, 7)do
+    v.Name = i
+end
+
+if localPlayer.PlayerGui.NewsApp.Enabled then
+    print('NEWSAPP ENABLED')
+
+    local AbsPlay = localPlayer.PlayerGui.NewsApp:WaitForChild('EnclosingFrame'):WaitForChild('MainFrame'):WaitForChild('Contents'):WaitForChild('PlayButton')
+
+    fireButton(AbsPlay)
+    print('NEWSAPP CLICKED')
+end
+if localPlayer.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
+    print('picking color')
+
+    newAccount = true
+
+    pickColorTutorial()
+
+    if PickColorConn then
+        PickColorConn:Disconnect()
+
+        PickColorConn = nil
+    end
+end
+if not localPlayer.Character then
+    print('NO CHARACTER SO WAITING')
+    localPlayer.CharacterAdded:Wait()
+end
+
+task.wait(10)
+doStarterTutorial()
+
+if localPlayer.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
+    task.wait(1)
+    firesignal(localPlayer.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby.MouseButton1Click)
+
+    if RoleChooserDialogConnection then
+        RoleChooserDialogConnection:Disconnect()
+
+        RoleChooserDialogConnection = nil
+    end
+end
+if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
+    if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('4.5%% Legendary') then
+        task.wait(1)
+        findButton('Okay')
+    end
+end
 
 startTime = DateTime.now().UnixTimestamp
 startPotionAmount = agePotionCount('pet_age_potion')
@@ -7835,73 +7928,8 @@ TotalGingerbreads:UpdateTextFor('TotalGingerbreads')
 TotalWinterBaits:UpdateTextFor('TotalWinterBaits')
 StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Captures, false)
 
-if gethui then
-    TestGui.Parent = gethui()
-elseif syn.protect_gui then
-    syn.protect_gui(TestGui)
-
-    TestGui.Parent = CoreGui
-elseif CoreGui:FindFirstChild('RobloxGui') then
-    TestGui.Parent = CoreGui:FindFirstChild('RobloxGui')
-else
-    TestGui.Parent = CoreGui
-end
-
-TestGui.Name = 'TestGui'
-TestGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 UserGameSettings.GraphicsQualityLevel = 1
 UserGameSettings.MasterVolume = 0
-
-for i, v in debug.getupvalue(RouterClient.init, 7)do
-    v.Name = i
-end
-
-if localPlayer.PlayerGui.NewsApp.Enabled then
-    local AbsPlay = localPlayer.PlayerGui.NewsApp:WaitForChild('EnclosingFrame'):WaitForChild('MainFrame'):WaitForChild('Contents'):WaitForChild('PlayButton')
-
-    fireButton(AbsPlay)
-end
-
-task.wait(10)
-
-if localPlayer.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
-    print('picking color')
-    pickColorTutorial()
-
-    if PickColorConn then
-        PickColorConn:Disconnect()
-
-        PickColorConn = nil
-    end
-end
-if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
-    if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('ban') then
-        task.wait(1)
-        findButton('Okay')
-
-        if banMessageConnection then
-            banMessageConnection:Disconnect()
-
-            banMessageConnection = nil
-        end
-    end
-end
-if localPlayer.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
-    task.wait(1)
-    firesignal(localPlayer.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby.MouseButton1Click)
-
-    if RoleChooserDialogConnection then
-        RoleChooserDialogConnection:Disconnect()
-
-        RoleChooserDialogConnection = nil
-    end
-end
-if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
-    if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('4.5%% Legendary') then
-        task.wait(1)
-        findButton('Okay')
-    end
-end
 
 findFurniture()
 
@@ -7947,6 +7975,7 @@ print(`Has Bed: {Bed} \u{1f6cf}\u{fe0f} | Has Piano: {Piano} \u{1f3b9} | Has Lit
 ReplicatedStorage:WaitForChild('API'):WaitForChild('HousingAPI/SetDoorLocked'):InvokeServer(true)
 
 if not localPlayer.Character then
+    print('NO CHARACTER SO WAITING')
     localPlayer.CharacterAdded:Wait()
 end
 if localPlayer.Character:WaitForChild('HumanoidRootPart') then
@@ -7954,44 +7983,10 @@ if localPlayer.Character:WaitForChild('HumanoidRootPart') then
         ['dont_send_back_home'] = true,
     })
 end
-if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Thanks for subscribing!') then
-    findButton('Okay')
-end
-if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('You have been awarded') then
-    findButton('Awesome!')
-end
 
 Teleport.PlaceFloorAtFarmingHome()
 Teleport.PlaceFloorAtCampSite()
 Teleport.PlaceFloorAtBeachParty()
-
-GuiPopupButton.Text = 'Gui Popup'
-GuiPopupButton.AnchorPoint = Vector2.new(0.5, 0.5)
-GuiPopupButton.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
-GuiPopupButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
-GuiPopupButton.BorderSizePixel = 0
-GuiPopupButton.Position = UDim2.new(0.65, 0, 0.91, 0)
-GuiPopupButton.Size = UDim2.new(0.1, 0, 0.1, 0)
-GuiPopupButton.Font = Enum.Font.SourceSans
-GuiPopupButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-GuiPopupButton.TextScaled = true
-GuiPopupButton.TextSize = 14
-GuiPopupButton.TextWrapped = true
-GuiPopupButton.Parent = TestGui
-ClipboardButton.Text = 'Account Clipboard'
-ClipboardButton.AnchorPoint = Vector2.new(0.5, 0.5)
-ClipboardButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
-ClipboardButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
-ClipboardButton.BorderSizePixel = 0
-ClipboardButton.Position = UDim2.new(0.78, 0, 0.91, 0)
-ClipboardButton.Size = UDim2.new(0.1, 0, 0.1, 0)
-ClipboardButton.Font = Enum.Font.SourceSans
-ClipboardButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ClipboardButton.TextScaled = true
-ClipboardButton.TextSize = 14
-ClipboardButton.TextWrapped = true
-ClipboardButton.Parent = TestGui
-
 dailyLoginAppClick()
 
 if getgenv().BUY_BEFORE_FARMING then
@@ -8034,14 +8029,10 @@ if DailyClaimConnection then
 
     DailyClaimConnection = nil
 end
+if Players.LocalPlayer.Name == getgenv().SETTINGS.TRADE_COLLECTOR_NAME and getgenv().SETTINGS.ENABLE_TRADE_COLLECTOR == true then
+    getgenv().AutoTradeToggle:Set(true)
+end
 
-task.delay(5, function()
-    if Players.LocalPlayer.Name == getgenv().SETTINGS.TRADE_COLLECTOR_NAME and getgenv().SETTINGS.ENABLE_TRADE_COLLECTOR == true then
-        task.spawn(function()
-            getgenv().AutoTradeToggle:Set(true)
-        end)
-    end
-end)
 task.wait(2)
 startAutoFarm()
 
