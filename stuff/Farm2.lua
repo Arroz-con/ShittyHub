@@ -38,6 +38,22 @@ getgenv().SETTINGS = {
 	TRADE_ONLY_LUMINOUS_MEGA = true,
 	TRADE_COLLECTOR_NAME = "candymine8", -- your account username (case sensitive) that will collect the pets.
 	TRADE_LIST = {
+		"winter_2024_ratatoskr",
+		"winter_2024_bauble_buddies",
+		"winter_2024_mistletroll",
+		"winter_2024_ice_tray",
+		"winter_2024_ice_cube",
+		"winter_2024_cold_cube",
+		"winter_2024_berry_cool_cube",
+		"winter_2024_partridge",
+		"winter_2024_great_pyrenees",
+		"winter_2024_winter_fawn",
+		"winter_2024_winter_doe",
+		"winter_2024_winter_buck",
+		"winter_2024_frostclaw",
+		"winter_2024_frostbite_cub",
+		"ddlm_2024_grave_owl",
+
 		"rgb_reward_box",
 		"halloween_2023_scarecrow_box",
 		"halloween_2022_wolf_box",
@@ -50,14 +66,14 @@ getgenv().SETTINGS = {
 		"lunar_2024_special_lunar_new_year_gift_box",
 
 		"lures_2023_blazing_lion",
-		-- "winter_2024_bauble_buddies",
-		-- "winter_2024_berry_cool_cube",
-		-- "halloween_2024_pumpkin_friend",
-		-- "celestial_2024_moonlight_moth",
-		-- "celestial_2024_glormy_hound",
-		-- "summerfest_2024_punk_pony",
-		-- "summerfest_2024_pretty_pony",
-		-- "summerfest_2024_majestic_pony"
+		"winter_2024_bauble_buddies",
+		"winter_2024_berry_cool_cube",
+		"halloween_2024_pumpkin_friend",
+		"celestial_2024_moonlight_moth",
+		"celestial_2024_glormy_hound",
+		"summerfest_2024_punk_pony",
+		"summerfest_2024_pretty_pony",
+		"summerfest_2024_majestic_pony"
 	
 	},
 
