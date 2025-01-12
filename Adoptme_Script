@@ -4533,6 +4533,8 @@ Check the Developer Console for more information.]],
             local timeOut = 30
 
             repeat
+                task.wait(1)
+
                 if ClientData.get_data()[localPlayer.Name].in_active_trade then
                     if ClientData.get_data()[localPlayer.Name].trade.current_stage == 'negotiation' then
                         if not ClientData.get_data()[localPlayer.Name].trade.sender_offer.negotiated then
@@ -4550,8 +4552,6 @@ Check the Developer Console for more information.]],
                         end
                     end
                 end
-
-                task.wait(1)
 
                 timeOut -= 1
             until not ClientData.get_data()[localPlayer.Name].in_active_trade or timeOut <= 0
@@ -4906,6 +4906,10 @@ Check the Developer Console for more information.]],
                                 task.wait(0.1)
                             end
                         end
+
+                        if isInventoryFull then
+                            break
+                        end
                     end
                 else
                     for _, v in ClientData.get_data()[localPlayer.Name].inventory do
@@ -4929,6 +4933,10 @@ Check the Developer Console for more information.]],
 
                                 task.wait(0.1)
                             end
+                        end
+
+                        if isInventoryFull then
+                            break
                         end
                     end
                 end
