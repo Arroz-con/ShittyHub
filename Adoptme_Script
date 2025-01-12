@@ -4576,6 +4576,8 @@ Check the Developer Console for more information.]],
                 if ClientData.get_data()[playerName] and not ClientData.get_data()[playerName].in_active_trade then
                     return playerName
                 end
+
+                task.wait(1)
             end
 
             return nil
@@ -5886,6 +5888,7 @@ Check the Developer Console for more information.]],
             self.label.Parent = Players.LocalPlayer.PlayerGui.StatsGui.MainFrame.MiddleFrame
             self.UICorner.CornerRadius = UDim.new(0, 16)
             self.UICorner.Parent = self.label
+            self.Debounce = false
 
             return self
         end
@@ -5970,6 +5973,44 @@ Check the Developer Console for more information.]],
             TextButton.Activated:Connect(function()
                 isVisible = not isVisible
                 MainFrame.Visible = isVisible
+            end)
+        end
+        function StatsGuis2:CopyInventoryButton(CopyInventorySettings)
+            local CopyInventoryButton = Instance.new('TextButton')
+
+            CopyInventoryButton.AnchorPoint = Vector2.new(0.5, 0.5)
+            CopyInventoryButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            CopyInventoryButton.BackgroundTransparency = 1
+            CopyInventoryButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            CopyInventoryButton.BorderSizePixel = 0
+            CopyInventoryButton.Position = UDim2.new(0.68, 0, 0.88, 0)
+            CopyInventoryButton.Size = UDim2.new(0.2, 0, 0.2, 0)
+            CopyInventoryButton.Font = Enum.Font.FredokaOne
+            CopyInventoryButton.Text = '\u{1f4cb}'
+            CopyInventoryButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+            CopyInventoryButton.TextScaled = true
+            CopyInventoryButton.TextSize = 14
+            CopyInventoryButton.TextWrapped = true
+            CopyInventoryButton.TextXAlignment = Enum.TextXAlignment.Left
+            CopyInventoryButton.Parent = Players.LocalPlayer:WaitForChild('PlayerGui'):WaitForChild('StatsGui')
+
+            CopyInventoryButton.Activated:Connect(function()
+                if self.Debounce then
+                    print('\u{1f6ab} button is on cooldown \u{1f6ab}')
+
+                    return
+                end
+
+                self.Debounce = true
+
+                CopyInventorySettings.callback()
+
+                CopyInventoryButton.Text = '\u{2705}'
+
+                task.wait(1)
+
+                CopyInventoryButton.Text = '\u{1f4cb}'
+                self.Debounce = false
             end)
         end
         function StatsGuis2:UpdateTextFor(labelName, amount)
@@ -6606,10 +6647,8 @@ local RobuxProductDialogConnection1
 local RobuxProductDialogConnection2
 local DailyClaimConnection
 local counter = 0
-local newAccount = false
 local isInMiniGame = false
 local isBuyingOrAging = false
-local guiCooldown = false
 local discordCooldown = false
 local debounce = false
 local startTime
@@ -6651,11 +6690,6 @@ getgenv().feedAgeUpPotionToggle = false
 getgenv().PetCurrentlyFarming = ''
 
 local Egg2Buy = getgenv().SETTINGS.PET_TO_BUY
-
-Instance.new('ScreenGui')
-
-local GuiPopupButton = Instance.new('TextButton')
-local ClipboardButton = Instance.new('TextButton')
 local PetToggle
 local TradeAllInventory
 local AllPetsToggle
@@ -7529,8 +7563,6 @@ localPlayer.PlayerGui.HintApp.TextLabel:GetPropertyChangedSignal('Text'):Connect
             return
         end
 
-        print(text)
-
         local amount = text:split('+')[2]:split(' ')[1]
 
         bucksGained += tonumber(amount)
@@ -7884,6 +7916,12 @@ for i, v in debug.getupvalue(RouterClient.init, 7)do
     v.Name = i
 end
 
+StatsGuis2:CopyInventoryButton({
+    callback = function()
+        clipboard:CopyAllInventory()
+    end,
+})
+
 if localPlayer.PlayerGui.NewsApp.Enabled then
     print('NEWSAPP ENABLED')
 
@@ -8085,22 +8123,6 @@ local Window = Rayfield:CreateWindow({
         },
     },
 })
-
-ClipboardButton.Activated:Connect(function()
-    if guiCooldown then
-        return
-    end
-
-    guiCooldown = true
-
-    clipboard:CopyAllInventory()
-
-    guiCooldown = false
-end)
-GuiPopupButton.MouseButton1Click:Connect(function()
-    Rayfield:SetVisibility(true)
-end)
-
 local FarmTab = Window:CreateTab('Misc', 4483362458)
 
 FarmTab:CreateButton({
