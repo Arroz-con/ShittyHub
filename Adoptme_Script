@@ -4559,12 +4559,12 @@ Check the Developer Console for more information.]],
             return true
         end
 
-        local function isMuleInGame(selectedPlayer)
+        local function isMuleInGame(playerTable)
             for _, mule in Players:GetPlayers()do
                 if mule.Name == localPlayer.Name then
                     continue
                 end
-                if mule.Name == selectedPlayer then
+                if table.find(playerTable, mule.Name) then
                     return true
                 end
             end
@@ -4593,7 +4593,7 @@ Check the Developer Console for more information.]],
                         return
                     end
 
-                    local muleBool = isMuleInGame(selectedPlayer)
+                    local muleBool = isMuleInGame({selectedPlayer})
 
                     if muleBool then
                         ReplicatedStorage.API:FindFirstChild('TradeAPI/SendTradeRequest'):FireServer(Players[selectedPlayer])
@@ -4885,7 +4885,7 @@ Check the Developer Console for more information.]],
                 return print('TRADE_LIST is not a table')
             end
 
-            while getgenv().SETTINGS.ENABLE_TRADE_COLLECTOR and getgenv().SETTINGS.TRADE_COLLECTOR_NAME do
+            while getgenv().SETTINGS.ENABLE_TRADE_COLLECTOR do
                 if not isMuleInGame(getgenv().SETTINGS.TRADE_COLLECTOR_NAME) then
                     return print('\u{26a0}\u{fe0f} MULE NOT INGAME \u{26a0}\u{fe0f}')
                 end
