@@ -4571,16 +4571,28 @@ Check the Developer Console for more information.]],
 
             return false
         end
-
-        function Trade:SendTradeRequest(selectedPlayer)
-            if typeof(selectedPlayer) ~= 'string' then
-                return
+        local function getMuleNotCurrentlyTrading(playerTable)
+            for _, playerName in playerTable do
+                if ClientData.get_data()[playerName] and not ClientData.get_data()[playerName].in_active_trade then
+                    return playerName
+                end
             end
-            if selectedPlayer == 'Nothing' then
+
+            return nil
+        end
+
+        function Trade:SendTradeRequest(playerTable)
+            if typeof(playerTable) ~= 'table' then
                 return
             end
             if not localPlayer.PlayerGui.TradeApp.Frame.Visible then
                 repeat
+                    local selectedPlayer = getMuleNotCurrentlyTrading(playerTable)
+
+                    if not selectedPlayer then
+                        return
+                    end
+
                     local muleBool = isMuleInGame(selectedPlayer)
 
                     if muleBool then
@@ -4866,8 +4878,8 @@ Check the Developer Console for more information.]],
         function Trade:TradeCollector(namePassOn)
             local isInventoryFull = false
 
-            if typeof(namePassOn) ~= 'string' then
-                return print(`\u{1f6ab} {namePassOn} is not a string`)
+            if typeof(namePassOn) ~= 'table' then
+                return print(`\u{1f6ab} {namePassOn} is not a table`)
             end
             if typeof(getgenv().SETTINGS.TRADE_LIST) ~= 'table' then
                 return print('TRADE_LIST is not a table')
@@ -6848,7 +6860,7 @@ local function isMuleInGame()
         if player.Name == localPlayer.Name then
             continue
         end
-        if player.Name == getgenv().SETTINGS.TRADE_COLLECTOR_NAME then
+        if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, player.Name) then
             print('\u{1f911} Mule ingame \u{1f911}')
 
             return true
@@ -7714,10 +7726,10 @@ localPlayer.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(Child)
 end)
 Players.PlayerAdded:Connect(function(player)
     player.CharacterAdded:Connect(function(character)
-        if Players.LocalPlayer.Name == getgenv().SETTINGS.TRADE_COLLECTOR_NAME then
+        if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, localPlayer.Name) then
             return
         end
-        if tostring(player.Name) ~= getgenv().SETTINGS.TRADE_COLLECTOR_NAME then
+        if not table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, player.Name) then
             return
         end
 
@@ -7726,11 +7738,8 @@ Players.PlayerAdded:Connect(function(player)
         if not humanoidRootPart then
             return
         end
-        if tostring(player.Name) ~= getgenv().SETTINGS.TRADE_COLLECTOR_NAME then
-            return
-        end
 
-        task.wait(math.random(10, 20))
+        task.wait(math.random(10, 30))
         Trade:TradeCollector(getgenv().SETTINGS.TRADE_COLLECTOR_NAME)
 
         isTradingMule = false
@@ -8169,7 +8178,7 @@ TradeTab:CreateToggle({
         getgenv().auto_trade_semi_auto = Value
 
         while getgenv().auto_trade_semi_auto do
-            Trade:SendTradeRequest(selectedPlayer)
+            Trade:SendTradeRequest({selectedPlayer})
             task.wait(1)
         end
     end,
@@ -8191,7 +8200,7 @@ TradeAllInventory = TradeTab:CreateToggle({
         getgenv().auto_trade_all_inventory = Value
 
         while getgenv().auto_trade_all_inventory do
-            Trade:SendTradeRequest(selectedPlayer)
+            Trade:SendTradeRequest({selectedPlayer})
             Trade:AllInventory('pets')
             Trade:AllInventory('pet_accessories')
             Trade:AllInventory('strollers')
@@ -8218,7 +8227,7 @@ AllPetsToggle = TradeTab:CreateToggle({
         getgenv().auto_trade_all_pets = Value
 
         while getgenv().auto_trade_all_pets do
-            Trade:SendTradeRequest(selectedPlayer)
+            Trade:SendTradeRequest({selectedPlayer})
             Trade:AllPets()
 
             local hasPets = Trade:AcceptNegotiationAndConfirm()
@@ -8239,7 +8248,7 @@ AnyNeonToggle = TradeTab:CreateToggle({
         getgenv().auto_trade_fullgrown_neon_and_mega = Value
 
         while getgenv().auto_trade_fullgrown_neon_and_mega do
-            Trade:SendTradeRequest(selectedPlayer)
+            Trade:SendTradeRequest({selectedPlayer})
             Trade:FullgrownAndAnyNeonsAndMegas()
 
             local hasPets = Trade:AcceptNegotiationAndConfirm()
@@ -8260,7 +8269,7 @@ LegendaryToggle = TradeTab:CreateToggle({
         getgenv().auto_trade_Legendary = Value
 
         while getgenv().auto_trade_Legendary do
-            Trade:SendTradeRequest(selectedPlayer)
+            Trade:SendTradeRequest({selectedPlayer})
             Trade:AllPetsOfSameRarity('legendary')
 
             local hasPets = Trade:AcceptNegotiationAndConfirm()
@@ -8281,7 +8290,7 @@ FullgrownToggle = TradeTab:CreateToggle({
         getgenv().auto_trade_fullgrown_neon_and_mega = Value
 
         while getgenv().auto_trade_fullgrown_neon_and_mega do
-            Trade:SendTradeRequest(selectedPlayer)
+            Trade:SendTradeRequest({selectedPlayer})
             Trade:Fullgrown()
 
             local hasPets = Trade:AcceptNegotiationAndConfirm()
@@ -8302,7 +8311,7 @@ TradeAllMegas = TradeTab:CreateToggle({
         getgenv().auto_trade_all_neons = Value
 
         while getgenv().auto_trade_all_neons do
-            Trade:SendTradeRequest(selectedPlayer)
+            Trade:SendTradeRequest({selectedPlayer})
             Trade:AllNeons('mega_neon')
 
             local hasPets = Trade:AcceptNegotiationAndConfirm()
@@ -8323,7 +8332,7 @@ TradeAllNeons = TradeTab:CreateToggle({
         getgenv().auto_trade_all_neons = Value
 
         while getgenv().auto_trade_all_neons do
-            Trade:SendTradeRequest(selectedPlayer)
+            Trade:SendTradeRequest({selectedPlayer})
             Trade:AllNeons('neon')
 
             local hasPets = Trade:AcceptNegotiationAndConfirm()
@@ -8345,7 +8354,7 @@ LowTierToggle = TradeTab:CreateToggle({
 
         while getgenv().auto_trade_lowtier_pets do
             if selectedPlayer then
-                Trade:SendTradeRequest(selectedPlayer)
+                Trade:SendTradeRequest({selectedPlayer})
             end
 
             Trade:LowTiers()
@@ -8369,7 +8378,7 @@ RarityToggle = TradeTab:CreateToggle({
 
         while getgenv().auto_trade_rarity_pets do
             if selectedPlayer then
-                Trade:SendTradeRequest(selectedPlayer)
+                Trade:SendTradeRequest({selectedPlayer})
             end
 
             Trade:NewbornToPostteen('legendary')
@@ -8415,7 +8424,7 @@ PetToggle = TradeTab:CreateToggle({
         getgenv().auto_trade_custom = Value
 
         while getgenv().auto_trade_custom do
-            Trade:SendTradeRequest(selectedPlayer)
+            Trade:SendTradeRequest({selectedPlayer})
             Trade:SelectTabAndTrade('pets', selectedPet)
 
             local hasPets = Trade:AcceptNegotiationAndConfirm()
@@ -8459,7 +8468,7 @@ GiftToggle = TradeTab:CreateToggle({
         getgenv().auto_trade_custom = Value
 
         while getgenv().auto_trade_custom do
-            Trade:SendTradeRequest(selectedPlayer)
+            Trade:SendTradeRequest({selectedPlayer})
             Trade:SelectTabAndTrade('gifts', selectedGift)
 
             local hasPets = Trade:AcceptNegotiationAndConfirm()
@@ -8503,7 +8512,7 @@ ToyToggle = TradeTab:CreateToggle({
         getgenv().auto_trade_custom = Value
 
         while getgenv().auto_trade_custom do
-            Trade:SendTradeRequest(selectedPlayer)
+            Trade:SendTradeRequest({selectedPlayer})
             Trade:SelectTabAndTrade('toys', selectedToy)
 
             local hasPets = Trade:AcceptNegotiationAndConfirm()
@@ -8547,7 +8556,7 @@ FoodToggle = TradeTab:CreateToggle({
         getgenv().auto_trade_custom = Value
 
         while getgenv().auto_trade_custom do
-            Trade:SendTradeRequest(selectedPlayer)
+            Trade:SendTradeRequest({selectedPlayer})
             Trade:SelectTabAndTrade('food', selectedFood)
 
             local hasPets = Trade:AcceptNegotiationAndConfirm()
