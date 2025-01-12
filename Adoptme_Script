@@ -4587,6 +4587,8 @@ Check the Developer Console for more information.]],
             end
             if not localPlayer.PlayerGui.TradeApp.Frame.Visible then
                 repeat
+                    print('\u{2705} selecting mule to trade \u{2705}')
+
                     local selectedPlayer = getMuleNotCurrentlyTrading(playerTable)
 
                     if not selectedPlayer then
