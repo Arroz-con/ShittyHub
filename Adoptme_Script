@@ -4573,12 +4573,12 @@ Check the Developer Console for more information.]],
             return true
         end
 
-        local function isMuleInGame(playerTable)
-            for _, mule in Players:GetPlayers()do
-                if mule.Name == localPlayer.Name then
+        local function isMulesInGame(playerMulesTable)
+            for _, player in Players:GetPlayers()do
+                if player.Name == localPlayer.Name then
                     continue
                 end
-                if table.find(playerTable, mule.Name) then
+                if table.find(playerMulesTable, player.Name) then
                     return true
                 end
             end
@@ -4606,14 +4606,9 @@ Check the Developer Console for more information.]],
                     print('\u{2705} selecting mule to trade \u{2705}')
 
                     local selectedPlayer = getMuleNotCurrentlyTrading(playerTable)
+                    local muleBool = isMulesInGame(playerTable)
 
-                    if not selectedPlayer then
-                        return
-                    end
-
-                    local muleBool = isMuleInGame({selectedPlayer})
-
-                    if muleBool then
+                    if selectedPlayer then
                         ReplicatedStorage.API:FindFirstChild('TradeAPI/SendTradeRequest'):FireServer(Players[selectedPlayer])
                     end
 
@@ -4868,8 +4863,8 @@ Check the Developer Console for more information.]],
             end
         end
         function Trade:CheckInventory()
-            if not isMuleInGame(getgenv().SETTINGS.TRADE_COLLECTOR_NAME) then
-                print('Collecter no longer ingame')
+            if not isMulesInGame(getgenv().SETTINGS.TRADE_COLLECTOR_NAME) then
+                print('Collecters no longer ingame')
 
                 return false
             end
@@ -4902,9 +4897,12 @@ Check the Developer Console for more information.]],
             if typeof(getgenv().SETTINGS.TRADE_LIST) ~= 'table' then
                 return print('TRADE_LIST is not a table')
             end
+            if table.find(namePassOn, localPlayer.Name) then
+                return print('\u{1f6ab} MULE CANNOT TRADE ITSELF OR OTHER MULES')
+            end
 
             while getgenv().SETTINGS.ENABLE_TRADE_COLLECTOR do
-                if not isMuleInGame(getgenv().SETTINGS.TRADE_COLLECTOR_NAME) then
+                if not isMulesInGame(getgenv().SETTINGS.TRADE_COLLECTOR_NAME) then
                     return print('\u{26a0}\u{fe0f} MULE NOT INGAME \u{26a0}\u{fe0f}')
                 end
                 if not Trade:CheckInventory() then
