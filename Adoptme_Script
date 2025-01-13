@@ -4335,12 +4335,26 @@ Check the Developer Console for more information.]],
 
             return inventoryTable
         end
+        function GetInventory:IsFarmingSelectedPet()
+            if not ClientData.get('pet_char_wrappers')[1] then
+                return
+            end
+            if getgenv().PetCurrentlyFarming == ClientData.get('pet_char_wrappers')[1]['pet_unique'] then
+                return
+            end
+
+            print('current pet equipped is not the same pet as selected..')
+            ReplicatedStorage.API['ToolAPI/Equip']:InvokeServer(getgenv().PetCurrentlyFarming, {})
+            task.wait(2)
+
+            return
+        end
         function GetInventory:GetPetFriendship()
             local level = 0
             local petUnique = nil
 
             for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
-                if pet.id ~= 'practice_dog' then
+                if pet.id == 'practice_dog' then
                     continue
                 end
                 if pet.properties.friendship_level > level then
@@ -5832,10 +5846,6 @@ Check the Developer Console for more information.]],
             local hours = math.floor(currentTime / 3600)
             local minutes = math.floor((currentTime % 3600) / 60)
             local seconds = currentTime % 60
-
-            if hours > 10 then
-                game:Shutdown()
-            end
 
             return string.format('%02d:%02d:%02d', hours, minutes, seconds)
         end
@@ -7387,6 +7397,7 @@ local function autoFarm()
             end
 
             removeHandHeldItem()
+            GetInventory:IsFarmingSelectedPet()
 
             if not CompletePetAilments() then
                 completeBabyAilments()
