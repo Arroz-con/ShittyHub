@@ -5375,6 +5375,9 @@ Check the Developer Console for more information.]],
 
                         return
                     end
+                    if not ClientData.get('pet_char_wrappers')[1].pet_unique then
+                        return
+                    end
 
                     local args = {
                         [1] = '__Enum_PetObjectCreatorType_2',
