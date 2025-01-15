@@ -143,8 +143,9 @@ function Trade:NewbornToPostteen(rarity: string)
 end
 
 
-function Trade:NewbornToPostteenByPetId(petIds: table)
+function Trade:NewbornToPostteenByPetId(petIds: table, amount: number?)
     if typeof(petIds) ~= "table" then return end
+    local amount = amount or 18
 
     inActiveTrade()
 
@@ -153,7 +154,7 @@ function Trade:NewbornToPostteenByPetId(petIds: table)
         if table.find(petIds, pet.id) and pet.properties.age <=5 and not pet.properties.mega_neon then
             if not ClientData.get_data()[Player.Name].in_active_trade then return end
             ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
-            if #ClientData.get_data()[Player.Name].trade.sender_offer.items >= 18 then
+            if #ClientData.get_data()[Player.Name].trade.sender_offer.items >= amount then
                 return
             end
             task.wait(0.1)
