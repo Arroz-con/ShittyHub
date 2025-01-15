@@ -41,8 +41,6 @@ do
         local useStudio = RunService:IsStudio() or false
         local settingsCreated = false
         local cachedSettings
-        local _ = useStudio and require(script.Parent.prompt) or loadstring(game:HttpGet(
-[[https://raw.githubusercontent.com/SiriusSoftwareLtd/Sirius/refs/heads/request/prompt.lua]]))()
         local request = (syn and syn.request) or (fluxus and fluxus.request) or (http and http.request) or http_request or request
 
         local function loadSettings()
@@ -52,9 +50,6 @@ do
                 if isfile and isfile(RayfieldFolder .. '/settings' .. ConfigurationExtension) then
                     file = readfile(RayfieldFolder .. '/settings' .. ConfigurationExtension)
                 end
-            end
-            if useStudio then
-                file = '\r\n\t\t{"General":{"rayfieldOpen":{"Value":"K","Type":"bind","Name":"Rayfield Keybind","Element":{"HoldToInteract":false,"Ext":true,"Name":"Rayfield Keybind","Set":null,"CallOnChange":true,"Callback":null,"CurrentKeybind":"K"}}},"System":{"usageAnalytics":{"Value":false,"Type":"toggle","Name":"Anonymised Analytics","Element":{"Ext":true,"Name":"Anonymised Analytics","Set":null,"CurrentValue":false,"Callback":null}}}}\r\n\t'
             end
             if file then
                 local success, decodedFile = pcall(function()
@@ -90,16 +85,6 @@ do
         end
 
         loadSettings()
-
-        if #cachedSettings == 0 or (cachedSettings.System and cachedSettings.System.usageAnalytics and cachedSettings.System.usageAnalytics.Value) then
-            if useStudio then
-                print('Sending analytics')
-            else
-                local reporter = loadstring(game:HttpGet('https://analytics.sirius.menu/reporter'))()
-
-                reporter.report('0193dbf8-7da1-79de-b399-2c0f68b0a9ad', Release, InterfaceBuild)
-            end
-        end
 
         local RayfieldLibrary = {
             Flags = {},
@@ -403,10 +388,10 @@ do
                 },
             },
         }
-        local UserInputService = game:GetService('UserInputService')
-        local TweenService = game:GetService('TweenService')
-        local Players = game:GetService('Players')
         local CoreGui = game:GetService('CoreGui')
+        local Players = game:GetService('Players')
+        local TweenService = game:GetService('TweenService')
+        local UserInputService = game:GetService('UserInputService')
         local Rayfield = useStudio and script.Parent:FindFirstChild('Rayfield') or game:GetObjects('rbxassetid://10804731440')[1]
         local buildAttempts = 0
         local correctBuild = false
@@ -1530,7 +1515,7 @@ This version of Rayfield is intended for interface build ]] .. InterfaceBuild ..
                     end
                 end
             end
-            if (Settings.KeySystem) then
+            if Settings.KeySystem then
                 if not Settings.KeySettings then
                     Passthrough = true
 
@@ -1955,7 +1940,7 @@ This version of Rayfield is intended for interface build ]] .. InterfaceBuild ..
                             TweenService:Create(Button.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 0}):Play()
                         else
                             if not ButtonSettings.Ext then
-                                SaveConfiguration(ButtonSettings.Name .. '\n')
+                                SaveConfiguration()
                             end
 
                             TweenService:Create(Button, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {
@@ -2184,7 +2169,7 @@ This version of Rayfield is intended for interface build ]] .. InterfaceBuild ..
                         ColorPickerSettings.Color = Color3.fromRGB(r, g, b)
 
                         if not ColorPickerSettings.Ext then
-                            SaveConfiguration(ColorPickerSettings.Flag .. '\n' .. tostring(ColorPickerSettings.Color))
+                            SaveConfiguration()
                         end
                     end)
 
@@ -3811,7 +3796,7 @@ This version of Rayfield is intended for interface build ]] .. InterfaceBuild ..
             input,
             processed
         )
-            if (input.KeyCode == Enum.KeyCode[settingsTable.General.rayfieldOpen.Value or 'K'] and not processed) then
+            if input.KeyCode == Enum.KeyCode[settingsTable.General.rayfieldOpen.Value or 'K'] and not processed then
                 if Debounce then
                     return
                 end
@@ -3909,131 +3894,6 @@ Check the Developer Console for more information.]],
             globalLoaded = true
         end
 
-        if useStudio then
-            local Window = RayfieldLibrary:CreateWindow({
-                Name = 'Rayfield Example Window',
-                LoadingTitle = 'Rayfield Interface Suite',
-                Theme = 'Default',
-                Icon = 0,
-                LoadingSubtitle = 'by Sirius',
-                ConfigurationSaving = {
-                    Enabled = true,
-                    FolderName = nil,
-                    FileName = 'Big Hub52',
-                },
-                Discord = {
-                    Enabled = false,
-                    Invite = 'noinvitelink',
-                    RememberJoins = true,
-                },
-                KeySystem = false,
-                KeySettings = {
-                    Title = 'Untitled',
-                    Subtitle = 'Key System',
-                    Note = 'No method of obtaining the key is provided',
-                    FileName = 'Key',
-                    SaveKey = true,
-                    GrabKeyFromSite = false,
-                    Key = {
-                        'Hello',
-                    },
-                },
-            })
-            local Tab = Window:CreateTab('Tab Example', 'key-round')
-            local Tab2 = Window:CreateTab('Tab Example 2', 4483362458)
-
-            Tab2:CreateSection('Section')
-            Tab2:CreateColorPicker({
-                Name = 'Color Picker',
-                Color = Color3.fromRGB(255, 255, 255),
-                Flag = 'ColorPicfsefker1',
-                Callback = function(Value) end,
-            })
-            Tab2:CreateSlider({
-                Name = 'Slider Example',
-                Range = {0, 100},
-                Increment = 10,
-                Suffix = 'Bananas',
-                CurrentValue = 40,
-                Flag = 'Slidefefsr1',
-                Callback = function(Value) end,
-            })
-            Tab2:CreateInput({
-                Name = 'Input Example',
-                CurrentValue = '',
-                PlaceholderText = 'Input Placeholder',
-                Flag = 'dawdawd',
-                RemoveTextAfterFocusLost = false,
-                Callback = function(Text) end,
-            })
-            Tab:CreateSection('Section Example')
-            Tab:CreateButton({
-                Name = 'Change Theme',
-                Callback = function()
-                    Window.ModifyTheme('DarkBlue')
-                end,
-            })
-            Tab:CreateToggle({
-                Name = 'Toggle Example',
-                CurrentValue = false,
-                Flag = 'Toggle1adwawd',
-                Callback = function(Value) end,
-            })
-            Tab:CreateColorPicker({
-                Name = 'Color Picker',
-                Color = Color3.fromRGB(255, 255, 255),
-                Flag = 'ColorPicker1awd',
-                Callback = function(Value) end,
-            })
-            Tab:CreateSlider({
-                Name = 'Slider Example',
-                Range = {0, 100},
-                Increment = 10,
-                Suffix = 'Bananas',
-                CurrentValue = 40,
-                Flag = 'Slider1dawd',
-                Callback = function(Value) end,
-            })
-            Tab:CreateInput({
-                Name = 'Input Example',
-                CurrentValue = 'Helo',
-                PlaceholderText = 'Adaptive Input',
-                RemoveTextAfterFocusLost = false,
-                Flag = 'Input1',
-                Callback = function(Text) end,
-            })
-
-            local thoptions = {}
-
-            for themename, theme in pairs(RayfieldLibrary.Theme)do
-                table.insert(thoptions, themename)
-            end
-
-            Tab:CreateDropdown({
-                Name = 'Theme',
-                Options = thoptions,
-                CurrentOption = {
-                    'Default',
-                },
-                MultipleOptions = false,
-                Flag = 'Dropdown1',
-                Callback = function(Options) end,
-            })
-            Tab:CreateKeybind({
-                Name = 'Keybind Example',
-                CurrentKeybind = 'Q',
-                HoldToInteract = false,
-                Flag = 'Keybind1',
-                Callback = function(Keybind) end,
-            })
-            Tab:CreateLabel('Label Example')
-            Tab:CreateLabel('Warning', 4483362458, Color3.fromRGB(255, 159, 49), true)
-            Tab:CreateParagraph({
-                Title = 'Paragraph Example',
-                Content = 
-[[Paragraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph Example]],
-            })
-        end
         if CEnabled and Main:FindFirstChild('Notice') then
             Main.Notice.BackgroundTransparency = 1
             Main.Notice.Title.TextTransparency = 1
