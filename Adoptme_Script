@@ -4785,6 +4785,9 @@ Check the Developer Console for more information.]],
 
                         for _, item in v do
                             if table.find(getgenv().SETTINGS.TRADE_LIST, item.id) or (item.properties.neon and item.properties.age == 6) or item.properties.mega_neon then
+                                if table.find(excludePets, item.id) then
+                                    continue
+                                end
                                 if not ClientData.get_data()[localPlayer.Name].in_active_trade then
                                     return
                                 end
@@ -4813,6 +4816,9 @@ Check the Developer Console for more information.]],
 
                         for _, item in v do
                             if table.find(getgenv().SETTINGS.TRADE_LIST, item.id) or item.properties.age == 6 or (item.properties.neon and item.properties.age == 6) or item.properties.mega_neon then
+                                if table.find(excludePets, item.id) then
+                                    continue
+                                end
                                 if not ClientData.get_data()[localPlayer.Name].in_active_trade then
                                     return
                                 end
@@ -5465,9 +5471,11 @@ Check the Developer Console for more information.]],
         end
 
         function Ailments:HungryAilment()
+            reEquipPet()
             FoodAilments('icecream')
         end
         function Ailments:ThirstyAilment()
+            reEquipPet()
             FoodAilments('water')
         end
         function Ailments:SickAilment()
