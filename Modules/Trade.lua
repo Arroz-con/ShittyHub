@@ -9,6 +9,7 @@ local InventoryDB = require(ReplicatedStorage:WaitForChild("ClientDB"):WaitForCh
 local Trade = {}
 
 local lowTierRarity = {"common", "uncommon", "rare", "ultra_rare"}
+local excludePets = {"practice_dog", "starter_egg", "dog", "cat"}
 
 local function inActiveTrade()
     local timeOut = 60
@@ -92,7 +93,7 @@ function Trade:NeonNewbornToPostteen()
     inActiveTrade()
 
     for _, pet in ClientData.get_data()[Player.Name].inventory.pets do 
-        if pet.id == "practice_dog" or pet.id == "starter_egg" then continue end
+        if table.find(excludePets, pet.id) then continue end
         if pet.properties.age <=5 and pet.properties.neon then
             if not ClientData.get_data()[Player.Name].in_active_trade then return end
             ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
@@ -110,7 +111,7 @@ function Trade:LowTiers()
 
     for _, petDB in InventoryDB.pets do
         for _, pet in ClientData.get_data()[Player.Name].inventory.pets do 
-            if pet.id == "practice_dog" or pet.id == "starter_egg" then continue end
+            if table.find(excludePets, pet.id) then continue end
             if petDB.id == pet.id and table.find(lowTierRarity, petDB.rarity) and pet.properties.age <=5 and not pet.properties.neon and not pet.properties.mega_neon then
                 if not ClientData.get_data()[Player.Name].in_active_trade then return end
                 ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
@@ -129,7 +130,7 @@ function Trade:NewbornToPostteen(rarity: string)
 
     for _, petDB in InventoryDB.pets do
         for _, pet in ClientData.get_data()[Player.Name].inventory.pets do
-            if pet.id == "practice_dog" or pet.id == "starter_egg" then continue end
+            if table.find(excludePets, pet.id) then continue end
             if petDB.id == pet.id and petDB.rarity == rarity and pet.properties.age <=5 and not pet.properties.neon and not pet.properties.mega_neon then
                 if not ClientData.get_data()[Player.Name].in_active_trade then return end
                 ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique) 
@@ -150,7 +151,7 @@ function Trade:NewbornToPostteenByPetId(petIds: table, amount: number?)
     inActiveTrade()
 
     for _, pet in ClientData.get_data()[Player.Name].inventory.pets do
-        if pet.id == "practice_dog" or pet.id == "starter_egg" then continue end
+        if table.find(excludePets, pet.id) then continue end
         if table.find(petIds, pet.id) and pet.properties.age <=5 and not pet.properties.mega_neon then
             if not ClientData.get_data()[Player.Name].in_active_trade then return end
             ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
@@ -200,7 +201,7 @@ function Trade:AllPetsOfSameRarity(rarity: string)
 
     for _, petDB in InventoryDB.pets do
         for _, pet in ClientData.get_data()[Player.Name].inventory.pets do     
-            if pet.id == "practice_dog" or pet.id == "starter_egg" then continue end
+            if table.find(excludePets, pet.id) then continue end
             if petDB.id == pet.id and petDB.rarity == rarity then
                 if not ClientData.get_data()[Player.Name].in_active_trade then return end
                 ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
@@ -231,7 +232,7 @@ function Trade:AllInventory(TabPassOn: string) -- need to test
     inActiveTrade()
 
     for _, item in ClientData.get_data()[Player.Name].inventory[TabPassOn] do
-        if item.id == "practice_dog" or item.id == "starter_egg" then continue end
+        if table.find(excludePets, item.id) then continue end
         if not ClientData.get_data()[Player.Name].in_active_trade then return end
         ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(item.unique)
         if #ClientData.get_data()[Player.Name].trade.sender_offer.items >= 18 then
@@ -246,7 +247,7 @@ function Trade:AllPets()
     inActiveTrade()
 
     for _, pet in ClientData.get_data()[Player.Name].inventory.pets do
-        if pet.id == "practice_dog" or pet.id == "starter_egg" then continue end
+        if table.find(excludePets, pet.id) then continue end
         if not ClientData.get_data()[Player.Name].in_active_trade then return end
         ReplicatedStorage.API["TradeAPI/AddItemToOffer"]:FireServer(pet.unique)
         if #ClientData.get_data()[Player.Name].trade.sender_offer.items >= 18 then

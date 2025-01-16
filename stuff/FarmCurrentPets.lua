@@ -1,11 +1,11 @@
-getgenv().BUY_BEFORE_FARMING = {
-	{NameId = "winter_2024_bauble_buddies", MaxAmount = 80},
-	{NameId = "winter_2024_great_pyrenees", MaxAmount = 80},
-	{NameId = "winter_2024_mistletroll", MaxAmount = 160},
-	{NameId = "winter_2024_winter_deer_bait", MaxAmount = 200},
-	{NameId = "winter_2024_ice_tray", MaxAmount = 200},
-	{NameId = "winter_2024_bauble_buddies", MaxAmount = 10000}
-}
+-- getgenv().BUY_BEFORE_FARMING = {
+-- 	{NameId = "winter_2024_bauble_buddies", MaxAmount = 80},
+-- 	{NameId = "winter_2024_great_pyrenees", MaxAmount = 80},
+-- 	{NameId = "winter_2024_mistletroll", MaxAmount = 160},
+-- 	{NameId = "winter_2024_winter_deer_bait", MaxAmount = 200},
+-- 	{NameId = "winter_2024_ice_tray", MaxAmount = 200},
+-- 	{NameId = "winter_2024_bauble_buddies", MaxAmount = 10000}
+-- }
 
 -- getgenv().OPEN_ITEMS_BEFORE_FARMING = {
 -- 	"winter_2024_ice_tray"
@@ -13,6 +13,7 @@ getgenv().BUY_BEFORE_FARMING = {
 
 getgenv().AGE_PETS_BEFORE_FARMING = {
 	"winter_2024_frostbite_cub",
+	"winter_2024_winter_fawn",
 	"winter_2024_winter_buck",
 	"winter_2024_great_pyrenees",
 	"winter_2024_bauble_buddies",
