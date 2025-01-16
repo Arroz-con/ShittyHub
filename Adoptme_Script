@@ -4385,6 +4385,12 @@ Check the Developer Console for more information.]],
             'rare',
             'ultra_rare',
         }
+        local excludePets = {
+            'practice_dog',
+            'starter_egg',
+            'dog',
+            'cat',
+        }
 
         local function inActiveTrade()
             local timeOut = 60
@@ -4499,7 +4505,7 @@ Check the Developer Console for more information.]],
             inActiveTrade()
 
             for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
-                if pet.id == 'practice_dog' or pet.id == 'starter_egg' then
+                if table.find(excludePets, pet.id) then
                     continue
                 end
                 if pet.properties.age <= 5 and pet.properties.neon then
@@ -4522,7 +4528,7 @@ Check the Developer Console for more information.]],
 
             for _, petDB in InventoryDB.pets do
                 for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
-                    if pet.id == 'practice_dog' or pet.id == 'starter_egg' then
+                    if table.find(excludePets, pet.id) then
                         continue
                     end
                     if petDB.id == pet.id and table.find(lowTierRarity, petDB.rarity) and pet.properties.age <= 5 and not pet.properties.neon and not pet.properties.mega_neon then
@@ -4546,7 +4552,7 @@ Check the Developer Console for more information.]],
 
             for _, petDB in InventoryDB.pets do
                 for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
-                    if pet.id == 'practice_dog' or pet.id == 'starter_egg' then
+                    if table.find(excludePets, pet.id) then
                         continue
                     end
                     if petDB.id == pet.id and petDB.rarity == rarity and pet.properties.age <= 5 and not pet.properties.neon and not pet.properties.mega_neon then
@@ -4573,7 +4579,7 @@ Check the Developer Console for more information.]],
             inActiveTrade()
 
             for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
-                if pet.id == 'practice_dog' or pet.id == 'starter_egg' then
+                if table.find(excludePets, pet.id) then
                     continue
                 end
                 if table.find(petIds, pet.id) and pet.properties.age <= 5 and not pet.properties.mega_neon then
@@ -4634,7 +4640,7 @@ Check the Developer Console for more information.]],
 
             for _, petDB in InventoryDB.pets do
                 for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
-                    if pet.id == 'practice_dog' or pet.id == 'starter_egg' then
+                    if table.find(excludePets, pet.id) then
                         continue
                     end
                     if petDB.id == pet.id and petDB.rarity == rarity then
@@ -4667,7 +4673,7 @@ Check the Developer Console for more information.]],
             inActiveTrade()
 
             for _, item in ClientData.get_data()[localPlayer.Name].inventory[TabPassOn]do
-                if item.id == 'practice_dog' or item.id == 'starter_egg' then
+                if table.find(excludePets, item.id) then
                     continue
                 end
                 if not ClientData.get_data()[localPlayer.Name].in_active_trade then
@@ -4687,7 +4693,7 @@ Check the Developer Console for more information.]],
             inActiveTrade()
 
             for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
-                if pet.id == 'practice_dog' or pet.id == 'starter_egg' then
+                if table.find(excludePets, pet.id) then
                     continue
                 end
                 if not ClientData.get_data()[localPlayer.Name].in_active_trade then
