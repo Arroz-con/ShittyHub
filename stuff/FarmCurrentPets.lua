@@ -43,7 +43,7 @@ getgenv().SETTINGS = {
 	PET_AUTO_FUSION = true,
 
 	ENABLE_TRADE_COLLECTOR = true,
-	TRADE_ONLY_LUMINOUS_MEGA = true,
+	TRADE_ONLY_LUMINOUS_MEGA = false,
 	TRADE_COLLECTOR_NAME = {"candymine8", "MohnsGurry6277", "AnleuBlice039", "HockeDeasy246", "WopatMart", "candyx_82"},
 	TRADE_LIST = {
 		"winter_2024_ratatoskr",
