@@ -13,6 +13,7 @@
 
 getgenv().AGE_PETS_BEFORE_FARMING = {
 	"winter_2024_frostbite_cub",
+	"chiprac_2023_raccoon",
 	-- "winter_2024_winter_fawn",
 	-- "winter_2024_winter_buck",
 	"winter_2024_great_pyrenees",
