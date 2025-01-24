@@ -5064,7 +5064,6 @@ Check the Developer Console for more information.]],
             task.wait(1)
             Workspace.Interiors:WaitForChild(tostring(Workspace.Interiors:FindFirstChildWhichIsA('Model')))
 
-            Player.Character.PrimaryPart.CFrame = Workspace:WaitForChild('StaticMap'):WaitForChild('Park'):WaitForChild('Roundabout').PrimaryPart.CFrame + Vector3.new(20, 10, math.random(15, 30))
             Player.Character:WaitForChild('HumanoidRootPart').Anchored = false
 
             Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
@@ -5772,7 +5771,7 @@ Check the Developer Console for more information.]],
             self.label.Size = UDim2.new(0.330000013, 0, 0.486617982, 0)
             self.label.Font = Enum.Font.FredokaOne
             self.label.RichText = false
-            self.label.Text = 'label'
+            self.label.Text = ''
             self.label.TextColor3 = Color3.fromRGB(255, 255, 255)
             self.label.TextScaled = true
             self.label.TextSize = 14
@@ -6513,6 +6512,26 @@ Check the Developer Console for more information.]],
 
         return Tutorials
     end
+    function __DARKLUA_BUNDLE_MODULES.n()
+        local ReplicatedStorage = game:GetService('ReplicatedStorage')
+        local Workspace = game:GetService('Workspace')
+        local StarsFolder = Workspace:WaitForChild('Collectables')
+        local LunarNewYear2025 = {}
+
+        function LunarNewYear2025:CollectStars()
+            for _, v in StarsFolder:GetChildren()do
+                if not v:IsA('Model') then
+                    continue
+                end
+
+                ReplicatedStorage.API['MoonAPI/ShootingStarCollected']:FireServer('MainMap', v.Name)
+                print(`Collected {v.Name} star`)
+                task.wait(1)
+            end
+        end
+
+        return LunarNewYear2025
+    end
 end
 
 if not game:IsLoaded() then
@@ -6645,6 +6664,7 @@ local Clipboard = __DARKLUA_BUNDLE_MODULES.load('j')
 local TradeLicense = __DARKLUA_BUNDLE_MODULES.load('k')
 local BulkPotions = __DARKLUA_BUNDLE_MODULES.load('l')
 local Tutorials = __DARKLUA_BUNDLE_MODULES.load('m')
+local LunarNewYear2025 = __DARKLUA_BUNDLE_MODULES.load('n')
 local clipboard = Clipboard.new()
 local taskBoard = TaskBoard.new()
 
@@ -6653,12 +6673,12 @@ StatsGuis2.Setup()
 local TempPotions = StatsGuis2.new('TempPotions')
 local TempTinyPotions = StatsGuis2.new('TempTinyPotions')
 local TempBucks = StatsGuis2.new('TempBucks')
-local TempGingerbreads = StatsGuis2.new('TempGingerbreads')
+
+StatsGuis2.new('BlankTemp')
+
 local TotalPotions = StatsGuis2.new('TotalPotions')
 local TotalTinyPotions = StatsGuis2.new('TotalTinyPotions')
 local TotalBucks = StatsGuis2.new('TotalBucks')
-local TotalGingerbreads = StatsGuis2.new('TotalGingerbreads')
-local TotalWinterBaits = StatsGuis2.new('TotalWinterBaits')
 local petsTable = GetInventory:TabId('pets')
 
 if #petsTable == 0 then
@@ -6922,11 +6942,8 @@ local function updateStatsGui()
         startGingerbreadAmount = currentGingerbread
     end
 
-    TempGingerbreads:UpdateTextFor('TempGingerbreads', gingerbreadsGained)
     TotalPotions:UpdateTextFor('TotalPotions')
     TotalBucks:UpdateTextFor('TotalBucks')
-    TotalGingerbreads:UpdateTextFor('TotalGingerbreads')
-    TotalWinterBaits:UpdateTextFor('TotalWinterBaits')
 end
 local function findBait(baitPassOn)
     local bait
@@ -7265,6 +7282,12 @@ local function autoFarm()
         local baitboxCount = 0
 
         while true do
+            local howManyAvailable = ClientData.get_data()[localPlayer.Name].moon_2025_shooting_stars.available_stars['MainMap']
+
+            if howManyAvailable >= 1 then
+                Teleport.DownloadMainMap()
+                LunarNewYear2025:CollectStars()
+            end
             if isInMiniGame then
                 local count = 0
 
@@ -7871,12 +7894,9 @@ StatsGuis2:UpdateTextFor('TimeLabel', startTime)
 TempPotions:UpdateTextFor('TempPotions', potionsGained)
 TempTinyPotions:UpdateTextFor('TempTinyPotions', tinyPotionsGained)
 TempBucks:UpdateTextFor('TempBucks', bucksGained)
-TempGingerbreads:UpdateTextFor('TempGingerbreads', gingerbreadsGained)
 TotalPotions:UpdateTextFor('TotalPotions')
 TotalTinyPotions:UpdateTextFor('TotalTinyPotions')
 TotalBucks:UpdateTextFor('TotalBucks')
-TotalGingerbreads:UpdateTextFor('TotalGingerbreads')
-TotalWinterBaits:UpdateTextFor('TotalWinterBaits')
 StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Captures, false)
 
 UserGameSettings.GraphicsQualityLevel = 1
@@ -7960,10 +7980,8 @@ if getgenv().AGE_PETS_BEFORE_FARMING then
     print('DONE aging pets')
 end
 if getgenv().SETTINGS.PET_AUTO_FUSION then
-    print('FUSING PETS IF THERES ANY TO DO')
     Fusion:MakeMega(false)
     Fusion:MakeMega(true)
-    print('DONE FUSING')
 end
 
 isBuyingOrAging = false
