@@ -1,38 +1,72 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
 local VirtualUser = game:GetService("VirtualUser")
 local Players = game:GetService("Players")
-local Player = Players.LocalPlayer
+local localPlayer = Players.LocalPlayer
 
 local Fusion = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Fusion.lua"))()
+
 local ClientData = require(ReplicatedStorage:WaitForChild("ClientModules"):WaitForChild("Core"):WaitForChild("ClientData"))
 
 local BulkPotions = {}
+BulkPotions.__index = BulkPotions
 
-local sameUnqiue
-local stopAging = false
+function BulkPotions.new()
+    local self = setmetatable({}, BulkPotions)
+    self.SameUnqiue = nil
+    self.SameUnqiueCount = 0
+    self.StopAging = false
+    self.EggsTable = {}
+    return self
+end
 
+local function waitForPetToEquip()
+    local startTime = DateTime.now().UnixTimestamp
+    local isStuck = false
+    repeat
+        task.wait()
+        local isEquipped = ClientData.get("pet_char_wrappers")[1]
+        local currentTime = DateTime.now().UnixTimestamp
+        if currentTime - startTime >= 10 then
+            isStuck = true
+        end
+    until isEquipped or isStuck
 
-local function isPetNormal(petName: string)
-    for _, v in ClientData.get_data()[Player.Name].inventory.pets do
+    if isStuck then
+        print("Unable to equip pet")
+        return false
+    end
+    print("Pet is Equipped")
+    return true
+end
+
+function BulkPotions:IsPetNormal(petName: string)
+    for _, v in ClientData.get_data()[localPlayer.Name].inventory.pets do
         if v.id == petName and v.id ~= "practice_dog" and v.properties.age ~= 6 and not v.properties.mega_neon then
             ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, { ["use_sound_delay"] = true })
-            task.wait(1)
+            waitForPetToEquip()
             return true
         end
     end
     return false
 end
 
-local function isPetNeon(petName: string)
-    for _, v in ClientData.get_data()[Player.Name].inventory.pets do
-        if v.id == petName and v.id ~= "practice_dog" and v.properties.age ~= 6 and v.properties.neon and not v.properties.mega_neon then
+function BulkPotions:IsPetNeon(petName: string)
+    for _, v in ClientData.get_data()[localPlayer.Name].inventory.pets do
+        if
+            v.id == petName
+            and v.id ~= "practice_dog"
+            and v.properties.age ~= 6
+            and v.properties.neon
+            and not v.properties.mega_neon
+        then
             ReplicatedStorage.API["ToolAPI/Equip"]:InvokeServer(v.unique, { ["use_sound_delay"] = true })
-            task.wait(1)
+            waitForPetToEquip()
             return true
         end
     end
 
-    if isPetNormal(petName) then
+    if self:IsPetNormal(petName) then
         return true
     else
         return false
@@ -41,7 +75,7 @@ end
 
 local function agePotionCount(nameId)
     local count = 0
-    for _, v in ClientData.get_data()[Player.Name].inventory.food do
+    for _, v in ClientData.get_data()[localPlayer.Name].inventory.food do
         if v.id == nameId then
             count += 1
         end
@@ -49,11 +83,28 @@ local function agePotionCount(nameId)
     return count
 end
 
-local function isSameUnique()
-    for _, v in ClientData.get_data()[Player.Name].inventory.food do
+local function consumeItem(potionName: string)
+    local agePotion = Workspace.PetObjects:WaitForChild(potionName, 10)
+    if not agePotion then
+        print("no age potion in workspace")
+        return
+    end
+
+    ReplicatedStorage.API["PetAPI/ConsumeFoodObject"]:FireServer(agePotion, ClientData.get("pet_char_wrappers")[1].pet_unique)
+end
+
+function BulkPotions:IsSameUnique()
+    for _, v in ClientData.get_data()[localPlayer.Name].inventory.food do
         if v.id == "pet_age_potion" or v.id == "tiny_pet_age_potion" then
-            if sameUnqiue == v.unique then
+            if self.SameUnqiue == v.unique then
                 print("has same unqiue age up potion")
+                self.SameUnqiueCount += 1
+                if self.SameUnqiueCount > 10 then
+                    print("⚠️ SAME POTION HAS BEEN TRIED 10 TIMES. MUST BE STUCK ⚠️")
+                    self.SameUnqiueCount = 0
+                    self.SameUnqiue = nil
+                end
+                task.wait(1)
                 return true
             end
         end
@@ -61,36 +112,92 @@ local function isSameUnique()
     return false
 end
 
-local function feedAgePotion()
-    if isSameUnique() then return end
+function BulkPotions:SetEggTable(newEggTable)
+    self.EggsTable = newEggTable
+end
 
-    for _, v in ClientData.get_data()[Player.Name].inventory.food do
+function BulkPotions:IsEgg()
+    local EquipTimeout = 0
+    local hasPetChar = false
+    repeat
+        task.wait(1)
+        hasPetChar = if ClientData.get("pet_char_wrappers")[1] and ClientData.get("pet_char_wrappers")[1]["char"]
+            then true
+            else false
+        EquipTimeout += 1
+    until hasPetChar or EquipTimeout >= 30
+    if EquipTimeout >= 30 then
+        print(`⚠️ Waited too long for Equipping pet so Stopping aging ⚠️`)
+        self.StopAging = true
+        return true
+    end
+    local isEgg = if table.find(self.EggsTable, ClientData.get("pet_char_wrappers")[1]["pet_id"]) then true else false
+    return isEgg
+end
+
+function BulkPotions:FeedAgePotion()
+    if self:IsEgg() then return print("Pet Equipped is a EGG! or No pet Equipped") end
+    if self:IsSameUnique() then return end
+
+    self.SameUnqiueCount = 0
+    local TotalPotions = localPlayer.PlayerGui.StatsGui.MainFrame.MiddleFrame.TotalPotions
+    local TotalTinyPotions = localPlayer.PlayerGui.StatsGui.MainFrame.MiddleFrame.TotalTinyPotions
+
+    for _, v in ClientData.get_data()[localPlayer.Name].inventory.food do
         if v.id == "pet_age_potion" then
-            sameUnqiue = v.unique
+            self.SameUnqiue = v.unique
             print("feeding normal age-up potion")
-            ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(v.unique, ClientData.get("pet_char_wrappers")[1].pet_unique)
-            task.wait()
-            local TotalPotions = Player.PlayerGui.StatsGui.MainFrame.MiddleFrame.TotalPotions
+            -- ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(
+            --     v.unique,
+            --     ClientData.get("pet_char_wrappers")[1].pet_unique
+            -- )
+            local args = {
+                [1] = "__Enum_PetObjectCreatorType_2",
+                [2] = {
+                    ["pet_unique"] = ClientData.get("pet_char_wrappers")[1].pet_unique,
+                    ["unique_id"] = v.unique
+                }
+            }
+            
+            ReplicatedStorage.API["PetObjectAPI/CreatePetObject"]:InvokeServer(unpack(args))
+            task.wait(1)
+            consumeItem("AgePotion")
             TotalPotions.Text = `🧪 {agePotionCount("pet_age_potion")}`
             return
         end
     end
 
-    for _, v in ClientData.get_data()[Player.Name].inventory.food do
+    for _, v in ClientData.get_data()[localPlayer.Name].inventory.food do
         if v.id == "tiny_pet_age_potion" then
-            sameUnqiue = v.unique
+            self.SameUnqiue = v.unique
             print("feeding tiny age-up potion")
-            ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(v.unique, ClientData.get("pet_char_wrappers")[1].pet_unique)
-            task.wait()
-            local TotalTinyPotions = Player.PlayerGui.StatsGui.MainFrame.MiddleFrame.TotalTinyPotions
+            -- ReplicatedStorage.API["PetAPI/ConsumeFoodItem"]:FireServer(
+            --     v.unique,
+            --     ClientData.get("pet_char_wrappers")[1].pet_unique
+            -- )
+            local args = {
+                [1] = "__Enum_PetObjectCreatorType_2",
+                [2] = {
+                    ["pet_unique"] = ClientData.get("pet_char_wrappers")[1].pet_unique,
+                    ["unique_id"] = v.unique
+                }
+            }
+            
+            ReplicatedStorage.API["PetObjectAPI/CreatePetObject"]:InvokeServer(unpack(args))
+            task.wait(1)
+            consumeItem("TinyAgePotion")
             TotalTinyPotions.Text = `⚗️ {agePotionCount("tiny_pet_age_potion")}`
             return
         end
     end
+    
+    TotalPotions.Text = `🧪 {agePotionCount("pet_age_potion")}`
+    TotalTinyPotions.Text = `⚗️ {agePotionCount("tiny_pet_age_potion")}`
+    return
 end
 
 local function hasAgeUpPotion()
-    for _, v in ClientData.get_data()[Player.Name].inventory.food do
+    for _, v in ClientData.get_data()[localPlayer.Name].inventory.food do
         if v.id == "pet_age_potion" or v.id == "tiny_pet_age_potion" then
             return true
         end
@@ -98,44 +205,58 @@ local function hasAgeUpPotion()
     return false
 end
 
-local function ageAllPetsOfSameName(petId)
+function BulkPotions:AgeAllPetsOfSameName(petId)
     Fusion:MakeMega(false) -- makes neon
     Fusion:MakeMega(true) -- makes mega
 
     -- equip the pet only if its neon or normal and age is less then 6
-    local hasPet = isPetNeon(petId)
-    if not hasPet then return print(`no {petId} so moving to next pet or stopping`) end
-    
+    local hasPet = self:IsPetNeon(petId)
+    if not hasPet then
+        return print(`no {petId} so moving to next pet or stopping`)
+    end
+
     while true do
+        local isEgg = self:IsEgg()
+        if isEgg then return print("Pet Equipped is an EGG, Stopping") end
         local age = ClientData.get("pet_char_wrappers")[1]["pet_progression"]["age"]
-        if age >= 6 then print("pet's age is 6") break end
+        if age >= 6 then
+            print("pet's age is 6")
+            break
+        end
 
         local hasAgeUpPotion = hasAgeUpPotion()
         if not hasAgeUpPotion then
-            stopAging = true
+            self.StopAging = true
             print("no more age up potions")
             return
         end
 
-        feedAgePotion()
-        task.wait(1)
+        self:FeedAgePotion()
+        task.wait()
     end
 
-    if stopAging then
+    if self.StopAging then
         return
     end
-    ageAllPetsOfSameName(petId)
+    self:AgeAllPetsOfSameName(petId)
+    return
 end
 
-function BulkPotions:StartAgingPets(petsTable: table)
-    if typeof(petsTable) ~= "table" then print("is not a table") return end
+function BulkPotions:StartAgingPets(petsTable)
+    if typeof(petsTable) ~= "table" then
+        print("is not a table")
+        return
+    end
     for _, petId in ipairs(petsTable) do
-        if stopAging then print("stop aging is true, so stopped") return end
-        ageAllPetsOfSameName(petId)
+        if self.StopAging then
+            print("stop aging is true, so stopped")
+            return
+        end
+        self:AgeAllPetsOfSameName(petId)
     end
 end
 
-Player.Idled:Connect(function()
+localPlayer.Idled:Connect(function()
     VirtualUser:ClickButton2(Vector2.new())
 end)
 
@@ -143,9 +264,7 @@ end)
 --     v:Disable()
 -- end
 
-
-
--- if not ClientData.get("pet_char_wrappers")[1] 
+-- if not ClientData.get("pet_char_wrappers")[1]
 --     or petName ~= ClientData.get("pet_char_wrappers")[1]["pet_id"] then
 --     equipPet(petName)
 --     task.wait(1)
