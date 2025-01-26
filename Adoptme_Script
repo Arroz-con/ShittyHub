@@ -6560,7 +6560,9 @@ local RobuxProductDialogConnection2
 local DailyClaimConnection
 local counter = 0
 local isInMiniGame = false
-local isBuyingOrAging = false
+
+getgenv().isBuyingOrAging = false
+
 local discordCooldown = false
 local debounce = false
 local startTime
@@ -7061,7 +7063,7 @@ local function CheckifEgg()
     getPet()
 end
 local function SwitchOutFullyGrown()
-    if isBuyingOrAging then
+    if getgenv().isBuyingOrAging then
         return
     end
     if ClientData.get('pet_char_wrappers')[1] == nil or false then
@@ -7290,6 +7292,13 @@ local function autoFarm()
         local baitboxCount = 0
 
         while true do
+            if getgenv().isBuyingOrAging then
+                repeat
+                    print('Stopping because its buying or aging')
+                    task.wait(20)
+                until not getgenv().isBuyingOrAging
+            end
+
             local howManyAvailable = ClientData.get_data()[localPlayer.Name].moon_2025_shooting_stars.available_stars['MainMap']
 
             if howManyAvailable >= 1 then
@@ -7969,17 +7978,17 @@ Teleport.PlaceFloorAtBeachParty()
 dailyLoginAppClick()
 
 if getgenv().BUY_BEFORE_FARMING then
-    isBuyingOrAging = true
+    getgenv().isBuyingOrAging = true
 
     BuyItems:BuyPets(getgenv().BUY_BEFORE_FARMING)
 end
 if getgenv().OPEN_ITEMS_BEFORE_FARMING then
-    isBuyingOrAging = true
+    getgenv().isBuyingOrAging = true
 
     BuyItems:OpenItems(getgenv().OPEN_ITEMS_BEFORE_FARMING)
 end
 if getgenv().AGE_PETS_BEFORE_FARMING then
-    isBuyingOrAging = true
+    getgenv().isBuyingOrAging = true
 
     local bulkPotions = BulkPotions.new()
 
@@ -7992,7 +8001,7 @@ if getgenv().SETTINGS.PET_AUTO_FUSION then
     Fusion:MakeMega(true)
 end
 
-isBuyingOrAging = false
+getgenv().isBuyingOrAging = false
 
 if isMuleInGame() then
     isTradingMule = true
