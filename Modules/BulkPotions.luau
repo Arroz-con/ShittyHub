@@ -16,7 +16,36 @@ function BulkPotions.new()
     self.SameUnqiue = nil
     self.SameUnqiueCount = 0
     self.StopAging = false
-    self.EggsTable = {}
+    self.EggsTable = {
+        "urban_2023_egg",
+        "farm_egg",
+        "christmas_egg",
+        "aussie_egg",
+        "mythic_egg",
+        "garden_2024_egg",
+        "diamond_egg",
+        "golden_egg",
+        "safari_egg",
+        "starter_egg",
+        "regular_pet_egg",
+        "pet_egg",
+        "japan_2022_egg",
+        "gru_2022_zodiac_egg",
+        "pink_egg",
+        "woodland_2022_woodland_egg",
+        "danger_2023_egg",
+        "royal_egg",
+        "desert_2024_royal_egg",
+        "ocean_egg",
+        "fossil_egg",
+        "desert_2024_egg",
+        "jungle_egg",
+        "easter_2020_egg",
+        "cracked_egg",
+        "seasia_2023_egg",
+        "retired_egg",
+        "april_fools_2023_fool_egg"
+    }
     return self
 end
 
