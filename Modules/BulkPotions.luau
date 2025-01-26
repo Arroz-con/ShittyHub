@@ -141,10 +141,6 @@ function BulkPotions:IsSameUnique()
     return false
 end
 
-function BulkPotions:SetEggTable(newEggTable)
-    self.EggsTable = newEggTable
-end
-
 function BulkPotions:IsEgg()
     local EquipTimeout = 0
     local hasPetChar = false
