@@ -42,7 +42,7 @@ getgenv().SETTINGS = {
 
 	ENABLE_TRADE_COLLECTOR = true,
 	TRADE_ONLY_LUMINOUS_MEGA = false,
-	TRADE_COLLECTOR_NAME = {"candymine8", "BizalTuter431"},
+	TRADE_COLLECTOR_NAME = {"candymine8", "NawidHosch897"},
 	TRADE_LIST = {
 		"winter_2024_ratatoskr",
 		"winter_2024_bauble_buddies",
