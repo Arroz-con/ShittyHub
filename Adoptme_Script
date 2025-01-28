@@ -7452,6 +7452,10 @@ local function onTextChangedNormalDialog()
         findButton('Awesome!')
     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Thanks for') then
         findButton('Okay')
+    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Right now') then
+        findButton('Next')
+    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('You can customize it') then
+        findButton('Start')
     end
 end
 local function doStarterTutorial()
@@ -7779,6 +7783,7 @@ localPlayer.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(
                     if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Melt Off') then
                         onTextChangedMiniGame()
                     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('invitation') then
+                        game:Shutdown()
                     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('You found a') then
                         findButton('Okay')
                     end
@@ -7797,6 +7802,7 @@ localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal('Vi
             if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Melt Off') then
                 onTextChangedMiniGame()
             elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('invitation') then
+                game:Shutdown()
             elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('You found a') then
                 findButton('Okay')
             end
@@ -7883,8 +7889,16 @@ if not localPlayer.Character then
 end
 
 task.wait(10)
-doStarterTutorial()
 
+if not ClientData.get_data()[localPlayer.Name].tutorial_manager.completed then
+    print('new alt detected. doing new tutorial')
+    ReplicatedStorage.API:WaitForChild('TutorialAPI/ChoosePet'):FireServer('dog')
+    ReplicatedStorage.API['TutorialAPI/ReportTutorialCompleted']:FireServer()
+    task.wait(1)
+    ReplicatedStorage.API:WaitForChild('TeamAPI/Spawn'):InvokeServer()
+    task.wait(10)
+    doStarterTutorial()
+end
 if localPlayer.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
     task.wait(1)
     firesignal(localPlayer.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby.MouseButton1Click)
