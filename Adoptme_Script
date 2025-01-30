@@ -5069,6 +5069,17 @@ Check the Developer Console for more information.]],
             Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
             Teleport.DeleteWater()
         end
+        function Teleport.GlitchZone()
+            Player.Character:WaitForChild('HumanoidRootPart').Anchored = true
+
+            SetLocationFunc('LNY2025GlitchZone', 'MainDoor', {})
+            task.wait(1)
+            Workspace.Interiors:WaitForChild(tostring(Workspace.Interiors:FindFirstChildWhichIsA('Model')))
+
+            Player.Character:WaitForChild('HumanoidRootPart').Anchored = false
+
+            Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+        end
         function Teleport.SkyCastle()
             Player.Character:WaitForChild('HumanoidRootPart').Anchored = true
 
@@ -5743,8 +5754,8 @@ Check the Developer Console for more information.]],
         local function bucksAmount()
             return ClientData.get_data()[localPlayer.Name].money or 0
         end
-        local function gingerbreadAmount()
-            return ClientData.get_data()[localPlayer.Name].gingerbread_2024 or 0
+        local function starsAmount()
+            return ClientData.get_data()[localPlayer.Name].stars_2025 or 0
         end
         local function foodItemCount(nameId)
             local count = 0
@@ -5931,10 +5942,10 @@ Check the Developer Console for more information.]],
                 local formatted = formatNumber(bucksAmount())
 
                 self.label.Text = `\u{1f4b0} {formatted}`
-            elseif labelName == 'TotalGingerbreads' then
-                local formatted = formatNumber(gingerbreadAmount())
+            elseif labelName == 'TotalStars' then
+                local formatted = formatNumber(starsAmount())
 
-                self.label.Text = `\u{1f36a} {formatted}`
+                self.label.Text = `\u{2b50} {formatted}`
             elseif labelName == 'TotalWinterBaits' then
                 local formatted = formatNumber(foodItemCount('winter_2024_winter_deer_bait'))
 
@@ -6518,13 +6529,13 @@ Check the Developer Console for more information.]],
         local StarsFolder = Workspace:WaitForChild('Collectables')
         local LunarNewYear2025 = {}
 
-        function LunarNewYear2025:CollectStars()
+        function LunarNewYear2025:CollectStars(location)
             for _, v in StarsFolder:GetChildren()do
                 if not v:IsA('Model') then
                     continue
                 end
 
-                ReplicatedStorage.API['MoonAPI/ShootingStarCollected']:FireServer('MainMap', v.Name)
+                ReplicatedStorage.API['MoonAPI/ShootingStarCollected']:FireServer(location, v.Name)
                 print(`Collected {v.Name} star`)
                 task.wait(1)
             end
@@ -6675,9 +6686,7 @@ StatsGuis2.Setup()
 local TempPotions = StatsGuis2.new('TempPotions')
 local TempTinyPotions = StatsGuis2.new('TempTinyPotions')
 local TempBucks = StatsGuis2.new('TempBucks')
-
-StatsGuis2.new('BlankTemp')
-
+local TotalStars = StatsGuis2.new('BlankTemp')
 local TotalPotions = StatsGuis2.new('TotalPotions')
 local TotalTinyPotions = StatsGuis2.new('TotalTinyPotions')
 local TotalBucks = StatsGuis2.new('TotalBucks')
@@ -6944,6 +6953,7 @@ local function updateStatsGui()
         startGingerbreadAmount = currentGingerbread
     end
 
+    TotalStars:UpdateTextFor('TotalStars')
     TotalPotions:UpdateTextFor('TotalPotions')
     TotalBucks:UpdateTextFor('TotalBucks')
 end
@@ -7303,7 +7313,10 @@ local function autoFarm()
 
             if howManyAvailable >= 1 then
                 Teleport.DownloadMainMap()
-                LunarNewYear2025:CollectStars()
+                LunarNewYear2025:CollectStars('MainMap')
+                task.wait(1)
+                Teleport.GlitchZone()
+                LunarNewYear2025:CollectStars('LNY2025GlitchZone')
             end
             if isInMiniGame then
                 local count = 0
@@ -7925,6 +7938,7 @@ StatsGuis2:UpdateTextFor('TimeLabel', startTime)
 TempPotions:UpdateTextFor('TempPotions', potionsGained)
 TempTinyPotions:UpdateTextFor('TempTinyPotions', tinyPotionsGained)
 TempBucks:UpdateTextFor('TempBucks', bucksGained)
+TotalStars:UpdateTextFor('TotalStars')
 TotalPotions:UpdateTextFor('TotalPotions')
 TotalTinyPotions:UpdateTextFor('TotalTinyPotions')
 TotalBucks:UpdateTextFor('TotalBucks')
