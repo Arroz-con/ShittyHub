@@ -7315,13 +7315,6 @@ local function autoFarm()
                 Teleport.DownloadMainMap()
                 LunarNewYear2025:CollectStars('MainMap')
             end
-
-            local starsAvailableGlitchZone = ClientData.get_data()[localPlayer.Name].moon_2025_shooting_stars.available_stars['LNY2025GlitchZone']
-
-            if starsAvailableGlitchZone >= 1 then
-                Teleport.GlitchZone()
-                LunarNewYear2025:CollectStars('LNY2025GlitchZone')
-            end
             if isInMiniGame then
                 local count = 0
 
