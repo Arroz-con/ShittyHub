@@ -5069,10 +5069,10 @@ Check the Developer Console for more information.]],
             Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
             Teleport.DeleteWater()
         end
-        function Teleport.GlitchZone()
+        function Teleport.MoonZone()
             Player.Character:WaitForChild('HumanoidRootPart').Anchored = true
 
-            SetLocationFunc('LNY2025GlitchZone', 'MainDoor', {})
+            SetLocationFunc('MoonInterior', 'MainDoor', {})
             task.wait(1)
             Workspace.Interiors:WaitForChild(tostring(Workspace.Interiors:FindFirstChildWhichIsA('Model')))
 
@@ -6530,6 +6530,8 @@ Check the Developer Console for more information.]],
         local LunarNewYear2025 = {}
 
         function LunarNewYear2025:CollectStars(location)
+            ReplicatedStorage.API['MoonAPI/ShootingStarCollected']:FireServer('MoonInterior', '1', true)
+
             for _, star in StarsFolder:GetChildren()do
                 if not star:IsA('Model') then
                     continue
@@ -6549,6 +6551,19 @@ Check the Developer Console for more information.]],
 
                 ReplicatedStorage.API['MoonAPI/ShootingStarCollected']:FireServer(location, star.Name)
                 print(`Collected normal star: {star.Name}`)
+                task.wait(1)
+            end
+        end
+        function LunarNewYear2025:CollectStarsMoon()
+            ReplicatedStorage.API['MoonAPI/ShootingStarCollected']:FireServer('MoonInterior', '1', true)
+
+            for _, starModel in Workspace.Interiors.MoonInterior.ShootingStarLocations:GetChildren()do
+                if not starModel:IsA('Part') then
+                    continue
+                end
+
+                ReplicatedStorage.API['MoonAPI/ShootingStarCollected']:FireServer('MoonInterior', starModel.Name)
+                print(`Collected normal star: {starModel.Name}`)
                 task.wait(1)
             end
         end
@@ -7326,6 +7341,15 @@ local function autoFarm()
             if starsAvailableMainMap >= 1 then
                 Teleport.DownloadMainMap()
                 LunarNewYear2025:CollectStars('MainMap')
+            end
+
+            local starsAvailableMoon = ClientData.get_data()[localPlayer.Name].moon_2025_shooting_stars.available_stars['MoonInterior']
+
+            if starsAvailableMoon >= 1 then
+                Teleport.MoonZone()
+                task.wait(1)
+                LunarNewYear2025:CollectStars('MoonInterior')
+                LunarNewYear2025:CollectStarsMoon()
             end
             if isInMiniGame then
                 local count = 0
