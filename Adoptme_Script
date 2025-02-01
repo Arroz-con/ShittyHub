@@ -6530,13 +6530,25 @@ Check the Developer Console for more information.]],
         local LunarNewYear2025 = {}
 
         function LunarNewYear2025:CollectStars(location)
-            for _, v in StarsFolder:GetChildren()do
-                if not v:IsA('Model') then
+            for _, star in StarsFolder:GetChildren()do
+                if not star:IsA('Model') then
                     continue
                 end
 
-                ReplicatedStorage.API['MoonAPI/ShootingStarCollected']:FireServer(location, v.Name)
-                print(`Collected {v.Name} star`)
+                for _, pointLight in star:GetDescendants()do
+                    if not pointLight:IsA('PointLight') then
+                        continue
+                    end
+                    if pointLight.Color == Color3.fromRGB(213, 162, 255) then
+                        ReplicatedStorage.API['MoonAPI/ShootingStarCollected']:FireServer(location, star.Name, true)
+                        print(`Collected Special Star: {star.Name}`)
+
+                        continue
+                    end
+                end
+
+                ReplicatedStorage.API['MoonAPI/ShootingStarCollected']:FireServer(location, star.Name)
+                print(`Collected normal star: {star.Name}`)
                 task.wait(1)
             end
         end
