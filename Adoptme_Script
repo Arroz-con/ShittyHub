@@ -5385,7 +5385,7 @@ Check the Developer Console for more information.]],
             localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
         end
         local function getUpFromSitting()
-            ReplicatedStorage.API['AdoptAPI/BabyJump']:FireServer(localPlayer.Character)
+            ReplicatedStorage.API['AdoptAPI/ExitSeatStates']:FireServer()
             task.wait(0.1)
         end
         local function reEquipPet()
@@ -7506,6 +7506,8 @@ local function onTextChangedNormalDialog()
 end
 local function doStarterTutorial()
     if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Welcome to Adopt Me!') then
+        findButton('Next')
+        task.wait(2)
         print('doing tutorial')
         Tutorials.CompleteStarterTutorial()
         task.wait(1)
@@ -7535,9 +7537,6 @@ local function pickColorTutorial()
     print('PICKED COLOR')
 end
 
-localPlayer.Idled:Connect(function()
-    VirtualUser:ClickButton2(Vector2.new())
-end)
 localPlayer.PlayerGui.HintApp.TextLabel:GetPropertyChangedSignal('Text'):Connect(function(
 )
     if localPlayer.PlayerGui.HintApp.TextLabel.Text:match('Bucks') then
@@ -7929,22 +7928,6 @@ if localPlayer.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
         PickColorConn = nil
     end
 end
-if not localPlayer.Character then
-    print('NO CHARACTER SO WAITING')
-    localPlayer.CharacterAdded:Wait()
-end
-
-task.wait(10)
-
-if not ClientData.get_data()[localPlayer.Name].tutorial_manager.completed then
-    print('new alt detected. doing new tutorial')
-    ReplicatedStorage.API:WaitForChild('TutorialAPI/ChoosePet'):FireServer('dog')
-    ReplicatedStorage.API['TutorialAPI/ReportTutorialCompleted']:FireServer()
-    task.wait(1)
-    ReplicatedStorage.API:WaitForChild('TeamAPI/Spawn'):InvokeServer()
-    task.wait(10)
-    doStarterTutorial()
-end
 if localPlayer.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
     task.wait(1)
     firesignal(localPlayer.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby.MouseButton1Click)
@@ -7954,6 +7937,17 @@ if localPlayer.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
 
         RoleChooserDialogConnection = nil
     end
+end
+if not localPlayer.Character then
+    print('NO CHARACTER SO WAITING')
+    localPlayer.CharacterAdded:Wait()
+end
+
+task.wait(10)
+
+if not ClientData.get_data()[localPlayer.Name].boolean_flags.tutorial_v3_completed then
+    print('new alt detected. doing tutorial')
+    doStarterTutorial()
 end
 if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
     if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('4.5%% Legendary') then
@@ -8607,4 +8601,7 @@ NewAltTab:CreateButton({
     end,
 })
 Rayfield:SetVisibility(false)
+localPlayer.Idled:Connect(function()
+    VirtualUser:ClickButton2(Vector2.new())
+end)
 print('Loaded. lastest update 12/30/2024  mm/dd/yyyy')
