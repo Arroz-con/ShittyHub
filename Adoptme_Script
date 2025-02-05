@@ -5523,6 +5523,11 @@ Check the Developer Console for more information.]],
             ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('Salon')
             waitForTaskToFinish(ailment, petUnique)
         end
+        function Ailments:MoonAilment(ailment, petUnique)
+            reEquipPet()
+            ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('MoonInterior')
+            waitForTaskToFinish(ailment, petUnique)
+        end
         function Ailments:PizzaPartyAilment(ailment, petUnique)
             reEquipPet()
             ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('PizzaShop')
@@ -7248,6 +7253,10 @@ local function CompletePetAilments()
             Ailments:SalonAilment(key, petUnique)
 
             return true
+        elseif key == 'moon' then
+            Ailments:MoonAilment(key, petUnique)
+
+            return true
         elseif key == 'pizza_party' then
             Ailments:PizzaPartyAilment(key, petUnique)
 
@@ -8604,4 +8613,5 @@ Rayfield:SetVisibility(false)
 localPlayer.Idled:Connect(function()
     VirtualUser:ClickButton2(Vector2.new())
 end)
+ReplicatedStorage.API['MoonAPI/ClaimRoyalEgg']:FireServer()
 print('Loaded. lastest update 12/30/2024  mm/dd/yyyy')
