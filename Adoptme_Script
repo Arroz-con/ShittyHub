@@ -6859,6 +6859,8 @@ local function isMuleInGame()
         end
     end
 
+    print('no mule ingame')
+
     return false
 end
 local function consumeItem(potionName)
@@ -7769,8 +7771,6 @@ Players.PlayerAdded:Connect(function(player)
 
         task.wait(math.random(10, 30))
         Trade:TradeCollector(getgenv().SETTINGS.TRADE_COLLECTOR_NAME)
-
-        isTradingMule = false
     end)
 end)
 
@@ -8070,11 +8070,7 @@ end
 getgenv().isBuyingOrAging = false
 
 if isMuleInGame() then
-    isTradingMule = true
-
     Trade:TradeCollector(getgenv().SETTINGS.TRADE_COLLECTOR_NAME)
-
-    isTradingMule = false
 end
 if DailyClaimConnection then
     DailyClaimConnection:Disconnect()
