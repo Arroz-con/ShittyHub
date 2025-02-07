@@ -42,10 +42,21 @@ getgenv().SETTINGS = {
 
 	ENABLE_TRADE_COLLECTOR = true,
 	TRADE_ONLY_LUMINOUS_MEGA = false,
-	TRADE_COLLECTOR_NAME = {"candymine8", "NawidHosch897"},
+	TRADE_COLLECTOR_NAME = {"candymine8", "Tiredbloxypets"},
 	TRADE_LIST = {
 		"moon_2025_dimension_drifter",
 		"moon_2025_sunglider",
+		"moon_2025_puptune",
+		"moon_2025_moonpine",
+		"moon_2025_hopbop",
+		"moon_2025_snorgle",
+		"moon_2025_zeopod",
+		"moon_2025_starmite",
+		"lunar_2025_blossom_snake",
+		"lunar_2025_prism_snake",
+		"lunar_2025_gilded_snake",
+		"lunar_2025_nebula_snake",
+		
 		-- "winter_2024_ratatoskr",
 		-- "winter_2024_bauble_buddies",
 		-- "winter_2024_mistletroll",
