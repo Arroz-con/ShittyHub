@@ -7046,6 +7046,15 @@ local function getPet()
             return
         end
     end
+    if getgenv().SETTINGS.HATCH_EGG_PRIORITY then
+        if GetInventory:PriorityEgg() then
+            return
+        end
+
+        ReplicatedStorage.API['ShopAPI/BuyItem']:InvokeServer('pets', getgenv().SETTINGS.HATCH_EGG_PRIORITY_NAMES[1], {})
+
+        return
+    end
     if getgenv().SETTINGS.PET_NEON_PRIORITY then
         if GetInventory:GetNeonPet() then
             return
@@ -7055,15 +7064,6 @@ local function getPet()
         if GetInventory:PriorityPet() then
             return
         end
-    end
-    if getgenv().SETTINGS.HATCH_EGG_PRIORITY then
-        if GetInventory:PriorityEgg() then
-            return
-        end
-
-        ReplicatedStorage.API['ShopAPI/BuyItem']:InvokeServer('pets', getgenv().SETTINGS.HATCH_EGG_PRIORITY_NAMES[1], {})
-
-        return
     end
     if GetInventory:PetRarityAndAge('legendary', 5) then
         return
@@ -7334,6 +7334,7 @@ local function autoFarm()
     Teleport.PlaceFloorAtCampSite()
     Teleport.PlaceFloorAtBeachParty()
     Teleport.FarmingHome()
+    GetInventory:GetPetEggs()
     task.delay(30, function()
         local baitboxCount = 0
 
@@ -7394,6 +7395,9 @@ local function autoFarm()
                 baitboxCount = 0
             end
             if not getgenv().SETTINGS.FOCUS_FARM_AGE_POTION then
+                if ClientData.get('pet_char_wrappers')[1] and table.find(peteggs, ClientData.get('pet_char_wrappers')[1].pet_unique) then
+                    return print('is egg, not feeding age potion')
+                end
                 if ClientData.get('pet_char_wrappers')[1] and table.find(getgenv().SETTINGS.PET_ONLY_PRIORITY_NAMES, ClientData.get('pet_char_wrappers')[1].pet_unique) then
                     print('FEEDING AGE POTION')
                     agePotion('pet_age_potion')
