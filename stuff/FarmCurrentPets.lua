@@ -41,7 +41,7 @@ getgenv().SETTINGS = {
 	PET_AUTO_FUSION = true,
 
 	ENABLE_TRADE_COLLECTOR = true,
-	TRADE_ONLY_LUMINOUS_MEGA = false,
+	TRADE_ONLY_LUMINOUS_MEGA = true,
 	TRADE_COLLECTOR_NAME = {"candymine8", "Tiredbloxypets"},
 	TRADE_LIST = {
 		"moon_2025_dimension_drifter",
