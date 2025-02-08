@@ -8184,7 +8184,7 @@ TradeTab:CreateButton({
     Callback = function()
         local playersTable = getPlayersInGame()
 
-        playerDropdown:Set(playersTable)
+        playerDropdown:Refresh(playersTable)
     end,
 })
 TradeTab:CreateToggle({
