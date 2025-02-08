@@ -8041,6 +8041,13 @@ end
 Teleport.PlaceFloorAtFarmingHome()
 Teleport.PlaceFloorAtCampSite()
 Teleport.PlaceFloorAtBeachParty()
+
+local queueOnTeleport = (syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport)
+
+if queueOnTeleport then
+    queueOnTeleport('\r\n\t\trepeat task.wait() until game:IsLoaded()\r\n\t\tgame:Shutdown()\r\n\t')
+end
+
 dailyLoginAppClick()
 
 if getgenv().BUY_BEFORE_FARMING then
