@@ -6,17 +6,11 @@ getgenv().BUY_BEFORE_FARMING = {
 -- 	"winter_2024_ice_tray"
 -- }
 
--- getgenv().AGE_PETS_BEFORE_FARMING = {
--- 	"winter_2024_frostclaw",
--- 	-- "winter_2024_frostbite_cub",
--- 	-- "chiprac_2023_raccoon",
--- 	-- "winter_2024_winter_fawn",
--- 	-- "winter_2024_winter_buck",
--- 	-- "winter_2024_great_pyrenees",
--- 	-- "winter_2024_bauble_buddies",
--- 	-- "winter_2024_mistletroll",
--- 	-- "ddlm_2024_grave_owl",
--- }
+getgenv().AGE_PETS_BEFORE_FARMING = {
+	"moon_2025_puptune",
+	"moon_2025_dimension_drifter",
+	"moon_2025_sunglider",
+}
 
 getgenv().SETTINGS = {
 	WEBHOOK = {
