@@ -5384,6 +5384,7 @@ Check the Developer Console for more information.]],
                     }
 
                     ReplicatedStorage.API['PetObjectAPI/CreatePetObject']:InvokeServer(unpack(args))
+                    task.wait(5)
 
                     return
                 end
