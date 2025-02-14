@@ -3940,9 +3940,26 @@ Check the Developer Console for more information.]],
     end
     function __DARKLUA_BUNDLE_MODULES.b()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
+        local VirtualInputManager = game:GetService('VirtualInputManager')
         local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
         local Misc = {}
 
+        function Misc.ClickGuiButton(button, xOffset1, yOffset1)
+            if typeof(button) ~= 'Instance' then
+                return print('button is not a Instance')
+            end
+
+            local xOffset = xOffset1 or 60
+            local yOffset = yOffset1 or 60
+
+            task.wait()
+            VirtualInputManager:SendMouseButtonEvent(button.AbsolutePosition.X + xOffset, button.AbsolutePosition.Y + yOffset, 0, true, game, 1)
+            task.wait()
+            VirtualInputManager:SendMouseButtonEvent(button.AbsolutePosition.X + xOffset, button.AbsolutePosition.Y + yOffset, 0, false, game, 1)
+            task.wait()
+
+            return
+        end
         function Misc.ReEquipPet(whichPet)
             local hasPetChar = false
             local EquipTimeout = 0
@@ -4443,14 +4460,14 @@ Check the Developer Console for more information.]],
             while found_pet == false do
                 for _, v in ipairs(getgenv().SETTINGS.PET_ONLY_PRIORITY_NAMES)do
                     for _, v2 in pairs(ClientData.get_data()[localPlayer.Name].inventory.pets)do
+                        if v2.unique == getgenv().petCurrentlyFarming1 then
+                            continue
+                        end
+                        if v2.unique == getgenv().petCurrentlyFarming2 then
+                            continue
+                        end
                         if v == v2.id and v2.id ~= 'practice_dog' and v2.properties.age == Petage and v2.properties.neon == isNeon then
-                            if v2.unique == getgenv().petCurrentlyFarming1 then
-                                continue
-                            end
-                            if v2.unique == getgenv().petCurrentlyFarming2 then
-                                continue
-                            end
-
+                            print('PriorityPet:')
                             equipWhichPet(whichPet, v2.unique)
 
                             return true
@@ -5359,6 +5376,17 @@ Check the Developer Console for more information.]],
 
         Ailments.whichPet = 1
 
+        local function consumeFood()
+            local foodItem = Workspace.PetObjects:WaitForChild(tostring(Workspace.PetObjects:FindFirstChildWhichIsA('Model')), 10)
+
+            if not foodItem then
+                print('NO food item in workspace')
+
+                return
+            end
+
+            ReplicatedStorage.API['PetAPI/ConsumeFoodObject']:FireServer(foodItem, ClientData.get('pet_char_wrappers')[Ailments.whichPet].pet_unique)
+        end
         local function FoodAilments(FoodPassOn)
             local hasFood = false
 
@@ -5384,7 +5412,7 @@ Check the Developer Console for more information.]],
                     }
 
                     ReplicatedStorage.API['PetObjectAPI/CreatePetObject']:InvokeServer(unpack(args))
-                    task.wait(5)
+                    consumeFood()
 
                     return
                 end
@@ -5832,6 +5860,7 @@ Check the Developer Console for more information.]],
 
             return true
         end
+        function Ailments:PetMeAilment() end
         function Ailments:MysteryAilment(mysteryId, petUnique)
             Misc.DebugModePrint('\u{2753} Picking mystery task \u{2753}')
             pickMysteryTask(mysteryId, petUnique)
@@ -6701,53 +6730,6 @@ Check the Developer Console for more information.]],
 
         return Tutorials
     end
-    function __DARKLUA_BUNDLE_MODULES.o()
-        local ReplicatedStorage = game:GetService('ReplicatedStorage')
-        local Workspace = game:GetService('Workspace')
-        local StarsFolder = Workspace:WaitForChild('Collectables')
-        local LunarNewYear2025 = {}
-
-        function LunarNewYear2025:CollectStars(location)
-            ReplicatedStorage.API['MoonAPI/ShootingStarCollected']:FireServer('MoonInterior', '1', true)
-
-            for _, star in StarsFolder:GetChildren()do
-                if not star:IsA('Model') then
-                    continue
-                end
-
-                for _, pointLight in star:GetDescendants()do
-                    if not pointLight:IsA('PointLight') then
-                        continue
-                    end
-                    if pointLight.Color == Color3.fromRGB(213, 162, 255) then
-                        ReplicatedStorage.API['MoonAPI/ShootingStarCollected']:FireServer(location, star.Name, true)
-                        print(`Collected Special Star: {star.Name}`)
-
-                        continue
-                    end
-                end
-
-                ReplicatedStorage.API['MoonAPI/ShootingStarCollected']:FireServer(location, star.Name)
-                print(`Collected normal star: {star.Name}`)
-                task.wait(1)
-            end
-        end
-        function LunarNewYear2025:CollectStarsMoon()
-            ReplicatedStorage.API['MoonAPI/ShootingStarCollected']:FireServer('MoonInterior', '1', true)
-
-            for _, starModel in Workspace.Interiors.MoonInterior.ShootingStarLocations:GetChildren()do
-                if not starModel:IsA('Part') then
-                    continue
-                end
-
-                ReplicatedStorage.API['MoonAPI/ShootingStarCollected']:FireServer('MoonInterior', starModel.Name)
-                print(`Collected normal star: {starModel.Name}`)
-                task.wait(1)
-            end
-        end
-
-        return LunarNewYear2025
-    end
 end
 
 if not game:IsLoaded() then
@@ -6886,7 +6868,6 @@ local Clipboard = __DARKLUA_BUNDLE_MODULES.load('k')
 local TradeLicense = __DARKLUA_BUNDLE_MODULES.load('l')
 local BulkPotions = __DARKLUA_BUNDLE_MODULES.load('m')
 local Tutorials = __DARKLUA_BUNDLE_MODULES.load('n')
-local LunarNewYear2025 = __DARKLUA_BUNDLE_MODULES.load('o')
 local clipboard = Clipboard.new()
 local taskBoard = TaskBoard.new()
 
@@ -7205,15 +7186,26 @@ local function getEgg(whichPet)
     return false
 end
 local function getPet(whichPet)
+    local petIndex = ClientData.get('pet_char_wrappers')[whichPet]
+
+    if not petIndex then
+        return
+    end
+    if not petIndex['pet_unique'] then
+        return
+    end
+    if getgenv().petCurrentlyFarming1 == petIndex['pet_unique'] and petIndex.pet_progression.age <= 5 then
+        return
+    end
+    if getgenv().petCurrentlyFarming2 == petIndex['pet_unique'] and petIndex.pet_progression.age <= 5 then
+        return
+    end
     if getgenv().SETTINGS.FOCUS_FARM_AGE_POTION then
-        if isProHandler then
-            if getgenv().petCurrentlyFarming1 and getgenv().petCurrentlyFarming2 then
-                return
-            end
-        else
-            if getgenv().petCurrentlyFarming1 then
-                return
-            end
+        if getgenv().petCurrentlyFarming1 == petIndex['pet_unique'] then
+            return
+        end
+        if getgenv().petCurrentlyFarming2 == petIndex['pet_unique'] then
+            return
         end
         if GetInventory:GetPetFriendship(whichPet) then
             return
@@ -7243,13 +7235,13 @@ local function getPet(whichPet)
 
         return
     end
-    if getgenv().SETTINGS.PET_NEON_PRIORITY then
-        if GetInventory:GetNeonPet(whichPet) then
+    if getgenv().SETTINGS.PET_ONLY_PRIORITY then
+        if GetInventory:PriorityPet(whichPet) then
             return
         end
     end
-    if getgenv().SETTINGS.PET_ONLY_PRIORITY then
-        if GetInventory:PriorityPet(whichPet) then
+    if getgenv().SETTINGS.PET_NEON_PRIORITY then
+        if GetInventory:GetNeonPet(whichPet) then
             return
         end
     end
@@ -7508,22 +7500,6 @@ local function autoFarm()
                     print('Stopping because its buying or aging')
                     task.wait(20)
                 until not getgenv().isBuyingOrAging
-            end
-
-            local starsAvailableMainMap = ClientData.get_data()[localPlayer.Name].moon_2025_shooting_stars.available_stars['MainMap']
-
-            if starsAvailableMainMap >= 1 then
-                Teleport.DownloadMainMap()
-                LunarNewYear2025:CollectStars('MainMap')
-            end
-
-            local starsAvailableMoon = ClientData.get_data()[localPlayer.Name].moon_2025_shooting_stars.available_stars['MoonInterior']
-
-            if starsAvailableMoon >= 1 then
-                Teleport.MoonZone()
-                task.wait(1)
-                LunarNewYear2025:CollectStars('MoonInterior')
-                LunarNewYear2025:CollectStarsMoon()
             end
             if isInMiniGame then
                 local count = 0
@@ -8797,5 +8773,4 @@ Rayfield:SetVisibility(false)
 localPlayer.Idled:Connect(function()
     VirtualUser:ClickButton2(Vector2.new())
 end)
-ReplicatedStorage.API['MoonAPI/ClaimRoyalEgg']:FireServer()
 print('Loaded. lastest update 12/30/2024  mm/dd/yyyy')
