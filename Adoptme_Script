@@ -3980,8 +3980,21 @@ Check the Developer Console for more information.]],
                 if not getgenv().petCurrentlyFarming2 then
                     return
                 end
+                if #ClientData.get('pet_char_wrappers') == 1 then
+                    print(`\u{26a0}\u{fe0f} Detected only 1 pet equipped when there should be 2 \u{26a0}\u{fe0f}`)
+                    print(getgenv().petCurrentlyFarming1)
+                    ReplicatedStorage.API['ToolAPI/Unequip']:InvokeServer(getgenv().petCurrentlyFarming1, {
+                        {
+                            ['equip_as_last'] = false,
+                        },
+                    })
+                    task.wait(1)
+                    ReplicatedStorage.API['ToolAPI/Equip']:InvokeServer(getgenv().petCurrentlyFarming1, {
+                        ['equip_as_last'] = false,
+                    })
+                    task.wait(1)
+                end
 
-                print(getgenv().petCurrentlyFarming2)
                 ReplicatedStorage.API['ToolAPI/Unequip']:InvokeServer(getgenv().petCurrentlyFarming2, {
                     ['equip_as_last'] = true,
                 })
@@ -5178,6 +5191,12 @@ Check the Developer Console for more information.]],
             Teleport.DeleteWater()
         end
         function Teleport.DownloadMainMap()
+            local isAlreadyOnMainMap = Workspace:FindFirstChild('Interiors'):FindFirstChild('center_map_plot', true)
+
+            if isAlreadyOnMainMap then
+                return
+            end
+
             Player.Character:WaitForChild('HumanoidRootPart').Anchored = true
 
             SetLocationFunc('MainMap', 'Neighborhood/MainDoor', {})
@@ -5961,8 +5980,8 @@ Check the Developer Console for more information.]],
         local function bucksAmount()
             return ClientData.get_data()[localPlayer.Name].money or 0
         end
-        local function starsAmount()
-            return ClientData.get_data()[localPlayer.Name].stars_2025 or 0
+        local function eventCurrencyAmount()
+            return ClientData.get_data()[localPlayer.Name].cupid_hearts_2025 or 0
         end
         local function foodItemCount(nameId)
             local count = 0
@@ -6135,8 +6154,8 @@ Check the Developer Console for more information.]],
                 self.label.Text = `\u{2697}\u{fe0f} {formatNumber(amount)}`
             elseif labelName == 'TempBucks' then
                 self.label.Text = `\u{1f4b0} {formatNumber(amount)}`
-            elseif labelName == 'TempGingerbreads' then
-                self.label.Text = `\u{1f36a} {formatNumber(amount)}`
+            elseif labelName == 'TempEventCurrency' then
+                self.label.Text = `\u{2764}\u{fe0f} {formatNumber(amount)}`
             elseif labelName == 'TotalPotions' then
                 local formatted = formatNumber(foodItemCount('pet_age_potion'))
 
@@ -6149,10 +6168,10 @@ Check the Developer Console for more information.]],
                 local formatted = formatNumber(bucksAmount())
 
                 self.label.Text = `\u{1f4b0} {formatted}`
-            elseif labelName == 'TotalStars' then
-                local formatted = formatNumber(starsAmount())
+            elseif labelName == 'TotalEventCurrency' then
+                local formatted = formatNumber(eventCurrencyAmount())
 
-                self.label.Text = `\u{2b50} {formatted}`
+                self.label.Text = `\u{2764}\u{fe0f} {formatted}`
             elseif labelName == 'TotalWinterBaits' then
                 local formatted = formatNumber(foodItemCount('winter_2024_winter_deer_bait'))
 
@@ -6730,6 +6749,76 @@ Check the Developer Console for more information.]],
 
         return Tutorials
     end
+    function __DARKLUA_BUNDLE_MODULES.o()
+        local Players = game:GetService('Players')
+        local localPlayer = Players.LocalPlayer
+        local Teleport = __DARKLUA_BUNDLE_MODULES.load('g')
+        local ValentinesFolder = workspace.StaticMap:FindFirstChild('Valentines2025')
+        local Valentines2025 = {}
+
+        local function getRose()
+            if not Valentines2025 then
+                return
+            end
+
+            Teleport.DownloadMainMap()
+
+            local RosesFolder = ValentinesFolder:FindFirstChild('Roses')
+
+            if not RosesFolder then
+                return print('no rose folder')
+            end
+            if RosesFolder:FindFirstChild('Rose') then
+                localPlayer.Character.HumanoidRootPart.CFrame = RosesFolder.Rose.PrimaryPart.CFrame + Vector3.new(0, 2, 0)
+
+                return
+            end
+
+            return
+        end
+        local function getHearts()
+            getRose()
+
+            if not Valentines2025 then
+                return
+            end
+
+            local HeartsFolder = ValentinesFolder:WaitForChild('Hearts')
+
+            while true do
+                for i, v in HeartsFolder:GetChildren()do
+                    if v:IsA('Model') and v:FindFirstChild('Collider') then
+                        localPlayer.Character.HumanoidRootPart.CFrame = v.PrimaryPart.CFrame
+
+                        task.wait(1)
+                    end
+                end
+
+                task.wait()
+
+                if not HeartsFolder:FindFirstChildWhichIsA('Model') then
+                    return
+                end
+            end
+        end
+
+        function Valentines2025.GetAllRosesAndHearts()
+            repeat
+                getRose()
+                getHearts()
+
+                local RosesFolder = ValentinesFolder:FindFirstChild('Roses')
+
+                if not RosesFolder then
+                    return
+                end
+            until #RosesFolder:GetChildren() == 0
+
+            print('picked up all roses for the day')
+        end
+
+        return Valentines2025
+    end
 end
 
 if not game:IsLoaded() then
@@ -6767,11 +6856,11 @@ local debounce = false
 local startTime
 local startPotionAmount = 0
 local startTinyPotionAmount = 0
-local startGingerbreadAmount
+local startEventCurrencyAmount = 0
 local potionsGained = 0
 local tinyPotionsGained = 0
 local bucksGained = 0
-local gingerbreadsGained = 0
+local eventCurrencyGained = 0
 local Bed
 local Shower
 local Piano
@@ -6868,6 +6957,7 @@ local Clipboard = __DARKLUA_BUNDLE_MODULES.load('k')
 local TradeLicense = __DARKLUA_BUNDLE_MODULES.load('l')
 local BulkPotions = __DARKLUA_BUNDLE_MODULES.load('m')
 local Tutorials = __DARKLUA_BUNDLE_MODULES.load('n')
+local Valentines2025 = __DARKLUA_BUNDLE_MODULES.load('o')
 local clipboard = Clipboard.new()
 local taskBoard = TaskBoard.new()
 
@@ -6876,10 +6966,11 @@ StatsGuis2.Setup()
 local TempPotions = StatsGuis2.new('TempPotions')
 local TempTinyPotions = StatsGuis2.new('TempTinyPotions')
 local TempBucks = StatsGuis2.new('TempBucks')
-local TotalStars = StatsGuis2.new('BlankTemp')
+local TempEventCurrency = StatsGuis2.new('TempEventCurrency')
 local TotalPotions = StatsGuis2.new('TotalPotions')
 local TotalTinyPotions = StatsGuis2.new('TotalTinyPotions')
 local TotalBucks = StatsGuis2.new('TotalBucks')
+local TotalEventCurrency = StatsGuis2.new('TotalEventCurrency')
 local petsTable = GetInventory:TabId('pets')
 
 if #petsTable == 0 then
@@ -7113,8 +7204,8 @@ local function agePotionCount(nameId)
 
     return count
 end
-local function gingerbreadAmount()
-    return ClientData.get_data()[localPlayer.Name].gingerbread_2024 or 0
+local function eventCurrencyAmount()
+    return ClientData.get_data()[localPlayer.Name].cupid_hearts_2025 or 0
 end
 local function updateStatsGui()
     StatsGuis2:UpdateTextFor('TimeLabel', startTime)
@@ -7135,17 +7226,18 @@ local function updateStatsGui()
 
     TempTinyPotions:UpdateTextFor('TempTinyPotions', tinyPotionsGained)
 
-    local currentGingerbread = gingerbreadAmount()
+    local currentEventCurrency = eventCurrencyAmount()
 
-    if currentGingerbread >= startGingerbreadAmount then
-        gingerbreadsGained += (currentGingerbread - startGingerbreadAmount)
+    if currentEventCurrency >= startEventCurrencyAmount then
+        eventCurrencyGained += (currentEventCurrency - startEventCurrencyAmount)
 
-        startGingerbreadAmount = currentGingerbread
-    elseif currentGingerbread < startGingerbreadAmount then
-        startGingerbreadAmount = currentGingerbread
+        startEventCurrencyAmount = currentEventCurrency
+    elseif currentEventCurrency < startEventCurrencyAmount then
+        startEventCurrencyAmount = currentEventCurrency
     end
 
-    TotalStars:UpdateTextFor('TotalStars')
+    TempEventCurrency:UpdateTextFor('TempEventCurrency', eventCurrencyGained)
+    TotalEventCurrency:UpdateTextFor('TotalEventCurrency')
     TotalPotions:UpdateTextFor('TotalPotions')
     TotalBucks:UpdateTextFor('TotalBucks')
 end
@@ -7185,20 +7277,24 @@ local function getEgg(whichPet)
 
     return false
 end
-local function getPet(whichPet)
-    local petIndex = ClientData.get('pet_char_wrappers')[whichPet]
+local function getPet(whichPet, firstTimeGettingPet)
+    local petIndex
 
-    if not petIndex then
-        return
-    end
-    if not petIndex['pet_unique'] then
-        return
-    end
-    if getgenv().petCurrentlyFarming1 == petIndex['pet_unique'] and petIndex.pet_progression.age <= 5 then
-        return
-    end
-    if getgenv().petCurrentlyFarming2 == petIndex['pet_unique'] and petIndex.pet_progression.age <= 5 then
-        return
+    if not firstTimeGettingPet then
+        petIndex = ClientData.get('pet_char_wrappers')[whichPet]
+
+        if not petIndex then
+            return
+        end
+        if not petIndex['pet_unique'] then
+            return
+        end
+        if getgenv().petCurrentlyFarming1 == petIndex['pet_unique'] and petIndex.pet_progression.age <= 5 then
+            return
+        end
+        if getgenv().petCurrentlyFarming2 == petIndex['pet_unique'] and petIndex.pet_progression.age <= 5 then
+            return
+        end
     end
     if getgenv().SETTINGS.FOCUS_FARM_AGE_POTION then
         if getgenv().petCurrentlyFarming1 == petIndex['pet_unique'] then
@@ -7376,6 +7472,9 @@ local function CompletePetAilments(whichPet)
 
     local petUnique = ClientData.get_data()[localPlayer.Name].pet_char_wrappers[whichPet].pet_unique
 
+    if not petUnique then
+        return
+    end
     if not ClientData.get_data()[localPlayer.Name].ailments_manager then
         return false
     end
@@ -7501,6 +7600,10 @@ local function autoFarm()
                     task.wait(20)
                 until not getgenv().isBuyingOrAging
             end
+
+            Valentines2025.GetAllRosesAndHearts()
+            Teleport.FarmingHome()
+
             if isInMiniGame then
                 local count = 0
 
@@ -7566,11 +7669,11 @@ local function autoFarm()
     end
 
     task.wait()
-    getPet(1)
+    getPet(1, true)
     task.wait(1)
 
     if isProHandler then
-        getPet(2)
+        getPet(2, true)
     end
 
     task.wait()
@@ -8065,8 +8168,6 @@ for i, v in debug.getupvalue(RouterClient.init, 7)do
     v.Name = i
 end
 
-isProHandler = if ClientData.get_data()[localPlayer.Name].subscription_manager.equip_2x_pets.active then true else false
-
 StatsGuis2:CopyInventoryButton({
     callback = function()
         clipboard:CopyAllInventory()
@@ -8125,13 +8226,14 @@ end
 startTime = DateTime.now().UnixTimestamp
 startPotionAmount = agePotionCount('pet_age_potion')
 startTinyPotionAmount = agePotionCount('tiny_pet_age_potion')
-startGingerbreadAmount = gingerbreadAmount()
+startEventCurrencyAmount = eventCurrencyAmount()
 
 StatsGuis2:UpdateTextFor('TimeLabel', startTime)
 TempPotions:UpdateTextFor('TempPotions', potionsGained)
 TempTinyPotions:UpdateTextFor('TempTinyPotions', tinyPotionsGained)
 TempBucks:UpdateTextFor('TempBucks', bucksGained)
-TotalStars:UpdateTextFor('TotalStars')
+TempEventCurrency:UpdateTextFor('TempEventCurrency', eventCurrencyGained)
+TotalEventCurrency:UpdateTextFor('TotalEventCurrency')
 TotalPotions:UpdateTextFor('TotalPotions')
 TotalTinyPotions:UpdateTextFor('TotalTinyPotions')
 TotalBucks:UpdateTextFor('TotalBucks')
@@ -8244,6 +8346,10 @@ if Players.LocalPlayer.Name == getgenv().SETTINGS.TRADE_COLLECTOR_NAME and getge
 end
 
 task.wait(2)
+
+isProHandler = if ClientData.get_data()[localPlayer.Name].subscription_manager.equip_2x_pets.active then true else false
+
+print(`Does it have Pro Handler Certificate?: {isProHandler}`)
 startAutoFarm()
 
 local Window = Rayfield:CreateWindow({
