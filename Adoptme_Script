@@ -3968,9 +3968,7 @@ Check the Developer Console for more information.]],
 
             if whichPet == 1 then
                 ReplicatedStorage.API['ToolAPI/Unequip']:InvokeServer(getgenv().petCurrentlyFarming1, {
-                    {
-                        ['equip_as_last'] = false,
-                    },
+                    ['equip_as_last'] = false,
                 })
                 task.wait(1)
                 ReplicatedStorage.API['ToolAPI/Equip']:InvokeServer(getgenv().petCurrentlyFarming1, {
@@ -3984,9 +3982,7 @@ Check the Developer Console for more information.]],
                     print(`\u{26a0}\u{fe0f} Detected only 1 pet equipped when there should be 2 \u{26a0}\u{fe0f}`)
                     print(getgenv().petCurrentlyFarming1)
                     ReplicatedStorage.API['ToolAPI/Unequip']:InvokeServer(getgenv().petCurrentlyFarming1, {
-                        {
-                            ['equip_as_last'] = false,
-                        },
+                        ['equip_as_last'] = false,
                     })
                     task.wait(1)
                     ReplicatedStorage.API['ToolAPI/Equip']:InvokeServer(getgenv().petCurrentlyFarming1, {
@@ -4330,6 +4326,12 @@ Check the Developer Console for more information.]],
 
             for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
                 if pet.id == 'practice_dog' then
+                    continue
+                end
+                if not pet.properties then
+                    continue
+                end
+                if not pet.properties.friendship_level then
                     continue
                 end
                 if pet.properties.friendship_level > level then
@@ -8307,6 +8309,11 @@ end
 
 dailyLoginAppClick()
 
+if ClientData.get('pet_char_wrappers')[2] then
+    ReplicatedStorage.API['ToolAPI/Unequip']:InvokeServer(ClientData.get('pet_char_wrappers')[2].pet_unique, {
+        ['equip_as_last'] = false,
+    })
+end
 if getgenv().BUY_BEFORE_FARMING then
     getgenv().isBuyingOrAging = true
 
