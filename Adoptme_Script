@@ -4888,7 +4888,7 @@ Check the Developer Console for more information.]],
                         if table.find(excludePets, item.id) then
                             continue
                         end
-                        if table.find(getgenv().SETTINGS.TRADE_LIST, item.id) or item.properties.age == 6 or (item.properties.neon and item.properties.age == 6) or item.properties.mega_neon then
+                        if table.find(getgenv().SETTINGS.TRADE_LIST, item.id) or item.properties.age == 6 or item.properties.neon or item.properties.mega_neon then
                             return true
                         end
                     end
@@ -4958,7 +4958,7 @@ Check the Developer Console for more information.]],
                         end
 
                         for _, item in v do
-                            if table.find(getgenv().SETTINGS.TRADE_LIST, item.id) or item.properties.age == 6 or (item.properties.neon and item.properties.age == 6) or item.properties.mega_neon then
+                            if table.find(getgenv().SETTINGS.TRADE_LIST, item.id) or item.properties.age == 6 or item.properties.neon or item.properties.mega_neon then
                                 if table.find(excludePets, item.id) then
                                     continue
                                 end
@@ -6393,7 +6393,9 @@ Check the Developer Console for more information.]],
         local VirtualUser = game:GetService('VirtualUser')
         local Players = game:GetService('Players')
         local localPlayer = Players.LocalPlayer
-        local Fusion = __DARKLUA_BUNDLE_MODULES.load('c')
+
+        __DARKLUA_BUNDLE_MODULES.load('c')
+
         local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
         local BulkPotions = {}
 
@@ -6620,9 +6622,6 @@ Check the Developer Console for more information.]],
         end
 
         function BulkPotions:AgeAllPetsOfSameName(petId)
-            Fusion:MakeMega(false)
-            Fusion:MakeMega(true)
-
             local hasPet = self:IsPetNeon(petId)
 
             if not hasPet then
@@ -6773,10 +6772,10 @@ Check the Developer Console for more information.]],
             if RosesFolder:FindFirstChild('Rose') then
                 localPlayer.Character.HumanoidRootPart.CFrame = RosesFolder.Rose.PrimaryPart.CFrame + Vector3.new(0, 2, 0)
 
-                return
+                return true
             end
 
-            return
+            return false
         end
         local function getHearts()
             getRose()
@@ -6805,8 +6804,11 @@ Check the Developer Console for more information.]],
         end
 
         function Valentines2025.GetAllRosesAndHearts()
+            local teleported = nil
+
             repeat
-                getRose()
+                teleported = getRose()
+
                 getHearts()
 
                 local RosesFolder = ValentinesFolder:FindFirstChild('Roses')
@@ -6814,14 +6816,26 @@ Check the Developer Console for more information.]],
                 if not RosesFolder then
                     return
                 end
+
+                task.wait(1)
             until #RosesFolder:GetChildren() == 0
 
-            print('picked up all roses for the day')
+            if teleported then
+                print('picked up all roses for the day')
+
+                return true
+            else
+                return false
+            end
         end
 
         return Valentines2025
     end
 end
+
+getgenv().AGE_PETS_BEFORE_FARMING = {
+    'moon_2025_dimension_drifter',
+}
 
 if not game:IsLoaded() then
     game.Loaded:Wait()
@@ -7602,10 +7616,9 @@ local function autoFarm()
                     task.wait(20)
                 until not getgenv().isBuyingOrAging
             end
-
-            Valentines2025.GetAllRosesAndHearts()
-            Teleport.FarmingHome()
-
+            if Valentines2025.GetAllRosesAndHearts() then
+                Teleport.FarmingHome()
+            end
             if isInMiniGame then
                 local count = 0
 
