@@ -6393,9 +6393,7 @@ Check the Developer Console for more information.]],
         local VirtualUser = game:GetService('VirtualUser')
         local Players = game:GetService('Players')
         local localPlayer = Players.LocalPlayer
-
-        __DARKLUA_BUNDLE_MODULES.load('c')
-
+        local Fusion = __DARKLUA_BUNDLE_MODULES.load('c')
         local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
         local BulkPotions = {}
 
@@ -6622,6 +6620,9 @@ Check the Developer Console for more information.]],
         end
 
         function BulkPotions:AgeAllPetsOfSameName(petId)
+            Fusion:MakeMega(false)
+            Fusion:MakeMega(true)
+
             local hasPet = self:IsPetNeon(petId)
 
             if not hasPet then
@@ -6778,13 +6779,13 @@ Check the Developer Console for more information.]],
             return false
         end
         local function getHearts()
-            getRose()
-
             if not Valentines2025 then
                 return
             end
 
             local HeartsFolder = ValentinesFolder:WaitForChild('Hearts')
+
+            task.wait(3)
 
             while true do
                 for i, v in HeartsFolder:GetChildren()do
@@ -6832,10 +6833,6 @@ Check the Developer Console for more information.]],
         return Valentines2025
     end
 end
-
-getgenv().AGE_PETS_BEFORE_FARMING = {
-    'moon_2025_dimension_drifter',
-}
 
 if not game:IsLoaded() then
     game.Loaded:Wait()
