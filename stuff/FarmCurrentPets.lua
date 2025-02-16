@@ -6,11 +6,11 @@
 -- 	"winter_2024_ice_tray"
 -- }
 
--- getgenv().AGE_PETS_BEFORE_FARMING = {
--- 	"moon_2025_puptune",
--- 	"moon_2025_dimension_drifter",
--- 	"moon_2025_sunglider",
--- }
+getgenv().AGE_PETS_BEFORE_FARMING = {
+	"moon_2025_puptune",
+	"moon_2025_dimension_drifter",
+	"moon_2025_sunglider",
+}
 
 getgenv().SETTINGS = {
 	WEBHOOK = {
