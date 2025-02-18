@@ -27,7 +27,7 @@ getgenv().SETTINGS = {
 
 	PET_TO_BUY = "moon_2025_egg", -- add pet or egg to buy when bot has no pets/egg left to level
 
-	FOCUS_FARM_AGE_POTION = false, -- if true, this will only farm 1 pet an keep aging to get aging potions
+	FOCUS_FARM_AGE_POTION = true, -- if true, this will only farm 1 pet an keep aging to get aging potions
 
 	ENABLE_AUTO_FARM = true,
 	SET_FPS = 1,
@@ -117,7 +117,7 @@ getgenv().SETTINGS = {
 		-- "garden_2024_mushroom_friend",
 	},
 
-	HATCH_EGG_PRIORITY = true,
+	HATCH_EGG_PRIORITY = false,
 	HATCH_EGG_PRIORITY_NAMES = { "moon_2025_egg" },
 
 	PET_ONLY_PRIORITY = false,
