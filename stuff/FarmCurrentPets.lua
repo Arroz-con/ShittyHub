@@ -1,15 +1,13 @@
--- getgenv().BUY_BEFORE_FARMING = {
--- 	{NameId = "lunar_2025_nebula_snake", MaxAmount = 20}
--- }
+getgenv().BUY_BEFORE_FARMING = {
+	{NameId = "valentines_2025_love_bird", MaxAmount = 16}
+}
 
 -- getgenv().OPEN_ITEMS_BEFORE_FARMING = {
 -- 	"winter_2024_ice_tray"
 -- }
 
 getgenv().AGE_PETS_BEFORE_FARMING = {
-	"moon_2025_puptune",
-	"moon_2025_dimension_drifter",
-	"moon_2025_sunglider",
+	"valentines_2025_love_bird"
 }
 
 getgenv().SETTINGS = {
@@ -35,7 +33,7 @@ getgenv().SETTINGS = {
 	PET_AUTO_FUSION = true,
 
 	ENABLE_TRADE_COLLECTOR = true,
-	TRADE_ONLY_LUMINOUS_MEGA = false,
+	TRADE_ONLY_LUMINOUS_MEGA = true,
 	TRADE_COLLECTOR_NAME = {"candymine8", "Tiredbloxypets"},
 	TRADE_LIST = {
 		"moon_2025_royal_egg",

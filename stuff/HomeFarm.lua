@@ -1,14 +1,14 @@
-getgenv().BUY_BEFORE_FARMING = {
-	{NameId = "valentines_2025_love_bird", MaxAmount = 16}
-}
+-- getgenv().BUY_BEFORE_FARMING = {
+-- 	{NameId = "valentines_2025_love_bird", MaxAmount = 16}
+-- }
 
 -- getgenv().OPEN_ITEMS_BEFORE_FARMING = {
 -- 	"winter_2024_ice_tray"
 -- }
 
-getgenv().AGE_PETS_BEFORE_FARMING = {
-	"valentines_2025_love_bird"
-}
+-- getgenv().AGE_PETS_BEFORE_FARMING = {
+-- 	"valentines_2025_love_bird"
+-- }
 
 getgenv().SETTINGS = {
 	WEBHOOK = {
@@ -34,8 +34,9 @@ getgenv().SETTINGS = {
 
 	ENABLE_TRADE_COLLECTOR = true,
 	TRADE_ONLY_LUMINOUS_MEGA = true,
-	TRADE_COLLECTOR_NAME = {"candymine8"},
+	TRADE_COLLECTOR_NAME = {"candymine8", "Tiredbloxypets"},
 	TRADE_LIST = {
+		"moon_2025_royal_egg",
 		-- "winter_2024_ratatoskr",
 		-- "winter_2024_bauble_buddies",
 		-- "winter_2024_mistletroll",
