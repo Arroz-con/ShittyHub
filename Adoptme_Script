@@ -3960,44 +3960,76 @@ Check the Developer Console for more information.]],
 
             return
         end
+        function Misc.IsPetEquipped(whichPet)
+            local petIndex = ClientData.get('pet_char_wrappers')[whichPet]
+
+            if not petIndex then
+                return
+            end
+            if not petIndex['pet_unique'] then
+                return
+            end
+        end
+        function Misc.UnEquip(petUnique, EquipAsLast)
+            local success, errorMessage = pcall(function()
+                ReplicatedStorage.API['ToolAPI/Unequip']:InvokeServer(petUnique, {
+                    ['equip_as_last'] = EquipAsLast,
+                })
+            end)
+
+            if not success then
+                print('Failed to Unequip pet:', errorMessage)
+
+                return false
+            end
+
+            return true
+        end
+        function Misc.Equip(petUnique, EquipAsLast)
+            local success, errorMessage = pcall(function()
+                ReplicatedStorage.API['ToolAPI/Equip']:InvokeServer(petUnique, {
+                    ['equip_as_last'] = EquipAsLast,
+                })
+            end)
+
+            if not success then
+                print('Failed to equip pet:', errorMessage)
+
+                return false
+            end
+
+            return true
+        end
         function Misc.ReEquipPet(whichPet)
             local hasPetChar = false
             local EquipTimeout = 0
 
-            print(`ReEquipPet: {whichPet}`)
-
             if whichPet == 1 then
-                ReplicatedStorage.API['ToolAPI/Unequip']:InvokeServer(getgenv().petCurrentlyFarming1, {
-                    ['equip_as_last'] = false,
-                })
-                task.wait(1)
-                ReplicatedStorage.API['ToolAPI/Equip']:InvokeServer(getgenv().petCurrentlyFarming1, {
-                    ['equip_as_last'] = false,
-                })
-            elseif whichPet == 2 then
-                if not getgenv().petCurrentlyFarming2 then
-                    return
-                end
-                if #ClientData.get('pet_char_wrappers') == 1 then
-                    print(`\u{26a0}\u{fe0f} Detected only 1 pet equipped when there should be 2 \u{26a0}\u{fe0f}`)
-                    print(getgenv().petCurrentlyFarming1)
-                    ReplicatedStorage.API['ToolAPI/Unequip']:InvokeServer(getgenv().petCurrentlyFarming1, {
-                        ['equip_as_last'] = false,
-                    })
-                    task.wait(1)
-                    ReplicatedStorage.API['ToolAPI/Equip']:InvokeServer(getgenv().petCurrentlyFarming1, {
-                        ['equip_as_last'] = false,
-                    })
-                    task.wait(1)
+                if not Misc.UnEquip(getgenv().petCurrentlyFarming1, false) then
+                    return false
                 end
 
-                ReplicatedStorage.API['ToolAPI/Unequip']:InvokeServer(getgenv().petCurrentlyFarming2, {
-                    ['equip_as_last'] = true,
-                })
-                task.wait(1)
-                ReplicatedStorage.API['ToolAPI/Equip']:InvokeServer(getgenv().petCurrentlyFarming2, {
-                    ['equip_as_last'] = true,
-                })
+                task.wait(0.1)
+
+                if not Misc.Equip(getgenv().petCurrentlyFarming1, false) then
+                    return false
+                end
+
+                task.wait(0.1)
+                Misc.DebugModePrint('ReEquipPet: success in equipping')
+            elseif whichPet == 2 then
+                if not Misc.UnEquip(getgenv().petCurrentlyFarming2, true) then
+                    return false
+                end
+
+                task.wait(0.1)
+
+                if not Misc.Equip(getgenv().petCurrentlyFarming2, true) then
+                    return false
+                end
+
+                task.wait(0.1)
+                Misc.DebugModePrint('ReEquipPet: success in equipping')
             end
 
             repeat
@@ -4009,9 +4041,12 @@ Check the Developer Console for more information.]],
             until hasPetChar or EquipTimeout >= 10
 
             if EquipTimeout >= 10 then
-                print(`\u{26a0}\u{fe0f} Waited too long for Equipping pet so trying again \u{26a0}\u{fe0f}`)
-                Misc.ReEquipPet(whichPet)
+                print(`\u{26a0}\u{fe0f} Waited too long for Equipping pet \u{26a0}\u{fe0f}`)
+
+                return false
             end
+
+            return true
         end
         function Misc.DebugModePrint(message)
             if getgenv().debugMode then
@@ -4306,7 +4341,18 @@ Check the Developer Console for more information.]],
 
             return inventoryTable
         end
-        function GetInventory:IsFarmingSelectedPet()
+        function GetInventory:IsFarmingSelectedPet(hasProHandler)
+            if hasProHandler then
+                if not ClientData.get('pet_char_wrappers')[2] then
+                    return
+                end
+                if getgenv().petCurrentlyFarming2 == ClientData.get('pet_char_wrappers')[2]['pet_unique'] then
+                    return
+                end
+
+                print('current pet equipped (2) is not the same pet as selected..')
+                print(ReplicatedStorage.API['ToolAPI/Equip']:InvokeServer(getgenv().petCurrentlyFarming2, {}))
+            end
             if not ClientData.get('pet_char_wrappers')[1] then
                 return
             end
@@ -4314,8 +4360,8 @@ Check the Developer Console for more information.]],
                 return
             end
 
-            print('current pet equipped is not the same pet as selected..')
-            ReplicatedStorage.API['ToolAPI/Equip']:InvokeServer(getgenv().petCurrentlyFarming1, {})
+            print('current pet equipped (1) is not the same pet as selected..')
+            print(ReplicatedStorage.API['ToolAPI/Equip']:InvokeServer(getgenv().petCurrentlyFarming1, {}))
             task.wait(2)
 
             return
@@ -4352,11 +4398,12 @@ Check the Developer Console for more information.]],
             end
 
             equipWhichPet(whichPet, petUnique)
+            print(`Found pet with friendship level: {level}, equipped on: {whichPet}`)
 
             return true
         end
         function GetInventory:PetRarityAndAge(rarity, age, whichPet)
-            local PetageCounter = age or 5
+            local PetageCounter = age
             local isNeon = true
             local petFound = false
 
@@ -4382,7 +4429,7 @@ Check the Developer Console for more information.]],
                 PetageCounter -= 1
 
                 if PetageCounter <= 0 and isNeon then
-                    PetageCounter = age or 5
+                    PetageCounter = age
                     isNeon = nil
                 elseif PetageCounter <= 0 and isNeon == nil then
                     return false
@@ -5009,8 +5056,8 @@ Check the Developer Console for more information.]],
         local Player = Players.LocalPlayer
         local getconstants = getconstants or debug.getconstants
         local getgc = getgc or get_gc_objects or debug.getgc
-        local get_thread_identity = get_thread_identity or gti or getthreadidentity or getidentity or syn.get_thread_identity or fluxus.get_thread_identity
-        local set_thread_identity = set_thread_context or sti or setthreadcontext or setidentity or syn.set_thread_identity or fluxus.set_thread_identity
+        local get_thread_identity = getthreadidentity or get_thread_identity or gti or getidentity or syn.get_thread_identity or fluxus.get_thread_identity
+        local set_thread_identity = setthreadidentity or set_thread_context or sti or setthreadcontext or setidentity or syn.set_thread_identity or fluxus.set_thread_identity
         local SetLocationTP
         local rng = Random.new()
         local Teleport = {}
@@ -5388,6 +5435,7 @@ Check the Developer Console for more information.]],
         local Workspace = game:GetService('Workspace')
         local Players = game:GetService('Players')
         local Misc = __DARKLUA_BUNDLE_MODULES.load('b')
+        local Bypass = require(ReplicatedStorage:WaitForChild('Fsys')).load
         local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
         local GetInventory = __DARKLUA_BUNDLE_MODULES.load('e')
         local Teleport = __DARKLUA_BUNDLE_MODULES.load('g')
@@ -5731,7 +5779,7 @@ Check the Developer Console for more information.]],
             Misc.DebugModePrint(`\u{1f971} Doing bored task on {Ailments.whichPet} \u{1f971}`)
 
             if pianoId then
-                if not ClientData.get('pet_char_wrappers')[Ailments.whichPet] and ClientData.get('pet_char_wrappers')[Ailments.whichPet]['char'] then
+                if not ClientData.get('pet_char_wrappers') and ClientData.get('pet_char_wrappers')[Ailments.whichPet] and ClientData.get('pet_char_wrappers')[Ailments.whichPet]['char'] then
                     return
                 end
 
@@ -5747,7 +5795,7 @@ Check the Developer Console for more information.]],
             Misc.ReEquipPet(Ailments.whichPet)
             Misc.DebugModePrint(`\u{1f634} Doing sleep task on {Ailments.whichPet} \u{1f634}`)
 
-            if not ClientData.get('pet_char_wrappers')[Ailments.whichPet] and ClientData.get('pet_char_wrappers')[Ailments.whichPet]['char'] then
+            if not ClientData.get('pet_char_wrappers') and not ClientData.get('pet_char_wrappers')[Ailments.whichPet] and ClientData.get('pet_char_wrappers')[Ailments.whichPet]['char'] then
                 return
             end
 
@@ -5758,7 +5806,7 @@ Check the Developer Console for more information.]],
             Misc.ReEquipPet(Ailments.whichPet)
             Misc.DebugModePrint(`\u{1f9fc} Doing dirty task on {Ailments.whichPet} \u{1f9fc}`)
 
-            if not ClientData.get('pet_char_wrappers')[Ailments.whichPet] and ClientData.get('pet_char_wrappers')[Ailments.whichPet]['char'] then
+            if not ClientData.get('pet_char_wrappers') and not ClientData.get('pet_char_wrappers')[Ailments.whichPet] and ClientData.get('pet_char_wrappers')[Ailments.whichPet]['char'] then
                 return
             end
 
@@ -5881,7 +5929,10 @@ Check the Developer Console for more information.]],
 
             return true
         end
-        function Ailments:PetMeAilment() end
+        function Ailments:PetMeAilment()
+            Bypass('RouterClient').get('AilmentsAPI/ProgressPetMeAilment'):FireServer(ClientData.get('pet_char_wrappers')[Ailments.whichPet].pet_unique)
+            Misc.DebugModePrint(`RAN PETME AILMENT`)
+        end
         function Ailments:MysteryAilment(mysteryId, petUnique)
             Misc.DebugModePrint('\u{2753} Picking mystery task \u{2753}')
             pickMysteryTask(mysteryId, petUnique)
@@ -6765,10 +6816,10 @@ Check the Developer Console for more information.]],
 
             Teleport.DownloadMainMap()
 
-            local RosesFolder = ValentinesFolder:FindFirstChild('Roses')
+            local RosesFolder = ValentinesFolder:WaitForChild('Roses', 5)
 
             if not RosesFolder then
-                return print('no rose folder')
+                return false
             end
             if RosesFolder:FindFirstChild('Rose') then
                 localPlayer.Character.HumanoidRootPart.CFrame = RosesFolder.Rose.PrimaryPart.CFrame + Vector3.new(0, 2, 0)
@@ -6785,14 +6836,14 @@ Check the Developer Console for more information.]],
 
             local HeartsFolder = ValentinesFolder:WaitForChild('Hearts')
 
-            task.wait(3)
+            task.wait(2)
 
             while true do
                 for i, v in HeartsFolder:GetChildren()do
                     if v:IsA('Model') and v:FindFirstChild('Collider') then
-                        localPlayer.Character.HumanoidRootPart.CFrame = v.PrimaryPart.CFrame
+                        localPlayer.Character.HumanoidRootPart.CFrame = v.PrimaryPart.CFrame + Vector3.new(0, 1.5, 0)
 
-                        task.wait(1)
+                        task.wait(0.2)
                     end
                 end
 
@@ -7290,48 +7341,31 @@ local function getEgg(whichPet)
 
     return false
 end
-local function getPet(whichPet, firstTimeGettingPet)
-    local petIndex
-
-    if not firstTimeGettingPet then
-        petIndex = ClientData.get('pet_char_wrappers')[whichPet]
-
-        if not petIndex then
-            return
-        end
-        if not petIndex['pet_unique'] then
-            return
-        end
-        if getgenv().petCurrentlyFarming1 == petIndex['pet_unique'] and petIndex.pet_progression.age <= 5 then
-            return
-        end
-        if getgenv().petCurrentlyFarming2 == petIndex['pet_unique'] and petIndex.pet_progression.age <= 5 then
-            return
-        end
+local function getAgeUpPotionPet(whichPet)
+    if GetInventory:GetPetFriendship(whichPet) then
+        return true
     end
+    if GetInventory:PetRarityAndAge('common', 6, whichPet) then
+        return true
+    end
+    if GetInventory:PetRarityAndAge('legendary', 6, whichPet) then
+        return true
+    end
+    if GetInventory:PetRarityAndAge('ultra_rare', 6, whichPet) then
+        return true
+    end
+    if GetInventory:PetRarityAndAge('rare', 6, whichPet) then
+        return true
+    end
+    if GetInventory:PetRarityAndAge('uncommon', 6, whichPet) then
+        return true
+    end
+
+    return false
+end
+local function getPet(whichPet)
     if getgenv().SETTINGS.FOCUS_FARM_AGE_POTION then
-        if getgenv().petCurrentlyFarming1 == petIndex['pet_unique'] then
-            return
-        end
-        if getgenv().petCurrentlyFarming2 == petIndex['pet_unique'] then
-            return
-        end
-        if GetInventory:GetPetFriendship(whichPet) then
-            return
-        end
-        if GetInventory:PetRarityAndAge('common', 6, whichPet) then
-            return
-        end
-        if GetInventory:PetRarityAndAge('legendary', 6, whichPet) then
-            return
-        end
-        if GetInventory:PetRarityAndAge('ultra_rare', 6, whichPet) then
-            return
-        end
-        if GetInventory:PetRarityAndAge('rare', 6, whichPet) then
-            return
-        end
-        if GetInventory:PetRarityAndAge('uncommon', 6, whichPet) then
+        if getAgeUpPotionPet(whichPet) then
             return
         end
     end
@@ -7394,14 +7428,24 @@ local function SwitchOutFullyGrown(whichPet)
         return
     end
     if not ClientData.get('pet_char_wrappers')[whichPet] then
-        getPet(whichPet)
+        if not Misc.ReEquipPet(whichPet) then
+            Misc.DebugModePrint('SwitchOutFullyGrown: GETTING NEW PETS')
+            getPet(whichPet)
 
-        return
+            return
+        end
+
+        task.wait(1)
     end
 
     local PetAge = ClientData.get('pet_char_wrappers')[whichPet]['pet_progression']['age']
 
     if PetAge == 6 then
+        if getgenv().SETTINGS.PET_AUTO_FUSION then
+            Fusion:MakeMega(false)
+            Fusion:MakeMega(true)
+        end
+
         getPet(whichPet)
 
         return
@@ -7480,19 +7524,27 @@ local function CompletePetAilments(whichPet)
         return
     end
     if not ClientData.get_data()[localPlayer.Name].pet_char_wrappers[whichPet] then
-        Misc.ReEquipPet(whichPet)
-    end
-
-    local petUnique = ClientData.get_data()[localPlayer.Name].pet_char_wrappers[whichPet].pet_unique
-
-    if not petUnique then
-        return
+        if not Misc.ReEquipPet(whichPet) then
+            getPet(whichPet)
+        end
     end
     if not ClientData.get_data()[localPlayer.Name].ailments_manager then
         return false
     end
     if not ClientData.get_data()[localPlayer.Name].ailments_manager.ailments then
         return false
+    end
+    if not ClientData.get_data()[localPlayer.Name].pet_char_wrappers then
+        return false
+    end
+    if not ClientData.get_data()[localPlayer.Name].pet_char_wrappers[whichPet] then
+        return false
+    end
+
+    local petUnique = ClientData.get_data()[localPlayer.Name].pet_char_wrappers[whichPet].pet_unique
+
+    if not petUnique then
+        return
     end
     if not ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique] then
         return false
@@ -7631,17 +7683,23 @@ local function autoFarm()
             end
 
             removeHandHeldItem()
-            GetInventory:IsFarmingSelectedPet()
+            GetInventory:IsFarmingSelectedPet(isProHandler)
 
             if not CompletePetAilments(1) then
+                task.wait()
+
                 if not CompletePetAilments(2) then
+                    task.wait()
                     completeBabyAilments()
                 end
             end
 
-            SwitchOutFullyGrown(1)
-            SwitchOutFullyGrown(2)
+            task.wait(1)
 
+            if not getgenv().SETTINGS.FOCUS_FARM_AGE_POTION then
+                SwitchOutFullyGrown(1)
+                SwitchOutFullyGrown(2)
+            end
             if baitboxCount > 600 then
                 baitId = findBait('winter_2024_winter_deer_bait')
 
@@ -7681,11 +7739,11 @@ local function autoFarm()
     end
 
     task.wait()
-    getPet(1, true)
+    getPet(1)
     task.wait(1)
 
     if isProHandler then
-        getPet(2, true)
+        getPet(2)
     end
 
     task.wait()
@@ -7832,20 +7890,6 @@ localPlayer.PlayerGui.HintApp.TextLabel:GetPropertyChangedSignal('Text'):Connect
 
         TempBucks:UpdateTextFor('TempBucks', bucksGained)
     elseif localPlayer.PlayerGui.HintApp.TextLabel.Text:match('aged up!') then
-        if getgenv().feedAgeUpPotionToggle then
-            return
-        end
-        if getgenv().SETTINGS.PET_AUTO_FUSION then
-            Fusion:MakeMega(false)
-            Fusion:MakeMega(true)
-        end
-
-        task.wait(2)
-
-        if not getgenv().SETTINGS.FOCUS_FARM_AGE_POTION then
-            SwitchOutFullyGrown(1)
-            SwitchOutFullyGrown(2)
-        end
     end
 end)
 UserInputService.InputBegan:Connect(function(input, processed)
