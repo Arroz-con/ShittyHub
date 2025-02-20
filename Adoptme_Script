@@ -4009,27 +4009,21 @@ Check the Developer Console for more information.]],
                     return false
                 end
 
-                task.wait(0.1)
+                task.wait(0.5)
 
                 if not Misc.Equip(getgenv().petCurrentlyFarming1, false) then
                     return false
                 end
-
-                task.wait(0.1)
-                Misc.DebugModePrint('ReEquipPet: success in equipping')
             elseif whichPet == 2 then
                 if not Misc.UnEquip(getgenv().petCurrentlyFarming2, true) then
                     return false
                 end
 
-                task.wait(0.1)
+                task.wait(0.5)
 
                 if not Misc.Equip(getgenv().petCurrentlyFarming2, true) then
                     return false
                 end
-
-                task.wait(0.1)
-                Misc.DebugModePrint('ReEquipPet: success in equipping')
             end
 
             repeat
@@ -4045,6 +4039,8 @@ Check the Developer Console for more information.]],
 
                 return false
             end
+
+            Misc.DebugModePrint(`ReEquipPet: success in equipping {whichPet}`)
 
             return true
         end
@@ -4361,7 +4357,7 @@ Check the Developer Console for more information.]],
             end
 
             print('current pet equipped (1) is not the same pet as selected..')
-            print(ReplicatedStorage.API['ToolAPI/Equip']:InvokeServer(getgenv().petCurrentlyFarming1, {}))
+            ReplicatedStorage.API['ToolAPI/Equip']:InvokeServer(getgenv().petCurrentlyFarming1, {})
             task.wait(2)
 
             return
@@ -4448,6 +4444,15 @@ Check the Developer Console for more information.]],
             end
 
             return nil
+        end
+        function GetInventory:IsPetInInventory(tabId, uniqueId)
+            for _, v in ClientData.get_data()[localPlayer.Name].inventory[tabId]do
+                if v.unique == uniqueId then
+                    return true
+                end
+            end
+
+            return false
         end
         function GetInventory:PriorityEgg(whichPet)
             for _, v in ipairs(getgenv().SETTINGS.HATCH_EGG_PRIORITY_NAMES)do
@@ -5746,6 +5751,19 @@ Check the Developer Console for more information.]],
                 getDoctorId()
             end
         end
+        function Ailments:PetMeAilment()
+            Misc.ReEquipPet(Ailments.whichPet)
+            Misc.DebugModePrint(`\u{1f431} Doing pet me task on {Ailments.whichPet} \u{1f431}`)
+            ReplicatedStorage.API['AdoptAPI/FocusPet']:FireServer(ClientData.get('pet_char_wrappers')[Ailments.whichPet].char)
+            task.wait(1)
+            ReplicatedStorage.API['PetAPI/ReplicateActivePerformances']:FireServer(ClientData.get('pet_char_wrappers')[Ailments.whichPet].char, {
+                ['FocusPet'] = true,
+                ['Petting'] = true,
+            })
+            task.wait(1)
+            Bypass('RouterClient').get('AilmentsAPI/ProgressPetMeAilment'):FireServer(ClientData.get('pet_char_wrappers')[Ailments.whichPet].pet_unique)
+            Misc.DebugModePrint(`\u{1f431} RAN PETME AILMENT \u{1f431}`)
+        end
         function Ailments:SalonAilment(ailment, petUnique)
             Misc.ReEquipPet(Ailments.whichPet)
             Misc.DebugModePrint(`\u{1f457} Doing salon task on {Ailments.whichPet} \u{1f457}`)
@@ -5928,10 +5946,6 @@ Check the Developer Console for more information.]],
             Misc.DebugModePrint(`\u{1f9b4} Finished play task on {Ailments.whichPet} \u{1f9b4}`)
 
             return true
-        end
-        function Ailments:PetMeAilment()
-            Bypass('RouterClient').get('AilmentsAPI/ProgressPetMeAilment'):FireServer(ClientData.get('pet_char_wrappers')[Ailments.whichPet].pet_unique)
-            Misc.DebugModePrint(`RAN PETME AILMENT`)
         end
         function Ailments:MysteryAilment(mysteryId, petUnique)
             Misc.DebugModePrint('\u{2753} Picking mystery task \u{2753}')
@@ -6799,6 +6813,24 @@ Check the Developer Console for more information.]],
 
             print('tutorial', success, errorMessage)
         end
+        function Tutorials.CompleteNewStarterTutorial()
+            local success, errorMessage = pcall(function()
+                task.wait(10)
+                ReplicatedStorage.API['TutorialAPI/ReportDiscreteStep']:FireServer('npc_interaction')
+                task.wait(2)
+                ReplicatedStorage.API['TutorialAPI/ChoosePet']:FireServer('dog')
+                task.wait(2)
+                ReplicatedStorage.API['TutorialAPI/ReportTutorialCompleted']:FireServer()
+                task.wait(2)
+                LegacyTutorial.cancel_tutorial()
+                task.wait(2)
+                ReplicatedStorage.API['LegacyTutorialAPI/MarkTutorialCompleted']:FireServer()
+                task.wait(2)
+                localPlayer:Kick('Finished tutorial?')
+            end)
+
+            print('tutorial', success, errorMessage)
+        end
 
         return Tutorials
     end
@@ -7565,6 +7597,10 @@ local function CompletePetAilments(whichPet)
             Ailments:SickAilment()
 
             return true
+        elseif key == 'pet_me' then
+            Ailments:PetMeAilment()
+
+            return true
         end
     end
     for key, _ in ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique]do
@@ -7683,7 +7719,6 @@ local function autoFarm()
             end
 
             removeHandHeldItem()
-            GetInventory:IsFarmingSelectedPet(isProHandler)
 
             if not CompletePetAilments(1) then
                 task.wait()
@@ -7698,7 +7733,10 @@ local function autoFarm()
 
             if not getgenv().SETTINGS.FOCUS_FARM_AGE_POTION then
                 SwitchOutFullyGrown(1)
-                SwitchOutFullyGrown(2)
+
+                if isProHandler then
+                    SwitchOutFullyGrown(2)
+                end
             end
             if baitboxCount > 600 then
                 baitId = findBait('winter_2024_winter_deer_bait')
@@ -7727,20 +7765,20 @@ local function autoFarm()
 
             updateStatsGui()
 
-            baitboxCount += 5
+            baitboxCount += 2
 
-            task.wait(5)
+            task.wait(2)
         end
     end)
 
     if getgenv().SETTINGS.PET_AUTO_FUSION then
         Fusion:MakeMega(false)
         Fusion:MakeMega(true)
+        task.wait(1)
     end
 
-    task.wait()
     getPet(1)
-    task.wait(1)
+    task.wait(2)
 
     if isProHandler then
         getPet(2)
@@ -7847,7 +7885,7 @@ local function doStarterTutorial()
         findButton('Next')
         task.wait(2)
         print('doing tutorial')
-        Tutorials.CompleteStarterTutorial()
+        Tutorials.CompleteNewStarterTutorial()
         task.wait(1)
         print('doing trade license')
         task.wait(1)
@@ -8268,7 +8306,7 @@ end
 
 task.wait(10)
 
-if not ClientData.get_data()[localPlayer.Name].boolean_flags.tutorial_v3_completed then
+if not ClientData.get_data()[localPlayer.Name].boolean_flags.tutorial_v3_completed and not ClientData.get_data()[localPlayer.Name].tutorial_manager.completed then
     print('new alt detected. doing tutorial')
     doStarterTutorial()
 end
