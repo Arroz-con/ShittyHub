@@ -4022,24 +4022,33 @@ Check the Developer Console for more information.]],
             local hasPetChar = false
             local EquipTimeout = 0
 
+            if not ClientData.get('pet_char_wrappers') then
+                return false
+            end
+            if not ClientData.get('pet_char_wrappers')[whichPet] then
+                return false
+            end
+
+            local petUnique = ClientData.get('pet_char_wrappers')[whichPet].pet_unique
+
             if whichPet == 1 then
-                if not Misc.UnEquip(getgenv().petCurrentlyFarming1, false) then
+                if not Misc.UnEquip(petUnique, false) then
                     return false
                 end
 
-                task.wait(0.5)
+                task.wait(1)
 
-                if not Misc.Equip(getgenv().petCurrentlyFarming1, false) then
+                if not Misc.Equip(petUnique, false) then
                     return false
                 end
             elseif whichPet == 2 then
-                if not Misc.UnEquip(getgenv().petCurrentlyFarming2, true) then
+                if not Misc.UnEquip(petUnique, true) then
                     return false
                 end
 
-                task.wait(0.5)
+                task.wait(1)
 
-                if not Misc.Equip(getgenv().petCurrentlyFarming2, true) then
+                if not Misc.Equip(petUnique, true) then
                     return false
                 end
             end
@@ -7516,6 +7525,22 @@ local function removeHandHeldItem()
         ReplicatedStorage.API['ToolAPI/Unequip']:InvokeServer(tool.unique.Value, {})
     end
 end
+local function CheckifEgg(whichPet)
+    if not ClientData.get('pet_char_wrappers') then
+        return
+    end
+    if not ClientData.get('pet_char_wrappers')[whichPet] then
+        return
+    end
+    if table.find(peteggs, ClientData.get('pet_char_wrappers')[whichPet].pet_id) then
+        return
+    end
+
+    print(`NOT A EGG SO GETTING NEW EGG {whichPet}`)
+    getPet(whichPet)
+
+    return
+end
 local function SwitchOutFullyGrown(whichPet)
     if getgenv().isBuyingOrAging then
         return
@@ -7789,6 +7814,15 @@ local function autoFarm()
 
             removeHandHeldItem()
 
+            if getgenv().SETTINGS.HATCH_EGG_PRIORITY then
+                CheckifEgg(1)
+                task.wait(1)
+
+                if isProHandler then
+                    CheckifEgg(2)
+                    task.wait(1)
+                end
+            end
             if not CompletePetAilments(1) then
                 task.wait()
 
@@ -7821,7 +7855,7 @@ local function autoFarm()
                 baitboxCount = 0
             end
             if not getgenv().SETTINGS.FOCUS_FARM_AGE_POTION then
-                if ClientData.get('pet_char_wrappers')[1] and table.find(peteggs, ClientData.get('pet_char_wrappers')[1].pet_unique) then
+                if ClientData.get('pet_char_wrappers')[1] and table.find(peteggs, ClientData.get('pet_char_wrappers')[1].pet_id) then
                     print('is egg, not feeding age potion')
                 else
                     if ClientData.get('pet_char_wrappers')[1] and table.find(getgenv().SETTINGS.PET_ONLY_PRIORITY_NAMES, ClientData.get('pet_char_wrappers')[1].pet_unique) then
