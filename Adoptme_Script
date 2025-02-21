@@ -3960,6 +3960,24 @@ Check the Developer Console for more information.]],
 
             return
         end
+        function Misc.WaitForPetToEquip()
+            local hasPetChar = nil
+            local stuckTimer = 0
+
+            repeat
+                task.wait(1)
+
+                hasPetChar = if ClientData.get('pet_char_wrappers') and ClientData.get('pet_char_wrappers')[1] and ClientData.get('pet_char_wrappers')[1].pet_unique then true else false
+
+                stuckTimer += 1
+            until hasPetChar or stuckTimer > 20
+
+            if stuckTimer > 20 then
+                return false
+            end
+
+            return true
+        end
         function Misc.IsPetEquipped(whichPet)
             local petIndex = ClientData.get('pet_char_wrappers')[whichPet]
 
@@ -4398,6 +4416,42 @@ Check the Developer Console for more information.]],
 
             return true
         end
+        function GetInventory:GetHighestGrownPet(age, whichPet)
+            local PetageCounter = age
+            local isNeon = true
+            local petFound = false
+
+            while not petFound do
+                for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
+                    if pet.id ~= 'practice_dog' and pet.properties.age == PetageCounter and pet.properties.neon == isNeon then
+                        if pet.unique == getgenv().petCurrentlyFarming1 then
+                            continue
+                        end
+                        if pet.unique == getgenv().petCurrentlyFarming2 then
+                            continue
+                        end
+
+                        print(`GetHighestGrownPet: {whichPet}`)
+                        equipWhichPet(whichPet, pet.unique)
+
+                        return true
+                    end
+                end
+
+                PetageCounter -= 1
+
+                if PetageCounter <= 0 and isNeon then
+                    PetageCounter = age
+                    isNeon = nil
+                elseif PetageCounter <= 0 and isNeon == nil then
+                    return false
+                end
+
+                task.wait()
+            end
+
+            return false
+        end
         function GetInventory:PetRarityAndAge(rarity, age, whichPet)
             local PetageCounter = age
             local isNeon = true
@@ -4500,6 +4554,7 @@ Check the Developer Console for more information.]],
                             continue
                         end
 
+                        print(`GetNeonPet: {whichPet}`)
                         equipWhichPet(whichPet, v.unique)
 
                         return true
@@ -6471,6 +6526,8 @@ Check the Developer Console for more information.]],
             self.SameUnqiueCount = 0
             self.StopAging = false
             self.EggsTable = {}
+            self.PetAge = 0
+            self.PetUniqueId = nil
 
             return self
         end
@@ -6502,31 +6559,52 @@ Check the Developer Console for more information.]],
         end
 
         function BulkPotions:IsPetNormal(petName)
+            self.PetAge = 0
+            self.PetUniqueId = nil
+
             for _, v in ClientData.get_data()[localPlayer.Name].inventory.pets do
                 if v.id == petName and v.id ~= 'practice_dog' and v.properties.age ~= 6 and not v.properties.mega_neon then
-                    ReplicatedStorage.API['ToolAPI/Equip']:InvokeServer(v.unique, {
-                        ['use_sound_delay'] = true,
-                    })
-                    waitForPetToEquip()
-
-                    return true
+                    if self.PetAge < v.properties.age then
+                        self.PetAge = v.properties.age
+                        self.PetUniqueId = v.unique
+                    end
                 end
+            end
+
+            if self.PetUniqueId then
+                ReplicatedStorage.API['ToolAPI/Equip']:InvokeServer(self.PetUniqueId, {
+                    ['use_sound_delay'] = true,
+                })
+                waitForPetToEquip()
+                print(`pet age: {self.PetAge}, and NORMAL`)
+
+                return true
             end
 
             return false
         end
         function BulkPotions:IsPetNeon(petName)
+            self.PetAge = 0
+            self.PetUniqueId = nil
+
             for _, v in ClientData.get_data()[localPlayer.Name].inventory.pets do
                 if v.id == petName and v.id ~= 'practice_dog' and v.properties.age ~= 6 and v.properties.neon and not v.properties.mega_neon then
-                    ReplicatedStorage.API['ToolAPI/Equip']:InvokeServer(v.unique, {
-                        ['use_sound_delay'] = true,
-                    })
-                    waitForPetToEquip()
-
-                    return true
+                    if self.PetAge < v.properties.age then
+                        self.PetAge = v.properties.age
+                        self.PetUniqueId = v.unique
+                    end
                 end
             end
 
+            if self.PetUniqueId then
+                ReplicatedStorage.API['ToolAPI/Equip']:InvokeServer(self.PetUniqueId, {
+                    ['use_sound_delay'] = true,
+                })
+                waitForPetToEquip()
+                print(`pet age: {self.PetAge} and NEON`)
+
+                return true
+            end
             if self:IsPetNormal(petName) then
                 return true
             else
@@ -6685,8 +6763,10 @@ Check the Developer Console for more information.]],
         end
 
         function BulkPotions:AgeAllPetsOfSameName(petId)
-            Fusion:MakeMega(false)
-            Fusion:MakeMega(true)
+            if getgenv().SETTINGS.PET_AUTO_FUSION then
+                Fusion:MakeMega(false)
+                Fusion:MakeMega(true)
+            end
 
             local hasPet = self:IsPetNeon(petId)
 
@@ -7377,19 +7457,7 @@ local function getAgeUpPotionPet(whichPet)
     if GetInventory:GetPetFriendship(whichPet) then
         return true
     end
-    if GetInventory:PetRarityAndAge('common', 6, whichPet) then
-        return true
-    end
-    if GetInventory:PetRarityAndAge('legendary', 6, whichPet) then
-        return true
-    end
-    if GetInventory:PetRarityAndAge('ultra_rare', 6, whichPet) then
-        return true
-    end
-    if GetInventory:PetRarityAndAge('rare', 6, whichPet) then
-        return true
-    end
-    if GetInventory:PetRarityAndAge('uncommon', 6, whichPet) then
+    if GetInventory:GetHighestGrownPet(6, whichPet) then
         return true
     end
 
@@ -7446,15 +7514,6 @@ local function removeHandHeldItem()
         ReplicatedStorage.API['ToolAPI/Unequip']:InvokeServer(tool.unique.Value, {})
     end
 end
-local function CheckifEgg(whichPet)
-    if ClientData.get('pet_char_wrappers')[whichPet] and table.find(peteggs, ClientData.get('pet_char_wrappers')[whichPet].pet_unique) then
-        return print('equipped pet is egg, not switching')
-    end
-
-    getPet(whichPet)
-
-    return
-end
 local function SwitchOutFullyGrown(whichPet)
     if getgenv().isBuyingOrAging then
         return
@@ -7481,8 +7540,6 @@ local function SwitchOutFullyGrown(whichPet)
         getPet(whichPet)
 
         return
-    elseif PetAge == 1 then
-        CheckifEgg(whichPet)
     end
 end
 local function ClickTradeWindowPopUps()
@@ -7555,7 +7612,7 @@ local function CompletePetAilments(whichPet)
     if not isProHandler and whichPet == 2 then
         return
     end
-    if not ClientData.get_data()[localPlayer.Name].pet_char_wrappers[whichPet] then
+    if not ClientData.get_data()[localPlayer.Name].pet_char_wrappers or not ClientData.get_data()[localPlayer.Name].pet_char_wrappers[whichPet] then
         if not Misc.ReEquipPet(whichPet) then
             getPet(whichPet)
         end
@@ -8387,6 +8444,15 @@ if localPlayer.Character:WaitForChild('HumanoidRootPart') then
     ReplicatedStorage.API['TeamAPI/ChooseTeam']:InvokeServer('Babies', {
         ['dont_send_back_home'] = true,
     })
+    task.wait(1)
+end
+if ClientData.get('pet_char_wrappers') then
+    print('Un Equip Pet')
+
+    if Misc.WaitForPetToEquip() then
+        ReplicatedStorage.API['ToolAPI/Unequip']:InvokeServer(ClientData.get('pet_char_wrappers')[1].pet_unique, {})
+        task.wait(1)
+    end
 end
 
 Teleport.PlaceFloorAtFarmingHome()
@@ -8401,11 +8467,6 @@ end
 
 dailyLoginAppClick()
 
-if ClientData.get('pet_char_wrappers')[2] then
-    ReplicatedStorage.API['ToolAPI/Unequip']:InvokeServer(ClientData.get('pet_char_wrappers')[2].pet_unique, {
-        ['equip_as_last'] = false,
-    })
-end
 if getgenv().BUY_BEFORE_FARMING then
     getgenv().isBuyingOrAging = true
 
