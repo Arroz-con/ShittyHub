@@ -1,6 +1,6 @@
--- getgenv().BUY_BEFORE_FARMING = {
--- 	{NameId = "valentines_2025_love_bird", MaxAmount = 16}
--- }
+getgenv().BUY_BEFORE_FARMING = {
+	{NameId = "valentines_2025_love_bird", MaxAmount = 8}
+}
 
 -- getgenv().OPEN_ITEMS_BEFORE_FARMING = {
 -- 	"winter_2024_ice_tray"
@@ -121,6 +121,7 @@ getgenv().SETTINGS = {
 	PET_ONLY_PRIORITY = true,
 	PET_ONLY_PRIORITY_NAMES = {
 		"moon_2025_puptune",
+		"valentines_2025_love_bird",
 		"moon_2025_dimension_drifter",
 		"moon_2025_sunglider",
 	},
