@@ -74,7 +74,7 @@ end
 
 function Trade:SelectTabAndTrade(tab: string, selectedItem: string, amount: number)
     local amountMax = amount or 18
-    print(amountMax)
+    local waitForAdded = 0
     inActiveTrade()
     for _, item in ClientData.get_data()[Player.Name].inventory[tab] do
         if item.id == selectedItem then
@@ -83,7 +83,10 @@ function Trade:SelectTabAndTrade(tab: string, selectedItem: string, amount: numb
                 return true
             end
             ReplicatedStorage.API:FindFirstChild("TradeAPI/AddItemToOffer"):FireServer(item.unique)
-            task.wait(0.1)
+            waitForAdded += 1
+            repeat
+                task.wait(0.1)
+            until #ClientData.get_data()[Player.Name].trade.sender_offer.items >= waitForAdded or not ClientData.get_data()[Player.Name].in_active_trade
         end
     end
 
