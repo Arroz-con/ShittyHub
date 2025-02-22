@@ -72,17 +72,16 @@ function Trade:SendTradeRequest(selectedPlayer: string)
 end
 
 
-
-
-function Trade:SelectTabAndTrade(tab: string, selectedItem: string)
+function Trade:SelectTabAndTrade(tab: string, selectedItem: string, amount: number)
+    local amountMax = amount or 18
     inActiveTrade()
     for _, item in ClientData.get_data()[Player.Name].inventory[tab] do
         if item.id == selectedItem then
             if not ClientData.get_data()[Player.Name].in_active_trade then return end
-            ReplicatedStorage.API:FindFirstChild("TradeAPI/AddItemToOffer"):FireServer(item.unique)
-            if #ClientData.get_data()[Player.Name].trade.sender_offer.items >= 18 then
+            if #ClientData.get_data()[Player.Name].trade.sender_offer.items >= amountMax then
                 return
             end
+            ReplicatedStorage.API:FindFirstChild("TradeAPI/AddItemToOffer"):FireServer(item.unique)
             task.wait(0.1)
         end
     end
