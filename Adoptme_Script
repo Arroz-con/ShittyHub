@@ -6004,7 +6004,7 @@ Check the Developer Console for more information.]],
                 Misc.DebugModePrint(`Play task got stuck so requiping pet`)
                 Misc.ReEquipPet(Ailments.whichPet)
 
-                return
+                return false
             end
 
             Misc.DebugModePrint(`\u{1f9b4} Finished play task on {Ailments.whichPet} \u{1f9b4}`)
@@ -7660,7 +7660,7 @@ local function CompletePetAilments(whichPet)
     local petUnique = ClientData.get_data()[localPlayer.Name].pet_char_wrappers[whichPet].pet_unique
 
     if not petUnique then
-        return
+        return false
     end
     if not ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique] then
         return false
@@ -7744,7 +7744,7 @@ local function CompletePetAilments(whichPet)
             return true
         elseif key == 'play' then
             if not Ailments:PlayAilment(key, petUnique) then
-                continue
+                return false
             end
 
             return true
