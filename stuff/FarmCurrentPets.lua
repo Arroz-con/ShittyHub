@@ -78,9 +78,9 @@ getgenv().SETTINGS = {
 
 	PET_ONLY_PRIORITY = true,
 	PET_ONLY_PRIORITY_NAMES = {
-		"moon_2025_puptune",
-		"valentines_2025_love_bird",
 		"valentines_2025_sweetheart_rat",
+		"valentines_2025_love_bird",
+		"moon_2025_puptune",
 		"moon_2025_dimension_drifter",
 		"moon_2025_sunglider",
 	},
