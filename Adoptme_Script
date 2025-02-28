@@ -6227,7 +6227,7 @@ Check the Developer Console for more information.]],
             return ClientData.get_data()[localPlayer.Name].money or 0
         end
         local function eventCurrencyAmount()
-            return ClientData.get_data()[localPlayer.Name].cupid_hearts_2025 or 0
+            return 0
         end
         local function foodItemCount(nameId)
             local count = 0
