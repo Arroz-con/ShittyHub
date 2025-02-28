@@ -4499,6 +4499,17 @@ Check the Developer Console for more information.]],
 
             return false
         end
+        function GetInventory:CheckForPetAndEquip(nameId, whichPet)
+            for _, v in ClientData.get_data()[localPlayer.Name].inventory['pets']do
+                if v.id == nameId then
+                    equipWhichPet(whichPet, v.unique)
+
+                    return true
+                end
+            end
+
+            return false
+        end
         function GetInventory:GetUniqueId(tabId, nameId)
             for _, v in ClientData.get_data()[localPlayer.Name].inventory[tabId]do
                 if v.id == nameId then
@@ -4775,6 +4786,110 @@ Check the Developer Console for more information.]],
                     task.wait(0.1)
                 end
             end
+        end
+
+        local function convertPetAges(options)
+            local agesNumber = {}
+
+            for _, v in options['ages']do
+                if v == 'Newborn/Reborn' then
+                    table.insert(agesNumber, 1)
+                elseif v == 'Junior/Twinkle' then
+                    table.insert(agesNumber, 2)
+                elseif v == 'Pre_Teen/Sparkle' then
+                    table.insert(agesNumber, 3)
+                elseif v == 'Teen/Flare' then
+                    table.insert(agesNumber, 4)
+                elseif v == 'Post_Teen/Sunshine' then
+                    table.insert(agesNumber, 5)
+                elseif v == 'Full_Grown/Luminous' then
+                    table.insert(agesNumber, 6)
+                end
+            end
+
+            return agesNumber
+        end
+        local function MultipleOptionsTradeLoop(options, isNeon, isMegaNeon)
+            local raritys = options['rarity']
+            local ages = options['ages']
+            local waitForAdded = 0
+
+            for _, petDB in InventoryDB.pets do
+                for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
+                    if table.find(excludePets, pet.id) then
+                        continue
+                    end
+                    if petDB.id ~= pet.id then
+                        continue
+                    end
+                    if not table.find(raritys, petDB.rarity) then
+                        continue
+                    end
+                    if not table.find(ages, pet.properties.age) then
+                        continue
+                    end
+                    if pet.properties.neon == isNeon and pet.properties.mega_neon == isMegaNeon then
+                        print(petDB.rarity, pet.id)
+
+                        if not ClientData.get_data()[localPlayer.Name].in_active_trade then
+                            return false
+                        end
+                        if #ClientData.get_data()[localPlayer.Name].trade.sender_offer.items >= 18 then
+                            return true
+                        end
+
+                        ReplicatedStorage.API['TradeAPI/AddItemToOffer']:FireServer(pet.unique)
+
+                        waitForAdded += 1
+
+                        repeat
+                            task.wait(0.1)
+                        until #ClientData.get_data()[localPlayer.Name].trade.sender_offer.items >= waitForAdded or not ClientData.get_data()[localPlayer.Name].in_active_trade
+                    end
+                end
+            end
+
+            if not ClientData.get_data()[localPlayer.Name].in_active_trade then
+                return false
+            end
+            if #ClientData.get_data()[localPlayer.Name].trade.sender_offer.items >= 1 then
+                return true
+            else
+                return false
+            end
+        end
+
+        function Trade:MultipleOptions(options)
+            if typeof(options) ~= 'table' then
+                return
+            end
+
+            local isNormal = if table.find(options['neons'], 'normal')then true else nil
+            local isNeon = if table.find(options['neons'], 'neon')then true else nil
+            local isMegaNeon = if table.find(options['neons'], 'mega_neon')then true else nil
+
+            options['ages'] = convertPetAges(options)
+
+            inActiveTrade()
+            print(isNormal)
+
+            if isNormal then
+                if MultipleOptionsTradeLoop(options, nil, nil) then
+                    return
+                end
+            end
+            if isNeon then
+                if MultipleOptionsTradeLoop(options, true, nil) then
+                    return
+                end
+            end
+            if isMegaNeon then
+                if MultipleOptionsTradeLoop(options, nil, true) then
+                    return
+                end
+            end
+
+            return
         end
         function Trade:LowTiers()
             inActiveTrade()
@@ -6925,87 +7040,6 @@ Check the Developer Console for more information.]],
 
         return Tutorials
     end
-    function __DARKLUA_BUNDLE_MODULES.o()
-        local Players = game:GetService('Players')
-        local localPlayer = Players.LocalPlayer
-        local Teleport = __DARKLUA_BUNDLE_MODULES.load('g')
-        local ValentinesFolder = workspace.StaticMap:FindFirstChild('Valentines2025')
-        local Valentines2025 = {}
-
-        local function getRose()
-            if not Valentines2025 then
-                return
-            end
-
-            Teleport.DownloadMainMap()
-
-            local RosesFolder = ValentinesFolder:WaitForChild('Roses', 5)
-
-            if not RosesFolder then
-                return false
-            end
-            if RosesFolder:FindFirstChild('Rose') then
-                localPlayer.Character.HumanoidRootPart.CFrame = RosesFolder.Rose.PrimaryPart.CFrame + Vector3.new(0, 2, 0)
-
-                return true
-            end
-
-            return false
-        end
-        local function getHearts()
-            if not Valentines2025 then
-                return
-            end
-
-            local HeartsFolder = ValentinesFolder:WaitForChild('Hearts')
-
-            task.wait(2)
-
-            while true do
-                for i, v in HeartsFolder:GetChildren()do
-                    if v:IsA('Model') and v:FindFirstChild('Collider') then
-                        localPlayer.Character.HumanoidRootPart.CFrame = v.PrimaryPart.CFrame + Vector3.new(0, 1.5, 0)
-
-                        task.wait(0.2)
-                    end
-                end
-
-                task.wait()
-
-                if not HeartsFolder:FindFirstChildWhichIsA('Model') then
-                    return
-                end
-            end
-        end
-
-        function Valentines2025.GetAllRosesAndHearts()
-            local teleported = nil
-
-            repeat
-                teleported = getRose()
-
-                getHearts()
-
-                local RosesFolder = ValentinesFolder:FindFirstChild('Roses')
-
-                if not RosesFolder then
-                    return
-                end
-
-                task.wait(1)
-            until #RosesFolder:GetChildren() == 0
-
-            if teleported then
-                print('picked up all roses for the day')
-
-                return true
-            else
-                return false
-            end
-        end
-
-        return Valentines2025
-    end
 end
 
 if not game:IsLoaded() then
@@ -7064,6 +7098,7 @@ local selectedFood
 getgenv().auto_accept_trade = false
 getgenv().auto_trade_all_pets = false
 getgenv().auto_trade_fullgrown_neon_and_mega = false
+getgenv().auto_trade_multi_choice = false
 getgenv().auto_trade_custom = false
 getgenv().auto_trade_semi_auto = false
 getgenv().auto_trade_lowtier_pets = false
@@ -7076,7 +7111,7 @@ getgenv().auto_trade_all_neons = false
 getgenv().auto_trade_eggs = false
 getgenv().auto_trade_all_inventory = false
 getgenv().feedAgeUpPotionToggle = false
-getgenv().debugMode = true
+getgenv().debugMode = false
 getgenv().petCurrentlyFarming1 = nil
 getgenv().petCurrentlyFarming2 = nil
 
@@ -7084,13 +7119,7 @@ local Egg2Buy = getgenv().SETTINGS.PET_TO_BUY
 local PetToggle
 local TradeAllInventory
 local AllPetsToggle
-local LegendaryToggle
-local FullgrownToggle
-local AnyNeonToggle
-local TradeAllMegas
-local TradeAllNeons
-local LowTierToggle
-local RarityToggle
+local MultipleChoiceToggle
 local GiftToggle
 local ToyToggle
 local FoodToggle
@@ -7127,6 +7156,31 @@ local DailyRewardTable2 = {
     [600] = 'reward_11',
     [660] = 'reward_12',
 }
+local petRaritys = {
+    'common',
+    'uncommon',
+    'rare',
+    'ultra_rare',
+    'legendary',
+}
+local petAges = {
+    'Newborn/Reborn',
+    'Junior/Twinkle',
+    'Pre_Teen/Sparkle',
+    'Teen/Flare',
+    'Post_Teen/Sunshine',
+    'Full_Grown/Luminous',
+}
+local petNeons = {
+    'normal',
+    'neon',
+    'mega_neon',
+}
+local multipleOptionsTable = {
+    ['rarity'] = {},
+    ['ages'] = {},
+    ['neons'] = {},
+}
 local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
 local RouterClient = require(ReplicatedStorage.ClientModules.Core:WaitForChild('RouterClient'):WaitForChild('RouterClient'))
 local CollisionsClient = require(ReplicatedStorage.ClientModules.Game:WaitForChild('CollisionsClient'))
@@ -7144,7 +7198,6 @@ local Clipboard = __DARKLUA_BUNDLE_MODULES.load('k')
 local TradeLicense = __DARKLUA_BUNDLE_MODULES.load('l')
 local BulkPotions = __DARKLUA_BUNDLE_MODULES.load('m')
 local Tutorials = __DARKLUA_BUNDLE_MODULES.load('n')
-local Valentines2025 = __DARKLUA_BUNDLE_MODULES.load('o')
 local clipboard = Clipboard.new()
 local taskBoard = TaskBoard.new()
 
@@ -7193,7 +7246,7 @@ end
 local peteggs = GetInventory:GetPetEggs()
 
 local function fireButton(button)
-    print(`fire button: {button}`)
+    Misc.DebugModePrint(`fire button: {button}`)
 
     local success, errorMessage = pcall(function()
         firesignal(button.MouseButton1Down)
@@ -7202,7 +7255,7 @@ local function fireButton(button)
         task.wait(1)
     end)
 
-    print(button, success, errorMessage)
+    Misc.DebugModePrint(button, success, errorMessage)
 end
 local function findButton(text, dialogFramePassOn)
     task.wait()
@@ -7224,7 +7277,7 @@ local function findFurniture()
         return
     end
 
-    print('getting furniture ids')
+    Misc.DebugModePrint('getting furniture ids')
 
     for key, value in ClientData.get_data()[localPlayer.Name].house_interior.furniture do
         if value.id == 'basiccrib' then
@@ -7241,7 +7294,7 @@ local function findFurniture()
     end
 end
 local function buyFurniture(furnitureId)
-    print(`\u{1f4b8} No {furnitureId}, so buying it \u{1f4b8}`)
+    Misc.DebugModePrint(`\u{1f4b8} No {furnitureId}, so buying it \u{1f4b8}`)
 
     local args = {
         {
@@ -7257,7 +7310,7 @@ local function buyFurniture(furnitureId)
     ReplicatedStorage:WaitForChild('API'):WaitForChild('HousingAPI/BuyFurnitures'):InvokeServer(unpack(args))
 end
 local function grabDailyReward()
-    print('getting daily rewards')
+    Misc.DebugModePrint('getting daily rewards')
 
     local Daily = ClientData.get('daily_login_manager')
 
@@ -7265,8 +7318,8 @@ local function grabDailyReward()
         for i, v in pairs(DailyRewardTable)do
             if i < Daily.stars or i == Daily.stars then
                 if not Daily.claimed_star_rewards[v] then
-                    print('grabbing dialy reward!')
-                    print(ReplicatedStorage.API:FindFirstChild('DailyLoginAPI/ClaimStarReward'):InvokeServer(v))
+                    Misc.DebugModePrint('grabbing dialy reward!')
+                    Misc.DebugModePrint(ReplicatedStorage.API:FindFirstChild('DailyLoginAPI/ClaimStarReward'):InvokeServer(v))
                 end
             end
         end
@@ -7274,28 +7327,28 @@ local function grabDailyReward()
         for i, v in pairs(DailyRewardTable2)do
             if i < Daily.stars or i == Daily.stars then
                 if not Daily.claimed_star_rewards[v] then
-                    print('grabbing dialy reward!')
-                    print(ReplicatedStorage.API:FindFirstChild('DailyLoginAPI/ClaimStarReward'):InvokeServer(v))
+                    Misc.DebugModePrint('grabbing dialy reward!')
+                    Misc.DebugModePrint(ReplicatedStorage.API:FindFirstChild('DailyLoginAPI/ClaimStarReward'):InvokeServer(v))
                 end
             end
         end
     end
 end
 local function isMuleInGame()
-    print('checking if mule is ingame')
+    Misc.DebugModePrint('checking if mule is ingame')
 
     for _, player in Players:GetPlayers()do
         if player.Name == localPlayer.Name then
             continue
         end
         if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, player.Name) then
-            print('\u{1f911} Mule ingame \u{1f911}')
+            Misc.DebugModePrint('\u{1f911} Mule ingame \u{1f911}')
 
             return true
         end
     end
 
-    print('no mule ingame')
+    Misc.DebugModePrint('no mule ingame')
 
     return false
 end
@@ -7303,7 +7356,7 @@ local function consumeItem(potionName)
     local agePotion = Workspace.PetObjects:WaitForChild(potionName, 15)
 
     if not agePotion then
-        print('no age potion in workspace')
+        Misc.DebugModePrint('no age potion in workspace')
 
         return
     end
@@ -7363,7 +7416,7 @@ local function placeBaitOrPickUp(baitIdPasson)
         return
     end
 
-    print('placing bait or picking up')
+    Misc.DebugModePrint('placing bait or picking up')
 
     local args = {
         [1] = game:GetService('Players').LocalPlayer,
@@ -7378,7 +7431,7 @@ local function placeBaitOrPickUp(baitIdPasson)
         ReplicatedStorage.API:FindFirstChild('HousingAPI/ActivateFurniture'):InvokeServer(unpack(args))
     end)
 
-    print('FIRING BAITBOX', success, errorMessage)
+    Misc.DebugModePrint('FIRING BAITBOX', success, errorMessage)
 end
 local function agePotionCount(nameId)
     local count = 0
@@ -7468,6 +7521,15 @@ local function getAgeUpPotionPet(whichPet)
     if GetInventory:GetPetFriendship(whichPet) then
         return true
     end
+    if GetInventory:CheckForPetAndEquip('starter_egg', whichPet) then
+        return true
+    end
+    if GetInventory:CheckForPetAndEquip('dog', whichPet) then
+        return true
+    end
+    if GetInventory:CheckForPetAndEquip('cat', whichPet) then
+        return true
+    end
     if GetInventory:GetHighestGrownPet(6, whichPet) then
         return true
     end
@@ -7536,7 +7598,7 @@ local function CheckifEgg(whichPet)
         return
     end
 
-    print(`NOT A EGG SO GETTING NEW EGG {whichPet}`)
+    Misc.DebugModePrint(`NOT A EGG SO GETTING NEW EGG {whichPet}`)
     getPet(whichPet)
 
     return
@@ -7732,7 +7794,7 @@ local function CompletePetAilments(whichPet)
             return true
         elseif key == 'toilet' then
             if not LitterBox then
-                print('DOEST HAVE LITTER BOX')
+                Misc.DebugModePrint('DOEST HAVE LITTER BOX')
             end
 
             Ailments:ToiletAilment(LitterBox, petUnique)
@@ -7791,18 +7853,15 @@ local function autoFarm()
         while true do
             if getgenv().isBuyingOrAging then
                 repeat
-                    print('Stopping because its buying or aging')
+                    Misc.DebugModePrint('Stopping because its buying or aging')
                     task.wait(20)
                 until not getgenv().isBuyingOrAging
-            end
-            if Valentines2025.GetAllRosesAndHearts() then
-                Teleport.FarmingHome()
             end
             if isInMiniGame then
                 local count = 0
 
                 repeat
-                    print(`\u{23f1}\u{fe0f} Waiting for 10 secs [inside minigame] \u{23f1}\u{fe0f}`)
+                    Misc.DebugModePrint(`\u{23f1}\u{fe0f} Waiting for 10 secs [inside minigame] \u{23f1}\u{fe0f}`)
 
                     count += 10
 
@@ -7856,10 +7915,10 @@ local function autoFarm()
             end
             if not getgenv().SETTINGS.FOCUS_FARM_AGE_POTION then
                 if ClientData.get('pet_char_wrappers')[1] and table.find(peteggs, ClientData.get('pet_char_wrappers')[1].pet_id) then
-                    print('is egg, not feeding age potion')
+                    Misc.DebugModePrint('is egg, not feeding age potion')
                 else
                     if ClientData.get('pet_char_wrappers')[1] and table.find(getgenv().SETTINGS.PET_ONLY_PRIORITY_NAMES, ClientData.get('pet_char_wrappers')[1].pet_unique) then
-                        print('FEEDING AGE POTION')
+                        Misc.DebugModePrint('FEEDING AGE POTION')
                         agePotion('pet_age_potion')
                         task.wait()
                         agePotion('tiny_pet_age_potion')
@@ -7921,7 +7980,7 @@ local function SendMessage(url, message, userId)
     })
 
     for i, v in response do
-        print(i, v)
+        Misc.DebugModePrint(i, v)
     end
 end
 local function dailyLoginAppClick()
@@ -7931,7 +7990,7 @@ local function dailyLoginAppClick()
         return
     end
 
-    print('Clicking on Daily login app')
+    Misc.DebugModePrint('Clicking on Daily login app')
     localPlayer.PlayerGui.DailyLoginApp:WaitForChild('Frame')
     localPlayer.PlayerGui.DailyLoginApp.Frame:WaitForChild('Body')
     localPlayer.PlayerGui.DailyLoginApp.Frame.Body:WaitForChild('Buttons')
@@ -7939,12 +7998,12 @@ local function dailyLoginAppClick()
     for _, v in localPlayer.PlayerGui.DailyLoginApp.Frame.Body.Buttons:GetDescendants()do
         if v.Name == 'TextLabel' then
             if v.Text == 'CLOSE' then
-                print('pressed Close on daily login')
+                Misc.DebugModePrint('pressed Close on daily login')
                 fireButton(v.Parent.Parent)
                 task.wait(1)
                 grabDailyReward()
             elseif v.Text == 'CLAIM!' then
-                print('pressed claim on daily login')
+                Misc.DebugModePrint('pressed claim on daily login')
                 fireButton(v.Parent.Parent)
                 task.wait()
                 fireButton(v.Parent.Parent)
@@ -7988,10 +8047,10 @@ local function doStarterTutorial()
     if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Welcome to Adopt Me!') then
         findButton('Next')
         task.wait(2)
-        print('doing tutorial')
+        Misc.DebugModePrint('doing tutorial')
         Tutorials.CompleteNewStarterTutorial()
         task.wait(1)
-        print('doing trade license')
+        Misc.DebugModePrint('doing trade license')
         task.wait(1)
         TradeLicense.Get(ClientData, localPlayer.Name)
         findButton('Next')
@@ -8014,7 +8073,7 @@ local function pickColorTutorial()
     end
 
     fireButton(doneButton)
-    print('PICKED COLOR')
+    Misc.DebugModePrint('PICKED COLOR')
 end
 
 localPlayer.PlayerGui.HintApp.TextLabel:GetPropertyChangedSignal('Text'):Connect(function(
@@ -8054,7 +8113,7 @@ RoleChooserDialogConnection = localPlayer.PlayerGui.DialogApp.Dialog.RoleChooser
     task.wait()
 
     if localPlayer.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
-        print('Clicking on baby dialog button')
+        Misc.DebugModePrint('Clicking on baby dialog button')
         firesignal(localPlayer.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby.MouseButton1Click)
 
         if RoleChooserDialogConnection then
@@ -8076,7 +8135,7 @@ RobuxProductDialogConnection1 = localPlayer.PlayerGui.DialogApp.Dialog.RobuxProd
     for _, v in localPlayer.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Buttons:GetDescendants()do
         if v.Name == 'TextLabel' then
             if v.Text == 'No Thanks' then
-                print('clicking on no thanks for robux')
+                Misc.DebugModePrint('clicking on no thanks for robux')
                 firesignal(v.Parent.Parent.MouseButton1Click)
 
                 if RobuxProductDialogConnection1 then
@@ -8373,15 +8432,15 @@ StatsGuis2:CopyInventoryButton({
 })
 
 if localPlayer.PlayerGui.NewsApp.Enabled then
-    print('NEWSAPP ENABLED')
+    Misc.DebugModePrint('NEWSAPP ENABLED')
 
     local AbsPlay = localPlayer.PlayerGui.NewsApp:WaitForChild('EnclosingFrame'):WaitForChild('MainFrame'):WaitForChild('Contents'):WaitForChild('PlayButton')
 
     fireButton(AbsPlay)
-    print('NEWSAPP CLICKED')
+    Misc.DebugModePrint('NEWSAPP CLICKED')
 end
 if localPlayer.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
-    print('picking color')
+    Misc.DebugModePrint('picking color')
 
     newAccount = true
 
@@ -8404,14 +8463,14 @@ if localPlayer.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
     end
 end
 if not localPlayer.Character then
-    print('NO CHARACTER SO WAITING')
+    Misc.DebugModePrint('NO CHARACTER SO WAITING')
     localPlayer.CharacterAdded:Wait()
 end
 
 task.wait(10)
 
 if not ClientData.get_data()[localPlayer.Name].boolean_flags.tutorial_v3_completed and not ClientData.get_data()[localPlayer.Name].tutorial_manager.completed then
-    print('new alt detected. doing tutorial')
+    Misc.DebugModePrint('new alt detected. doing tutorial')
     doStarterTutorial()
 end
 if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
@@ -8472,7 +8531,7 @@ if not baitId then
     baitId = findBait('lures_2023_campfire_cookies')
 end
 
-print(`\u{1f36a} Found baitId: {baitId} \u{1f36a}`)
+Misc.DebugModePrint(`\u{1f36a} Found baitId: {baitId} \u{1f36a}`)
 placeBaitOrPickUp(baitId)
 task.wait(1)
 placeBaitOrPickUp(baitId)
@@ -8480,11 +8539,11 @@ placeBaitOrPickUp(baitId)
 strollerId = GetInventory:GetUniqueId('strollers', 'stroller-default')
 
 findFurniture()
-print(`Has Bed: {Bed} \u{1f6cf}\u{fe0f} | Has Piano: {Piano} \u{1f3b9} | Has LitterBox: {LitterBox} \u{1f4a9} | Has Lure: {NormalLure}`)
+Misc.DebugModePrint(`Has Bed: {Bed} \u{1f6cf}\u{fe0f} | Has Piano: {Piano} \u{1f3b9} | Has LitterBox: {LitterBox} \u{1f4a9} | Has Lure: {NormalLure}`)
 ReplicatedStorage:WaitForChild('API'):WaitForChild('HousingAPI/SetDoorLocked'):InvokeServer(true)
 
 if not localPlayer.Character then
-    print('NO CHARACTER SO WAITING')
+    Misc.DebugModePrint('NO CHARACTER SO WAITING')
     localPlayer.CharacterAdded:Wait()
 end
 if localPlayer.Character:WaitForChild('HumanoidRootPart') then
@@ -8494,7 +8553,7 @@ if localPlayer.Character:WaitForChild('HumanoidRootPart') then
     task.wait(1)
 end
 if ClientData.get('pet_char_wrappers') then
-    print('Un Equip Pet')
+    Misc.DebugModePrint('Un Equip Pet')
 
     if Misc.WaitForPetToEquip() then
         ReplicatedStorage.API['ToolAPI/Unequip']:InvokeServer(ClientData.get('pet_char_wrappers')[1].pet_unique, {})
@@ -8531,7 +8590,7 @@ if getgenv().AGE_PETS_BEFORE_FARMING then
 
     bulkPotions:SetEggTable(GetInventory:GetPetEggs())
     bulkPotions:StartAgingPets(getgenv().AGE_PETS_BEFORE_FARMING)
-    print('DONE aging pets')
+    Misc.DebugModePrint('DONE aging pets')
 end
 if getgenv().SETTINGS.PET_AUTO_FUSION then
     Fusion:MakeMega(false)
@@ -8556,9 +8615,13 @@ task.wait(2)
 
 isProHandler = if ClientData.get_data()[localPlayer.Name].subscription_manager.equip_2x_pets.active then true else false
 
-print(`Does it have Pro Handler Certificate?: {isProHandler}`)
+Misc.DebugModePrint(`Does it have Pro Handler Certificate?: {isProHandler}`)
 
 if not isProHandler then
+    if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, localPlayer.Name) then
+        return
+    end
+
     Misc.DebugModePrint('Checking inventory to see if it has Pro Handler Certificate')
 
     local proHandlerCert = GetInventory:GetUniqueId('gifts', 'subscription_2024_2x_pet_certificate')
@@ -8748,157 +8811,89 @@ AllPetsToggle = TradeTab:CreateToggle({
         end
     end,
 })
-AnyNeonToggle = TradeTab:CreateToggle({
-    Name = 'FullGrown, Newborn to luminous Neons and Megas',
+
+TradeTab:CreateSection('Multiple Choice')
+
+local petRarityDropdown = TradeTab:CreateDropdown({
+    Name = 'Select rarity(s)',
+    Options = petRaritys,
+    CurrentOption = {},
+    MultipleOptions = true,
+    Flag = 'Dropdown1',
+    Callback = function(Options)
+        multipleOptionsTable['rarity'] = Options
+    end,
+})
+local petAgeDropdown = TradeTab:CreateDropdown({
+    Name = 'Select pet age(s)',
+    Options = petAges,
+    CurrentOption = {},
+    MultipleOptions = true,
+    Flag = 'Dropdown1',
+    Callback = function(Options)
+        multipleOptionsTable['ages'] = Options
+    end,
+})
+local petNeonDropdown = TradeTab:CreateDropdown({
+    Name = 'Select pet normal or neon/mega',
+    Options = petNeons,
+    CurrentOption = {},
+    MultipleOptions = true,
+    Flag = 'Dropdown1',
+    Callback = function(Options)
+        multipleOptionsTable['neons'] = Options
+    end,
+})
+
+MultipleChoiceToggle = TradeTab:CreateToggle({
+    Name = 'START trading multi-choice pets',
     CurrentValue = false,
     Flag = 'Toggle1',
     Callback = function(Value)
-        getgenv().auto_trade_fullgrown_neon_and_mega = Value
+        getgenv().auto_trade_multi_choice = Value
 
-        while getgenv().auto_trade_fullgrown_neon_and_mega do
+        if getgenv().auto_trade_multi_choice then
+            if #multipleOptionsTable['rarity'] == 0 then
+                MultipleChoiceToggle:Set(false)
+
+                return Misc.DebugModePrint(`\u{1f6d1} didnt select any rarity`)
+            end
+            if #multipleOptionsTable['ages'] == 0 then
+                MultipleChoiceToggle:Set(false)
+
+                return Misc.DebugModePrint(`\u{1f6d1} didnt select any ages`)
+            end
+            if #multipleOptionsTable['neons'] == 0 then
+                MultipleChoiceToggle:Set(false)
+
+                return Misc.DebugModePrint(`\u{1f6d1} didnt select normal or neon or mega_neon`)
+            end
+        end
+
+        while getgenv().auto_trade_multi_choice do
             Trade:SendTradeRequest({selectedPlayer})
-            Trade:FullgrownAndAnyNeonsAndMegas()
+            Trade:MultipleOptions(multipleOptionsTable)
 
             local hasPets = Trade:AcceptNegotiationAndConfirm()
 
             if not hasPets then
-                AnyNeonToggle:Set(false)
+                MultipleChoiceToggle:Set(false)
             end
 
             task.wait()
         end
-    end,
-})
-LegendaryToggle = TradeTab:CreateToggle({
-    Name = "Auto Trade Only Legendary's",
-    CurrentValue = false,
-    Flag = 'Toggle1',
-    Callback = function(Value)
-        getgenv().auto_trade_Legendary = Value
 
-        while getgenv().auto_trade_Legendary do
-            Trade:SendTradeRequest({selectedPlayer})
-            Trade:AllPetsOfSameRarity('legendary')
+        petRarityDropdown:Set({
+            '',
+        })
+        petAgeDropdown:Set({
+            '',
+        })
+        petNeonDropdown:Set({
+            '',
+        })
 
-            local hasPets = Trade:AcceptNegotiationAndConfirm()
-
-            if not hasPets then
-                LegendaryToggle:Set(false)
-            end
-
-            task.wait()
-        end
-    end,
-})
-FullgrownToggle = TradeTab:CreateToggle({
-    Name = 'Auto Trade FullGrown, luminous Neons and Megas',
-    CurrentValue = false,
-    Flag = 'Toggle1',
-    Callback = function(Value)
-        getgenv().auto_trade_fullgrown_neon_and_mega = Value
-
-        while getgenv().auto_trade_fullgrown_neon_and_mega do
-            Trade:SendTradeRequest({selectedPlayer})
-            Trade:Fullgrown()
-
-            local hasPets = Trade:AcceptNegotiationAndConfirm()
-
-            if not hasPets then
-                FullgrownToggle:Set(false)
-            end
-
-            task.wait()
-        end
-    end,
-})
-TradeAllMegas = TradeTab:CreateToggle({
-    Name = 'Auto Trade All Megas',
-    CurrentValue = false,
-    Flag = 'Toggle1',
-    Callback = function(Value)
-        getgenv().auto_trade_all_neons = Value
-
-        while getgenv().auto_trade_all_neons do
-            Trade:SendTradeRequest({selectedPlayer})
-            Trade:AllNeons('mega_neon')
-
-            local hasPets = Trade:AcceptNegotiationAndConfirm()
-
-            if not hasPets then
-                TradeAllMegas:Set(false)
-            end
-
-            task.wait()
-        end
-    end,
-})
-TradeAllNeons = TradeTab:CreateToggle({
-    Name = 'Auto Trade All Neons',
-    CurrentValue = false,
-    Flag = 'Toggle1',
-    Callback = function(Value)
-        getgenv().auto_trade_all_neons = Value
-
-        while getgenv().auto_trade_all_neons do
-            Trade:SendTradeRequest({selectedPlayer})
-            Trade:AllNeons('neon')
-
-            local hasPets = Trade:AcceptNegotiationAndConfirm()
-
-            if not hasPets then
-                TradeAllNeons:Set(false)
-            end
-
-            task.wait()
-        end
-    end,
-})
-LowTierToggle = TradeTab:CreateToggle({
-    Name = 'Auto Trade Common to Ultra-rare and Newborn to Post-Teen',
-    CurrentValue = false,
-    Flag = 'Toggle1',
-    Callback = function(Value)
-        getgenv().auto_trade_lowtier_pets = Value
-
-        while getgenv().auto_trade_lowtier_pets do
-            if selectedPlayer then
-                Trade:SendTradeRequest({selectedPlayer})
-            end
-
-            Trade:LowTiers()
-
-            local hasPets = Trade:AcceptNegotiationAndConfirm()
-
-            if not hasPets then
-                LowTierToggle:Set(false)
-            end
-
-            task.wait()
-        end
-    end,
-})
-RarityToggle = TradeTab:CreateToggle({
-    Name = 'Auto Trade Legendary Newborn to Post-Teen',
-    CurrentValue = false,
-    Flag = 'Toggle1',
-    Callback = function(Value)
-        getgenv().auto_trade_rarity_pets = Value
-
-        while getgenv().auto_trade_rarity_pets do
-            if selectedPlayer then
-                Trade:SendTradeRequest({selectedPlayer})
-            end
-
-            Trade:NewbornToPostteen('legendary')
-
-            local hasPets = Trade:AcceptNegotiationAndConfirm()
-
-            if not hasPets then
-                RarityToggle:Set(false)
-            end
-
-            task.wait()
-        end
+        return
     end,
 })
 
@@ -9102,5 +9097,4 @@ Rayfield:SetVisibility(false)
 localPlayer.Idled:Connect(function()
     VirtualUser:ClickButton2(Vector2.new())
 end)
-ReplicatedStorage.API['TutorialAPI/ReportDiscreteStep']:FireServer('cured_dirty_ailment')
-print('Loaded. lastest update 12/30/2024  mm/dd/yyyy')
+Misc.DebugModePrint('Loaded. lastest update 2/25/2025  mm/dd/yyyy')
