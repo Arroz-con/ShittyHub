@@ -4742,7 +4742,7 @@ Check the Developer Console for more information.]],
                         ReplicatedStorage.API:FindFirstChild('TradeAPI/SendTradeRequest'):FireServer(Players[selectedPlayer])
                     end
 
-                    task.wait(10)
+                    task.wait(5)
                 until not muleBool or localPlayer.PlayerGui.TradeApp.Frame.Visible
             end
         end
@@ -5783,8 +5783,10 @@ Check the Developer Console for more information.]],
             localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
         end
         local function getUpFromSitting()
+            Misc.DebugModePrint('Exiting from seat..')
             ReplicatedStorage.API['AdoptAPI/ExitSeatStates']:FireServer()
-            task.wait(0.1)
+            task.wait(1)
+            Misc.DebugModePrint('Exited from seat')
         end
         local function babyGetFoodAndEat(FoodPassOn)
             local hasFood = false
@@ -7119,7 +7121,14 @@ local Egg2Buy = getgenv().SETTINGS.PET_TO_BUY
 local PetToggle
 local TradeAllInventory
 local AllPetsToggle
+local LegendaryToggle
+local FullgrownToggle
 local MultipleChoiceToggle
+local AnyNeonToggle
+local TradeAllMegas
+local TradeAllNeons
+local LowTierToggle
+local RarityToggle
 local GiftToggle
 local ToyToggle
 local FoodToggle
@@ -8805,6 +8814,159 @@ AllPetsToggle = TradeTab:CreateToggle({
 
             if not hasPets then
                 AllPetsToggle:Set(false)
+            end
+
+            task.wait()
+        end
+    end,
+})
+AnyNeonToggle = TradeTab:CreateToggle({
+    Name = 'FullGrown, Newborn to luminous Neons and Megas',
+    CurrentValue = false,
+    Flag = 'Toggle1',
+    Callback = function(Value)
+        getgenv().auto_trade_fullgrown_neon_and_mega = Value
+
+        while getgenv().auto_trade_fullgrown_neon_and_mega do
+            Trade:SendTradeRequest({selectedPlayer})
+            Trade:FullgrownAndAnyNeonsAndMegas()
+
+            local hasPets = Trade:AcceptNegotiationAndConfirm()
+
+            if not hasPets then
+                AnyNeonToggle:Set(false)
+            end
+
+            task.wait()
+        end
+    end,
+})
+LegendaryToggle = TradeTab:CreateToggle({
+    Name = "Auto Trade Only Legendary's",
+    CurrentValue = false,
+    Flag = 'Toggle1',
+    Callback = function(Value)
+        getgenv().auto_trade_Legendary = Value
+
+        while getgenv().auto_trade_Legendary do
+            Trade:SendTradeRequest({selectedPlayer})
+            Trade:AllPetsOfSameRarity('legendary')
+
+            local hasPets = Trade:AcceptNegotiationAndConfirm()
+
+            if not hasPets then
+                LegendaryToggle:Set(false)
+            end
+
+            task.wait()
+        end
+    end,
+})
+FullgrownToggle = TradeTab:CreateToggle({
+    Name = 'Auto Trade FullGrown, luminous Neons and Megas',
+    CurrentValue = false,
+    Flag = 'Toggle1',
+    Callback = function(Value)
+        getgenv().auto_trade_fullgrown_neon_and_mega = Value
+
+        while getgenv().auto_trade_fullgrown_neon_and_mega do
+            Trade:SendTradeRequest({selectedPlayer})
+            Trade:Fullgrown()
+
+            local hasPets = Trade:AcceptNegotiationAndConfirm()
+
+            if not hasPets then
+                FullgrownToggle:Set(false)
+            end
+
+            task.wait()
+        end
+    end,
+})
+TradeAllMegas = TradeTab:CreateToggle({
+    Name = 'Auto Trade All Megas',
+    CurrentValue = false,
+    Flag = 'Toggle1',
+    Callback = function(Value)
+        getgenv().auto_trade_all_neons = Value
+
+        while getgenv().auto_trade_all_neons do
+            Trade:SendTradeRequest({selectedPlayer})
+            Trade:AllNeons('mega_neon')
+
+            local hasPets = Trade:AcceptNegotiationAndConfirm()
+
+            if not hasPets then
+                TradeAllMegas:Set(false)
+            end
+
+            task.wait()
+        end
+    end,
+})
+TradeAllNeons = TradeTab:CreateToggle({
+    Name = 'Auto Trade All Neons',
+    CurrentValue = false,
+    Flag = 'Toggle1',
+    Callback = function(Value)
+        getgenv().auto_trade_all_neons = Value
+
+        while getgenv().auto_trade_all_neons do
+            Trade:SendTradeRequest({selectedPlayer})
+            Trade:AllNeons('neon')
+
+            local hasPets = Trade:AcceptNegotiationAndConfirm()
+
+            if not hasPets then
+                TradeAllNeons:Set(false)
+            end
+
+            task.wait()
+        end
+    end,
+})
+LowTierToggle = TradeTab:CreateToggle({
+    Name = 'Auto Trade Common to Ultra-rare and Newborn to Post-Teen',
+    CurrentValue = false,
+    Flag = 'Toggle1',
+    Callback = function(Value)
+        getgenv().auto_trade_lowtier_pets = Value
+
+        while getgenv().auto_trade_lowtier_pets do
+            if selectedPlayer then
+                Trade:SendTradeRequest({selectedPlayer})
+            end
+
+            Trade:LowTiers()
+
+            local hasPets = Trade:AcceptNegotiationAndConfirm()
+
+            if not hasPets then
+                LowTierToggle:Set(false)
+            end
+
+            task.wait()
+        end
+    end,
+})
+RarityToggle = TradeTab:CreateToggle({
+    Name = 'Auto Trade Legendary Newborn to Post-Teen',
+    CurrentValue = false,
+    Flag = 'Toggle1',
+    Callback = function(Value)
+        getgenv().auto_trade_rarity_pets = Value
+
+        while getgenv().auto_trade_rarity_pets do
+            if selectedPlayer then
+                Trade:SendTradeRequest({selectedPlayer})
+            end
+
+            Trade:NewbornToPostteen('legendary')
+
+            local hasPets = Trade:AcceptNegotiationAndConfirm()
+
+            if not hasPets then
+                RarityToggle:Set(false)
             end
 
             task.wait()
