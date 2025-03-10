@@ -5637,6 +5637,12 @@ Check the Developer Console for more information.]],
 
                 return
             end
+            if not ClientData.get('pet_char_wrappers') then
+                return
+            end
+            if not ClientData.get('pet_char_wrappers')[Ailments.whichPet] then
+                return
+            end
 
             ReplicatedStorage.API['PetAPI/ConsumeFoodObject']:FireServer(foodItem, ClientData.get('pet_char_wrappers')[Ailments.whichPet].pet_unique)
         end
@@ -5647,7 +5653,7 @@ Check the Developer Console for more information.]],
                 if v.id == FoodPassOn then
                     hasFood = true
 
-                    if not ClientData.get('pet_char_wrappers')[Ailments.whichPet] then
+                    if not ClientData.get('pet_char_wrappers') and not ClientData.get('pet_char_wrappers')[Ailments.whichPet] then
                         Misc.DebugModePrint('\u{26a0}\u{fe0f} Trying to feed pet but no pet equipped \u{26a0}\u{fe0f}')
 
                         return
@@ -7042,6 +7048,21 @@ Check the Developer Console for more information.]],
 
         return Tutorials
     end
+    function __DARKLUA_BUNDLE_MODULES.o()
+        PotatoMode = {}
+
+        function PotatoMode.DisableCastShadows()
+            for _, v in workspace:GetDescendants()do
+                if v:IsA('Part') or v:IsA('MeshPart') then
+                    v.CastShadow = false
+                    v.Material = Enum.Material.SmoothPlastic
+                    v.EnableFluidForces = false
+                end
+            end
+        end
+
+        return PotatoMode
+    end
 end
 
 if not game:IsLoaded() then
@@ -7113,7 +7134,7 @@ getgenv().auto_trade_all_neons = false
 getgenv().auto_trade_eggs = false
 getgenv().auto_trade_all_inventory = false
 getgenv().feedAgeUpPotionToggle = false
-getgenv().debugMode = false
+getgenv().debugMode = true
 getgenv().petCurrentlyFarming1 = nil
 getgenv().petCurrentlyFarming2 = nil
 
@@ -7207,6 +7228,7 @@ local Clipboard = __DARKLUA_BUNDLE_MODULES.load('k')
 local TradeLicense = __DARKLUA_BUNDLE_MODULES.load('l')
 local BulkPotions = __DARKLUA_BUNDLE_MODULES.load('m')
 local Tutorials = __DARKLUA_BUNDLE_MODULES.load('n')
+local PotatoMode = __DARKLUA_BUNDLE_MODULES.load('o')
 local clipboard = Clipboard.new()
 local taskBoard = TaskBoard.new()
 
@@ -7556,9 +7578,11 @@ local function getPet(whichPet)
             return
         end
 
-        ReplicatedStorage.API['ShopAPI/BuyItem']:InvokeServer('pets', getgenv().SETTINGS.HATCH_EGG_PRIORITY_NAMES[1], {})
+        local hasMoney = ReplicatedStorage.API['ShopAPI/BuyItem']:InvokeServer('pets', getgenv().SETTINGS.HATCH_EGG_PRIORITY_NAMES[1], {})
 
-        return
+        if hasMoney then
+            return
+        end
     end
     if getgenv().SETTINGS.PET_ONLY_PRIORITY then
         if GetInventory:PriorityPet(whichPet) then
@@ -9259,4 +9283,5 @@ Rayfield:SetVisibility(false)
 localPlayer.Idled:Connect(function()
     VirtualUser:ClickButton2(Vector2.new())
 end)
+PotatoMode.DisableCastShadows()
 Misc.DebugModePrint('Loaded. lastest update 2/25/2025  mm/dd/yyyy')

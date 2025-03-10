@@ -73,7 +73,7 @@ getgenv().SETTINGS = {
 		-- "garden_2024_mushroom_friend",
 	},
 
-	HATCH_EGG_PRIORITY = false,
+	HATCH_EGG_PRIORITY = true,
 	HATCH_EGG_PRIORITY_NAMES = { "moon_2025_egg" },
 
 	PET_ONLY_PRIORITY = true,
