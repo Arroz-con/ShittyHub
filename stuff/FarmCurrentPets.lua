@@ -6,9 +6,9 @@
 -- 	"winter_2024_ice_tray"
 -- }
 
-getgenv().AGE_PETS_BEFORE_FARMING = {
-	"valentines_2025_sweetheart_rat"
-}
+-- getgenv().AGE_PETS_BEFORE_FARMING = {
+-- 	"valentines_2025_sweetheart_rat"
+-- }
 
 getgenv().SETTINGS = {
 	WEBHOOK = {
@@ -37,9 +37,9 @@ getgenv().SETTINGS = {
 	TRADE_COLLECTOR_NAME = {"candymine8", "Tiredbloxypets"},
 	TRADE_LIST = {
 		"moon_2025_royal_egg",
-		-- "moon_2025_dimension_drifter",
-		-- "moon_2025_sunglider",
-		-- "moon_2025_puptune",
+		"moon_2025_dimension_drifter",
+		"moon_2025_sunglider",
+		"moon_2025_puptune",
 		-- "moon_2025_moonpine",
 		-- "moon_2025_hopbop",
 		-- "moon_2025_snorgle",
