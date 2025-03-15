@@ -5789,7 +5789,6 @@ Check the Developer Console for more information.]],
             localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
         end
         local function getUpFromSitting()
-            Misc.DebugModePrint('Exiting from seat..')
             ReplicatedStorage.API['AdoptAPI/ExitSeatStates']:FireServer()
             task.wait(1)
             Misc.DebugModePrint('Exited from seat')
@@ -5853,6 +5852,8 @@ Check the Developer Console for more information.]],
 
             if count >= 60 then
                 Misc.DebugModePrint(`\u{26a0}\u{fe0f} Waited too long for ailment: {ailment}, must be stuck \u{26a0}\u{fe0f}`)
+                Misc.ReEquipPet(1)
+                Misc.ReEquipPet(2)
             else
                 Misc.DebugModePrint(`\u{1f389} {ailment} task finished \u{1f389}`)
             end
@@ -8074,6 +8075,8 @@ local function onTextChangedNormalDialog()
         findButton('Next')
     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('You can customize it') then
         findButton('Start')
+    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Your subscription') then
+        findButton('Okay!')
     end
 end
 local function doStarterTutorial()
@@ -8458,6 +8461,7 @@ for i, v in debug.getupvalue(RouterClient.init, 7)do
     v.Name = i
 end
 
+setfpscap(getgenv().SETTINGS.SET_FPS)
 StatsGuis2:CopyInventoryButton({
     callback = function()
         clipboard:CopyAllInventory()
