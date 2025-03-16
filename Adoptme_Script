@@ -8458,7 +8458,7 @@ localPlayer.PlayerGui.BattlePassApp.Body:GetPropertyChangedSignal('Visible'):Con
 end)
 
 repeat
-    task.wait(5)
+    task.wait(1)
 until localPlayer.PlayerGui.NewsApp.Enabled or localPlayer.Character
 
 StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Captures, false)
