@@ -8480,7 +8480,7 @@ StatsGuis2:CopyInventoryButton({
 if localPlayer.PlayerGui.NewsApp.Enabled then
     Misc.DebugModePrint('NEWSAPP ENABLED')
 
-    local AbsPlay = localPlayer.PlayerGui.NewsApp:WaitForChild('EnclosingFrame'):WaitForChild('MainFrame'):WaitForChild('Contents'):WaitForChild('PlayButton')
+    local AbsPlay = localPlayer.PlayerGui.NewsApp:WaitForChild('EnclosingFrame'):WaitForChild('MainFrame'):WaitForChild('PlayButton')
 
     fireButton(AbsPlay)
     Misc.DebugModePrint('NEWSAPP CLICKED')
