@@ -7139,7 +7139,7 @@ getgenv().auto_trade_all_neons = false
 getgenv().auto_trade_eggs = false
 getgenv().auto_trade_all_inventory = false
 getgenv().feedAgeUpPotionToggle = false
-getgenv().debugMode = true
+getgenv().debugMode = false
 getgenv().petCurrentlyFarming1 = nil
 getgenv().petCurrentlyFarming2 = nil
 
