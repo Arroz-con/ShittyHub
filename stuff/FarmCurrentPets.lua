@@ -1,5 +1,5 @@
 getgenv().BUY_BEFORE_FARMING = {
-	{NameId = "st_patricks_2025_clover_cow", MaxAmount = 500}
+	{NameId = "st_patricks_2025_clover_cow", MaxAmount = 1000}
 }
 
 -- getgenv().OPEN_ITEMS_BEFORE_FARMING = {
