@@ -4152,6 +4152,7 @@ Check the Developer Console for more information.]],
                     ReplicatedStorage.API:FindFirstChild('PetAPI/DoNeonFusion'):InvokeServer({
                         unpack(fusionReady),
                     })
+                    task.wait()
                 end
             until #fusionReady <= 3
 
@@ -7939,11 +7940,7 @@ local function autoFarm()
                 end
             end
             if baitboxCount > 600 then
-                baitId = findBait('winter_2024_winter_deer_bait')
-
-                if not baitId then
-                    baitId = findBait('lures_2023_campfire_cookies')
-                end
+                baitId = findBait('ice_dimension_2025_ice_soup_bait')
 
                 placeBaitOrPickUp(baitId)
                 task.wait(2)
@@ -8081,6 +8078,8 @@ local function onTextChangedNormalDialog()
         findButton('Start')
     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Your subscription') then
         findButton('Okay!')
+    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('You have been refunded') then
+        findButton('Awesome!')
     end
 end
 local function doStarterTutorial()
@@ -8560,17 +8559,7 @@ end
 
 task.wait(1)
 
-if not NormalLure then
-    buyFurniture('lures_2023_normal_lure')
-end
-
-task.wait(1)
-
-baitId = findBait('winter_2024_winter_deer_bait')
-
-if not baitId then
-    baitId = findBait('lures_2023_campfire_cookies')
-end
+baitId = findBait('ice_dimension_2025_ice_soup_bait')
 
 Misc.DebugModePrint(`\u{1f36a} Found baitId: {baitId} \u{1f36a}`)
 placeBaitOrPickUp(baitId)
