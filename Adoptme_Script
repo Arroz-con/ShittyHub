@@ -7078,6 +7078,7 @@ local Players = game:GetService('Players')
 local Workspace = game:GetService('Workspace')
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
 local UserInputService = game:GetService('UserInputService')
+local VirtualInputManager = game:GetService('VirtualInputManager')
 local UserGameSettings = UserSettings():GetService('UserGameSettings')
 
 UserGameSettings.GraphicsQualityLevel = 1
@@ -7282,17 +7283,24 @@ end
 
 local peteggs = GetInventory:GetPetEggs()
 
+local function clickGuiButton(button, xOffset, yOffset)
+    if typeof(button) ~= 'Instance' then
+        return Misc.DebugModePrint('button is not a Instance')
+    end
+
+    local xOffset = xOffset or 60
+    local yOffset = yOffset or 60
+
+    task.wait()
+    VirtualInputManager:SendMouseButtonEvent(button.AbsolutePosition.X + xOffset, button.AbsolutePosition.Y + yOffset, 0, true, game, 1)
+    task.wait()
+    VirtualInputManager:SendMouseButtonEvent(button.AbsolutePosition.X + xOffset, button.AbsolutePosition.Y + yOffset, 0, false, game, 1)
+    task.wait()
+
+    return
+end
 local function fireButton(button)
-    Misc.DebugModePrint(`fire button: {button}`)
-
-    local success, errorMessage = pcall(function()
-        firesignal(button.MouseButton1Down)
-        task.wait(1)
-        firesignal(button.MouseButton1Click)
-        task.wait(1)
-    end)
-
-    Misc.DebugModePrint(button, success, errorMessage)
+    clickGuiButton(button)
 end
 local function findButton(text, dialogFramePassOn)
     task.wait()
@@ -8371,10 +8379,8 @@ localPlayer.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal('Enabled'):Conn
         localPlayer.PlayerGui.MinigameInGameApp.Body.Middle:WaitForChild('Container')
         localPlayer.PlayerGui.MinigameInGameApp.Body.Middle.Container:WaitForChild('TitleLabel')
 
-        if localPlayer.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match('MELT OFF') then
+        if localPlayer.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match('SLIPPERY SLOPE') then
             isInMiniGame = true
-
-            task.wait(2)
         end
     end
 end)
@@ -8388,7 +8394,7 @@ localPlayer.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(
                 NormalDialogChild.Info:WaitForChild('TextLabel')
                 NormalDialogChild.Info.TextLabel:GetPropertyChangedSignal('Text'):Connect(function(
                 )
-                    if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Melt Off') then
+                    if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Slippery Slope') then
                         onTextChangedMiniGame()
                     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('invitation') then
                         game:Shutdown()
@@ -8407,7 +8413,7 @@ localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal('Vi
         localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info:WaitForChild('TextLabel')
         localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal('Text'):Connect(function(
         )
-            if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Melt Off') then
+            if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Slippery Slope') then
                 onTextChangedMiniGame()
             elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('invitation') then
                 game:Shutdown()
@@ -8470,6 +8476,7 @@ for i, v in debug.getupvalue(RouterClient.init, 7)do
 end
 
 setfpscap(getgenv().SETTINGS.SET_FPS)
+Misc.DebugModePrint(`SET FPS TO {getgenv().SETTINGS.SET_FPS}`)
 StatsGuis2:CopyInventoryButton({
     callback = function()
         clipboard:CopyAllInventory()
