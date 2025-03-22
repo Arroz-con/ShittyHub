@@ -1,6 +1,6 @@
-getgenv().BUY_BEFORE_FARMING = {
-	{NameId = "st_patricks_2025_clover_cow", MaxAmount = 1000}
-}
+-- getgenv().BUY_BEFORE_FARMING = {
+-- 	{NameId = "st_patricks_2025_clover_cow", MaxAmount = 1000}
+-- }
 
 -- getgenv().OPEN_ITEMS_BEFORE_FARMING = {
 -- 	"winter_2024_ice_tray"
@@ -17,8 +17,7 @@ getgenv().SETTINGS = {
 	},
 
 	EVENT = {
-		DO_FROSTCLAW_MINIGAME = false,
-		DO_MINIGAME = false,
+		DO_MINIGAME = true,
 		IS_AUTO_BUY = false,
 		BUY = "halloween_2024_chick_box"
 	},
