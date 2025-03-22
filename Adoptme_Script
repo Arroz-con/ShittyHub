@@ -7067,6 +7067,7 @@ Check the Developer Console for more information.]],
     end
     function __DARKLUA_BUNDLE_MODULES.p()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
+        local Bypass = require(ReplicatedStorage:WaitForChild('Fsys')).load
         local Workspace = game:GetService('Workspace')
         local SlipperyEvent = {}
 
@@ -7093,10 +7094,14 @@ Check the Developer Console for more information.]],
                     [3] = v.Name,
                     [4] = v.PrimaryPart.Position,
                     [5] = 600,
+                    [6] = Bypass('LiveOpsTime').now(),
                 }
 
                 ReplicatedStorage.API['MinigameAPI/MessageServer']:FireServer(unpack(args2))
-                task.wait(0.1)
+
+                v.DecalPart.Color = Color3.fromRGB(255, 0, 0)
+
+                task.wait(0.5)
             end
         end
 
@@ -8427,9 +8432,11 @@ localPlayer.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal('Enabled'):Conn
         localPlayer.PlayerGui.MinigameInGameApp.Body.Middle.Container:WaitForChild('TitleLabel')
 
         if localPlayer.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match('SLIPPERY SLOPE') then
-            isInMiniGame = true
+            if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME then
+                isInMiniGame = true
 
-            SlipperyEvent.Start()
+                SlipperyEvent.Start()
+            end
         end
     end
 end)
