@@ -7072,7 +7072,14 @@ Check the Developer Console for more information.]],
         local SlipperyEvent = {}
 
         local function IceCubeEvent()
-            for i, v in ipairs(Workspace.StaticMap.IceCubeHillMinigameStatic.IceCubes:GetChildren())do
+            local iceCubeHillMinigameStatic = Workspace.StaticMap.IceCubeHillMinigameStatic
+            local iceCubesFolder = iceCubeHillMinigameStatic:FindFirstChild('IceCubes')
+
+            if not iceCubesFolder then
+                return
+            end
+
+            for i, v in ipairs(iceCubesFolder:GetChildren())do
                 if not v then
                     continue
                 end
@@ -7116,16 +7123,24 @@ Check the Developer Console for more information.]],
         end
 
         function SlipperyEvent.Start()
-            Workspace:WaitForChild('StaticMap')
-            Workspace.StaticMap:WaitForChild('IceCubeHillMinigameStatic')
-            Workspace.StaticMap.IceCubeHillMinigameStatic:WaitForChild('IceCubes')
+            if not Workspace:WaitForChild('StaticMap', 15) then
+                return
+            end
+            if not Workspace.StaticMap:WaitForChild('IceCubeHillMinigameStatic', 15) then
+                return
+            end
+            if not Workspace.StaticMap.IceCubeHillMinigameStatic:WaitForChild('IceCubes', 15) then
+                return
+            end
+
+            print('\u{1f431}\u{200d}\u{1f4bb} STARTING MINIGAME \u{1f431}\u{200d}\u{1f4bb}')
 
             while Workspace.StaticMap.ice_cube_hill_minigame_minigame_state.is_game_active do
                 IceCubeEvent()
                 task.wait()
             end
 
-            print('Event Done')
+            print('\u{1f389} EVENT DONE \u{1f389}')
         end
 
         return SlipperyEvent
