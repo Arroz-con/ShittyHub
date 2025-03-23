@@ -27,7 +27,7 @@ getgenv().SETTINGS = {
 	FOCUS_FARM_AGE_POTION = true, -- if true, this will only farm 1 pet an keep aging to get aging potions
 
 	ENABLE_AUTO_FARM = true,
-	SET_FPS = 10,
+	SET_FPS = 6,
 	PET_NEON_PRIORITY = true,
 	PET_AUTO_FUSION = true,
 
