@@ -7120,7 +7120,7 @@ Check the Developer Console for more information.]],
             Workspace.StaticMap:WaitForChild('IceCubeHillMinigameStatic')
             Workspace.StaticMap.IceCubeHillMinigameStatic:WaitForChild('IceCubes')
 
-            while Workspace.StaticMap.IceCubeHillMinigameStatic:FindFirstChild('IceCubes') do
+            while Workspace.StaticMap.ice_cube_hill_minigame_minigame_state.is_game_active do
                 IceCubeEvent()
                 task.wait()
             end
