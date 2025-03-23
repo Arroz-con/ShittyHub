@@ -7101,7 +7101,7 @@ Check the Developer Console for more information.]],
 
                 v.DecalPart.Color = Color3.fromRGB(255, 0, 0)
 
-                task.wait(0.5)
+                task.wait()
             end
         end
 
