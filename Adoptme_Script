@@ -7116,6 +7116,10 @@ Check the Developer Console for more information.]],
         end
 
         function SlipperyEvent.Start()
+            Workspace:WaitForChild('StaticMap')
+            Workspace.StaticMap:WaitForChild('IceCubeHillMinigameStatic')
+            Workspace.StaticMap.IceCubeHillMinigameStatic:WaitForChild('IceCubes')
+
             while Workspace.StaticMap.IceCubeHillMinigameStatic:FindFirstChild('IceCubes') do
                 IceCubeEvent()
                 task.wait()
