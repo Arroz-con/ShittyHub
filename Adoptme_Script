@@ -7072,7 +7072,7 @@ Check the Developer Console for more information.]],
         local SlipperyEvent = {}
 
         local function IceCubeEvent()
-            for i, v in Workspace.StaticMap.IceCubeHillMinigameStatic.IceCubes:GetChildren()do
+            for i, v in ipairs(Workspace.StaticMap.IceCubeHillMinigameStatic.IceCubes:GetChildren())do
                 if not v then
                     continue
                 end
@@ -7087,13 +7087,21 @@ Check the Developer Console for more information.]],
                 }
 
                 ReplicatedStorage.API['MinigameAPI/MessageServer']:FireServer(unpack(args1))
+            end
+            for i, v in ipairs(Workspace.StaticMap.IceCubeHillMinigameStatic.IceCubes:GetChildren())do
+                if not v then
+                    continue
+                end
+                if not v.PrimaryPart then
+                    continue
+                end
 
                 local args2 = {
                     [1] = 'ice_cube_hill_minigame',
                     [2] = 'attempt_hit',
                     [3] = v.Name,
                     [4] = v.PrimaryPart.Position,
-                    [5] = 600,
+                    [5] = math.random(800, 2000),
                     [6] = Bypass('LiveOpsTime').now(),
                 }
 
@@ -7101,7 +7109,9 @@ Check the Developer Console for more information.]],
 
                 v.DecalPart.Color = Color3.fromRGB(255, 0, 0)
 
-                task.wait()
+                task.wait(1.1)
+
+                break
             end
         end
 
