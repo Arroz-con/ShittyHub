@@ -40,10 +40,11 @@ getgenv().SETTINGS = {
 		-- "moon_2025_sunglider",
 		-- "moon_2025_puptune",
 		"lures_2023_blazing_lion",
+		"ice_dimension_2025_frostbite_bear",
 	},
 
 	HATCH_EGG_PRIORITY = false,
-	HATCH_EGG_PRIORITY_NAMES = { "garden_2024_egg" },
+	HATCH_EGG_PRIORITY_NAMES = { "moon_2025_egg" },
 
 	PET_ONLY_PRIORITY = false,
 	PET_ONLY_PRIORITY_NAMES = {

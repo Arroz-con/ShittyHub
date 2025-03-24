@@ -7197,7 +7197,7 @@ Check the Developer Console for more information.]],
             if not Workspace.StaticMap:WaitForChild('IceCubeHillMinigameStatic', 15) then
                 return
             end
-            if not Workspace.StaticMap.IceCubeHillMinigameStatic:WaitForChild('IceCubes', 15) then
+            if not Workspace.StaticMap.IceCubeHillMinigameStatic:WaitForChild('IceCubes', 30) then
                 return
             end
 
@@ -7267,7 +7267,7 @@ local Piano
 local NormalLure
 local LitterBox
 local strollerId
-local baitId
+local baitUnique
 local selectedPlayer
 local selectedPet
 local selectedGift
@@ -7309,6 +7309,11 @@ local RarityToggle
 local GiftToggle
 local ToyToggle
 local FoodToggle
+local baitTable = {
+    'ice_dimension_2025_shiver_cone_bait',
+    'ice_dimension_2025_subzero_popsicle_bait',
+    'ice_dimension_2025_ice_soup_bait',
+}
 local DailyRewardTable = {
     [9] = 'reward_1',
     [30] = 'reward_2',
@@ -7606,8 +7611,11 @@ local function getPlayersInGame()
 
     return playerTable
 end
-local function placeBaitOrPickUp(baitIdPasson)
+local function placeBaitOrPickUp(baitUniquePasson)
     if not NormalLure then
+        return
+    end
+    if not baitUniquePasson then
         return
     end
 
@@ -7618,7 +7626,7 @@ local function placeBaitOrPickUp(baitIdPasson)
         [2] = NormalLure,
         [3] = 'UseBlock',
         [4] = {
-            ['bait_unique'] = baitIdPasson,
+            ['bait_unique'] = baitUniquePasson,
         },
         [5] = game:GetService('Players').LocalPlayer.Character,
     }
@@ -7676,14 +7684,12 @@ local function updateStatsGui()
     TotalPotions:UpdateTextFor('TotalPotions')
     TotalBucks:UpdateTextFor('TotalBucks')
 end
-local function findBait(baitPassOn)
-    local bait
-
-    for _, v in pairs(ClientData.get_data()[localPlayer.Name].inventory.food)do
-        if v.id == baitPassOn then
-            bait = v.unique
-
-            return bait
+local function findBait()
+    for _, id in ipairs(baitTable)do
+        for _, v in pairs(ClientData.get_data()[localPlayer.Name].inventory.food)do
+            if id == v.id then
+                return v.unique
+            end
         end
     end
 
@@ -8111,11 +8117,11 @@ local function autoFarm()
                 end
             end
             if baitboxCount > 600 then
-                baitId = findBait('ice_dimension_2025_ice_soup_bait')
+                baitUnique = findBait()
 
-                placeBaitOrPickUp(baitId)
+                placeBaitOrPickUp(baitUnique)
                 task.wait(2)
-                placeBaitOrPickUp(baitId)
+                placeBaitOrPickUp(baitUnique)
 
                 baitboxCount = 0
             end
@@ -8312,6 +8318,8 @@ Workspace.StaticMap.ice_cube_hill_minigame_minigame_state.is_game_active:GetProp
     end
     if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME then
         ReplicatedStorage.API['MinigameAPI/AttemptJoin']:FireServer('ice_cube_hill_minigame', true)
+        task.wait()
+        ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('IceCubeHillMinigame')
     end
 end)
 UserInputService.InputBegan:Connect(function(input, processed)
@@ -8744,12 +8752,18 @@ end
 
 task.wait(1)
 
-baitId = findBait('ice_dimension_2025_ice_soup_bait')
+if not NormalLure then
+    buyFurniture('lures_2023_normal_lure')
+end
 
-Misc.DebugModePrint(`\u{1f36a} Found baitId: {baitId} \u{1f36a}`)
-placeBaitOrPickUp(baitId)
 task.wait(1)
-placeBaitOrPickUp(baitId)
+
+baitUnique = findBait()
+
+Misc.DebugModePrint(`\u{1f36a} Found baitUnique: {baitUnique} \u{1f36a}`)
+placeBaitOrPickUp(baitUnique)
+task.wait(1)
+placeBaitOrPickUp(baitUnique)
 
 strollerId = GetInventory:GetUniqueId('strollers', 'stroller-default')
 
