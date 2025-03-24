@@ -7843,6 +7843,9 @@ end
 local function onTextChangedMiniGame()
     if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME then
         SlipperyEvent.CreatePlatform()
+
+        isInMiniGame = true
+
         findButton('Yes')
     else
         findButton('No')
@@ -8037,12 +8040,12 @@ local function autoFarm()
                 local count = 0
 
                 repeat
-                    Misc.DebugModePrint(`\u{23f1}\u{fe0f} Waiting for 10 secs [inside minigame] \u{23f1}\u{fe0f}`)
+                    Misc.DebugModePrint(`\u{23f1}\u{fe0f} Waiting for 30 secs [inside minigame] \u{23f1}\u{fe0f}`)
 
-                    count += 10
+                    count += 30
 
-                    task.wait(10)
-                until not isInMiniGame or count > 120
+                    task.wait(30)
+                until not isInMiniGame or not Workspace.StaticMap.ice_cube_hill_minigame_minigame_state.is_game_active.Value
 
                 isInMiniGame = false
             end
@@ -8272,6 +8275,8 @@ end)
 Workspace.StaticMap.ice_cube_hill_minigame_minigame_state.is_game_active:GetPropertyChangedSignal('Value'):Connect(function(
 )
     if not Workspace.StaticMap.ice_cube_hill_minigame_minigame_state.is_game_active.Value then
+        isInMiniGame = false
+
         return
     end
     if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME then
