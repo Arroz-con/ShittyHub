@@ -42,8 +42,7 @@ do
         local settingsCreated = false
         local cachedSettings
         local request = (syn and syn.request) or (fluxus and fluxus.request) or (http and http.request) or http_request or request
-
-        local function loadSettings()
+        local loadSettings = function()
             local file = nil
 
             if isfolder and isfolder(RayfieldFolder) then
@@ -491,8 +490,7 @@ This version of Rayfield is intended for interface build ]] .. InterfaceBuild ..
         local searchOpen = false
         local Notifications = Rayfield.Notifications
         local SelectedTheme = RayfieldLibrary.Theme.Default
-
-        local function ChangeTheme(Theme)
+        local ChangeTheme = function(Theme)
             if typeof(Theme) == 'string' then
                 SelectedTheme = RayfieldLibrary.Theme[Theme]
             elseif typeof(Theme) == 'table' then
@@ -538,7 +536,7 @@ This version of Rayfield is intended for interface build ]] .. InterfaceBuild ..
                 end
             end
         end
-        local function getIcon(name)
+        local getIcon = function(name)
             name = (string.match(string.lower(name), '^%s*(.*)%s*$'))
 
             local sizedicons = Icons['48px']
@@ -566,7 +564,7 @@ This version of Rayfield is intended for interface build ]] .. InterfaceBuild ..
 
             return asset
         end
-        local function makeDraggable(
+        local makeDraggable = function(
             object,
             dragObject,
             enableTaptic,
@@ -578,10 +576,10 @@ This version of Rayfield is intended for interface build ]] .. InterfaceBuild ..
             local screenGui = object:FindFirstAncestorWhichIsA('ScreenGui')
 
             if screenGui and screenGui.IgnoreGuiInset then
-                offset += game:GetService('GuiService'):GetGuiInset()
+                offset = offset + game:GetService('GuiService'):GetGuiInset()
             end
 
-            local function connectFunctions()
+            local connectFunctions = function()
                 if dragBar and enableTaptic then
                     dragBar.MouseEnter:Connect(function()
                         if not dragging and not Hidden then
@@ -675,17 +673,17 @@ This version of Rayfield is intended for interface build ]] .. InterfaceBuild ..
                 end
             end)
         end
-        local function PackColor(Color)
+        local PackColor = function(Color)
             return {
                 R = Color.R * 255,
                 G = Color.G * 255,
                 B = Color.B * 255,
             }
         end
-        local function UnpackColor(Color)
+        local UnpackColor = function(Color)
             return Color3.fromRGB(Color.R, Color.G, Color.B)
         end
-        local function LoadConfiguration(Configuration)
+        local LoadConfiguration = function(Configuration)
             local Data = HttpService:JSONDecode(Configuration)
             local changed
 
@@ -715,7 +713,7 @@ This version of Rayfield is intended for interface build ]] .. InterfaceBuild ..
 
             return changed
         end
-        local function SaveConfiguration()
+        local SaveConfiguration = function()
             if not CEnabled or not globalLoaded then
                 return
             end
@@ -864,7 +862,7 @@ This version of Rayfield is intended for interface build ]] .. InterfaceBuild ..
             end)
         end
 
-        local function openSearch()
+        local openSearch = function()
             searchOpen = true
             Main.Search.BackgroundTransparency = 1
             Main.Search.Shadow.ImageTransparency = 1
@@ -900,7 +898,7 @@ This version of Rayfield is intended for interface build ]] .. InterfaceBuild ..
                 Size = UDim2.new(1, -35, 0, 35),
             }):Play()
         end
-        local function closeSearch()
+        local closeSearch = function()
             searchOpen = false
 
             TweenService:Create(Main.Search, TweenInfo.new(0.35, Enum.EasingStyle.Quint), {
@@ -933,7 +931,7 @@ This version of Rayfield is intended for interface build ]] .. InterfaceBuild ..
             Main.Search.Input.Text = ''
             Main.Search.Input.Interactable = false
         end
-        local function Hide(notify)
+        local Hide = function(notify)
             if MPrompt then
                 MPrompt.Title.TextColor3 = Color3.fromRGB(255, 255, 255)
                 MPrompt.Position = UDim2.new(0.5, 0, 0, -50)
@@ -959,7 +957,8 @@ This version of Rayfield is intended for interface build ]] .. InterfaceBuild ..
                 else
                     RayfieldLibrary:Notify({
                         Title = 'Interface Hidden',
-                        Content = `The interface has been hidden, you can unhide the interface by tapping {settingsTable.General.rayfieldOpen.Value or 'K'}.`,
+                        Content = string.format(
+[[The interface has been hidden, you can unhide the interface by tapping %s.]], tostring(settingsTable.General.rayfieldOpen.Value or 'K')),
                         Duration = 7,
                         Image = 4400697855,
                     })
@@ -1037,7 +1036,7 @@ This version of Rayfield is intended for interface build ]] .. InterfaceBuild ..
             Main.Visible = false
             Debounce = false
         end
-        local function Maximise()
+        local Maximise = function()
             Debounce = true
             Topbar.ChangeSize.Image = 'rbxassetid://10137941941'
 
@@ -1107,7 +1106,7 @@ This version of Rayfield is intended for interface build ]] .. InterfaceBuild ..
 
             Debounce = false
         end
-        local function Unhide()
+        local Unhide = function()
             Debounce = true
             Main.Position = UDim2.new(0.5, 0, 0.5, 0)
             Main.Visible = true
@@ -1201,7 +1200,7 @@ This version of Rayfield is intended for interface build ]] .. InterfaceBuild ..
             Minimised = false
             Debounce = false
         end
-        local function Minimise()
+        local Minimise = function()
             Debounce = true
             Topbar.ChangeSize.Image = 'rbxassetid://11036884234'
             Topbar.UIStroke.Color = SelectedTheme.ElementStroke
@@ -1262,7 +1261,7 @@ This version of Rayfield is intended for interface build ]] .. InterfaceBuild ..
 
             Debounce = false
         end
-        local function updateSettings()
+        local updateSettings = function()
             local encoded
             local success, err = pcall(function()
                 encoded = HttpService:JSONEncode(settingsTable)
@@ -1279,7 +1278,7 @@ This version of Rayfield is intended for interface build ]] .. InterfaceBuild ..
                 end
             end
         end
-        local function createSettings(window)
+        local createSettings = function(window)
             if not (writefile and isfile and readfile and isfolder and makefolder) and not useStudio then
                 if Topbar['Settings'] then
                     Topbar.Settings.Visible = false
@@ -2122,7 +2121,7 @@ This version of Rayfield is intended for interface build ]] .. InterfaceBuild ..
 
                     ColorPicker.HexInput.InputBox.Text = hex
 
-                    local function setDisplay()
+                    local setDisplay = function()
                         Main.MainPoint.Position = UDim2.new(s, -Main.MainPoint.AbsoluteSize.X / 2, 1 - v, 
 -Main.MainPoint.AbsoluteSize.Y / 2)
                         Main.MainPoint.ImageColor3 = Color3.fromHSV(h, s, v)
@@ -2173,7 +2172,7 @@ This version of Rayfield is intended for interface build ]] .. InterfaceBuild ..
                         end
                     end)
 
-                    local function rgbBoxes(box, toChange)
+                    local rgbBoxes = function(box, toChange)
                         local value = tonumber(box.Text)
                         local color = Color3.fromHSV(h, s, v)
                         local oldR, oldG, oldB = math.floor((color.R * 255) + 0.5), math.floor((color.G * 255) + 0.5), math.floor((color.B * 255) + 0.5)
@@ -2734,7 +2733,7 @@ This version of Rayfield is intended for interface build ]] .. InterfaceBuild ..
                         }):Play()
                     end)
 
-                    local function SetDropdownOptions()
+                    local SetDropdownOptions = function()
                         for _, Option in ipairs(DropdownSettings.Options)do
                             local DropdownOption = Elements.Template.Dropdown.List.Template:Clone()
 
@@ -3669,7 +3668,7 @@ This version of Rayfield is intended for interface build ]] .. InterfaceBuild ..
             return Window
         end
 
-        local function setVisibility(visibility, notify)
+        local setVisibility = function(visibility, notify)
             if Debounce then
                 return
             end
@@ -3766,7 +3765,7 @@ This version of Rayfield is intended for interface build ]] .. InterfaceBuild ..
             Topbar.Settings.MouseButton1Click:Connect(function()
                 task.spawn(function()
                     for _, OtherTabButton in ipairs(TabList:GetChildren())do
-                        if OtherTabButton.Name ~= 'Template' and OtherTabButton.ClassName == 'Frame' and OtherTabButton ~= TabButton and OtherTabButton.Name ~= 'Placeholder' then
+                        if OtherTabButton.Name ~= 'Template' and OtherTabButton.ClassName == 'Frame' and OtherTabButton.Name ~= 'Placeholder' then
                             TweenService:Create(OtherTabButton, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {
                                 BackgroundColor3 = SelectedTheme.TabBackground,
                             }):Play()
@@ -3967,9 +3966,8 @@ Check the Developer Console for more information.]],
             repeat
                 task.wait(1)
 
-                hasPetChar = if ClientData.get('pet_char_wrappers') and ClientData.get('pet_char_wrappers')[1] and ClientData.get('pet_char_wrappers')[1].pet_unique then true else false
-
-                stuckTimer += 1
+                hasPetChar = ClientData.get('pet_char_wrappers') and ClientData.get('pet_char_wrappers')[1] and ClientData.get('pet_char_wrappers')[1].pet_unique and true or false
+                stuckTimer = stuckTimer + 1
             until hasPetChar or stuckTimer > 20
 
             if stuckTimer > 20 then
@@ -4056,18 +4054,17 @@ Check the Developer Console for more information.]],
             repeat
                 task.wait(1)
 
-                hasPetChar = if ClientData.get('pet_char_wrappers') and ClientData.get('pet_char_wrappers')[whichPet] and ClientData.get('pet_char_wrappers')[whichPet]['char']then true else false
-
-                EquipTimeout += 1
+                hasPetChar = ClientData.get('pet_char_wrappers') and ClientData.get('pet_char_wrappers')[whichPet] and ClientData.get('pet_char_wrappers')[whichPet]['char'] and true or false
+                EquipTimeout = EquipTimeout + 1
             until hasPetChar or EquipTimeout >= 10
 
             if EquipTimeout >= 10 then
-                print(`\u{26a0}\u{fe0f} Waited too long for Equipping pet \u{26a0}\u{fe0f}`)
+                print('\u{26a0}\u{fe0f} Waited too long for Equipping pet \u{26a0}\u{fe0f}')
 
                 return false
             end
 
-            Misc.DebugModePrint(`ReEquipPet: success in equipping {whichPet}`)
+            Misc.DebugModePrint(string.format('ReEquipPet: success in equipping %s', tostring(whichPet)))
 
             return true
         end
@@ -4085,8 +4082,7 @@ Check the Developer Console for more information.]],
         local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
         local localPlayer = Players.LocalPlayer
         local Fusion = {}
-
-        local function getFullgrownPets(mega)
+        local getFullgrownPets = function(mega)
             local fullgrownTable = {}
 
             if mega then
@@ -4099,7 +4095,11 @@ Check the Developer Console for more information.]],
                             }
                         end
 
-                        fullgrownTable[v.id]['count'] += 1
+                        do
+                            local __DARKLUA_VAR = fullgrownTable[v.id]
+
+                            __DARKLUA_VAR['count'] = __DARKLUA_VAR['count'] + 1
+                        end
 
                         table.insert(fullgrownTable[v.id]['unique'], v.unique)
 
@@ -4118,7 +4118,11 @@ Check the Developer Console for more information.]],
                             }
                         end
 
-                        fullgrownTable[v.id]['count'] += 1
+                        do
+                            local __DARKLUA_VAR = fullgrownTable[v.id]
+
+                            __DARKLUA_VAR['count'] = __DARKLUA_VAR['count'] + 1
+                        end
 
                         table.insert(fullgrownTable[v.id]['unique'], v.unique)
 
@@ -4228,7 +4232,7 @@ Check the Developer Console for more information.]],
             return Count
         end
 
-        local function reRollCount()
+        local reRollCount = function()
             for _, v in pairs(ClientData.get('quest_manager')['daily_quest_data'])do
                 if v == 1 or v == 0 then
                     return v
@@ -4317,8 +4321,7 @@ Check the Developer Console for more information.]],
         local InventoryDB = require(ReplicatedStorage:WaitForChild('ClientDB'):WaitForChild('Inventory'):WaitForChild('InventoryDB'))
         local localPlayer = Players.LocalPlayer
         local GetInventory = {}
-
-        local function equipWhichPet(whichPet, petUnique)
+        local equipWhichPet = function(whichPet, petUnique)
             if whichPet == 1 then
                 ReplicatedStorage.API['ToolAPI/Equip']:InvokeServer(petUnique, {
                     ['equip_as_last'] = false,
@@ -4326,7 +4329,7 @@ Check the Developer Console for more information.]],
 
                 getgenv().petCurrentlyFarming1 = petUnique
 
-                print(`equipWhichPet: {getgenv().petCurrentlyFarming1}`)
+                print(string.format('equipWhichPet: %s', tostring(getgenv().petCurrentlyFarming1)))
 
                 return true
             elseif whichPet == 2 then
@@ -4336,7 +4339,7 @@ Check the Developer Console for more information.]],
 
                 getgenv().petCurrentlyFarming2 = petUnique
 
-                print(`equipWhichPet: {getgenv().petCurrentlyFarming2}`)
+                print(string.format('equipWhichPet: %s', tostring(getgenv().petCurrentlyFarming2)))
 
                 return true
             end
@@ -4422,7 +4425,7 @@ Check the Developer Console for more information.]],
             end
 
             equipWhichPet(whichPet, petUnique)
-            print(`Found pet with friendship level: {level}, equipped on: {whichPet}`)
+            print(string.format('Found pet with friendship level: %s, equipped on: %s', tostring(level), tostring(whichPet)))
 
             return true
         end
@@ -4441,14 +4444,14 @@ Check the Developer Console for more information.]],
                             continue
                         end
 
-                        print(`GetHighestGrownPet: {whichPet}`)
+                        print(string.format('GetHighestGrownPet: %s', tostring(whichPet)))
                         equipWhichPet(whichPet, pet.unique)
 
                         return true
                     end
                 end
 
-                PetageCounter -= 1
+                PetageCounter = PetageCounter - 1
 
                 if PetageCounter <= 0 and isNeon then
                     PetageCounter = age
@@ -4478,7 +4481,7 @@ Check the Developer Console for more information.]],
                                 continue
                             end
 
-                            print(`PetRarityAndAge: {whichPet}`)
+                            print(string.format('PetRarityAndAge: %s', tostring(whichPet)))
                             equipWhichPet(whichPet, pet.unique)
 
                             return true
@@ -4486,7 +4489,7 @@ Check the Developer Console for more information.]],
                     end
                 end
 
-                PetageCounter -= 1
+                PetageCounter = PetageCounter - 1
 
                 if PetageCounter <= 0 and isNeon then
                     PetageCounter = age
@@ -4575,7 +4578,7 @@ Check the Developer Console for more information.]],
                             continue
                         end
 
-                        print(`GetNeonPet: {whichPet}`)
+                        print(string.format('GetNeonPet: %s', tostring(whichPet)))
                         equipWhichPet(whichPet, v.unique)
 
                         return true
@@ -4656,14 +4659,13 @@ Check the Developer Console for more information.]],
             'dog',
             'cat',
         }
-
-        local function inActiveTrade()
+        local inActiveTrade = function()
             local timeOut = 60
 
             repeat
                 task.wait(1)
 
-                timeOut -= 1
+                timeOut = timeOut - 1
             until ClientData.get_data()[localPlayer.Name].in_active_trade or timeOut <= 0
 
             if timeOut <= 0 then
@@ -4698,13 +4700,13 @@ Check the Developer Console for more information.]],
                     end
                 end
 
-                timeOut -= 1
+                timeOut = timeOut - 1
             until not ClientData.get_data()[localPlayer.Name].in_active_trade or timeOut <= 0
 
             return true
         end
 
-        local function isMulesInGame(playerMulesTable)
+        local isMulesInGame = function(playerMulesTable)
             for _, player in Players:GetPlayers()do
                 if player.Name == localPlayer.Name then
                     continue
@@ -4716,7 +4718,7 @@ Check the Developer Console for more information.]],
 
             return false
         end
-        local function getMuleNotCurrentlyTrading(playerTable)
+        local getMuleNotCurrentlyTrading = function(playerTable)
             for _, playerName in playerTable do
                 if ClientData.get_data()[playerName] and not ClientData.get_data()[playerName].in_active_trade then
                     return playerName
@@ -4789,7 +4791,7 @@ Check the Developer Console for more information.]],
             end
         end
 
-        local function convertPetAges(options)
+        local convertPetAges = function(options)
             local agesNumber = {}
 
             for _, v in options['ages']do
@@ -4810,7 +4812,7 @@ Check the Developer Console for more information.]],
 
             return agesNumber
         end
-        local function MultipleOptionsTradeLoop(options, isNeon, isMegaNeon)
+        local MultipleOptionsTradeLoop = function(options, isNeon, isMegaNeon)
             local raritys = options['rarity']
             local ages = options['ages']
             local waitForAdded = 0
@@ -4841,7 +4843,7 @@ Check the Developer Console for more information.]],
 
                         ReplicatedStorage.API['TradeAPI/AddItemToOffer']:FireServer(pet.unique)
 
-                        waitForAdded += 1
+                        waitForAdded = waitForAdded + 1
 
                         repeat
                             task.wait(0.1)
@@ -4865,9 +4867,9 @@ Check the Developer Console for more information.]],
                 return
             end
 
-            local isNormal = if table.find(options['neons'], 'normal')then true else nil
-            local isNeon = if table.find(options['neons'], 'neon')then true else nil
-            local isMegaNeon = if table.find(options['neons'], 'mega_neon')then true else nil
+            local isNormal = table.find(options['neons'], 'normal') and true or nil
+            local isNeon = table.find(options['neons'], 'neon') and true or nil
+            local isMegaNeon = table.find(options['neons'], 'mega_neon') and true or nil
 
             options['ages'] = convertPetAges(options)
 
@@ -5133,7 +5135,7 @@ Check the Developer Console for more information.]],
             local isInventoryFull = false
 
             if typeof(namePassOn) ~= 'table' then
-                return print(`\u{1f6ab} {namePassOn} is not a table`)
+                return print(string.format('\u{1f6ab} %s is not a table', tostring(namePassOn)))
             end
             if typeof(getgenv().SETTINGS.TRADE_LIST) ~= 'table' then
                 return print('TRADE_LIST is not a table')
@@ -5259,7 +5261,7 @@ Check the Developer Console for more information.]],
             end
         end
 
-        local function SetLocationFunc(a, b, c)
+        local SetLocationFunc = function(a, b, c)
             local k = get_thread_identity()
 
             set_thread_identity(2)
@@ -5510,10 +5512,9 @@ Check the Developer Console for more information.]],
         local InventoryDB = require(ReplicatedStorage.ClientDB.Inventory.InventoryDB)
         local localPlayer = Players.LocalPlayer
         local BuyItems = {}
-
-        local function getCategory(nameId)
+        local getCategory = function(nameId)
             if typeof(nameId) ~= 'string' then
-                print(`{nameId} is not a string`)
+                print(string.format('%s is not a string', tostring(nameId)))
 
                 return
             end
@@ -5528,7 +5529,7 @@ Check the Developer Console for more information.]],
 
             return nil
         end
-        local function hasPetMaxAmount(nameId, maxAmount)
+        local hasPetMaxAmount = function(nameId, maxAmount)
             local category = getCategory(nameId)
 
             if not category then
@@ -5539,7 +5540,7 @@ Check the Developer Console for more information.]],
 
             for _, pet in ClientData.get_data()[localPlayer.Name].inventory[category]do
                 if nameId == pet.id then
-                    count += 1
+                    count = count + 1
                 end
             end
 
@@ -5549,7 +5550,7 @@ Check the Developer Console for more information.]],
 
             return 0
         end
-        local function buyPet(petNameId, howManyToBuy)
+        local buyPet = function(petNameId, howManyToBuy)
             local category = getCategory(petNameId)
 
             if not category then
@@ -5576,21 +5577,21 @@ Check the Developer Console for more information.]],
                 print(amount)
 
                 if amount == 0 then
-                    print(`has max amount of: {myPet.NameId}, skipping`)
+                    print(string.format('has max amount of: %s, skipping', tostring(myPet.NameId)))
 
                     continue
                 end
                 if not buyPet(myPet.NameId, amount) then
-                    print(`Has no money to buy more or something went wrong.`)
+                    print('Has no money to buy more or something went wrong.')
 
                     break
                 end
 
-                print(`bought all pets needed: {myPet.NameId}`)
+                print(string.format('bought all pets needed: %s', tostring(myPet.NameId)))
             end
         end
 
-        local function openBox(nameId)
+        local openBox = function(nameId)
             local category = getCategory(nameId)
 
             for _, v in ClientData.get_data()[localPlayer.Name].inventory[category]do
@@ -5603,7 +5604,7 @@ Check the Developer Console for more information.]],
 
         function BuyItems:OpenItems(nameIdTable)
             if typeof(nameIdTable) ~= 'table' then
-                return print(`{nameIdTable} is not a table`)
+                return print(string.format('%s is not a table', tostring(nameIdTable)))
             end
 
             for _, v in nameIdTable do
@@ -5630,14 +5631,14 @@ Check the Developer Console for more information.]],
 
         Ailments.whichPet = 1
 
-        local function checkPetEquipped()
+        local checkPetEquipped = function()
             if ClientData.get('pet_char_wrappers') and ClientData.get('pet_char_wrappers')[Ailments.whichPet] and ClientData.get('pet_char_wrappers')[Ailments.whichPet]['char'] then
                 return true
             end
 
             return false
         end
-        local function consumeFood()
+        local consumeFood = function()
             local foodItem = Workspace.PetObjects:WaitForChild(tostring(Workspace.PetObjects:FindFirstChildWhichIsA('Model')), 10)
 
             if not foodItem then
@@ -5651,6 +5652,7 @@ Check the Developer Console for more information.]],
 
             ReplicatedStorage.API['PetAPI/ConsumeFoodObject']:FireServer(foodItem, ClientData.get('pet_char_wrappers')[Ailments.whichPet].pet_unique)
         end
+
         local function FoodAilments(FoodPassOn)
             local hasFood = false
 
@@ -5685,10 +5687,11 @@ Check the Developer Console for more information.]],
                 FoodAilments(FoodPassOn)
             end
         end
-        local function useToolOnBaby(uniqueId)
+
+        local useToolOnBaby = function(uniqueId)
             ReplicatedStorage.API['ToolAPI/ServerUseTool']:FireServer(uniqueId, 'END')
         end
-        local function PianoAilment(pianoId, petCharOrPlayerChar)
+        local PianoAilment = function(pianoId, petCharOrPlayerChar)
             local args = {
                 localPlayer,
                 pianoId,
@@ -5703,14 +5706,14 @@ Check the Developer Console for more information.]],
                 ReplicatedStorage.API:FindFirstChild('HousingAPI/ActivateFurniture'):InvokeServer(unpack(args))
             end)
         end
-        local function furnitureAilments(nameId, petCharOrPlayerChar)
+        local furnitureAilments = function(nameId, petCharOrPlayerChar)
             task.spawn(function()
                 ReplicatedStorage.API['HousingAPI/ActivateFurniture']:InvokeServer(localPlayer, nameId, 'UseBlock', {
                     ['cframe'] = localPlayer.Character.HumanoidRootPart.CFrame,
                 }, petCharOrPlayerChar)
             end)
         end
-        local function isDoctorLoaded()
+        local isDoctorLoaded = function()
             local stuckCount = 0
             local isStuck = false
             local doctor = Workspace.HouseInteriors.furniture:FindFirstChild('Doctor', true)
@@ -5720,10 +5723,8 @@ Check the Developer Console for more information.]],
                     task.wait(1)
 
                     doctor = Workspace.HouseInteriors.furniture:FindFirstChild('Doctor', true)
-
-                    stuckCount += 1
-
-                    isStuck = if stuckCount > 30 then true else false
+                    stuckCount = stuckCount + 1
+                    isStuck = stuckCount > 30 and true or false
                 until doctor or isStuck
             end
             if isStuck then
@@ -5734,9 +5735,9 @@ Check the Developer Console for more information.]],
 
             return true
         end
-        local function getDoctorId()
+        local getDoctorId = function()
             if doctorId then
-                Misc.DebugModePrint(`Doctor Id: {doctorId}`)
+                Misc.DebugModePrint(string.format('Doctor Id: %s', tostring(doctorId)))
 
                 return
             end
@@ -5756,10 +5757,8 @@ Check the Developer Console for more information.]],
                     task.wait(1)
 
                     doctor = Workspace.HouseInteriors.furniture:FindFirstChild('Doctor', true)
-
-                    stuckCount += 1
-
-                    isStuck = if stuckCount > 30 then true else false
+                    stuckCount = stuckCount + 1
+                    isStuck = stuckCount > 30 and true or false
                 until doctor or isStuck
             end
             if isStuck then
@@ -5771,11 +5770,11 @@ Check the Developer Console for more information.]],
                 doctorId = doctor:GetAttribute('furniture_unique')
 
                 if doctorId then
-                    Misc.DebugModePrint(`Found doctor Id: {doctorId}`)
+                    Misc.DebugModePrint(string.format('Found doctor Id: %s', tostring(doctorId)))
                 end
             end
         end
-        local function useStroller()
+        local useStroller = function()
             local args = {
                 [1] = ClientData.get('pet_char_wrappers')[Ailments.whichPet].char,
                 [2] = localPlayer.Character.StrollerTool.ModelHandle.TouchToSits.TouchToSit,
@@ -5783,18 +5782,19 @@ Check the Developer Console for more information.]],
 
             ReplicatedStorage.API:FindFirstChild('AdoptAPI/UseStroller'):InvokeServer(unpack(args))
         end
-        local function babyJump()
+        local babyJump = function()
             if localPlayer.Character.Humanoid:GetState() == Enum.HumanoidStateType.Freefall then
                 return
             end
 
             localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
         end
-        local function getUpFromSitting()
+        local getUpFromSitting = function()
             ReplicatedStorage.API['AdoptAPI/ExitSeatStates']:FireServer()
             task.wait(1)
             Misc.DebugModePrint('Exited from seat')
         end
+
         local function babyGetFoodAndEat(FoodPassOn)
             local hasFood = false
 
@@ -5816,8 +5816,9 @@ Check the Developer Console for more information.]],
                 babyGetFoodAndEat(FoodPassOn)
             end
         end
-        local function pickMysteryTask(mysteryId, petUnique)
-            Misc.DebugModePrint(`mystery id: {mysteryId}`)
+
+        local pickMysteryTask = function(mysteryId, petUnique)
+            Misc.DebugModePrint(string.format('mystery id: %s', tostring(mysteryId)))
 
             local ailmentsList = {}
 
@@ -5827,41 +5828,41 @@ Check the Developer Console for more information.]],
 
             for i = 1, 3 do
                 for _, ailment in ailmentsList do
-                    Misc.DebugModePrint(`card: {i}, ailment: {ailment}`)
+                    Misc.DebugModePrint(string.format('card: %s, ailment: %s', tostring(i), tostring(ailment)))
                     ReplicatedStorage.API['AilmentsAPI/ChooseMysteryAilment']:FireServer(petUnique, 'mystery', i, ailment)
                     task.wait(3)
 
                     if not ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique][mysteryId] then
-                        Misc.DebugModePrint(`\u{1f449} Picked {ailment} ailment from mystery card \u{1f448}`)
+                        Misc.DebugModePrint(string.format('\u{1f449} Picked %s ailment from mystery card \u{1f448}', tostring(ailment)))
 
                         return
                     end
                 end
             end
         end
-        local function waitForTaskToFinish(ailment, petUnique)
-            Misc.DebugModePrint(`\u{23f3} Waiting for {string.upper(ailment)} to finish \u{23f3}`)
+        local waitForTaskToFinish = function(ailment, petUnique)
+            Misc.DebugModePrint(string.format('\u{23f3} Waiting for %s to finish \u{23f3}', tostring(string.upper(ailment))))
 
             local count = 0
 
             repeat
                 task.wait(5)
 
-                local taskActive = if ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique] and ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique][ailment]then true else false
+                local taskActive = ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique] and ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique][ailment] and true or false
 
-                count += 5
+                count = count + 5
             until not taskActive or count >= 60
 
             if count >= 60 then
-                Misc.DebugModePrint(`\u{26a0}\u{fe0f} Waited too long for ailment: {ailment}, must be stuck \u{26a0}\u{fe0f}`)
+                Misc.DebugModePrint(string.format('\u{26a0}\u{fe0f} Waited too long for ailment: %s, must be stuck \u{26a0}\u{fe0f}', tostring(ailment)))
                 Misc.ReEquipPet(1)
                 Misc.ReEquipPet(2)
             else
-                Misc.DebugModePrint(`\u{1f389} {ailment} task finished \u{1f389}`)
+                Misc.DebugModePrint(string.format('\u{1f389} %s task finished \u{1f389}', tostring(ailment)))
             end
         end
-        local function waitForJumpingToFinish(ailment, petUnique)
-            Misc.DebugModePrint(`\u{23f3} Waiting for {string.upper(ailment)} to finish \u{23f3}`)
+        local waitForJumpingToFinish = function(ailment, petUnique)
+            Misc.DebugModePrint(string.format('\u{23f3} Waiting for %s to finish \u{23f3}', tostring(string.upper(ailment))))
 
             local stuckCount = tick()
             local isStuck = false
@@ -5870,60 +5871,60 @@ Check the Developer Console for more information.]],
                 babyJump()
                 task.wait(0.2)
 
-                local taskActive = if ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique] and ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique][ailment]then true else false
+                local taskActive = ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique] and ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique][ailment] and true or false
 
                 task.wait(0.1)
 
-                isStuck = if(tick() - stuckCount) >= 120 then true else false
+                isStuck = (tick() - stuckCount) >= 120 and true or false
             until not taskActive or isStuck
 
             if isStuck then
-                Misc.DebugModePrint(`\u{26d4} {ailment} ailment is stuck so exiting task \u{26d4}`)
+                Misc.DebugModePrint(string.format('\u{26d4} %s ailment is stuck so exiting task \u{26d4}', tostring(ailment)))
             else
-                Misc.DebugModePrint(`\u{1f389} {ailment} ailment finished \u{1f389}`)
+                Misc.DebugModePrint(string.format('\u{1f389} %s ailment finished \u{1f389}', tostring(ailment)))
             end
         end
-        local function babyWaitForTaskToFinish(ailment)
-            Misc.DebugModePrint(`\u{23f3} Waiting for BABY {string.upper(ailment)} to finish \u{23f3}`)
+        local babyWaitForTaskToFinish = function(ailment)
+            Misc.DebugModePrint(string.format('\u{23f3} Waiting for BABY %s to finish \u{23f3}', tostring(string.upper(ailment))))
 
             local count = 0
 
             repeat
                 task.wait(5)
 
-                local taskActive = if ClientData.get_data()[localPlayer.Name].ailments_manager.baby_ailments and ClientData.get_data()[localPlayer.Name].ailments_manager.baby_ailments[ailment]then true else false
+                local taskActive = ClientData.get_data()[localPlayer.Name].ailments_manager.baby_ailments and ClientData.get_data()[localPlayer.Name].ailments_manager.baby_ailments[ailment] and true or false
 
-                count += 5
+                count = count + 5
             until not taskActive or count >= 60
 
             if count >= 60 then
-                Misc.DebugModePrint(`\u{26a0}\u{fe0f} Waited too long for ailment: {ailment}, must be stuck \u{26a0}\u{fe0f}`)
+                Misc.DebugModePrint(string.format('\u{26a0}\u{fe0f} Waited too long for ailment: %s, must be stuck \u{26a0}\u{fe0f}', tostring(ailment)))
             else
-                Misc.DebugModePrint(`\u{1f389} {string.upper(ailment)} task finished \u{1f389}`)
+                Misc.DebugModePrint(string.format('\u{1f389} %s task finished \u{1f389}', tostring(string.upper(ailment))))
             end
         end
 
         function Ailments:HungryAilment()
-            Misc.DebugModePrint(`\u{1f356} Doing hungry task on {Ailments.whichPet} \u{1f356}`)
+            Misc.DebugModePrint(string.format('\u{1f356} Doing hungry task on %s \u{1f356}', tostring(Ailments.whichPet)))
             Misc.ReEquipPet(Ailments.whichPet)
             FoodAilments('icecream')
-            Misc.DebugModePrint(`\u{1f356} Finished hungry task on {Ailments.whichPet} \u{1f356}`)
+            Misc.DebugModePrint(string.format('\u{1f356} Finished hungry task on %s \u{1f356}', tostring(Ailments.whichPet)))
         end
         function Ailments:ThirstyAilment()
-            Misc.DebugModePrint(`\u{1f95b} Doing thirsty task on {Ailments.whichPet} \u{1f95b}`)
+            Misc.DebugModePrint(string.format('\u{1f95b} Doing thirsty task on %s \u{1f95b}', tostring(Ailments.whichPet)))
             Misc.ReEquipPet(Ailments.whichPet)
             FoodAilments('water')
-            Misc.DebugModePrint(`\u{1f95b} Finished thirsty task on {Ailments.whichPet} \u{1f95b}`)
+            Misc.DebugModePrint(string.format('\u{1f95b} Finished thirsty task on %s \u{1f95b}', tostring(Ailments.whichPet)))
         end
         function Ailments:SickAilment()
             Misc.ReEquipPet(Ailments.whichPet)
 
             if doctorId then
-                Misc.DebugModePrint(`\u{1fa79} Doing sick task on {Ailments.whichPet} \u{1fa79}`)
+                Misc.DebugModePrint(string.format('\u{1fa79} Doing sick task on %s \u{1fa79}', tostring(Ailments.whichPet)))
                 ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('Hospital')
 
                 if not isDoctorLoaded() then
-                    Misc.DebugModePrint(`\u{1fa79}\u{26a0}\u{fe0f} Doctor didnt load on {Ailments.whichPet} \u{1fa79}\u{26a0}\u{fe0f}`)
+                    Misc.DebugModePrint(string.format('\u{1fa79}\u{26a0}\u{fe0f} Doctor didnt load on %s \u{1fa79}\u{26a0}\u{fe0f}', tostring(Ailments.whichPet)))
 
                     return
                 end
@@ -5936,14 +5937,14 @@ Check the Developer Console for more information.]],
                 }
 
                 ReplicatedStorage.API:FindFirstChild('HousingAPI/ActivateInteriorFurniture'):InvokeServer(unpack(args))
-                Misc.DebugModePrint(`\u{1fa79} SICK task Finished on {Ailments.whichPet} \u{1fa79}`)
+                Misc.DebugModePrint(string.format('\u{1fa79} SICK task Finished on %s \u{1fa79}', tostring(Ailments.whichPet)))
             else
                 getDoctorId()
             end
         end
         function Ailments:PetMeAilment()
             Misc.ReEquipPet(Ailments.whichPet)
-            Misc.DebugModePrint(`\u{1f431} Doing pet me task on {Ailments.whichPet} \u{1f431}`)
+            Misc.DebugModePrint(string.format('\u{1f431} Doing pet me task on %s \u{1f431}', tostring(Ailments.whichPet)))
 
             if not checkPetEquipped() then
                 return
@@ -5967,39 +5968,39 @@ Check the Developer Console for more information.]],
             end
 
             Bypass('RouterClient').get('AilmentsAPI/ProgressPetMeAilment'):FireServer(ClientData.get('pet_char_wrappers')[Ailments.whichPet].pet_unique)
-            Misc.DebugModePrint(`\u{1f431} RAN PETME AILMENT \u{1f431}`)
+            Misc.DebugModePrint('\u{1f431} RAN PETME AILMENT \u{1f431}')
         end
         function Ailments:SalonAilment(ailment, petUnique)
             Misc.ReEquipPet(Ailments.whichPet)
-            Misc.DebugModePrint(`\u{1f457} Doing salon task on {Ailments.whichPet} \u{1f457}`)
+            Misc.DebugModePrint(string.format('\u{1f457} Doing salon task on %s \u{1f457}', tostring(Ailments.whichPet)))
             ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('Salon')
             waitForTaskToFinish(ailment, petUnique)
-            Misc.DebugModePrint(`\u{1f457} Finished salon task on {Ailments.whichPet} \u{1f457}`)
+            Misc.DebugModePrint(string.format('\u{1f457} Finished salon task on %s \u{1f457}', tostring(Ailments.whichPet)))
         end
         function Ailments:MoonAilment(ailment, petUnique)
             Misc.ReEquipPet(Ailments.whichPet)
-            Misc.DebugModePrint(`\u{1f31a} Doing moon task on {Ailments.whichPet} \u{1f31a}`)
+            Misc.DebugModePrint(string.format('\u{1f31a} Doing moon task on %s \u{1f31a}', tostring(Ailments.whichPet)))
             ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('MoonInterior')
             waitForTaskToFinish(ailment, petUnique)
-            Misc.DebugModePrint(`\u{1f31a} Doing moon task on {Ailments.whichPet} \u{1f31a}`)
+            Misc.DebugModePrint(string.format('\u{1f31a} Doing moon task on %s \u{1f31a}', tostring(Ailments.whichPet)))
         end
         function Ailments:PizzaPartyAilment(ailment, petUnique)
             Misc.ReEquipPet(Ailments.whichPet)
-            Misc.DebugModePrint(`\u{1f355} Doing pizza party task on {Ailments.whichPet} \u{1f355}`)
+            Misc.DebugModePrint(string.format('\u{1f355} Doing pizza party task on %s \u{1f355}', tostring(Ailments.whichPet)))
             ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('PizzaShop')
             waitForTaskToFinish(ailment, petUnique)
-            Misc.DebugModePrint(`\u{1f355} Finished pizza party task on {Ailments.whichPet} \u{1f355}`)
+            Misc.DebugModePrint(string.format('\u{1f355} Finished pizza party task on %s \u{1f355}', tostring(Ailments.whichPet)))
         end
         function Ailments:SchoolAilment(ailment, petUnique)
             Misc.ReEquipPet(Ailments.whichPet)
-            Misc.DebugModePrint(`\u{1f3eb} Doing school task on {Ailments.whichPet} \u{1f3eb}`)
+            Misc.DebugModePrint(string.format('\u{1f3eb} Doing school task on %s \u{1f3eb}', tostring(Ailments.whichPet)))
             ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('School')
             waitForTaskToFinish(ailment, petUnique)
-            Misc.DebugModePrint(`\u{1f3eb} Finished school task on {Ailments.whichPet} \u{1f3eb}`)
+            Misc.DebugModePrint(string.format('\u{1f3eb} Finished school task on %s \u{1f3eb}', tostring(Ailments.whichPet)))
         end
         function Ailments:BoredAilment(pianoId, petUnique)
             Misc.ReEquipPet(Ailments.whichPet)
-            Misc.DebugModePrint(`\u{1f971} Doing bored task on {Ailments.whichPet} \u{1f971}`)
+            Misc.DebugModePrint(string.format('\u{1f971} Doing bored task on %s \u{1f971}', tostring(Ailments.whichPet)))
 
             if pianoId then
                 if not checkPetEquipped() then
@@ -6012,11 +6013,11 @@ Check the Developer Console for more information.]],
             end
 
             waitForTaskToFinish('bored', petUnique)
-            Misc.DebugModePrint(`\u{1f971} Finished bored task on {Ailments.whichPet} \u{1f971}`)
+            Misc.DebugModePrint(string.format('\u{1f971} Finished bored task on %s \u{1f971}', tostring(Ailments.whichPet)))
         end
         function Ailments:SleepyAilment(bedId, petUnique)
             Misc.ReEquipPet(Ailments.whichPet)
-            Misc.DebugModePrint(`\u{1f634} Doing sleep task on {Ailments.whichPet} \u{1f634}`)
+            Misc.DebugModePrint(string.format('\u{1f634} Doing sleep task on %s \u{1f634}', tostring(Ailments.whichPet)))
 
             if not checkPetEquipped() then
                 return
@@ -6027,7 +6028,7 @@ Check the Developer Console for more information.]],
         end
         function Ailments:DirtyAilment(showerId, petUnique)
             Misc.ReEquipPet(Ailments.whichPet)
-            Misc.DebugModePrint(`\u{1f9fc} Doing dirty task on {Ailments.whichPet} \u{1f9fc}`)
+            Misc.DebugModePrint(string.format('\u{1f9fc} Doing dirty task on %s \u{1f9fc}', tostring(Ailments.whichPet)))
 
             if not checkPetEquipped() then
                 return
@@ -6038,7 +6039,7 @@ Check the Developer Console for more information.]],
         end
         function Ailments:ToiletAilment(litterBoxId, petUnique)
             Misc.ReEquipPet(Ailments.whichPet)
-            Misc.DebugModePrint(`\u{1f6bd} Doing toilet task on {Ailments.whichPet} \u{1f6bd}`)
+            Misc.DebugModePrint(string.format('\u{1f6bd} Doing toilet task on %s \u{1f6bd}', tostring(Ailments.whichPet)))
 
             if litterBoxId then
                 if not checkPetEquipped() then
@@ -6059,14 +6060,14 @@ Check the Developer Console for more information.]],
             waitForTaskToFinish('toilet', petUnique)
         end
         function Ailments:BeachPartyAilment(petUnique)
-            Misc.DebugModePrint(`\u{1f3d6}\u{fe0f} Doing beach party on {Ailments.whichPet} \u{1f3d6}\u{fe0f}`)
+            Misc.DebugModePrint(string.format('\u{1f3d6}\u{fe0f} Doing beach party on %s \u{1f3d6}\u{fe0f}', tostring(Ailments.whichPet)))
             Teleport.BeachParty()
             task.wait(2)
             Misc.ReEquipPet(Ailments.whichPet)
             waitForTaskToFinish('beach_party', petUnique)
         end
         function Ailments:CampingAilment(petUnique)
-            Misc.DebugModePrint(`\u{1f3d5}\u{fe0f} Doing camping task on {Ailments.whichPet} \u{1f3d5}\u{fe0f}`)
+            Misc.DebugModePrint(string.format('\u{1f3d5}\u{fe0f} Doing camping task on %s \u{1f3d5}\u{fe0f}', tostring(Ailments.whichPet)))
             Teleport.CampSite()
             task.wait(2)
             Misc.ReEquipPet(Ailments.whichPet)
@@ -6074,7 +6075,7 @@ Check the Developer Console for more information.]],
         end
         function Ailments:WalkAilment(petUnique)
             Misc.ReEquipPet(Ailments.whichPet)
-            Misc.DebugModePrint(`\u{1f9ae} Doing walking task on {Ailments.whichPet} \u{1f9ae}`)
+            Misc.DebugModePrint(string.format('\u{1f9ae} Doing walking task on %s \u{1f9ae}', tostring(Ailments.whichPet)))
 
             if not checkPetEquipped() then
                 return
@@ -6091,7 +6092,7 @@ Check the Developer Console for more information.]],
         end
         function Ailments:RideAilment(strollerId, petUnique)
             Misc.ReEquipPet(Ailments.whichPet)
-            Misc.DebugModePrint(`\u{1f697} Doing ride task on {Ailments.whichPet} \u{1f697}`)
+            Misc.DebugModePrint(string.format('\u{1f697} Doing ride task on %s \u{1f697}', tostring(Ailments.whichPet)))
             ReplicatedStorage.API:FindFirstChild('ToolAPI/Equip'):InvokeServer(strollerId, {})
             task.wait(1)
 
@@ -6110,7 +6111,7 @@ Check the Developer Console for more information.]],
         end
         function Ailments:PlayAilment(ailment, petUnique)
             Misc.ReEquipPet(Ailments.whichPet)
-            Misc.DebugModePrint(`\u{1f9b4} Doing play task on {Ailments.whichPet} \u{1f9b4}`)
+            Misc.DebugModePrint(string.format('\u{1f9b4} Doing play task on %s \u{1f9b4}', tostring(Ailments.whichPet)))
 
             local toyId = GetInventory:GetUniqueId('toys', 'raw_bone')
 
@@ -6121,7 +6122,7 @@ Check the Developer Console for more information.]],
                 toyId = GetInventory:GetUniqueId('toys', 'raw_bone')
 
                 if not toyId then
-                    Misc.DebugModePrint(`\u{26a0}\u{fe0f} Doesn't have raw bone so exiting \u{26a0}\u{fe0f}`)
+                    Misc.DebugModePrint("\u{26a0}\u{fe0f} Doesn't have raw bone so exiting \u{26a0}\u{fe0f}")
 
                     return false
                 end
@@ -6141,19 +6142,19 @@ Check the Developer Console for more information.]],
                 ReplicatedStorage.API:FindFirstChild('PetObjectAPI/CreatePetObject'):InvokeServer(unpack(args))
                 task.wait(10)
 
-                local taskActive = if ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique] and ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique][ailment]then true else false
+                local taskActive = ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique] and ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique][ailment] and true or false
 
-                count += 1
+                count = count + 1
             until not taskActive or count >= 6
 
             if count >= 6 then
-                Misc.DebugModePrint(`Play task got stuck so requiping pet`)
+                Misc.DebugModePrint('Play task got stuck so requiping pet')
                 Misc.ReEquipPet(Ailments.whichPet)
 
                 return false
             end
 
-            Misc.DebugModePrint(`\u{1f9b4} Finished play task on {Ailments.whichPet} \u{1f9b4}`)
+            Misc.DebugModePrint(string.format('\u{1f9b4} Finished play task on %s \u{1f9b4}', tostring(Ailments.whichPet)))
 
             return true
         end
@@ -6162,41 +6163,41 @@ Check the Developer Console for more information.]],
             pickMysteryTask(mysteryId, petUnique)
         end
         function Ailments:BabyHungryAilment()
-            Misc.DebugModePrint(`\u{1f476}\u{1f374} Doing baby hungry task \u{1f476}\u{1f374}`)
+            Misc.DebugModePrint('\u{1f476}\u{1f374} Doing baby hungry task \u{1f476}\u{1f374}')
 
             local stuckCount = 0
 
             repeat
                 babyGetFoodAndEat('icecream')
 
-                stuckCount += 1
+                stuckCount = stuckCount + 1
 
                 task.wait(1)
             until not ClientData.get_data()[localPlayer.Name].ailments_manager.baby_ailments['hungry'] or stuckCount >= 30
 
             if stuckCount >= 30 then
-                Misc.DebugModePrint(`\u{26a0}\u{fe0f} Waited too long for Baby Hungry. Must be stuck \u{26a0}\u{fe0f}`)
+                Misc.DebugModePrint('\u{26a0}\u{fe0f} Waited too long for Baby Hungry. Must be stuck \u{26a0}\u{fe0f}')
             else
-                Misc.DebugModePrint(`\u{1f476}\u{1f374} Baby hungry task Finished \u{1f476}\u{1f374}`)
+                Misc.DebugModePrint('\u{1f476}\u{1f374} Baby hungry task Finished \u{1f476}\u{1f374}')
             end
         end
         function Ailments:BabyThirstyAilment()
-            Misc.DebugModePrint(`\u{1f476}\u{1f95b} Doing baby water task \u{1f476}\u{1f95b}`)
+            Misc.DebugModePrint('\u{1f476}\u{1f95b} Doing baby water task \u{1f476}\u{1f95b}')
 
             local stuckCount = 0
 
             repeat
                 babyGetFoodAndEat('lemonade')
 
-                stuckCount += 1
+                stuckCount = stuckCount + 1
 
                 task.wait(1)
             until not ClientData.get_data()[localPlayer.Name].ailments_manager.baby_ailments['thirsty'] or stuckCount >= 30
 
             if stuckCount >= 30 then
-                Misc.DebugModePrint(`\u{26a0}\u{fe0f} Waited too long for Baby Thirsty. Must be stuck \u{26a0}\u{fe0f}`)
+                Misc.DebugModePrint('\u{26a0}\u{fe0f} Waited too long for Baby Thirsty. Must be stuck \u{26a0}\u{fe0f}')
             else
-                Misc.DebugModePrint(`\u{1f476}\u{1f95b} Baby water task Finished \u{1f476}\u{1f95b}`)
+                Misc.DebugModePrint('\u{1f476}\u{1f95b} Baby water task Finished \u{1f476}\u{1f95b}')
             end
         end
         function Ailments:BabyBoredAilment(pianoId)
@@ -6238,14 +6239,14 @@ Check the Developer Console for more information.]],
 
         StatsGuis2.__index = StatsGuis2
 
-        local function formatTime(currentTime)
+        local formatTime = function(currentTime)
             local hours = math.floor(currentTime / 3600)
             local minutes = math.floor((currentTime % 3600) / 60)
             local seconds = currentTime % 60
 
             return string.format('%02d:%02d:%02d', hours, minutes, seconds)
         end
-        local function formatNumber(num)
+        local formatNumber = function(num)
             if num >= 1e6 then
                 return string.format('%.2fM', num / 1e6)
             elseif num >= 1e3 then
@@ -6254,18 +6255,18 @@ Check the Developer Console for more information.]],
                 return tostring(num)
             end
         end
-        local function bucksAmount()
+        local bucksAmount = function()
             return ClientData.get_data()[localPlayer.Name].money or 0
         end
-        local function eventCurrencyAmount()
+        local eventCurrencyAmount = function()
             return ClientData.get_data()[localPlayer.Name].ice_shards_2025 or 0
         end
-        local function foodItemCount(nameId)
+        local foodItemCount = function(nameId)
             local count = 0
 
             for _, v in ClientData.get_data()[localPlayer.Name].inventory.food do
                 if v.id == nameId then
-                    count += 1
+                    count = count + 1
                 end
             end
 
@@ -6368,7 +6369,7 @@ Check the Developer Console for more information.]],
 
             TimeLabel.MouseEnter:Connect(function()
                 TIME_SAVED = TimeLabel.Text
-                TimeLabel.Text = `\u{1f916} {localPlayer.Name}`
+                TimeLabel.Text = string.format('\u{1f916} %s', tostring(localPlayer.Name))
             end)
             TimeLabel.MouseLeave:Connect(function()
                 TimeLabel.Text = TIME_SAVED
@@ -6424,35 +6425,35 @@ Check the Developer Console for more information.]],
                 local currentTime = DateTime.now().UnixTimestamp
                 local timeElapsed = currentTime - amount
 
-                Players.LocalPlayer.PlayerGui.StatsGui.MainFrame.TimeLabel.Text = `\u{23f1}\u{fe0f} {formatTime(timeElapsed)}`
+                Players.LocalPlayer.PlayerGui.StatsGui.MainFrame.TimeLabel.Text = string.format('\u{23f1}\u{fe0f} %s', tostring(formatTime(timeElapsed)))
             elseif labelName == 'TempPotions' then
-                self.label.Text = `\u{1f9ea} {formatNumber(amount)}`
+                self.label.Text = string.format('\u{1f9ea} %s', tostring(formatNumber(amount)))
             elseif labelName == 'TempTinyPotions' then
-                self.label.Text = `\u{2697}\u{fe0f} {formatNumber(amount)}`
+                self.label.Text = string.format('\u{2697}\u{fe0f} %s', tostring(formatNumber(amount)))
             elseif labelName == 'TempBucks' then
-                self.label.Text = `\u{1f4b0} {formatNumber(amount)}`
+                self.label.Text = string.format('\u{1f4b0} %s', tostring(formatNumber(amount)))
             elseif labelName == 'TempEventCurrency' then
-                self.label.Text = `\u{1f9ca} {formatNumber(amount)}`
+                self.label.Text = string.format('\u{1f9ca} %s', tostring(formatNumber(amount)))
             elseif labelName == 'TotalPotions' then
                 local formatted = formatNumber(foodItemCount('pet_age_potion'))
 
-                self.label.Text = `\u{1f9ea} {formatted}`
+                self.label.Text = string.format('\u{1f9ea} %s', tostring(formatted))
             elseif labelName == 'TotalTinyPotions' then
                 local formatted = formatNumber(foodItemCount('tiny_pet_age_potion'))
 
-                self.label.Text = `\u{2697}\u{fe0f} {formatted}`
+                self.label.Text = string.format('\u{2697}\u{fe0f} %s', tostring(formatted))
             elseif labelName == 'TotalBucks' then
                 local formatted = formatNumber(bucksAmount())
 
-                self.label.Text = `\u{1f4b0} {formatted}`
+                self.label.Text = string.format('\u{1f4b0} %s', tostring(formatted))
             elseif labelName == 'TotalEventCurrency' then
                 local formatted = formatNumber(eventCurrencyAmount())
 
-                self.label.Text = `\u{1f9ca} {formatted}`
+                self.label.Text = string.format('\u{1f9ca} %s', tostring(formatted))
             elseif labelName == 'TotalWinterBaits' then
                 local formatted = formatNumber(foodItemCount('winter_2024_winter_deer_bait'))
 
-                self.label.Text = `\u{2744}\u{fe0f} {formatted}`
+                self.label.Text = string.format('\u{2744}\u{fe0f} %s', tostring(formatted))
             end
         end
 
@@ -6488,7 +6489,7 @@ Check the Developer Console for more information.]],
             return self
         end
 
-        local function getPetInfoMega(self, title)
+        local getPetInfoMega = function(self, title)
             for _, v in ClientData.get_data()[localPlayer.Name].inventory.pets do
                 for _, v2 in InventoryDB.pets do
                     if v.id == v2.id and v.properties.mega_neon then
@@ -6500,7 +6501,7 @@ Check the Developer Console for more information.]],
                 self.PetList = self.PetList .. i .. ' x' .. v .. '\n'
             end
         end
-        local function getPetInfoNeon(self, title)
+        local getPetInfoNeon = function(self, title)
             for _, v in ClientData.get_data()[localPlayer.Name].inventory.pets do
                 for _, v2 in InventoryDB.pets do
                     if v.id == v2.id and v.properties.neon then
@@ -6512,7 +6513,7 @@ Check the Developer Console for more information.]],
                 self.PetList = self.PetList .. i .. ' x' .. v .. '\n'
             end
         end
-        local function getPetInfoNormal(self, title)
+        local getPetInfoNormal = function(self, title)
             for _, v in pairs(ClientData.get_data()[localPlayer.Name].inventory.pets)do
                 for _, v2 in InventoryDB.pets do
                     if v.id == v2.id and not v.properties.neon and not v.properties.mega_neon then
@@ -6524,10 +6525,10 @@ Check the Developer Console for more information.]],
                 self.PetList = self.PetList .. i .. ' x' .. v .. '\n'
             end
         end
-        local function clearTables(self)
+        local clearTables = function(self)
             for i, v in self do
                 if typeof(v) == 'table' then
-                    print(`table {v} cleared`)
+                    print(string.format('table %s cleared', tostring(v)))
                     table.clear(v)
                 end
             end
@@ -6553,7 +6554,7 @@ Check the Developer Console for more information.]],
             self.Debounce = false
         end
 
-        local function getInventoryInfo(tab, tablePassOn)
+        local getInventoryInfo = function(tab, tablePassOn)
             for _, v in pairs(ClientData.get_data()[localPlayer.Name].inventory[tab])do
                 if v.id == 'practice_dog' then
                     continue
@@ -6562,7 +6563,12 @@ Check the Developer Console for more information.]],
                 tablePassOn[v.id] = (tablePassOn[v.id] or 0) + 1
             end
         end
-        local function getTable(self, inventoryPassOn, tablePassOn, namePassOn)
+        local getTable = function(
+            self,
+            inventoryPassOn,
+            tablePassOn,
+            namePassOn
+        )
             for i, v in tablePassOn do
                 for _, v2 in InventoryDB[inventoryPassOn]do
                     if i == tostring(v2.id) then
@@ -6571,18 +6577,18 @@ Check the Developer Console for more information.]],
                 end
             end
         end
-        local function getAgeupPotionInfo()
+        local getAgeupPotionInfo = function()
             local count = 0
 
             for _, v in pairs(ClientData.get_data()[localPlayer.Name].inventory.food)do
                 if v.id == 'pet_age_potion' then
-                    count += 1
+                    count = count + 1
                 end
             end
 
             return count
         end
-        local function addComma(amount)
+        local addComma = function(amount)
             local formatted = amount
             local k
 
@@ -6596,16 +6602,16 @@ Check the Developer Console for more information.]],
 
             return formatted
         end
-        local function getBucksInfo(self)
+        local getBucksInfo = function(self)
             local potions = getAgeupPotionInfo()
             local potionAmount = potions * 0.04
             local bucks = ClientData.get_data()[localPlayer.Name].money or 0
 
-            self.AllInventory = self.AllInventory .. `{potions} Age-up Potions + {addComma(bucks)} Bucks | Adopt me\n`
+            self.AllInventory = self.AllInventory .. string.format('%s Age-up Potions + %s Bucks | Adopt me\n', tostring(potions), tostring(addComma(bucks)))
 
             local formatNumber = string.format('%.2f', (potionAmount))
 
-            self.AllInventory = self.AllInventory .. `sell for ${tostring(formatNumber)}  {localPlayer.Name}\n\n`
+            self.AllInventory = self.AllInventory .. string.format('sell for $%s  %s\n\n', tostring(tostring(formatNumber)), tostring(localPlayer.Name))
         end
 
         function Clipboard:CopyAllInventory()
@@ -6687,7 +6693,7 @@ Check the Developer Console for more information.]],
             return self
         end
 
-        local function waitForPetToEquip()
+        local waitForPetToEquip = function()
             local startTime = DateTime.now().UnixTimestamp
             local isStuck = false
 
@@ -6731,7 +6737,7 @@ Check the Developer Console for more information.]],
                     ['use_sound_delay'] = true,
                 })
                 waitForPetToEquip()
-                print(`pet age: {self.PetAge}, and NORMAL`)
+                print(string.format('pet age: %s, and NORMAL', tostring(self.PetAge)))
 
                 return true
             end
@@ -6756,7 +6762,7 @@ Check the Developer Console for more information.]],
                     ['use_sound_delay'] = true,
                 })
                 waitForPetToEquip()
-                print(`pet age: {self.PetAge} and NEON`)
+                print(string.format('pet age: %s and NEON', tostring(self.PetAge)))
 
                 return true
             end
@@ -6767,18 +6773,18 @@ Check the Developer Console for more information.]],
             end
         end
 
-        local function agePotionCount(nameId)
+        local agePotionCount = function(nameId)
             local count = 0
 
             for _, v in ClientData.get_data()[localPlayer.Name].inventory.food do
                 if v.id == nameId then
-                    count += 1
+                    count = count + 1
                 end
             end
 
             return count
         end
-        local function consumeItem(potionName)
+        local consumeItem = function(potionName)
             local agePotion = Workspace.PetObjects:WaitForChild(potionName, 10)
 
             if not agePotion then
@@ -6796,7 +6802,7 @@ Check the Developer Console for more information.]],
                     if self.SameUnqiue == v.unique then
                         print('has same unqiue age up potion')
 
-                        self.SameUnqiueCount += 1
+                        self.SameUnqiueCount = self.SameUnqiueCount + 1
 
                         if self.SameUnqiueCount > 10 then
                             print('\u{26a0}\u{fe0f} SAME POTION HAS BEEN TRIED 10 TIMES. MUST BE STUCK \u{26a0}\u{fe0f}')
@@ -6824,20 +6830,19 @@ Check the Developer Console for more information.]],
             repeat
                 task.wait(1)
 
-                hasPetChar = if ClientData.get('pet_char_wrappers')[1] and ClientData.get('pet_char_wrappers')[1]['char']then true else false
-
-                EquipTimeout += 1
+                hasPetChar = ClientData.get('pet_char_wrappers')[1] and ClientData.get('pet_char_wrappers')[1]['char'] and true or false
+                EquipTimeout = EquipTimeout + 1
             until hasPetChar or EquipTimeout >= 30
 
             if EquipTimeout >= 30 then
-                print(`\u{26a0}\u{fe0f} Waited too long for Equipping pet so Stopping aging \u{26a0}\u{fe0f}`)
+                print('\u{26a0}\u{fe0f} Waited too long for Equipping pet so Stopping aging \u{26a0}\u{fe0f}')
 
                 self.StopAging = true
 
                 return true
             end
 
-            local isEgg = if table.find(self.EggsTable, ClientData.get('pet_char_wrappers')[1]['pet_id'])then true else false
+            local isEgg = table.find(self.EggsTable, ClientData.get('pet_char_wrappers')[1]['pet_id']) and true or false
 
             return isEgg
         end
@@ -6872,7 +6877,7 @@ Check the Developer Console for more information.]],
                     task.wait(1)
                     consumeItem('AgePotion')
 
-                    TotalPotions.Text = `\u{1f9ea} {agePotionCount('pet_age_potion')}`
+                    TotalPotions.Text = string.format('\u{1f9ea} %s', tostring(agePotionCount('pet_age_potion')))
 
                     return
                 end
@@ -6895,19 +6900,19 @@ Check the Developer Console for more information.]],
                     task.wait(1)
                     consumeItem('TinyAgePotion')
 
-                    TotalTinyPotions.Text = `\u{2697}\u{fe0f} {agePotionCount('tiny_pet_age_potion')}`
+                    TotalTinyPotions.Text = string.format('\u{2697}\u{fe0f} %s', tostring(agePotionCount('tiny_pet_age_potion')))
 
                     return
                 end
             end
 
-            TotalPotions.Text = `\u{1f9ea} {agePotionCount('pet_age_potion')}`
-            TotalTinyPotions.Text = `\u{2697}\u{fe0f} {agePotionCount('tiny_pet_age_potion')}`
+            TotalPotions.Text = string.format('\u{1f9ea} %s', tostring(agePotionCount('pet_age_potion')))
+            TotalTinyPotions.Text = string.format('\u{2697}\u{fe0f} %s', tostring(agePotionCount('tiny_pet_age_potion')))
 
             return
         end
 
-        local function hasAgeUpPotion()
+        local hasAgeUpPotion = function()
             for _, v in ClientData.get_data()[localPlayer.Name].inventory.food do
                 if v.id == 'pet_age_potion' or v.id == 'tiny_pet_age_potion' then
                     return true
@@ -6926,7 +6931,7 @@ Check the Developer Console for more information.]],
             local hasPet = self:IsPetNeon(petId)
 
             if not hasPet then
-                return print(`no {petId} so moving to next pet or stopping`)
+                return print(string.format('no %s so moving to next pet or stopping', tostring(petId)))
             end
 
             while true do
@@ -7016,7 +7021,7 @@ Check the Developer Console for more information.]],
                 print('AddHungryAilmentToTutorialEgg')
                 task.wait(5)
 
-                local function feedStartEgg(SandwichPassOn)
+                local feedStartEgg = function(SandwichPassOn)
                     local Foodid2
 
                     for _, v in pairs(ClientData.get_data()[localPlayer.Name].inventory.food)do
@@ -7101,17 +7106,17 @@ Check the Developer Console for more information.]],
             local part = Instance.new('Part')
 
             part.Position = Workspace.StaticMap.IceCubeHillMinigameStatic.HillOrientation.Position + Vector3.new(0, 15, 0)
-            part.Size = Vector3.new(200, 2, 200)
+            part.Size = Vector3.new(25, 2, 25)
             part.Anchored = true
-            part.Transparency = 1
+            part.Transparency = 0
             part.Name = 'MinigamePlatform'
             part.Parent = Workspace
         end
 
-        local function teleportToPlatform()
-            Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Workspace.MinigamePlatform.CFrame + Vector3.new(0, 5, 0)
+        local teleportToPlatform = function()
+            Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Workspace.MinigamePlatform.CFrame + Vector3.new(math.random(0, 20), 5, math.random(0, 20))
         end
-        local function getFurthestIceCube()
+        local getFurthestIceCube = function()
             local iceCubeHillMinigameStatic = Workspace.StaticMap.IceCubeHillMinigameStatic
             local iceCubesFolder = iceCubeHillMinigameStatic:FindFirstChild('IceCubes')
 
@@ -7141,7 +7146,7 @@ Check the Developer Console for more information.]],
 
             return iceCube
         end
-        local function IceCubeEvent()
+        local IceCubeEvent = function()
             local iceCubeHillMinigameStatic = Workspace.StaticMap.IceCubeHillMinigameStatic
             local iceCubesFolder = iceCubeHillMinigameStatic:FindFirstChild('IceCubes')
 
@@ -7290,7 +7295,7 @@ getgenv().auto_trade_all_neons = false
 getgenv().auto_trade_eggs = false
 getgenv().auto_trade_all_inventory = false
 getgenv().feedAgeUpPotionToggle = false
-getgenv().debugMode = true
+getgenv().debugMode = false
 getgenv().petCurrentlyFarming1 = nil
 getgenv().petCurrentlyFarming2 = nil
 
@@ -7437,27 +7442,26 @@ if #foodTable == 0 then
 end
 
 local peteggs = GetInventory:GetPetEggs()
-
-local function clickGuiButton(button, xOffset, yOffset)
+local clickGuiButton = function(button, xOffset, yOffset)
     if typeof(button) ~= 'Instance' then
         return Misc.DebugModePrint('button is not a Instance')
     end
 
-    local xOffset = xOffset or 60
-    local yOffset = yOffset or 60
+    local xOffset1 = xOffset or 60
+    local yOffset1 = yOffset or 60
 
     task.wait()
-    VirtualInputManager:SendMouseButtonEvent(button.AbsolutePosition.X + xOffset, button.AbsolutePosition.Y + yOffset, 0, true, game, 1)
+    VirtualInputManager:SendMouseButtonEvent(button.AbsolutePosition.X + xOffset1, button.AbsolutePosition.Y + yOffset1, 0, true, game, 1)
     task.wait()
-    VirtualInputManager:SendMouseButtonEvent(button.AbsolutePosition.X + xOffset, button.AbsolutePosition.Y + yOffset, 0, false, game, 1)
+    VirtualInputManager:SendMouseButtonEvent(button.AbsolutePosition.X + xOffset1, button.AbsolutePosition.Y + yOffset1, 0, false, game, 1)
     task.wait()
 
     return
 end
-local function fireButton(button)
+local fireButton = function(button)
     clickGuiButton(button)
 end
-local function findButton(text, dialogFramePassOn)
+local findButton = function(text, dialogFramePassOn)
     task.wait()
 
     local dialogFrame = dialogFramePassOn or 'NormalDialog'
@@ -7472,7 +7476,7 @@ local function findButton(text, dialogFramePassOn)
         end
     end
 end
-local function findFurniture()
+local findFurniture = function()
     if Bed and Piano and LitterBox and NormalLure then
         return
     end
@@ -7493,8 +7497,8 @@ local function findFurniture()
         end
     end
 end
-local function buyFurniture(furnitureId)
-    Misc.DebugModePrint(`\u{1f4b8} No {furnitureId}, so buying it \u{1f4b8}`)
+local buyFurniture = function(furnitureId)
+    Misc.DebugModePrint(string.format('\u{1f4b8} No %s, so buying it \u{1f4b8}', tostring(furnitureId)))
 
     local args = {
         {
@@ -7509,7 +7513,7 @@ local function buyFurniture(furnitureId)
 
     ReplicatedStorage:WaitForChild('API'):WaitForChild('HousingAPI/BuyFurnitures'):InvokeServer(unpack(args))
 end
-local function grabDailyReward()
+local grabDailyReward = function()
     Misc.DebugModePrint('getting daily rewards')
 
     local Daily = ClientData.get('daily_login_manager')
@@ -7534,7 +7538,7 @@ local function grabDailyReward()
         end
     end
 end
-local function isMuleInGame()
+local isMuleInGame = function()
     Misc.DebugModePrint('checking if mule is ingame')
 
     for _, player in Players:GetPlayers()do
@@ -7552,7 +7556,7 @@ local function isMuleInGame()
 
     return false
 end
-local function consumeItem(potionName)
+local consumeItem = function(potionName)
     local agePotion = Workspace.PetObjects:WaitForChild(potionName, 15)
 
     if not agePotion then
@@ -7563,14 +7567,14 @@ local function consumeItem(potionName)
 
     ReplicatedStorage.API['PetAPI/ConsumeFoodObject']:FireServer(agePotion, ClientData.get('pet_char_wrappers')[1].pet_unique)
 end
-local function agePotion(FoodPassOn)
+local agePotion = function(FoodPassOn)
     for _, v in pairs(ClientData.get_data()[localPlayer.Name].inventory.food)do
         if v.id == FoodPassOn then
             if not ClientData.get('pet_char_wrappers')[1] then
                 return
             end
 
-            local isEgg = if table.find(peteggs, ClientData.get('pet_char_wrappers')[1]['pet_id'])then true else false
+            local isEgg = table.find(peteggs, ClientData.get('pet_char_wrappers')[1]['pet_id']) and true or false
             local petAge = ClientData.get('pet_char_wrappers')[1]['pet_progression']['age']
 
             if isEgg or petAge >= 6 then
@@ -7594,7 +7598,7 @@ local function agePotion(FoodPassOn)
 
     return
 end
-local function getPlayersInGame()
+local getPlayersInGame = function()
     local playerTable = {
         'Nothing',
     }
@@ -7611,7 +7615,7 @@ local function getPlayersInGame()
 
     return playerTable
 end
-local function placeBaitOrPickUp(baitUniquePasson)
+local placeBaitOrPickUp = function(baitUniquePasson)
     if not NormalLure then
         return
     end
@@ -7636,21 +7640,21 @@ local function placeBaitOrPickUp(baitUniquePasson)
 
     Misc.DebugModePrint('FIRING BAITBOX', success, errorMessage)
 end
-local function agePotionCount(nameId)
+local agePotionCount = function(nameId)
     local count = 0
 
     for _, v in ClientData.get_data()[localPlayer.Name].inventory.food do
         if v.id == nameId then
-            count += 1
+            count = count + 1
         end
     end
 
     return count
 end
-local function eventCurrencyAmount()
+local eventCurrencyAmount = function()
     return ClientData.get_data()[localPlayer.Name].ice_shards_2025 or 0
 end
-local function updateStatsGui()
+local updateStatsGui = function()
     StatsGuis2:UpdateTextFor('TimeLabel', startTime)
 
     potionsGained = agePotionCount('pet_age_potion') - startPotionAmount
@@ -7672,8 +7676,7 @@ local function updateStatsGui()
     local currentEventCurrency = eventCurrencyAmount()
 
     if currentEventCurrency >= startEventCurrencyAmount then
-        eventCurrencyGained += (currentEventCurrency - startEventCurrencyAmount)
-
+        eventCurrencyGained = eventCurrencyGained + (currentEventCurrency - startEventCurrencyAmount)
         startEventCurrencyAmount = currentEventCurrency
     elseif currentEventCurrency < startEventCurrencyAmount then
         startEventCurrencyAmount = currentEventCurrency
@@ -7684,7 +7687,7 @@ local function updateStatsGui()
     TotalPotions:UpdateTextFor('TotalPotions')
     TotalBucks:UpdateTextFor('TotalBucks')
 end
-local function findBait()
+local findBait = function()
     for _, id in ipairs(baitTable)do
         for _, v in pairs(ClientData.get_data()[localPlayer.Name].inventory.food)do
             if id == v.id then
@@ -7695,7 +7698,7 @@ local function findBait()
 
     return nil
 end
-local function getEgg(whichPet)
+local getEgg = function(whichPet)
     for _, v in pairs(ClientData.get_data()[localPlayer.Name].inventory.pets)do
         if v.id == Egg2Buy and v.id ~= 'practice_dog' and v.properties.age ~= 6 and not v.properties.mega_neon then
             ReplicatedStorage.API['ToolAPI/Equip']:InvokeServer(v.unique, {
@@ -7718,7 +7721,7 @@ local function getEgg(whichPet)
 
     return false
 end
-local function getAgeUpPotionPet(whichPet)
+local getAgeUpPotionPet = function(whichPet)
     if GetInventory:GetPetFriendship(whichPet) then
         return true
     end
@@ -7737,7 +7740,7 @@ local function getAgeUpPotionPet(whichPet)
 
     return false
 end
-local function getPet(whichPet)
+local getPet = function(whichPet)
     if getgenv().SETTINGS.FOCUS_FARM_AGE_POTION then
         if getAgeUpPotionPet(whichPet) then
             return
@@ -7783,14 +7786,14 @@ local function getPet(whichPet)
         return
     end
 end
-local function removeHandHeldItem()
+local removeHandHeldItem = function()
     local tool = localPlayer.Character:FindFirstChildOfClass('Tool')
 
     if tool then
         ReplicatedStorage.API['ToolAPI/Unequip']:InvokeServer(tool.unique.Value, {})
     end
 end
-local function CheckifEgg(whichPet)
+local CheckifEgg = function(whichPet)
     if not ClientData.get('pet_char_wrappers') then
         return
     end
@@ -7801,12 +7804,12 @@ local function CheckifEgg(whichPet)
         return
     end
 
-    Misc.DebugModePrint(`NOT A EGG SO GETTING NEW EGG {whichPet}`)
+    Misc.DebugModePrint(string.format('NOT A EGG SO GETTING NEW EGG %s', tostring(whichPet)))
     getPet(whichPet)
 
     return
 end
-local function SwitchOutFullyGrown(whichPet)
+local SwitchOutFullyGrown = function(whichPet)
     if getgenv().isBuyingOrAging then
         return
     end
@@ -7834,7 +7837,7 @@ local function SwitchOutFullyGrown(whichPet)
         return
     end
 end
-local function ClickTradeWindowPopUps()
+local ClickTradeWindowPopUps = function()
     for _, v in pairs(localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Buttons:GetDescendants())do
         if v.Name == 'TextLabel' then
             if v.Text == 'Accept' or v.Text == 'Okay' or v.Text == 'Next' or v.Text == 'I understand' or v.Text == 'No' then
@@ -7854,7 +7857,7 @@ local function ClickTradeWindowPopUps()
         end
     end
 end
-local function removeGameOverButton()
+local removeGameOverButton = function()
     task.wait()
     localPlayer.PlayerGui.MinigameRewardsApp.Body.Button:WaitForChild('Face')
 
@@ -7868,7 +7871,7 @@ local function removeGameOverButton()
         end
     end
 end
-local function onTextChangedMiniGame()
+local onTextChangedMiniGame = function()
     if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME and hasStartedFarming then
         SlipperyEvent.CreatePlatform()
 
@@ -7879,7 +7882,7 @@ local function onTextChangedMiniGame()
         findButton('No')
     end
 end
-local function completeBabyAilments()
+local completeBabyAilments = function()
     if isInMiniGame then
         return
     end
@@ -7908,7 +7911,7 @@ local function completeBabyAilments()
         end
     end
 end
-local function CompletePetAilments(whichPet)
+local CompletePetAilments = function(whichPet)
     if isInMiniGame then
         return
     end
@@ -7945,7 +7948,7 @@ local function CompletePetAilments(whichPet)
     local petcount = 0
 
     for _ in ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique]do
-        petcount += 1
+        petcount = petcount + 1
     end
 
     if petcount == 0 then
@@ -8051,7 +8054,7 @@ local function CompletePetAilments(whichPet)
 
     return false
 end
-local function autoFarm()
+local autoFarm = function()
     if not getgenv().auto_farm then
         return
     end
@@ -8077,9 +8080,9 @@ local function autoFarm()
                 local count = 0
 
                 repeat
-                    Misc.DebugModePrint(`\u{23f1}\u{fe0f} Waiting for 10 secs [inside minigame] \u{23f1}\u{fe0f}`)
+                    Misc.DebugModePrint('\u{23f1}\u{fe0f} Waiting for 10 secs [inside minigame] \u{23f1}\u{fe0f}')
 
-                    count += 10
+                    count = count + 10
 
                     task.wait(10)
                 until not isInMiniGame or not Workspace.StaticMap.ice_cube_hill_minigame_minigame_state.is_game_active.Value
@@ -8140,7 +8143,7 @@ local function autoFarm()
 
             updateStatsGui()
 
-            baitboxCount += 2
+            baitboxCount = baitboxCount + 2
 
             task.wait(2)
         end
@@ -8162,8 +8165,8 @@ local function autoFarm()
     task.wait()
     TradeLicense.Get(ClientData, localPlayer.Name)
 end
-local function startAutoFarm()
-    counter += 1
+local startAutoFarm = function()
+    counter = counter + 1
 
     if getgenv().SETTINGS.ENABLE_AUTO_FARM then
         findFurniture()
@@ -8175,13 +8178,13 @@ local function startAutoFarm()
         end
     end
 end
-local function SendMessage(url, message, userId)
+local SendMessage = function(url, message, userId)
     local http = game:GetService('HttpService')
     local headers = {
         ['Content-Type'] = 'application/json',
     }
     local data = {
-        ['content'] = `<@{userId}> {message}`,
+        ['content'] = string.format('<@%s> %s', tostring(userId), tostring(message)),
     }
     local body = http:JSONEncode(data)
     local response = request({
@@ -8195,7 +8198,7 @@ local function SendMessage(url, message, userId)
         Misc.DebugModePrint(i, v)
     end
 end
-local function dailyLoginAppClick()
+local dailyLoginAppClick = function()
     task.wait(0.1)
 
     if not localPlayer.PlayerGui.DailyLoginApp.Enabled then
@@ -8224,7 +8227,7 @@ local function dailyLoginAppClick()
         end
     end
 end
-local function onTextChangedNormalDialog()
+local onTextChangedNormalDialog = function()
     if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Be careful when trading') then
         findButton('Okay')
     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('This trade seems unbalanced') then
@@ -8259,7 +8262,7 @@ local function onTextChangedNormalDialog()
         findButton('Awesome!')
     end
 end
-local function doStarterTutorial()
+local doStarterTutorial = function()
     if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Welcome to Adopt Me!') then
         findButton('Next')
         task.wait(2)
@@ -8272,7 +8275,7 @@ local function doStarterTutorial()
         findButton('Next')
     end
 end
-local function pickColorTutorial()
+local pickColorTutorial = function()
     local colorButton = localPlayer.PlayerGui.DialogApp.Dialog.ThemeColorDialog:WaitForChild('Info'):WaitForChild('Response'):WaitForChild('ColorTemplate')
 
     if not colorButton then
@@ -8303,7 +8306,7 @@ localPlayer.PlayerGui.HintApp.TextLabel:GetPropertyChangedSignal('Text'):Connect
 
         local amount = text:split('+')[2]:split(' ')[1]
 
-        bucksGained += tonumber(amount)
+        bucksGained = bucksGained + tonumber(amount)
 
         TempBucks:UpdateTextFor('TempBucks', bucksGained)
     elseif localPlayer.PlayerGui.HintApp.TextLabel.Text:match('aged up!') then
@@ -8662,7 +8665,7 @@ for i, v in debug.getupvalue(RouterClient.init, 7)do
 end
 
 setfpscap(getgenv().SETTINGS.SET_FPS)
-Misc.DebugModePrint(`SET FPS TO {getgenv().SETTINGS.SET_FPS}`)
+Misc.DebugModePrint(string.format('SET FPS TO %s', tostring(getgenv().SETTINGS.SET_FPS)))
 StatsGuis2:CopyInventoryButton({
     callback = function()
         clipboard:CopyAllInventory()
@@ -8760,7 +8763,7 @@ task.wait(1)
 
 baitUnique = findBait()
 
-Misc.DebugModePrint(`\u{1f36a} Found baitUnique: {baitUnique} \u{1f36a}`)
+Misc.DebugModePrint(string.format('\u{1f36a} Found baitUnique: %s \u{1f36a}', tostring(baitUnique)))
 placeBaitOrPickUp(baitUnique)
 task.wait(1)
 placeBaitOrPickUp(baitUnique)
@@ -8768,7 +8771,7 @@ placeBaitOrPickUp(baitUnique)
 strollerId = GetInventory:GetUniqueId('strollers', 'stroller-default')
 
 findFurniture()
-Misc.DebugModePrint(`Has Bed: {Bed} \u{1f6cf}\u{fe0f} | Has Piano: {Piano} \u{1f3b9} | Has LitterBox: {LitterBox} \u{1f4a9} | Has Lure: {NormalLure}`)
+Misc.DebugModePrint(string.format('Has Bed: %s \u{1f6cf}\u{fe0f} | Has Piano: %s \u{1f3b9} | Has LitterBox: %s \u{1f4a9} | Has Lure: %s', tostring(Bed), tostring(Piano), tostring(LitterBox), tostring(NormalLure)))
 ReplicatedStorage:WaitForChild('API'):WaitForChild('HousingAPI/SetDoorLocked'):InvokeServer(true)
 
 if not localPlayer.Character then
@@ -8842,9 +8845,9 @@ end
 
 task.wait(2)
 
-isProHandler = if ClientData.get_data()[localPlayer.Name].subscription_manager.equip_2x_pets.active then true else false
+isProHandler = ClientData.get_data()[localPlayer.Name].subscription_manager.equip_2x_pets.active and true or false
 
-Misc.DebugModePrint(`Does it have Pro Handler Certificate?: {isProHandler}`)
+Misc.DebugModePrint(string.format('Does it have Pro Handler Certificate?: %s', tostring(isProHandler)))
 
 if not isProHandler then
     if not table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, localPlayer.Name) then
@@ -8856,9 +8859,9 @@ if not isProHandler then
             ReplicatedStorage.API['ToolAPI/ServerUseTool']:FireServer(proHandlerCert, 'END', true)
             task.wait(1)
 
-            isProHandler = if ClientData.get_data()[localPlayer.Name].subscription_manager.equip_2x_pets.active then true else false
+            isProHandler = ClientData.get_data()[localPlayer.Name].subscription_manager.equip_2x_pets.active and true or false
 
-            Misc.DebugModePrint(`Does it have Pro Handler Certificate now?: {isProHandler}`)
+            Misc.DebugModePrint(string.format('Does it have Pro Handler Certificate now?: %s', tostring(isProHandler)))
         end
     end
 end
@@ -9236,17 +9239,17 @@ MultipleChoiceToggle = TradeTab:CreateToggle({
             if #multipleOptionsTable['rarity'] == 0 then
                 MultipleChoiceToggle:Set(false)
 
-                return Misc.DebugModePrint(`\u{1f6d1} didnt select any rarity`)
+                return Misc.DebugModePrint('\u{1f6d1} didnt select any rarity')
             end
             if #multipleOptionsTable['ages'] == 0 then
                 MultipleChoiceToggle:Set(false)
 
-                return Misc.DebugModePrint(`\u{1f6d1} didnt select any ages`)
+                return Misc.DebugModePrint('\u{1f6d1} didnt select any ages')
             end
             if #multipleOptionsTable['neons'] == 0 then
                 MultipleChoiceToggle:Set(false)
 
-                return Misc.DebugModePrint(`\u{1f6d1} didnt select normal or neon or mega_neon`)
+                return Misc.DebugModePrint('\u{1f6d1} didnt select normal or neon or mega_neon')
             end
         end
 
