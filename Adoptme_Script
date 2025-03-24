@@ -4056,7 +4056,7 @@ Check the Developer Console for more information.]],
             repeat
                 task.wait(1)
 
-                hasPetChar = if ClientData.get('pet_char_wrappers')[whichPet] and ClientData.get('pet_char_wrappers')[whichPet]['char']then true else false
+                hasPetChar = if ClientData.get('pet_char_wrappers') and ClientData.get('pet_char_wrappers')[whichPet] and ClientData.get('pet_char_wrappers')[whichPet]['char']then true else false
 
                 EquipTimeout += 1
             until hasPetChar or EquipTimeout >= 10
@@ -5951,11 +5951,21 @@ Check the Developer Console for more information.]],
 
             ReplicatedStorage.API['AdoptAPI/FocusPet']:FireServer(ClientData.get('pet_char_wrappers')[Ailments.whichPet].char)
             task.wait(1)
+
+            if not checkPetEquipped() then
+                return
+            end
+
             ReplicatedStorage.API['PetAPI/ReplicateActivePerformances']:FireServer(ClientData.get('pet_char_wrappers')[Ailments.whichPet].char, {
                 ['FocusPet'] = true,
                 ['Petting'] = true,
             })
             task.wait(1)
+
+            if not checkPetEquipped() then
+                return
+            end
+
             Bypass('RouterClient').get('AilmentsAPI/ProgressPetMeAilment'):FireServer(ClientData.get('pet_char_wrappers')[Ailments.whichPet].pet_unique)
             Misc.DebugModePrint(`\u{1f431} RAN PETME AILMENT \u{1f431}`)
         end
@@ -6032,8 +6042,10 @@ Check the Developer Console for more information.]],
 
             if litterBoxId then
                 if not checkPetEquipped() then
-                    furnitureAilments(litterBoxId, ClientData.get('pet_char_wrappers')[Ailments.whichPet]['char'])
+                    return
                 end
+
+                furnitureAilments(litterBoxId, ClientData.get('pet_char_wrappers')[Ailments.whichPet]['char'])
             else
                 Teleport.DownloadMainMap()
                 task.wait(5)
@@ -6071,7 +6083,7 @@ Check the Developer Console for more information.]],
             ReplicatedStorage.API['AdoptAPI/HoldBaby']:FireServer(ClientData.get('pet_char_wrappers')[Ailments.whichPet]['char'])
             waitForJumpingToFinish('walk', petUnique)
 
-            if checkPetEquipped() then
+            if not checkPetEquipped() then
                 return
             end
 
@@ -6082,11 +6094,15 @@ Check the Developer Console for more information.]],
             Misc.DebugModePrint(`\u{1f697} Doing ride task on {Ailments.whichPet} \u{1f697}`)
             ReplicatedStorage.API:FindFirstChild('ToolAPI/Equip'):InvokeServer(strollerId, {})
             task.wait(1)
-            checkPetEquipped()
+
+            if not checkPetEquipped() then
+                return
+            end
+
             useStroller()
             waitForJumpingToFinish('ride', petUnique)
 
-            if checkPetEquipped() then
+            if not checkPetEquipped() then
                 return
             end
 
@@ -6242,7 +6258,7 @@ Check the Developer Console for more information.]],
             return ClientData.get_data()[localPlayer.Name].money or 0
         end
         local function eventCurrencyAmount()
-            return 0
+            return ClientData.get_data()[localPlayer.Name].ice_shards_2025 or 0
         end
         local function foodItemCount(nameId)
             local count = 0
@@ -6416,7 +6432,7 @@ Check the Developer Console for more information.]],
             elseif labelName == 'TempBucks' then
                 self.label.Text = `\u{1f4b0} {formatNumber(amount)}`
             elseif labelName == 'TempEventCurrency' then
-                self.label.Text = `\u{2764}\u{fe0f} {formatNumber(amount)}`
+                self.label.Text = `\u{1f9ca} {formatNumber(amount)}`
             elseif labelName == 'TotalPotions' then
                 local formatted = formatNumber(foodItemCount('pet_age_potion'))
 
@@ -6432,7 +6448,7 @@ Check the Developer Console for more information.]],
             elseif labelName == 'TotalEventCurrency' then
                 local formatted = formatNumber(eventCurrencyAmount())
 
-                self.label.Text = `\u{2764}\u{fe0f} {formatted}`
+                self.label.Text = `\u{1f9ca} {formatted}`
             elseif labelName == 'TotalWinterBaits' then
                 local formatted = formatNumber(foodItemCount('winter_2024_winter_deer_bait'))
 
@@ -7234,6 +7250,7 @@ local isInMiniGame = false
 
 getgenv().isBuyingOrAging = false
 
+local hasStartedFarming = false
 local discordCooldown = false
 local debounce = false
 local startTime
@@ -7273,7 +7290,7 @@ getgenv().auto_trade_all_neons = false
 getgenv().auto_trade_eggs = false
 getgenv().auto_trade_all_inventory = false
 getgenv().feedAgeUpPotionToggle = false
-getgenv().debugMode = false
+getgenv().debugMode = true
 getgenv().petCurrentlyFarming1 = nil
 getgenv().petCurrentlyFarming2 = nil
 
@@ -7846,7 +7863,7 @@ local function removeGameOverButton()
     end
 end
 local function onTextChangedMiniGame()
-    if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME then
+    if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME and hasStartedFarming then
         SlipperyEvent.CreatePlatform()
 
         isInMiniGame = true
@@ -7857,6 +7874,10 @@ local function onTextChangedMiniGame()
     end
 end
 local function completeBabyAilments()
+    if isInMiniGame then
+        return
+    end
+
     for key, _ in ClientData.get_data()[localPlayer.Name].ailments_manager.baby_ailments do
         if key == 'hungry' then
             Ailments:BabyHungryAilment()
@@ -7882,6 +7903,9 @@ local function completeBabyAilments()
     end
 end
 local function CompletePetAilments(whichPet)
+    if isInMiniGame then
+        return
+    end
     if not isProHandler and whichPet == 2 then
         return
     end
@@ -8032,6 +8056,8 @@ local function autoFarm()
     Teleport.PlaceFloorAtBeachParty()
     Teleport.FarmingHome()
     task.delay(30, function()
+        hasStartedFarming = true
+
         local baitboxCount = 0
 
         while true do
@@ -8045,11 +8071,11 @@ local function autoFarm()
                 local count = 0
 
                 repeat
-                    Misc.DebugModePrint(`\u{23f1}\u{fe0f} Waiting for 30 secs [inside minigame] \u{23f1}\u{fe0f}`)
+                    Misc.DebugModePrint(`\u{23f1}\u{fe0f} Waiting for 10 secs [inside minigame] \u{23f1}\u{fe0f}`)
 
-                    count += 30
+                    count += 10
 
-                    task.wait(30)
+                    task.wait(10)
                 until not isInMiniGame or not Workspace.StaticMap.ice_cube_hill_minigame_minigame_state.is_game_active.Value
 
                 isInMiniGame = false
