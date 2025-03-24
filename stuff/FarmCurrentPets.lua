@@ -6,9 +6,9 @@
 -- 	"winter_2024_ice_tray"
 -- }
 
-getgenv().AGE_PETS_BEFORE_FARMING = {
-	"st_patricks_2025_clover_cow"
-}
+-- getgenv().AGE_PETS_BEFORE_FARMING = {
+-- 	"st_patricks_2025_clover_cow"
+-- }
 
 getgenv().SETTINGS = {
 	WEBHOOK = {
@@ -17,8 +17,7 @@ getgenv().SETTINGS = {
 	},
 
 	EVENT = {
-		DO_FROSTCLAW_MINIGAME = false,
-		DO_MINIGAME = false,
+		DO_MINIGAME = true,
 		IS_AUTO_BUY = false,
 		BUY = "halloween_2024_chick_box"
 	},
@@ -28,7 +27,7 @@ getgenv().SETTINGS = {
 	FOCUS_FARM_AGE_POTION = false, -- if true, this will only farm 1 pet an keep aging to get aging potions
 
 	ENABLE_AUTO_FARM = true,
-	SET_FPS = 3,
+	SET_FPS = 6,
 	PET_NEON_PRIORITY = true,
 	PET_AUTO_FUSION = true,
 
