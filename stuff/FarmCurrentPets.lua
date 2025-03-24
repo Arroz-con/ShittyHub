@@ -62,6 +62,11 @@ getgenv().SETTINGS = {
 
 		"lures_2023_blazing_lion",
 		"ice_dimension_2025_frostbite_bear",
+		"ice_dimension_2025_shiver_wolf",
+		"ice_dimension_2025_subzero_scorpion",
+		"ice_dimension_2025_snowy_mammoth",
+		"ice_dimension_2025_chilly_penguin",
+		"ice_dimension_2025_icy_porcupine",
 		-- "winter_2024_bauble_buddies",
 		-- "winter_2024_berry_cool_cube",
 		-- "halloween_2024_pumpkin_friend",
@@ -78,11 +83,6 @@ getgenv().SETTINGS = {
 
 	PET_ONLY_PRIORITY = true,
 	PET_ONLY_PRIORITY_NAMES = {
-		"ice_dimension_2025_shiver_wolf",
-		"ice_dimension_2025_subzero_scorpion",
-		"ice_dimension_2025_snowy_mammoth",
-		"ice_dimension_2025_chilly_penguin",
-		"ice_dimension_2025_icy_porcupine",
 		"st_patricks_2025_clover_cow",
 		"moon_2025_puptune",
 		"moon_2025_sunglider",
