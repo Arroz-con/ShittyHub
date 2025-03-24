@@ -1,6 +1,6 @@
--- getgenv().BUY_BEFORE_FARMING = {
--- 	{NameId = "valentines_2025_sweetheart_rat", MaxAmount = 500}
--- }
+getgenv().BUY_BEFORE_FARMING = {
+	{NameId = "ice_dimension_2025_shiver_cone_bait", MaxAmount = 1000}
+}
 
 -- getgenv().OPEN_ITEMS_BEFORE_FARMING = {
 -- 	"winter_2024_ice_tray"
