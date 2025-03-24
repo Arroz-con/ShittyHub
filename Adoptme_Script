@@ -5630,6 +5630,13 @@ Check the Developer Console for more information.]],
 
         Ailments.whichPet = 1
 
+        local function checkPetEquipped()
+            if ClientData.get('pet_char_wrappers') and ClientData.get('pet_char_wrappers')[Ailments.whichPet] and ClientData.get('pet_char_wrappers')[Ailments.whichPet]['char'] then
+                return true
+            end
+
+            return false
+        end
         local function consumeFood()
             local foodItem = Workspace.PetObjects:WaitForChild(tostring(Workspace.PetObjects:FindFirstChildWhichIsA('Model')), 10)
 
@@ -5638,10 +5645,7 @@ Check the Developer Console for more information.]],
 
                 return
             end
-            if not ClientData.get('pet_char_wrappers') then
-                return
-            end
-            if not ClientData.get('pet_char_wrappers')[Ailments.whichPet] then
+            if not checkPetEquipped() then
                 return
             end
 
@@ -5654,12 +5658,9 @@ Check the Developer Console for more information.]],
                 if v.id == FoodPassOn then
                     hasFood = true
 
-                    if not ClientData.get('pet_char_wrappers') and not ClientData.get('pet_char_wrappers')[Ailments.whichPet] then
+                    if not checkPetEquipped() then
                         Misc.DebugModePrint('\u{26a0}\u{fe0f} Trying to feed pet but no pet equipped \u{26a0}\u{fe0f}')
 
-                        return
-                    end
-                    if not ClientData.get('pet_char_wrappers')[Ailments.whichPet].pet_unique then
                         return
                     end
 
@@ -5943,6 +5944,11 @@ Check the Developer Console for more information.]],
         function Ailments:PetMeAilment()
             Misc.ReEquipPet(Ailments.whichPet)
             Misc.DebugModePrint(`\u{1f431} Doing pet me task on {Ailments.whichPet} \u{1f431}`)
+
+            if not checkPetEquipped() then
+                return
+            end
+
             ReplicatedStorage.API['AdoptAPI/FocusPet']:FireServer(ClientData.get('pet_char_wrappers')[Ailments.whichPet].char)
             task.wait(1)
             ReplicatedStorage.API['PetAPI/ReplicateActivePerformances']:FireServer(ClientData.get('pet_char_wrappers')[Ailments.whichPet].char, {
@@ -5986,7 +5992,7 @@ Check the Developer Console for more information.]],
             Misc.DebugModePrint(`\u{1f971} Doing bored task on {Ailments.whichPet} \u{1f971}`)
 
             if pianoId then
-                if not ClientData.get('pet_char_wrappers') and ClientData.get('pet_char_wrappers')[Ailments.whichPet] and ClientData.get('pet_char_wrappers')[Ailments.whichPet]['char'] then
+                if not checkPetEquipped() then
                     return
                 end
 
@@ -6002,7 +6008,7 @@ Check the Developer Console for more information.]],
             Misc.ReEquipPet(Ailments.whichPet)
             Misc.DebugModePrint(`\u{1f634} Doing sleep task on {Ailments.whichPet} \u{1f634}`)
 
-            if not ClientData.get('pet_char_wrappers') and not ClientData.get('pet_char_wrappers')[Ailments.whichPet] and ClientData.get('pet_char_wrappers')[Ailments.whichPet]['char'] then
+            if not checkPetEquipped() then
                 return
             end
 
@@ -6013,7 +6019,7 @@ Check the Developer Console for more information.]],
             Misc.ReEquipPet(Ailments.whichPet)
             Misc.DebugModePrint(`\u{1f9fc} Doing dirty task on {Ailments.whichPet} \u{1f9fc}`)
 
-            if not ClientData.get('pet_char_wrappers') and not ClientData.get('pet_char_wrappers')[Ailments.whichPet] and ClientData.get('pet_char_wrappers')[Ailments.whichPet]['char'] then
+            if not checkPetEquipped() then
                 return
             end
 
@@ -6025,11 +6031,9 @@ Check the Developer Console for more information.]],
             Misc.DebugModePrint(`\u{1f6bd} Doing toilet task on {Ailments.whichPet} \u{1f6bd}`)
 
             if litterBoxId then
-                if not ClientData.get('pet_char_wrappers')[Ailments.whichPet] and ClientData.get('pet_char_wrappers')[Ailments.whichPet]['char'] then
-                    return
+                if not checkPetEquipped() then
+                    furnitureAilments(litterBoxId, ClientData.get('pet_char_wrappers')[Ailments.whichPet]['char'])
                 end
-
-                furnitureAilments(litterBoxId, ClientData.get('pet_char_wrappers')[Ailments.whichPet]['char'])
             else
                 Teleport.DownloadMainMap()
                 task.wait(5)
@@ -6060,14 +6064,14 @@ Check the Developer Console for more information.]],
             Misc.ReEquipPet(Ailments.whichPet)
             Misc.DebugModePrint(`\u{1f9ae} Doing walking task on {Ailments.whichPet} \u{1f9ae}`)
 
-            if not ClientData.get('pet_char_wrappers')[Ailments.whichPet] and ClientData.get('pet_char_wrappers')[Ailments.whichPet]['char'] then
+            if not checkPetEquipped() then
                 return
             end
 
             ReplicatedStorage.API['AdoptAPI/HoldBaby']:FireServer(ClientData.get('pet_char_wrappers')[Ailments.whichPet]['char'])
             waitForJumpingToFinish('walk', petUnique)
 
-            if not ClientData.get('pet_char_wrappers')[Ailments.whichPet] and ClientData.get('pet_char_wrappers')[Ailments.whichPet]['char'] then
+            if checkPetEquipped() then
                 return
             end
 
@@ -6078,10 +6082,11 @@ Check the Developer Console for more information.]],
             Misc.DebugModePrint(`\u{1f697} Doing ride task on {Ailments.whichPet} \u{1f697}`)
             ReplicatedStorage.API:FindFirstChild('ToolAPI/Equip'):InvokeServer(strollerId, {})
             task.wait(1)
+            checkPetEquipped()
             useStroller()
             waitForJumpingToFinish('ride', petUnique)
 
-            if not ClientData.get('pet_char_wrappers')[Ailments.whichPet] and ClientData.get('pet_char_wrappers')[Ailments.whichPet]['char'] then
+            if checkPetEquipped() then
                 return
             end
 
