@@ -7640,7 +7640,7 @@ local function agePotionCount(nameId)
     return count
 end
 local function eventCurrencyAmount()
-    return ClientData.get_data()[localPlayer.Name].cupid_hearts_2025 or 0
+    return ClientData.get_data()[localPlayer.Name].ice_shards_2025 or 0
 end
 local function updateStatsGui()
     StatsGuis2:UpdateTextFor('TimeLabel', startTime)
