@@ -6450,10 +6450,14 @@ Check the Developer Console for more information.]],
                 local formatted = formatNumber(eventCurrencyAmount())
 
                 self.label.Text = string.format('\u{1f9ca} %s', tostring(formatted))
-            elseif labelName == 'TotalWinterBaits' then
-                local formatted = formatNumber(foodItemCount('winter_2024_winter_deer_bait'))
+            elseif labelName == 'TotalShiverBaits' then
+                local formatted = formatNumber(foodItemCount('ice_dimension_2025_shiver_cone_bait'))
 
-                self.label.Text = string.format('\u{2744}\u{fe0f} %s', tostring(formatted))
+                self.label.Text = string.format('\u{1f43a} %s', tostring(formatted))
+            elseif labelName == 'TotalSubzeroBaits' then
+                local formatted = formatNumber(foodItemCount('ice_dimension_2025_subzero_popsicle_bait'))
+
+                self.label.Text = string.format('\u{1f982} %s', tostring(formatted))
             end
         end
 
@@ -7133,6 +7137,9 @@ Check the Developer Console for more information.]],
                 if not v then
                     continue
                 end
+                if not v:IsA('Model') then
+                    continue
+                end
                 if not v.PrimaryPart then
                     continue
                 end
@@ -7157,6 +7164,9 @@ Check the Developer Console for more information.]],
 
             for i, v in ipairs(iceCubesFolder:GetChildren())do
                 if not v then
+                    continue
+                end
+                if not v:IsA('Model') then
                     continue
                 end
                 if not v.PrimaryPart then
@@ -7212,6 +7222,13 @@ Check the Developer Console for more information.]],
             while Workspace.StaticMap.ice_cube_hill_minigame_minigame_state.is_game_active.Value do
                 IceCubeEvent()
                 task.wait()
+            end
+
+            task.wait(1)
+
+            if Workspace.StaticMap.IceCubeHillMinigameStatic:FindFirstChild('IceCubes') then
+                print('Deleted IceCubes Folder')
+                Workspace.StaticMap.IceCubeHillMinigameStatic.IceCubes:Destroy()
             end
 
             print('\u{1f389} EVENT DONE \u{1f389}')
@@ -7410,6 +7427,10 @@ local TotalPotions = StatsGuis2.new('TotalPotions')
 local TotalTinyPotions = StatsGuis2.new('TotalTinyPotions')
 local TotalBucks = StatsGuis2.new('TotalBucks')
 local TotalEventCurrency = StatsGuis2.new('TotalEventCurrency')
+local BlankSlot1 = StatsGuis2.new('BlankSlot1')
+local BlankSlot2 = StatsGuis2.new('BlankSlot1')
+local TotalShiverBaits = StatsGuis2.new('TotalShiverBaits')
+local TotalSubzeroBaits = StatsGuis2.new('TotalSubzeroBaits')
 local petsTable = GetInventory:TabId('pets')
 
 if #petsTable == 0 then
@@ -7687,6 +7708,10 @@ local updateStatsGui = function()
     TotalEventCurrency:UpdateTextFor('TotalEventCurrency')
     TotalPotions:UpdateTextFor('TotalPotions')
     TotalBucks:UpdateTextFor('TotalBucks')
+    BlankSlot1:UpdateTextFor('BlankSlot1')
+    BlankSlot2:UpdateTextFor('BlankSlot2')
+    TotalShiverBaits:UpdateTextFor('TotalShiverBaits')
+    TotalSubzeroBaits:UpdateTextFor('TotalSubzeroBaits')
 end
 local findBait = function()
     for _, id in ipairs(baitTable)do
@@ -8320,7 +8345,7 @@ Workspace.StaticMap.ice_cube_hill_minigame_minigame_state.is_game_active:GetProp
 
         return
     end
-    if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME then
+    if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME and hasStartedFarming then
         ReplicatedStorage.API['MinigameAPI/AttemptJoin']:FireServer('ice_cube_hill_minigame', true)
         task.wait()
         ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('IceCubeHillMinigame')
@@ -8736,6 +8761,10 @@ TotalEventCurrency:UpdateTextFor('TotalEventCurrency')
 TotalPotions:UpdateTextFor('TotalPotions')
 TotalTinyPotions:UpdateTextFor('TotalTinyPotions')
 TotalBucks:UpdateTextFor('TotalBucks')
+BlankSlot1:UpdateTextFor('BlankSlot1')
+BlankSlot2:UpdateTextFor('BlankSlot2')
+TotalShiverBaits:UpdateTextFor('TotalShiverBaits')
+TotalSubzeroBaits:UpdateTextFor('TotalSubzeroBaits')
 findFurniture()
 
 if not Bed then
