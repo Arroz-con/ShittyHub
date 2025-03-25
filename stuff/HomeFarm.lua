@@ -33,7 +33,7 @@ getgenv().SETTINGS = {
 
 	ENABLE_TRADE_COLLECTOR = true,
 	TRADE_ONLY_LUMINOUS_MEGA = true,
-	TRADE_COLLECTOR_NAME = {"candymine8", "Tiredbloxypets"},
+	TRADE_COLLECTOR_NAME = {"exp_potion", "Tiredbloxypets"},
 	TRADE_LIST = {
 		"moon_2025_royal_egg",
 		-- "moon_2025_dimension_drifter",
