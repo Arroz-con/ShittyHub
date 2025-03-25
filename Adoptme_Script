@@ -7114,7 +7114,7 @@ Check the Developer Console for more information.]],
         end
 
         local teleportToPlatform = function()
-            Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Workspace.MinigamePlatform.CFrame + Vector3.new(math.random(0, 12), 5, math.random(0, 12))
+            Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Workspace.MinigamePlatform.CFrame + Vector3.new(math.random(0, 8), 5, math.random(0, 8))
         end
         local getFurthestIceCube = function()
             local iceCubeHillMinigameStatic = Workspace.StaticMap.IceCubeHillMinigameStatic
