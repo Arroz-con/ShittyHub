@@ -7561,20 +7561,14 @@ local grabDailyReward = function()
     end
 end
 local isMuleInGame = function()
-    Misc.DebugModePrint('checking if mule is ingame')
-
     for _, player in Players:GetPlayers()do
         if player.Name == localPlayer.Name then
             continue
         end
         if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, player.Name) then
-            Misc.DebugModePrint('\u{1f911} Mule ingame \u{1f911}')
-
             return true
         end
     end
-
-    Misc.DebugModePrint('no mule ingame')
 
     return false
 end
@@ -7898,7 +7892,7 @@ local removeGameOverButton = function()
     end
 end
 local onTextChangedMiniGame = function()
-    if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME and hasStartedFarming then
+    if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME and hasStartedFarming and not isMuleInGame() then
         SlipperyEvent.CreatePlatform()
 
         isInMiniGame = true
@@ -8168,6 +8162,7 @@ local autoFarm = function()
             end
 
             updateStatsGui()
+            Misc.DebugModePrint('\u{23f1}\u{fe0f} Waiting for 5 secs \u{23f1}\u{fe0f}')
 
             baitboxCount = baitboxCount + 2
 
@@ -8345,7 +8340,7 @@ Workspace.StaticMap.ice_cube_hill_minigame_minigame_state.is_game_active:GetProp
 
         return
     end
-    if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME and hasStartedFarming then
+    if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME and hasStartedFarming and not isMuleInGame() then
         ReplicatedStorage.API['MinigameAPI/AttemptJoin']:FireServer('ice_cube_hill_minigame', true)
         task.wait()
         ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('IceCubeHillMinigame')
