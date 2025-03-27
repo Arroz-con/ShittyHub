@@ -47,7 +47,7 @@ getgenv().SETTINGS = {
 		"ice_dimension_2025_snowy_mammoth",
 		"ice_dimension_2025_chilly_penguin",
 		"ice_dimension_2025_icy_porcupine",
-		"winter_2024_frostbite_cub"
+		-- "winter_2024_frostbite_cub"
 	},
 
 	HATCH_EGG_PRIORITY = false,
