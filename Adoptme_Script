@@ -3907,17 +3907,6 @@ Check the Developer Console for more information.]],
             }):Play()
             TweenService:Create(Main.Notice.Title, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {TextTransparency = 0.1}):Play()
         end
-        if not useStudio then
-            local success, result = pcall(function()
-                loadstring(game:HttpGet(
-[[https://raw.githubusercontent.com/SiriusSoftwareLtd/Sirius/refs/heads/request/boost.lua]]))()
-            end)
-
-            if not success then
-                print('Error with boost file.')
-                print(result)
-            end
-        end
 
         task.delay(4, function()
             RayfieldLibrary.LoadConfiguration()
@@ -7332,11 +7321,6 @@ local RarityToggle
 local GiftToggle
 local ToyToggle
 local FoodToggle
-local baitTable = {
-    'ice_dimension_2025_shiver_cone_bait',
-    'ice_dimension_2025_subzero_popsicle_bait',
-    'ice_dimension_2025_ice_soup_bait',
-}
 local DailyRewardTable = {
     [9] = 'reward_1',
     [30] = 'reward_2',
@@ -7708,7 +7692,17 @@ local updateStatsGui = function()
     TotalSubzeroBaits:UpdateTextFor('TotalSubzeroBaits')
 end
 local findBait = function()
-    for _, id in ipairs(baitTable)do
+    local baits = getgenv().SETTINGS.BAIT_TO_USE_IN_ORDER
+
+    if not baits then
+        baits = {
+            'ice_dimension_2025_shiver_cone_bait',
+            'ice_dimension_2025_subzero_popsicle_bait',
+            'ice_dimension_2025_ice_soup_bait',
+        }
+    end
+
+    for _, id in ipairs(baits)do
         for _, v in pairs(ClientData.get_data()[localPlayer.Name].inventory.food)do
             if id == v.id then
                 return v.unique
