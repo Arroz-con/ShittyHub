@@ -40,6 +40,7 @@ getgenv().SETTINGS = {
 
 		"lures_2023_blazing_lion",
 		"ice_dimension_2025_frostbite_bear",
+		"winter_2024_frostbite_cub"
 	},
 
 	HATCH_EGG_PRIORITY = false,
