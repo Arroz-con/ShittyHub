@@ -4493,12 +4493,69 @@ Check the Developer Console for more information.]],
             return false
         end
         function GetInventory:CheckForPetAndEquip(nameId, whichPet)
-            for _, v in ClientData.get_data()[localPlayer.Name].inventory['pets']do
-                if v.id == nameId then
-                    equipWhichPet(whichPet, v.unique)
+            local level = 0
+            local petUnique = nil
 
-                    return true
+            for _, pet in ClientData.get_data()[localPlayer.Name].inventory['pets']do
+                if pet.id == nameId then
+                    if not pet.properties then
+                        continue
+                    end
+                    if not pet.properties.friendship_level then
+                        continue
+                    end
+                    if pet.properties.friendship_level > level then
+                        if pet.unique == getgenv().petCurrentlyFarming1 then
+                            continue
+                        end
+                        if pet.unique == getgenv().petCurrentlyFarming2 then
+                            continue
+                        end
+
+                        level = pet.properties.friendship_level
+                        petUnique = pet.unique
+                    end
                 end
+            end
+
+            if petUnique then
+                equipWhichPet(whichPet, petUnique)
+                print(string.format('Found pet with friendship level: %s, equipped on: %s', tostring(level), tostring(whichPet)))
+
+                return true
+            end
+
+            local PetageCounter = 6
+            local isNeon = true
+            local petFound = false
+
+            while not petFound do
+                for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
+                    if pet.id == nameId and pet.properties.age == PetageCounter and pet.properties.neon == isNeon then
+                        if pet.unique == getgenv().petCurrentlyFarming1 then
+                            continue
+                        end
+                        if pet.unique == getgenv().petCurrentlyFarming2 then
+                            continue
+                        end
+
+                        print(string.format('GetHighestGrownPet: %s', tostring(whichPet)))
+                        equipWhichPet(whichPet, pet.unique)
+
+                        return true
+                    end
+                end
+
+                PetageCounter = PetageCounter - 1
+
+                if PetageCounter <= 0 and isNeon then
+                    PetageCounter = 6
+                    isNeon = nil
+                elseif PetageCounter <= 0 and isNeon == nil then
+                    return false
+                end
+
+                task.wait()
             end
 
             return false
@@ -7738,6 +7795,9 @@ local getEgg = function(whichPet)
     return false
 end
 local getAgeUpPotionPet = function(whichPet)
+    if GetInventory:CheckForPetAndEquip('winter_2024_frostbite_cub', whichPet) then
+        return true
+    end
     if GetInventory:GetPetFriendship(whichPet) then
         return true
     end
