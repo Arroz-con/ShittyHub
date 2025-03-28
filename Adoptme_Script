@@ -4632,6 +4632,9 @@ Check the Developer Console for more information.]],
     function __DARKLUA_BUNDLE_MODULES.f()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
+
+        game:GetService('TouchInputService')
+
         local localPlayer = Players.LocalPlayer
         local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
         local InventoryDB = require(ReplicatedStorage:WaitForChild('ClientDB'):WaitForChild('Inventory'):WaitForChild('InventoryDB'))
@@ -4712,30 +4715,30 @@ Check the Developer Console for more information.]],
                 if ClientData.get_data()[playerName] and not ClientData.get_data()[playerName].in_active_trade then
                     return playerName
                 end
-
-                task.wait(1)
             end
 
-            return nil
+            return false
         end
 
         function Trade:SendTradeRequest(playerTable)
             if typeof(playerTable) ~= 'table' then
                 return
             end
-            if not localPlayer.PlayerGui.TradeApp.Frame.Visible then
-                repeat
-                    print('\u{2705} selecting mule to trade \u{2705}')
 
-                    local selectedPlayer = getMuleNotCurrentlyTrading(playerTable)
-                    local muleBool = isMulesInGame(playerTable)
+            while isMulesInGame(playerTable) and not localPlayer.PlayerGui.TradeApp.Frame.Visible do
+                local selectedPlayer = getMuleNotCurrentlyTrading(playerTable)
 
-                    if selectedPlayer then
-                        ReplicatedStorage.API:FindFirstChild('TradeAPI/SendTradeRequest'):FireServer(Players[selectedPlayer])
-                    end
+                if selectedPlayer then
+                    ReplicatedStorage.API:FindFirstChild('TradeAPI/SendTradeRequest'):FireServer(Players[selectedPlayer])
+                end
 
-                    task.wait(5)
-                until not muleBool or localPlayer.PlayerGui.TradeApp.Frame.Visible
+                task.wait(math.random(5, 10))
+            end
+
+            if localPlayer.PlayerGui.TradeApp.Frame.Visible then
+                return true
+            else
+                return false
             end
         end
         function Trade:SelectTabAndTrade(tab, selectedItem)
@@ -4801,9 +4804,13 @@ Check the Developer Console for more information.]],
 
             return agesNumber
         end
-        local MultipleOptionsTradeLoop = function(options, isNeon, isMegaNeon)
-            local raritys = options['rarity']
-            local ages = options['ages']
+        local MultipleOptionsTradeLoop = function(
+            newOptions,
+            isNeon,
+            isMegaNeon
+        )
+            local raritys = newOptions['rarity']
+            local ages = newOptions['ages']
             local waitForAdded = 0
 
             for _, petDB in InventoryDB.pets do
@@ -4821,8 +4828,6 @@ Check the Developer Console for more information.]],
                         continue
                     end
                     if pet.properties.neon == isNeon and pet.properties.mega_neon == isMegaNeon then
-                        print(petDB.rarity, pet.id)
-
                         if not ClientData.get_data()[localPlayer.Name].in_active_trade then
                             return false
                         end
@@ -4856,27 +4861,27 @@ Check the Developer Console for more information.]],
                 return
             end
 
-            local isNormal = table.find(options['neons'], 'normal') and true or nil
-            local isNeon = table.find(options['neons'], 'neon') and true or nil
-            local isMegaNeon = table.find(options['neons'], 'mega_neon') and true or nil
+            local newOptions = table.clone(options)
+            local isNormal = table.find(newOptions['neons'], 'normal') and true or nil
+            local isNeon = table.find(newOptions['neons'], 'neon') and true or nil
+            local isMegaNeon = table.find(newOptions['neons'], 'mega_neon') and true or nil
 
-            options['ages'] = convertPetAges(options)
+            newOptions['ages'] = convertPetAges(newOptions)
 
             inActiveTrade()
-            print(isNormal)
 
             if isNormal then
-                if MultipleOptionsTradeLoop(options, nil, nil) then
+                if MultipleOptionsTradeLoop(newOptions, nil, nil) then
                     return
                 end
             end
             if isNeon then
-                if MultipleOptionsTradeLoop(options, true, nil) then
+                if MultipleOptionsTradeLoop(newOptions, true, nil) then
                     return
                 end
             end
             if isMegaNeon then
-                if MultipleOptionsTradeLoop(options, nil, true) then
+                if MultipleOptionsTradeLoop(newOptions, nil, true) then
                     return
                 end
             end
@@ -5140,9 +5145,9 @@ Check the Developer Console for more information.]],
                 if not Trade:CheckInventory() then
                     return print('\u{1f6ab} NO ITEMS TO TRADE')
                 end
-
-                Trade:SendTradeRequest(namePassOn)
-
+                if not Trade:SendTradeRequest(namePassOn) then
+                    return print('\u{26a0}\u{fe0f} PLAYER YOU WERE TRADING LEFT GAME \u{26a0}\u{fe0f}')
+                end
                 if getgenv().SETTINGS.TRADE_ONLY_LUMINOUS_MEGA then
                     for _, v in ClientData.get_data()[localPlayer.Name].inventory do
                         if isInventoryFull then
@@ -8275,6 +8280,8 @@ local onTextChangedNormalDialog = function()
         findButton('Okay!')
     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('You have been refunded') then
         findButton('Awesome!')
+    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('The Frostbite Bear') then
+        findButton('Okay')
     end
 end
 local doStarterTutorial = function()
@@ -9273,10 +9280,18 @@ MultipleChoiceToggle = TradeTab:CreateToggle({
         end
 
         while getgenv().auto_trade_multi_choice do
-            Trade:SendTradeRequest({selectedPlayer})
+            if not Trade:SendTradeRequest({selectedPlayer}) then
+                print('\u{26a0}\u{fe0f} PLAYER YOU WERE TRADING LEFT GAME \u{26a0}\u{fe0f}')
+                MultipleChoiceToggle:Set(false)
+
+                return
+            end
+
             Trade:MultipleOptions(multipleOptionsTable)
 
             local hasPets = Trade:AcceptNegotiationAndConfirm()
+
+            print(string.format('hasPets: %s', tostring(hasPets)))
 
             if not hasPets then
                 MultipleChoiceToggle:Set(false)
