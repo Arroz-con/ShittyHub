@@ -4632,9 +4632,6 @@ Check the Developer Console for more information.]],
     function __DARKLUA_BUNDLE_MODULES.f()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
-
-        game:GetService('TouchInputService')
-
         local localPlayer = Players.LocalPlayer
         local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
         local InventoryDB = require(ReplicatedStorage:WaitForChild('ClientDB'):WaitForChild('Inventory'):WaitForChild('InventoryDB'))
@@ -8280,8 +8277,6 @@ local onTextChangedNormalDialog = function()
         findButton('Okay!')
     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('You have been refunded') then
         findButton('Awesome!')
-    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('The Frostbite Bear') then
-        findButton('Okay')
     end
 end
 local doStarterTutorial = function()
@@ -8507,19 +8502,31 @@ localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal('Vi
     end
 end)
 localPlayer.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(Child)
-    if Child.Name ~= 'NormalDialog' then
-        return
+    if Child.Name == 'NormalDialog' then
+        Child:GetPropertyChangedSignal('Visible'):Connect(function()
+            if not Child.Visible then
+                return
+            end
+
+            Child:WaitForChild('Info')
+            Child.Info:WaitForChild('TextLabel')
+            Child.Info.TextLabel:GetPropertyChangedSignal('Text'):Connect(onTextChangedNormalDialog)
+        end)
+    elseif Child.Name == 'IceDimension2025Dialog' then
+        Child:GetPropertyChangedSignal('Visible'):Connect(function()
+            if not Child.Visible then
+                return
+            end
+
+            Child.Visible = false
+        end)
     end
-
-    Child:GetPropertyChangedSignal('Visible'):Connect(function()
-        if not Child.Visible then
-            return
-        end
-
-        Child:WaitForChild('Info')
-        Child.Info:WaitForChild('TextLabel')
-        Child.Info.TextLabel:GetPropertyChangedSignal('Text'):Connect(onTextChangedNormalDialog)
-    end)
+end)
+localPlayer.PlayerGui.DialogApp.Dialog.IceDimension2025Dialog:GetPropertyChangedSignal('Visible'):Connect(function(
+)
+    if localPlayer.PlayerGui.DialogApp.Dialog.IceDimension2025Dialog.Visible then
+        localPlayer.PlayerGui.DialogApp.Dialog.IceDimension2025Dialog.Visible = false
+    end
 end)
 Players.PlayerAdded:Connect(function(player)
     player.CharacterAdded:Connect(function(character)
