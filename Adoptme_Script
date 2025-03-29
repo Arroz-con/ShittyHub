@@ -7249,7 +7249,7 @@ Check the Developer Console for more information.]],
 
             iceCube.DecalPart.Color = Color3.fromRGB(255, 0, 0)
 
-            task.wait(1.1)
+            task.wait(math.random(1, 1.1))
         end
 
         function SlipperyEvent.Start()
@@ -7795,6 +7795,8 @@ local getEgg = function(whichPet)
     return false
 end
 local getAgeUpPotionPet = function(whichPet)
+    Misc.DebugModePrint(string.format('\u{1f414}\u{1f414} Getting pet to Farm age up potion, %s \u{1f414}\u{1f414}', tostring(whichPet)))
+
     if GetInventory:CheckForPetAndEquip('winter_2024_frostbite_cub', whichPet) then
         return true
     end
@@ -8153,15 +8155,10 @@ local autoFarm = function()
                 until not getgenv().isBuyingOrAging
             end
             if isInMiniGame then
-                local count = 0
-
                 repeat
-                    Misc.DebugModePrint('\u{23f1}\u{fe0f} Waiting for 10 secs [inside minigame] \u{23f1}\u{fe0f}')
-
-                    count = count + 10
-
-                    task.wait(10)
-                until not isInMiniGame or not Workspace.StaticMap.ice_cube_hill_minigame_minigame_state.is_game_active.Value
+                    Misc.DebugModePrint('\u{23f1}\u{fe0f} Waiting for 20 secs [inside minigame] \u{23f1}\u{fe0f}')
+                    task.wait(20)
+                until not isInMiniGame
 
                 isInMiniGame = false
             end
@@ -8304,6 +8301,11 @@ local dailyLoginAppClick = function()
         end
     end
 end
+local onTextChangedIceDimension = function()
+    if localPlayer.PlayerGui.DialogApp.Dialog.IceDimension2025Dialog.Info.TextLabel.Text:match('Frostbite Bear') then
+        findButton('Okay', 'IceDimension2025Dialog')
+    end
+end
 local onTextChangedNormalDialog = function()
     if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Be careful when trading') then
         findButton('Okay')
@@ -8394,9 +8396,14 @@ Workspace.StaticMap.ice_cube_hill_minigame_minigame_state.is_game_active:GetProp
     if not Workspace.StaticMap.ice_cube_hill_minigame_minigame_state.is_game_active.Value then
         isInMiniGame = false
 
+        Misc.DebugModePrint(string.format('game is not active setting isInMinigame to %s', tostring(isInMiniGame)))
+
         return
     end
     if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME and hasStartedFarming and not isMuleInGame() then
+        isInMiniGame = true
+
+        Misc.DebugModePrint(string.format('game ACTIVE setting isInMinigame to %s', tostring(isInMiniGame)))
         ReplicatedStorage.API['MinigameAPI/AttemptJoin']:FireServer('ice_cube_hill_minigame', true)
         task.wait()
         ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('IceCubeHillMinigame')
@@ -8578,14 +8585,20 @@ localPlayer.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(Child)
                 return
             end
 
-            Child.Visible = false
+            findButton('Okay', 'IceDimension2025Dialog')
+            localPlayer.PlayerGui.DialogApp.Dialog.IceDimension2025Dialog:WaitForChild('Info')
+            localPlayer.PlayerGui.DialogApp.Dialog.IceDimension2025Dialog.Info:WaitForChild('TextLabel')
+            localPlayer.PlayerGui.DialogApp.Dialog.IceDimension2025Dialog.Info.TextLabel:GetPropertyChangedSignal('Text'):Connect(onTextChangedIceDimension)
         end)
     end
 end)
 localPlayer.PlayerGui.DialogApp.Dialog.IceDimension2025Dialog:GetPropertyChangedSignal('Visible'):Connect(function(
 )
     if localPlayer.PlayerGui.DialogApp.Dialog.IceDimension2025Dialog.Visible then
-        localPlayer.PlayerGui.DialogApp.Dialog.IceDimension2025Dialog.Visible = false
+        findButton('Okay', 'IceDimension2025Dialog')
+        localPlayer.PlayerGui.DialogApp.Dialog.IceDimension2025Dialog:WaitForChild('Info')
+        localPlayer.PlayerGui.DialogApp.Dialog.IceDimension2025Dialog.Info:WaitForChild('TextLabel')
+        localPlayer.PlayerGui.DialogApp.Dialog.IceDimension2025Dialog.Info.TextLabel:GetPropertyChangedSignal('Text'):Connect(onTextChangedIceDimension)
     end
 end)
 Players.PlayerAdded:Connect(function(player)
@@ -9582,7 +9595,4 @@ localPlayer.Idled:Connect(function()
     VirtualUser:ClickButton2(Vector2.new())
 end)
 PotatoMode.DisableCastShadows()
-
-localPlayer.PlayerGui.DialogApp:WaitForChild('Dialog'):WaitForChild('IceDimension2025Dialog').Visible = false
-
 Misc.DebugModePrint('Loaded. lastest update 2/25/2025  mm/dd/yyyy')
