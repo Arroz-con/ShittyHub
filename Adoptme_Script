@@ -9582,4 +9582,9 @@ localPlayer.Idled:Connect(function()
     VirtualUser:ClickButton2(Vector2.new())
 end)
 PotatoMode.DisableCastShadows()
+
+if localPlayer.PlayerGui.DialogApp:WaitForChild('Dialog'):WaitForChild('IceDimension2025Dialog').Visible then
+    localPlayer.PlayerGui.DialogApp.Dialog.IceDimension2025Dialog.Visible = false
+end
+
 Misc.DebugModePrint('Loaded. lastest update 2/25/2025  mm/dd/yyyy')
