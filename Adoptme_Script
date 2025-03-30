@@ -4045,9 +4045,9 @@ Check the Developer Console for more information.]],
 
                 hasPetChar = ClientData.get('pet_char_wrappers') and ClientData.get('pet_char_wrappers')[whichPet] and ClientData.get('pet_char_wrappers')[whichPet]['char'] and true or false
                 EquipTimeout = EquipTimeout + 1
-            until hasPetChar or EquipTimeout >= 10
+            until hasPetChar or EquipTimeout >= 20
 
-            if EquipTimeout >= 10 then
+            if EquipTimeout >= 20 then
                 print('\u{26a0}\u{fe0f} Waited too long for Equipping pet \u{26a0}\u{fe0f}')
 
                 return false
@@ -7508,10 +7508,6 @@ end
 
 local peteggs = GetInventory:GetPetEggs()
 local clickGuiButton = function(button, xOffset, yOffset)
-    if typeof(button) ~= 'Instance' then
-        return Misc.DebugModePrint('button is not a Instance')
-    end
-
     local xOffset1 = xOffset or 60
     local yOffset1 = yOffset or 60
 
@@ -7996,7 +7992,10 @@ local CompletePetAilments = function(whichPet)
     if not isProHandler and whichPet == 2 then
         return
     end
-    if not ClientData.get_data()[localPlayer.Name].pet_char_wrappers or not ClientData.get_data()[localPlayer.Name].pet_char_wrappers[whichPet] then
+
+    local petWrapper = ClientData.get_data()[localPlayer.Name].pet_char_wrappers
+
+    if not petWrapper or not petWrapper[whichPet] then
         if not Misc.ReEquipPet(whichPet) then
             getPet(whichPet)
         end
@@ -8580,7 +8579,7 @@ localPlayer.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(Child)
             Child.Info.TextLabel:GetPropertyChangedSignal('Text'):Connect(onTextChangedNormalDialog)
         end)
     elseif Child.Name == 'IceDimension2025Dialog' then
-        Child:GetPropertyChangedSignal('Visible'):Connect(function()
+        Child.Changed:Connect(function(property)
             if not Child.Visible then
                 return
             end
@@ -8592,7 +8591,8 @@ localPlayer.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(Child)
         end)
     end
 end)
-localPlayer.PlayerGui.DialogApp.Dialog.IceDimension2025Dialog:GetPropertyChangedSignal('Visible'):Connect(function(
+localPlayer.PlayerGui.DialogApp.Dialog.IceDimension2025Dialog.Changed:Connect(function(
+    property
 )
     if localPlayer.PlayerGui.DialogApp.Dialog.IceDimension2025Dialog.Visible then
         findButton('Okay', 'IceDimension2025Dialog')
@@ -8670,6 +8670,7 @@ localPlayer.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal('Enabled'):Conn
             if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME then
                 isInMiniGame = true
 
+                SlipperyEvent.CreatePlatform()
                 SlipperyEvent.Start()
             end
         end
@@ -9371,8 +9372,6 @@ MultipleChoiceToggle = TradeTab:CreateToggle({
 
             local hasPets = Trade:AcceptNegotiationAndConfirm()
 
-            print(string.format('hasPets: %s', tostring(hasPets)))
-
             if not hasPets then
                 MultipleChoiceToggle:Set(false)
             end
@@ -9595,4 +9594,12 @@ localPlayer.Idled:Connect(function()
     VirtualUser:ClickButton2(Vector2.new())
 end)
 PotatoMode.DisableCastShadows()
+
+if localPlayer.PlayerGui.DialogApp.Dialog.IceDimension2025Dialog.Visible then
+    findButton('Okay', 'IceDimension2025Dialog')
+    localPlayer.PlayerGui.DialogApp.Dialog.IceDimension2025Dialog:WaitForChild('Info')
+    localPlayer.PlayerGui.DialogApp.Dialog.IceDimension2025Dialog.Info:WaitForChild('TextLabel')
+    localPlayer.PlayerGui.DialogApp.Dialog.IceDimension2025Dialog.Info.TextLabel:GetPropertyChangedSignal('Text'):Connect(onTextChangedIceDimension)
+end
+
 Misc.DebugModePrint('Loaded. lastest update 2/25/2025  mm/dd/yyyy')
