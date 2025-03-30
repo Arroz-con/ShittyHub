@@ -1,6 +1,6 @@
 getgenv().BUY_BEFORE_FARMING = {
-	{NameId = "ice_dimension_2025_shiver_cone_bait", MaxAmount = 1000},
-	{NameId = "ice_dimension_2025_subzero_popsicle_bait", MaxAmount = 1000}
+	{NameId = "ice_dimension_2025_subzero_popsicle_bait", MaxAmount = 1000},
+	{NameId = "ice_dimension_2025_shiver_cone_bait", MaxAmount = 4000},
 }
 
 -- getgenv().OPEN_ITEMS_BEFORE_FARMING = {
