@@ -7803,9 +7803,6 @@ local getPet = function(whichPet)
 
         Misc.DebugModePrint(string.format('\u{1f414}\u{1f414} Getting pet to Farm age up potion, %s \u{1f414}\u{1f414}', tostring(whichPet)))
 
-        if GetInventory:CheckForPetAndEquip('april_fools_2025_burtaur', whichPet) then
-            return true
-        end
         if GetInventory:CheckForPetAndEquip('winter_2024_frostbite_cub', whichPet) then
             return true
         end
@@ -8978,9 +8975,6 @@ if not isProHandler then
             Misc.DebugModePrint(string.format('Does it have Pro Handler Certificate now?: %s', tostring(isProHandler)))
         end
     end
-end
-if not GetInventory:GetUniqueId('pets', 'april_fools_2025_burtaur') then
-    ReplicatedStorage.API['AprilFoolsAPI/AttemptGetBurtaur']:FireServer()
 end
 
 startAutoFarm()
