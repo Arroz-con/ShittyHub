@@ -48,21 +48,8 @@ getgenv().SETTINGS = {
 	PET_ONLY_PRIORITY = true,
 	PET_ONLY_PRIORITY_NAMES = {
 		"spring_2025_bakeneko",
-		"ice_dimension_2025_shiver_wolf",
-		"ice_dimension_2025_subzero_scorpion",
-		"ice_dimension_2025_snowy_mammoth",
-		"ice_dimension_2025_chilly_penguin",
-		"ice_dimension_2025_icy_porcupine",
 		"moon_2025_puptune",
 		"st_patricks_2025_clover_cow",
-		"moon_2025_sunglider",
-		"valentines_2025_love_bird",
-		"moon_2025_dimension_drifter",
-		"valentines_2025_sweetheart_rat",
-		"winter_2024_frostbite_cub",
-		"moon_2025_snorgle",
-		"moon_2025_hopbop",
-
 	},
 }
 
