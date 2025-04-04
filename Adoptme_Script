@@ -5560,7 +5560,7 @@ Check the Developer Console for more information.]],
         local InventoryDB = require(ReplicatedStorage.ClientDB.Inventory.InventoryDB)
         local localPlayer = Players.LocalPlayer
         local BuyItems = {}
-        local getCategory = function(nameId)
+        local getItemInfo = function(nameId)
             if typeof(nameId) ~= 'string' then
                 print(string.format('%s is not a string', tostring(nameId)))
 
@@ -5570,23 +5570,23 @@ Check the Developer Console for more information.]],
             for _, v in InventoryDB do
                 for key, value in v do
                     if key == nameId then
-                        return value.category
+                        return value
                     end
                 end
             end
 
             return nil
         end
-        local hasPetMaxAmount = function(nameId, maxAmount)
-            local category = getCategory(nameId)
+        local getAmountToBuy = function(nameId, maxAmount)
+            local itemValues = getItemInfo(nameId)
 
-            if not category then
+            if not itemValues then
                 return print('no category')
             end
 
             local count = 0
 
-            for _, pet in ClientData.get_data()[localPlayer.Name].inventory[category]do
+            for _, pet in ClientData.get_data()[localPlayer.Name].inventory[itemValues.category]do
                 if nameId == pet.id then
                     count = count + 1
                 end
@@ -5598,51 +5598,82 @@ Check the Developer Console for more information.]],
 
             return 0
         end
-        local buyPet = function(petNameId, howManyToBuy)
-            local category = getCategory(petNameId)
+        local getAmountToPurchase = function(valuesTable, amount)
+            local currency = ClientData.get_data()[localPlayer.Name][valuesTable.currency_id] or ClientData.get_data()[localPlayer.Name]['money']
 
-            if not category then
-                return print('no category')
+            print('===========================')
+
+            if not currency then
+                print('NO CURRENCY ON PLAYER')
+
+                return 0
             end
 
-            for i = 1, howManyToBuy do
-                local hasMoney = ReplicatedStorage.API['ShopAPI/BuyItem']:InvokeServer(category, petNameId, {})
+            print(string.format('currency %s', tostring(currency)))
 
-                if hasMoney ~= 'success' then
-                    return false
+            local count = 0
+
+            for _ = 1, amount do
+                local moneyLeft = currency - valuesTable.cost
+
+                if moneyLeft <= 0 then
+                    break
                 end
 
-                task.wait(0.1)
+                currency = moneyLeft
+                count = count + 1
+            end
+
+            return count
+        end
+        local buyPet = function(valuesTable, howManyToBuy)
+            print(string.format('CAN BUY %s', tostring(howManyToBuy)))
+
+            local hasMoney = ReplicatedStorage.API['ShopAPI/BuyItem']:InvokeServer(valuesTable.category, valuesTable.id, {
+                ['buy_count'] = howManyToBuy,
+            })
+
+            if hasMoney ~= 'success' then
+                return false
             end
 
             return true
         end
 
-        function BuyItems:BuyPets(petsToBuy)
-            for _, myPet in ipairs(petsToBuy)do
-                local amount = hasPetMaxAmount(myPet.NameId, myPet.MaxAmount)
+        function BuyItems:StartBuyItems(itemToBuy)
+            for _, value in ipairs(itemToBuy)do
+                while true do
+                    local itemValues = getItemInfo(value.NameId)
+                    local amount = getAmountToBuy(value.NameId, value.MaxAmount)
 
-                print(amount)
+                    if amount == 0 then
+                        print(string.format('has max amount of: %s, skipping', tostring(value.NameId)))
 
-                if amount == 0 then
-                    print(string.format('has max amount of: %s, skipping', tostring(myPet.NameId)))
+                        break
+                    end
 
-                    continue
+                    local amountPurchase = getAmountToPurchase(itemValues, amount)
+
+                    if amountPurchase == 0 then
+                        print(string.format('amount to purchase is: %s', tostring(amountPurchase)))
+
+                        break
+                    end
+                    if not buyPet(itemValues, amountPurchase) then
+                        print('Has no money to buy more or something went wrong.')
+
+                        break
+                    end
+
+                    task.wait()
                 end
-                if not buyPet(myPet.NameId, amount) then
-                    print('Has no money to buy more or something went wrong.')
-
-                    break
-                end
-
-                print(string.format('bought all pets needed: %s', tostring(myPet.NameId)))
             end
         end
 
         local openBox = function(nameId)
-            local category = getCategory(nameId)
+            local itemValues = getItemInfo(nameId)
 
-            for _, v in ClientData.get_data()[localPlayer.Name].inventory[category]do
+            for _, v in ClientData.get_data()[localPlayer.Name].inventory[itemValues.category]do
                 if v.id == nameId then
                     ReplicatedStorage.API['LootBoxAPI/ExchangeItemForReward']:InvokeServer(v['id'], v['unique'])
                     task.wait(0.1)
@@ -6723,10 +6754,10 @@ Check the Developer Console for more information.]],
     function __DARKLUA_BUNDLE_MODULES.m()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Workspace = game:GetService('Workspace')
-        local VirtualUser = game:GetService('VirtualUser')
         local Players = game:GetService('Players')
         local localPlayer = Players.LocalPlayer
         local Fusion = __DARKLUA_BUNDLE_MODULES.load('c')
+        local PetPotionEffectsDB = require(ReplicatedStorage:WaitForChild('ClientDB'):WaitForChild('PetPotionEffectsDB'))
         local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
         local BulkPotions = {}
 
@@ -6735,7 +6766,7 @@ Check the Developer Console for more information.]],
         function BulkPotions.new()
             local self = setmetatable({}, BulkPotions)
 
-            self.SameUnqiue = nil
+            self.SameUnqiue = {}
             self.SameUnqiueCount = 0
             self.StopAging = false
             self.EggsTable = {}
@@ -6837,7 +6868,7 @@ Check the Developer Console for more information.]],
             return count
         end
         local consumeItem = function(potionName)
-            local agePotion = Workspace.PetObjects:WaitForChild(potionName, 10)
+            local agePotion = Workspace.PetObjects:WaitForChild(potionName, 15)
 
             if not agePotion then
                 print('no age potion in workspace')
@@ -6847,20 +6878,42 @@ Check the Developer Console for more information.]],
 
             ReplicatedStorage.API['PetAPI/ConsumeFoodObject']:FireServer(agePotion, ClientData.get('pet_char_wrappers')[1].pet_unique)
         end
+        local getPotionUniques = function(nameId)
+            local potions = {}
+            local amountNeeded = PetPotionEffectsDB[nameId].multi_use_count(ClientData.get('pet_char_wrappers')[1], ClientData.get_data()[localPlayer.Name].inventory.pets[ClientData.get('pet_char_wrappers')[1].pet_unique])
+
+            if amountNeeded <= 0 then
+                return potions
+            end
+
+            for _, v in ClientData.get_data()[localPlayer.Name].inventory.food do
+                if v.id == nameId then
+                    table.insert(potions, v.unique)
+
+                    amountNeeded = amountNeeded - 1
+
+                    if amountNeeded <= 0 then
+                        break
+                    end
+                end
+            end
+
+            return potions
+        end
 
         function BulkPotions:IsSameUnique()
             for _, v in ClientData.get_data()[localPlayer.Name].inventory.food do
                 if v.id == 'pet_age_potion' or v.id == 'tiny_pet_age_potion' then
-                    if self.SameUnqiue == v.unique then
+                    if table.find(self.SameUnqiue, v.unique) then
                         print('has same unqiue age up potion')
 
                         self.SameUnqiueCount = self.SameUnqiueCount + 1
 
-                        if self.SameUnqiueCount > 10 then
-                            print('\u{26a0}\u{fe0f} SAME POTION HAS BEEN TRIED 10 TIMES. MUST BE STUCK \u{26a0}\u{fe0f}')
+                        if self.SameUnqiueCount >= 15 then
+                            print('\u{26a0}\u{fe0f} SAME POTION HAS BEEN TRIED 15 TIMES. MUST BE STUCK \u{26a0}\u{fe0f}')
 
                             self.SameUnqiueCount = 0
-                            self.SameUnqiue = nil
+                            self.SameUnqiue = {}
                         end
 
                         task.wait(1)
@@ -6869,6 +6922,9 @@ Check the Developer Console for more information.]],
                     end
                 end
             end
+
+            self.SameUnqiueCount = 0
+            self.SameUnqiue = {}
 
             return false
         end
@@ -6898,6 +6954,37 @@ Check the Developer Console for more information.]],
 
             return isEgg
         end
+
+        local createPotionObject = function(potionTable)
+            local args = {}
+
+            if #potionTable == 1 then
+                args = {
+                    [1] = '__Enum_PetObjectCreatorType_2',
+                    [2] = {
+                        ['pet_unique'] = ClientData.get('pet_char_wrappers')[1].pet_unique,
+                        ['unique_id'] = potionTable[1],
+                        ['additional_consume_uniques'] = {},
+                    },
+                }
+            elseif #potionTable >= 2 then
+                local newpotionTable = table.clone(potionTable)
+
+                table.remove(newpotionTable, 1)
+
+                args = {
+                    [1] = '__Enum_PetObjectCreatorType_2',
+                    [2] = {
+                        ['pet_unique'] = ClientData.get('pet_char_wrappers')[1].pet_unique,
+                        ['unique_id'] = potionTable[1],
+                        ['additional_consume_uniques'] = newpotionTable,
+                    },
+                }
+            end
+
+            return ReplicatedStorage.API['PetObjectAPI/CreatePetObject']:InvokeServer(unpack(args))
+        end
+
         function BulkPotions:FeedAgePotion()
             if self:IsEgg() then
                 return print('Pet Equipped is a EGG! or No pet Equipped')
@@ -6909,57 +6996,19 @@ Check the Developer Console for more information.]],
             self.SameUnqiueCount = 0
 
             local TotalPotions = localPlayer.PlayerGui.StatsGui.MainFrame.MiddleFrame.TotalPotions
-            local TotalTinyPotions = localPlayer.PlayerGui.StatsGui.MainFrame.MiddleFrame.TotalTinyPotions
+            local potionUniques = getPotionUniques('pet_age_potion')
 
-            for _, v in ClientData.get_data()[localPlayer.Name].inventory.food do
-                if v.id == 'pet_age_potion' then
-                    self.SameUnqiue = v.unique
-
-                    print('feeding normal age-up potion')
-
-                    local args = {
-                        [1] = '__Enum_PetObjectCreatorType_2',
-                        [2] = {
-                            ['pet_unique'] = ClientData.get('pet_char_wrappers')[1].pet_unique,
-                            ['unique_id'] = v.unique,
-                        },
-                    }
-
-                    ReplicatedStorage.API['PetObjectAPI/CreatePetObject']:InvokeServer(unpack(args))
-                    task.wait(1)
-                    consumeItem('AgePotion')
-
-                    TotalPotions.Text = string.format('\u{1f9ea} %s', tostring(agePotionCount('pet_age_potion')))
-
-                    return
-                end
+            if #potionUniques <= 0 then
+                return
             end
-            for _, v in ClientData.get_data()[localPlayer.Name].inventory.food do
-                if v.id == 'tiny_pet_age_potion' then
-                    self.SameUnqiue = v.unique
 
-                    print('feeding tiny age-up potion')
+            self.SameUnqiue = potionUniques
 
-                    local args = {
-                        [1] = '__Enum_PetObjectCreatorType_2',
-                        [2] = {
-                            ['pet_unique'] = ClientData.get('pet_char_wrappers')[1].pet_unique,
-                            ['unique_id'] = v.unique,
-                        },
-                    }
-
-                    ReplicatedStorage.API['PetObjectAPI/CreatePetObject']:InvokeServer(unpack(args))
-                    task.wait(1)
-                    consumeItem('TinyAgePotion')
-
-                    TotalTinyPotions.Text = string.format('\u{2697}\u{fe0f} %s', tostring(agePotionCount('tiny_pet_age_potion')))
-
-                    return
-                end
-            end
+            print(string.format('USING POTIONS: %s', tostring(#potionUniques)))
+            print(createPotionObject(potionUniques))
+            consumeItem('AgePotion')
 
             TotalPotions.Text = string.format('\u{1f9ea} %s', tostring(agePotionCount('pet_age_potion')))
-            TotalTinyPotions.Text = string.format('\u{2697}\u{fe0f} %s', tostring(agePotionCount('tiny_pet_age_potion')))
 
             return
         end
@@ -7040,10 +7089,6 @@ Check the Developer Console for more information.]],
                 self:AgeAllPetsOfSameName(petId)
             end
         end
-
-        localPlayer.Idled:Connect(function()
-            VirtualUser:ClickButton2(Vector2.new())
-        end)
 
         return BulkPotions
     end
@@ -7142,147 +7187,6 @@ Check the Developer Console for more information.]],
         end
 
         return PotatoMode
-    end
-    function __DARKLUA_BUNDLE_MODULES.p()
-        local ReplicatedStorage = game:GetService('ReplicatedStorage')
-        local Players = game:GetService('Players')
-        local Bypass = require(ReplicatedStorage:WaitForChild('Fsys')).load
-        local Workspace = game:GetService('Workspace')
-        local SlipperyEvent = {}
-
-        function SlipperyEvent.CreatePlatform()
-            if Workspace:FindFirstChild('MinigamePlatform') then
-                return
-            end
-
-            local part = Instance.new('Part')
-
-            part.Position = Workspace.StaticMap.IceCubeHillMinigameStatic.HillOrientation.Position + Vector3.new(0, 15, 0)
-            part.Size = Vector3.new(25, 2, 25)
-            part.Anchored = true
-            part.Transparency = 0
-            part.Name = 'MinigamePlatform'
-            part.Parent = Workspace
-        end
-
-        local teleportToPlatform = function()
-            Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Workspace.MinigamePlatform.CFrame + Vector3.new(math.random(
--8, 8), 5, math.random(-8, 8))
-        end
-        local getFurthestIceCube = function()
-            local iceCubeHillMinigameStatic = Workspace.StaticMap.IceCubeHillMinigameStatic
-            local iceCubesFolder = iceCubeHillMinigameStatic:FindFirstChild('IceCubes')
-
-            if not iceCubesFolder then
-                return
-            end
-
-            local MAX_DISTANCE = 125
-            local distance = 0
-            local iceCube
-
-            for i, v in ipairs(iceCubesFolder:GetChildren())do
-                if not v then
-                    continue
-                end
-                if not v:IsA('Model') then
-                    continue
-                end
-                if not v.PrimaryPart then
-                    continue
-                end
-
-                local magnitude = (Players.LocalPlayer.Character.HumanoidRootPart.Position - v.PrimaryPart.Position).Magnitude
-
-                if magnitude <= MAX_DISTANCE and magnitude > distance then
-                    distance = magnitude
-                    iceCube = v
-                end
-            end
-
-            return iceCube
-        end
-        local IceCubeEvent = function()
-            local iceCubeHillMinigameStatic = Workspace.StaticMap.IceCubeHillMinigameStatic
-            local iceCubesFolder = iceCubeHillMinigameStatic:FindFirstChild('IceCubes')
-
-            if not iceCubesFolder then
-                return
-            end
-
-            for i, v in ipairs(iceCubesFolder:GetChildren())do
-                if not v then
-                    continue
-                end
-                if not v:IsA('Model') then
-                    continue
-                end
-                if not v.PrimaryPart then
-                    continue
-                end
-
-                local args1 = {
-                    [1] = 'ice_cube_hill_minigame',
-                    [2] = 'ice_cube_touched',
-                    [3] = v.Name,
-                }
-
-                ReplicatedStorage.API['MinigameAPI/MessageServer']:FireServer(unpack(args1))
-            end
-
-            local iceCube = getFurthestIceCube()
-
-            if not iceCube then
-                return
-            end
-
-            local args2 = {
-                [1] = 'ice_cube_hill_minigame',
-                [2] = 'attempt_hit',
-                [3] = iceCube.Name,
-                [4] = iceCube.PrimaryPart.Position,
-                [5] = math.random(800, 2000),
-                [6] = Bypass('LiveOpsTime').now(),
-            }
-
-            ReplicatedStorage.API['MinigameAPI/MessageServer']:FireServer(unpack(args2))
-
-            iceCube.DecalPart.Color = Color3.fromRGB(255, 0, 0)
-
-            task.wait(math.random(1, 1.1))
-        end
-
-        function SlipperyEvent.Start()
-            teleportToPlatform()
-
-            if not Workspace:WaitForChild('StaticMap', 15) then
-                return
-            end
-            if not Workspace.StaticMap:WaitForChild('IceCubeHillMinigameStatic', 15) then
-                return
-            end
-            if not Workspace.StaticMap.IceCubeHillMinigameStatic:WaitForChild('IceCubes', 30) then
-                return
-            end
-
-            print('\u{1f431}\u{200d}\u{1f4bb} STARTING MINIGAME \u{1f431}\u{200d}\u{1f4bb}')
-
-            while Workspace.StaticMap.ice_cube_hill_minigame_minigame_state.is_game_active.Value do
-                IceCubeEvent()
-                task.wait()
-            end
-
-            task.wait(1)
-
-            if Workspace.StaticMap.IceCubeHillMinigameStatic:FindFirstChild('IceCubes') then
-                print('Deleted IceCubes Folder')
-                Workspace.StaticMap.IceCubeHillMinigameStatic.IceCubes:Destroy()
-            end
-
-            print('\u{1f389} EVENT DONE \u{1f389}')
-        end
-
-        return SlipperyEvent
     end
 end
 
@@ -7456,7 +7360,6 @@ local TradeLicense = __DARKLUA_BUNDLE_MODULES.load('l')
 local BulkPotions = __DARKLUA_BUNDLE_MODULES.load('m')
 local Tutorials = __DARKLUA_BUNDLE_MODULES.load('n')
 local PotatoMode = __DARKLUA_BUNDLE_MODULES.load('o')
-local SlipperyEvent = __DARKLUA_BUNDLE_MODULES.load('p')
 local clipboard = Clipboard.new()
 local taskBoard = TaskBoard.new()
 
@@ -7949,8 +7852,6 @@ local removeGameOverButton = function()
 end
 local onTextChangedMiniGame = function()
     if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME and hasStartedFarming and not isMuleInGame() then
-        SlipperyEvent.CreatePlatform()
-
         isInMiniGame = true
 
         findButton('Yes')
@@ -8394,24 +8295,6 @@ localPlayer.PlayerGui.HintApp.TextLabel:GetPropertyChangedSignal('Text'):Connect
     elseif localPlayer.PlayerGui.HintApp.TextLabel.Text:match('aged up!') then
     end
 end)
-Workspace.StaticMap.ice_cube_hill_minigame_minigame_state.is_game_active:GetPropertyChangedSignal('Value'):Connect(function(
-)
-    if not Workspace.StaticMap.ice_cube_hill_minigame_minigame_state.is_game_active.Value then
-        isInMiniGame = false
-
-        Misc.DebugModePrint(string.format('game is not active setting isInMinigame to %s', tostring(isInMiniGame)))
-
-        return
-    end
-    if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME and hasStartedFarming and not isMuleInGame() then
-        isInMiniGame = true
-
-        Misc.DebugModePrint(string.format('game ACTIVE setting isInMinigame to %s', tostring(isInMiniGame)))
-        ReplicatedStorage.API['MinigameAPI/AttemptJoin']:FireServer('ice_cube_hill_minigame', true)
-        task.wait()
-        ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('IceCubeHillMinigame')
-    end
-end)
 UserInputService.InputBegan:Connect(function(input, processed)
     if (input.KeyCode == Enum.KeyCode.Q and not processed) then
         if debounce then
@@ -8673,9 +8556,6 @@ localPlayer.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal('Enabled'):Conn
         if localPlayer.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match('SLIPPERY SLOPE') then
             if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME then
                 isInMiniGame = true
-
-                SlipperyEvent.CreatePlatform()
-                SlipperyEvent.Start()
             end
         end
     end
@@ -8756,6 +8636,9 @@ localPlayer.PlayerGui.BattlePassApp.Body:GetPropertyChangedSignal('Visible'):Con
             end
         end
     end
+end)
+localPlayer.Idled:Connect(function()
+    VirtualUser:ClickButton2(Vector2.new())
 end)
 
 repeat
@@ -8919,7 +8802,7 @@ dailyLoginAppClick()
 if getgenv().BUY_BEFORE_FARMING then
     getgenv().isBuyingOrAging = true
 
-    BuyItems:BuyPets(getgenv().BUY_BEFORE_FARMING)
+    BuyItems:StartBuyItems(getgenv().BUY_BEFORE_FARMING)
 end
 if getgenv().OPEN_ITEMS_BEFORE_FARMING then
     getgenv().isBuyingOrAging = true
@@ -9594,9 +9477,6 @@ NewAltTab:CreateButton({
     end,
 })
 Rayfield:SetVisibility(false)
-localPlayer.Idled:Connect(function()
-    VirtualUser:ClickButton2(Vector2.new())
-end)
 PotatoMode.DisableCastShadows()
 
 if localPlayer.PlayerGui.DialogApp.Dialog.IceDimension2025Dialog.Visible then
