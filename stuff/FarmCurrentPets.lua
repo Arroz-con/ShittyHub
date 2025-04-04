@@ -59,6 +59,10 @@ getgenv().SETTINGS = {
 		"valentines_2025_love_bird",
 		"moon_2025_dimension_drifter",
 		"valentines_2025_sweetheart_rat",
+		"winter_2024_frostbite_cub",
+		"moon_2025_snorgle",
+		"moon_2025_hopbop",
+
 	},
 }
 
