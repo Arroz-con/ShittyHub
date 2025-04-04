@@ -6331,7 +6331,7 @@ Check the Developer Console for more information.]],
             elseif num >= 1e3 then
                 return string.format('%.1fK', num / 1e3)
             else
-                return tostring(num)
+                return string.format('%.0f', num)
             end
         end
         local bucksAmount = function()
