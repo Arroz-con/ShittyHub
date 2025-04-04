@@ -7188,6 +7188,46 @@ Check the Developer Console for more information.]],
 
         return PotatoMode
     end
+    function __DARKLUA_BUNDLE_MODULES.p()
+        local Workspace = game:GetService('Workspace')
+        local ReplicatedStorage = game:GetService('ReplicatedStorage')
+        local Blossom = {}
+
+        function Blossom.StartEvent()
+            local isGameActive = Workspace.StaticMap.blossom_shakedown_minigame_state.is_game_active
+            local interior = Workspace.Interiors:WaitForChild('BlossomShakedownInterior', 15)
+
+            if not interior then
+                return
+            end
+
+            local ringsFolder = interior:WaitForChild('Rings', 15)
+
+            if not ringsFolder then
+                return
+            end
+
+            for i, v in ringsFolder:GetDescendants()do
+                if not isGameActive.Value then
+                    return
+                end
+                if not v:IsA('Model') then
+                    continue
+                end
+
+                local args = {
+                    [1] = 'blossom_shakedown',
+                    [2] = 'petal_ring_flown_through',
+                    [3] = v.Name,
+                }
+
+                ReplicatedStorage.API['MinigameAPI/MessageServer']:FireServer(unpack(args))
+                task.wait(0.1)
+            end
+        end
+
+        return Blossom
+    end
 end
 
 if not game:IsLoaded() then
@@ -7360,6 +7400,7 @@ local TradeLicense = __DARKLUA_BUNDLE_MODULES.load('l')
 local BulkPotions = __DARKLUA_BUNDLE_MODULES.load('m')
 local Tutorials = __DARKLUA_BUNDLE_MODULES.load('n')
 local PotatoMode = __DARKLUA_BUNDLE_MODULES.load('o')
+local Blossom = __DARKLUA_BUNDLE_MODULES.load('p')
 local clipboard = Clipboard.new()
 local taskBoard = TaskBoard.new()
 
@@ -8295,6 +8336,24 @@ localPlayer.PlayerGui.HintApp.TextLabel:GetPropertyChangedSignal('Text'):Connect
     elseif localPlayer.PlayerGui.HintApp.TextLabel.Text:match('aged up!') then
     end
 end)
+Workspace.StaticMap.blossom_shakedown_minigame_state.is_game_active:GetPropertyChangedSignal('Value'):Connect(function(
+)
+    if not Workspace.StaticMap.blossom_shakedown_minigame_state.is_game_active.Value then
+        isInMiniGame = false
+
+        Misc.DebugModePrint(string.format('game is not active setting isInMinigame to %s', tostring(isInMiniGame)))
+
+        return
+    end
+    if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME and hasStartedFarming and not isMuleInGame() then
+        isInMiniGame = true
+
+        Misc.DebugModePrint(string.format('game ACTIVE setting isInMinigame to %s', tostring(isInMiniGame)))
+        ReplicatedStorage.API['MinigameAPI/AttemptJoin']:FireServer('blossom_shakedown', true)
+        task.wait()
+        ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('BlossomShakedownInterior')
+    end
+end)
 UserInputService.InputBegan:Connect(function(input, processed)
     if (input.KeyCode == Enum.KeyCode.Q and not processed) then
         if debounce then
@@ -8553,9 +8612,12 @@ localPlayer.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal('Enabled'):Conn
         localPlayer.PlayerGui.MinigameInGameApp.Body.Middle:WaitForChild('Container')
         localPlayer.PlayerGui.MinigameInGameApp.Body.Middle.Container:WaitForChild('TitleLabel')
 
-        if localPlayer.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match('SLIPPERY SLOPE') then
+        if localPlayer.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match('SAKURA SWOOP') then
             if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME then
                 isInMiniGame = true
+
+                task.wait(2)
+                Blossom.StartEvent()
             end
         end
     end
@@ -8570,7 +8632,7 @@ localPlayer.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(
                 NormalDialogChild.Info:WaitForChild('TextLabel')
                 NormalDialogChild.Info.TextLabel:GetPropertyChangedSignal('Text'):Connect(function(
                 )
-                    if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Slippery Slope') then
+                    if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Sakura Swoop') then
                         onTextChangedMiniGame()
                     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('invitation') then
                         game:Shutdown()
@@ -8589,7 +8651,7 @@ localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal('Vi
         localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info:WaitForChild('TextLabel')
         localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal('Text'):Connect(function(
         )
-            if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Slippery Slope') then
+            if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Sakura Swoop') then
                 onTextChangedMiniGame()
             elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('invitation') then
                 game:Shutdown()
@@ -8611,6 +8673,7 @@ localPlayer.PlayerGui.MinigameRewardsApp.Body:GetPropertyChangedSignal('Visible'
         if localPlayer.PlayerGui.MinigameRewardsApp.Body.Button.Face.TextLabel.Text:match('NICE!') then
             localPlayer.Character.HumanoidRootPart.Anchored = false
 
+            task.wait(10)
             removeGameOverButton()
 
             isInMiniGame = false
