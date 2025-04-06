@@ -1,5 +1,6 @@
 getgenv().BUY_BEFORE_FARMING = {
-	{NameId = "spring_2025_bakeneko", MaxAmount = 1000},
+	{NameId = "spring_2025_kage_crow", MaxAmount = 1000},
+	-- {NameId = "spring_2025_bakeneko", MaxAmount = 1000},
 }
 
 -- getgenv().OPEN_ITEMS_BEFORE_FARMING = {
@@ -47,6 +48,7 @@ getgenv().SETTINGS = {
 
 	PET_ONLY_PRIORITY = true,
 	PET_ONLY_PRIORITY_NAMES = {
+		"spring_2025_kage_crow",
 		"spring_2025_bakeneko",
 		"moon_2025_puptune",
 		"st_patricks_2025_clover_cow",
