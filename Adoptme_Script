@@ -5478,7 +5478,7 @@ Check the Developer Console for more information.]],
             local isAlreadyOnMainMap = Workspace:FindFirstChild('Interiors'):FindFirstChild('center_map_plot', true)
 
             if isAlreadyOnMainMap then
-                return
+                return false
             end
 
             Player.Character:WaitForChild('HumanoidRootPart').Anchored = true
@@ -5491,6 +5491,8 @@ Check the Developer Console for more information.]],
 
             Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
             Teleport.DeleteWater()
+
+            return true
         end
         function Teleport.MoonZone()
             Player.Character:WaitForChild('HumanoidRootPart').Anchored = true
@@ -8039,6 +8041,10 @@ local removeGameOverButton = function()
         end
     end
 end
+local blossomRun = function()
+    Teleport.DownloadMainMap()
+    Blossom.Teleport()
+end
 local onTextChangedMiniGame = function()
     if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME and hasStartedFarming and not isMuleInGame() then
         isInMiniGame = true
@@ -8148,6 +8154,7 @@ local CompletePetAilments = function(whichPet)
     for key, _ in ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique]do
         if key == 'salon' then
             Ailments:SalonAilment(key, petUnique)
+            blossomRun()
 
             return true
         elseif key == 'moon' then
@@ -8156,10 +8163,12 @@ local CompletePetAilments = function(whichPet)
             return true
         elseif key == 'pizza_party' then
             Ailments:PizzaPartyAilment(key, petUnique)
+            blossomRun()
 
             return true
         elseif key == 'school' then
             Ailments:SchoolAilment(key, petUnique)
+            blossomRun()
 
             return true
         elseif key == 'bored' then
