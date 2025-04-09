@@ -8041,9 +8041,13 @@ local removeGameOverButton = function()
         end
     end
 end
-local blossomRun = function()
-    Teleport.DownloadMainMap()
-    Blossom.Teleport()
+local teleportToFarmSpotOrBlossomSpot = function()
+    if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME then
+        Teleport.DownloadMainMap()
+        Blossom.Teleport()
+    else
+        Teleport.FarmingHome()
+    end
 end
 local onTextChangedMiniGame = function()
     if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME and hasStartedFarming and not isMuleInGame() then
@@ -8154,7 +8158,7 @@ local CompletePetAilments = function(whichPet)
     for key, _ in ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique]do
         if key == 'salon' then
             Ailments:SalonAilment(key, petUnique)
-            blossomRun()
+            teleportToFarmSpotOrBlossomSpot()
 
             return true
         elseif key == 'moon' then
@@ -8163,12 +8167,12 @@ local CompletePetAilments = function(whichPet)
             return true
         elseif key == 'pizza_party' then
             Ailments:PizzaPartyAilment(key, petUnique)
-            blossomRun()
+            teleportToFarmSpotOrBlossomSpot()
 
             return true
         elseif key == 'school' then
             Ailments:SchoolAilment(key, petUnique)
-            blossomRun()
+            teleportToFarmSpotOrBlossomSpot()
 
             return true
         elseif key == 'bored' then
@@ -8243,8 +8247,7 @@ local autoFarm = function()
     Teleport.PlaceFloorAtFarmingHome()
     Teleport.PlaceFloorAtCampSite()
     Teleport.PlaceFloorAtBeachParty()
-    Teleport.DownloadMainMap()
-    Blossom.Teleport()
+    teleportToFarmSpotOrBlossomSpot()
     task.delay(30, function()
         hasStartedFarming = true
 
