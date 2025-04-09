@@ -8202,12 +8202,14 @@ local CompletePetAilments = function(whichPet)
         if key == 'beach_party' then
             Teleport.PlaceFloorAtBeachParty()
             Ailments:BeachPartyAilment(petUnique)
+            Teleport.DownloadMainMap()
             Blossom.Teleport()
 
             return true
         elseif key == 'camping' then
             Teleport.PlaceFloorAtCampSite()
             Ailments:CampingAilment(petUnique)
+            Teleport.DownloadMainMap()
             Blossom.Teleport()
 
             return true
@@ -8232,6 +8234,7 @@ local autoFarm = function()
     Teleport.PlaceFloorAtFarmingHome()
     Teleport.PlaceFloorAtCampSite()
     Teleport.PlaceFloorAtBeachParty()
+    Teleport.DownloadMainMap()
     Blossom.Teleport()
     task.delay(30, function()
         hasStartedFarming = true
@@ -8800,6 +8803,7 @@ localPlayer.PlayerGui.MinigameRewardsApp.Body:GetPropertyChangedSignal('Visible'
 
             isInMiniGame = false
 
+            Teleport.DownloadMainMap()
             Blossom.Teleport()
         end
     end
