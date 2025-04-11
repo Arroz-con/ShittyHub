@@ -1,14 +1,14 @@
--- getgenv().BUY_BEFORE_FARMING = {
--- 	{NameId = "spring_2025_super_saru", MaxAmount = 16},
--- }
+getgenv().BUY_BEFORE_FARMING = {
+	{NameId = "spring_2025_super_saru", MaxAmount = 32},
+}
 
 -- getgenv().OPEN_ITEMS_BEFORE_FARMING = {
 -- 	"winter_2024_ice_tray"
 -- }
 
--- getgenv().AGE_PETS_BEFORE_FARMING = {
--- 	"spring_2025_super_saru",
--- }
+getgenv().AGE_PETS_BEFORE_FARMING = {
+	"spring_2025_super_saru",
+}
 
 getgenv().SETTINGS = {
 	WEBHOOK = {
