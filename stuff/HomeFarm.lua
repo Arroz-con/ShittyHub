@@ -1,15 +1,16 @@
--- getgenv().BUY_BEFORE_FARMING = {
--- 	{NameId = "ice_dimension_2025_subzero_popsicle_bait", MaxAmount = 1000},
--- 	{NameId = "ice_dimension_2025_shiver_cone_bait", MaxAmount = 4000},
--- }
+getgenv().BUY_BEFORE_FARMING = {
+	{NameId = "spring_2025_super_saru", MaxAmount = 16},
+	{NameId = "spring_2025_kappakid", MaxAmount = 16},
+}
 
 -- getgenv().OPEN_ITEMS_BEFORE_FARMING = {
 -- 	"winter_2024_ice_tray"
 -- }
 
--- getgenv().AGE_PETS_BEFORE_FARMING = {
--- 	"st_patricks_2025_clover_cow"
--- }
+getgenv().AGE_PETS_BEFORE_FARMING = {
+	"spring_2025_super_saru",
+	"spring_2025_kappakid",
+}
 
 getgenv().SETTINGS = {
 	WEBHOOK = {
