@@ -1,7 +1,6 @@
--- getgenv().BUY_BEFORE_FARMING = {
--- 	{NameId = "spring_2025_kage_crow", MaxAmount = 1000},
--- 	-- {NameId = "spring_2025_bakeneko", MaxAmount = 1000},
--- }
+getgenv().BUY_BEFORE_FARMING = {
+	{NameId = "spring_2025_kappakid", MaxAmount = 16},
+}
 
 -- getgenv().OPEN_ITEMS_BEFORE_FARMING = {
 -- 	"winter_2024_ice_tray"
