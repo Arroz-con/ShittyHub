@@ -47,6 +47,7 @@ getgenv().SETTINGS = {
 
 	PET_ONLY_PRIORITY = true,
 	PET_ONLY_PRIORITY_NAMES = {
+		"spring_2025_kappakid",
 		"spring_2025_kage_crow",
 		"spring_2025_bakeneko",
 		"moon_2025_puptune",
