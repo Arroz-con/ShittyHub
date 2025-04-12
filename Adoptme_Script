@@ -7472,7 +7472,7 @@ Check the Developer Console for more information.]],
 
                     local points = localPlayer:GetAttribute('KaijuDestruction')
 
-                    if points and points > 20000 then
+                    if points and points > 15000 then
                         return print('DONE TEAR')
                     end
 
@@ -7483,7 +7483,7 @@ Check the Developer Console for more information.]],
                     }
 
                     ReplicatedStorage.API['MinigameAPI/MessageServer']:FireServer(unpack(args))
-                    task.wait(0.1)
+                    task.wait()
                 end
 
                 task.wait()
@@ -8628,6 +8628,21 @@ Workspace.StaticMap.blossom_shakedown_minigame_state.is_game_active:GetPropertyC
         ReplicatedStorage.API['MinigameAPI/AttemptJoin']:FireServer('blossom_shakedown', true)
         task.wait()
         ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('BlossomShakedownInterior')
+    end
+end)
+Workspace.StaticMap.tear_up_toykyo_minigame_state.is_game_active:GetPropertyChangedSignal('Value'):Connect(function(
+)
+    if not Workspace.StaticMap.tear_up_toykyo_minigame_state.is_game_active.Value then
+        isInMiniGame = false
+
+        Misc.DebugModePrint(string.format('game is not active setting isInMinigame to %s', tostring(isInMiniGame)))
+
+        return
+    end
+    if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME and hasStartedFarming and not isMuleInGame() then
+        isInMiniGame = true
+
+        Misc.DebugModePrint(string.format('game ACTIVE setting isInMinigame to %s', tostring(isInMiniGame)))
     end
 end)
 UserInputService.InputBegan:Connect(function(input, processed)
