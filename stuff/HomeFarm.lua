@@ -41,11 +41,11 @@ getgenv().SETTINGS = {
 		-- "moon_2025_puptune",
 		"lures_2023_blazing_lion",
 		"ice_dimension_2025_frostbite_bear",
-		"ice_dimension_2025_shiver_wolf",
-		"ice_dimension_2025_subzero_scorpion",
-		"ice_dimension_2025_snowy_mammoth",
-		"ice_dimension_2025_chilly_penguin",
-		"ice_dimension_2025_icy_porcupine",
+		-- "ice_dimension_2025_shiver_wolf",
+		-- "ice_dimension_2025_subzero_scorpion",
+		-- "ice_dimension_2025_snowy_mammoth",
+		-- "ice_dimension_2025_chilly_penguin",
+		-- "ice_dimension_2025_icy_porcupine",
 		-- "winter_2024_frostbite_cub"
 	},
 
