@@ -7268,6 +7268,9 @@ Check the Developer Console for more information.]],
     end
     function __DARKLUA_BUNDLE_MODULES.p()
         local Workspace = game:GetService('Workspace')
+
+        game:GetService('VirtualInputManager')
+
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
         local localPlayer = Players.LocalPlayer
@@ -7395,7 +7398,7 @@ Check the Developer Console for more information.]],
 
             for _, child in ipairs(staticMap:GetChildren())do
                 if child:IsA('Folder') and string.match(child.Name, '^' .. mapName .. '::[%w%-]+_minigame_state$') then
-                    return child
+                    return string.gsub(child.Name, '_minigame_state', '')
                 end
             end
 
@@ -7412,11 +7415,10 @@ Check the Developer Console for more information.]],
         end
 
         function Spring2025.StartTearUpToykyo()
-            local waitTime = 0.1
-            local minigameState = findMinigameState('tear_up_toykyo')
+            local minigameName = findMinigameState('tear_up_toykyo')
 
-            if minigameState then
-                print('Found:', minigameState.Name)
+            if minigameName then
+                print('Found:', minigameName)
             else
                 print('Minigame state not found!')
 
@@ -7426,7 +7428,7 @@ Check the Developer Console for more information.]],
             local model = Workspace.Interiors:FindFirstChildWhichIsA('Model')
 
             if not model then
-                return
+                return print('No model')
             end
 
             local buildingFolder = getBuildingFolder(model)
@@ -7435,51 +7437,59 @@ Check the Developer Console for more information.]],
                 return print('No building folder')
             end
 
-            for _, v in buildingFolder:GetChildren()do
-                if not v.PrimaryPart then
-                    continue
-                end
-                if v:GetAttribute('Desaturated') then
-                    continue
-                end
+            local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
 
-                local id = v:GetAttribute('DestructibleID')
-
-                if not id then
-                    continue
-                end
-
-                local character = localPlayer.Character
-
-                if not character then
-                    continue
-                end
-
-                local humanoidRootPart = character:FindFirstChild('HumanoidRootPart')
-
-                if not humanoidRootPart then
-                    continue
-                end
-
-                humanoidRootPart.CFrame = v.PrimaryPart.CFrame + Vector3.new(0, 5, 0)
-
-                game:GetService('VirtualInputManager'):SendKeyEvent(true, 'W', false, game)
-                task.wait(waitTime)
-                game:GetService('VirtualInputManager'):SendKeyEvent(false, 'W', false, game)
-                game:GetService('VirtualInputManager'):SendKeyEvent(true, 'D', false, game)
-                task.wait(waitTime)
-                game:GetService('VirtualInputManager'):SendKeyEvent(false, 'D', false, game)
-                game:GetService('VirtualInputManager'):SendKeyEvent(true, 'S', false, game)
-                task.wait(waitTime)
-                game:GetService('VirtualInputManager'):SendKeyEvent(false, 'S', false, game)
-                game:GetService('VirtualInputManager'):SendKeyEvent(true, 'A', false, game)
-                task.wait(waitTime)
-                game:GetService('VirtualInputManager'):SendKeyEvent(false, 'A', false, game)
-
-                if not workspace.StaticMap.tear_up_toykyo_minigame_state.is_game_active.Value then
-                    break
-                end
+            if not character then
+                return print('No Char')
             end
+
+            local humanoidRootPart = character:WaitForChild('HumanoidRootPart', 10)
+
+            if not humanoidRootPart then
+                return print('No HumanoidRootPart')
+            end
+
+            while Workspace.StaticMap.tear_up_toykyo_minigame_state.is_game_active.Value do
+                for _, v in buildingFolder:GetChildren()do
+                    if not v.PrimaryPart then
+                        continue
+                    end
+                    if v:GetAttribute('Desaturated') then
+                        continue
+                    end
+
+                    local distance = (v.PrimaryPart.Position - humanoidRootPart.Position).Magnitude
+
+                    if distance > 250 then
+                        continue
+                    end
+
+                    local id = v:GetAttribute('DestructibleID')
+
+                    if not id then
+                        continue
+                    end
+
+                    local points = localPlayer:GetAttribute('KaijuDestruction')
+
+                    if points and points > 20000 then
+                        return print('DONE TEAR')
+                    end
+
+                    local args = {
+                        [1] = minigameName,
+                        [2] = 'building_destroyed',
+                        [3] = id,
+                    }
+
+                    ReplicatedStorage.API['MinigameAPI/MessageServer']:FireServer(unpack(args))
+                    task.wait(0.1)
+                end
+
+                task.wait()
+            end
+
+            print('DONE TEAR')
 
             return
         end
@@ -8868,7 +8878,7 @@ localPlayer.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal('Enabled'):Conn
             if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME then
                 isInMiniGame = true
 
-                task.wait(math.random(5, 15))
+                task.wait(math.random(10, 15))
                 Spring2025.StartTearUpToykyo()
             end
         end
