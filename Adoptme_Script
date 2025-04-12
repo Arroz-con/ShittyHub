@@ -5475,7 +5475,13 @@ Check the Developer Console for more information.]],
             Teleport.DeleteWater()
         end
         function Teleport.DownloadMainMap()
-            local isAlreadyOnMainMap = Workspace:FindFirstChild('Interiors'):FindFirstChild('center_map_plot', true)
+            local interiors = Workspace:WaitForChild('Interiors', 30)
+
+            if not interiors then
+                return
+            end
+
+            local isAlreadyOnMainMap = interiors:FindFirstChild('center_map_plot', true)
 
             if isAlreadyOnMainMap then
                 return false
@@ -6334,6 +6340,10 @@ Check the Developer Console for more information.]],
             local hours = math.floor(currentTime / 3600)
             local minutes = math.floor((currentTime % 3600) / 60)
             local seconds = currentTime % 60
+
+            if hours >= 10 then
+                game:Shutdown()
+            end
 
             return string.format('%02d:%02d:%02d', hours, minutes, seconds)
         end
@@ -7262,7 +7272,7 @@ Check the Developer Console for more information.]],
         local Players = game:GetService('Players')
         local localPlayer = Players.LocalPlayer
         local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
-        local Blossom = {}
+        local Spring2025 = {}
         local createAFKPlateform = function()
             if Workspace:FindFirstChild('BlossomAFKLocation') then
                 return
@@ -7331,7 +7341,7 @@ Check the Developer Console for more information.]],
             firetouchinterest(humanoidRootPart, gliderCollision, 0)
         end
 
-        function Blossom.Teleport()
+        function Spring2025.Teleport()
             createAFKPlateform()
 
             localPlayer.Character:WaitForChild('HumanoidRootPart').Anchored = true
@@ -7341,7 +7351,7 @@ Check the Developer Console for more information.]],
             localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
             ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('MainMap', localPlayer, ClientData.get_data()[localPlayer.Name].LiveOpsMapType)
         end
-        function Blossom.StartEvent()
+        function Spring2025.StartSakuraSwoop()
             local isGameActive = Workspace.StaticMap.blossom_shakedown_minigame_state.is_game_active
             local interior = Workspace.Interiors:WaitForChild('BlossomShakedownInterior', 15)
 
@@ -7376,7 +7386,105 @@ Check the Developer Console for more information.]],
             end
         end
 
-        return Blossom
+        local findMinigameState = function(mapName)
+            local staticMap = workspace:FindFirstChild('StaticMap')
+
+            if not staticMap then
+                return nil
+            end
+
+            for _, child in ipairs(staticMap:GetChildren())do
+                if child:IsA('Folder') and string.match(child.Name, '^' .. mapName .. '::[%w%-]+_minigame_state$') then
+                    return child
+                end
+            end
+
+            return nil
+        end
+        local getBuildingFolder = function(model)
+            for _, v in model.Programmed.Map:GetChildren()do
+                if v.Name == 'Buildings' and v:IsA('Folder') then
+                    return v
+                end
+            end
+
+            return nil
+        end
+
+        function Spring2025.StartTearUpToykyo()
+            local waitTime = 0.1
+            local minigameState = findMinigameState('tear_up_toykyo')
+
+            if minigameState then
+                print('Found:', minigameState.Name)
+            else
+                print('Minigame state not found!')
+
+                return
+            end
+
+            local model = Workspace.Interiors:FindFirstChildWhichIsA('Model')
+
+            if not model then
+                return
+            end
+
+            local buildingFolder = getBuildingFolder(model)
+
+            if not buildingFolder then
+                return print('No building folder')
+            end
+
+            for _, v in buildingFolder:GetChildren()do
+                if not v.PrimaryPart then
+                    continue
+                end
+                if v:GetAttribute('Desaturated') then
+                    continue
+                end
+
+                local id = v:GetAttribute('DestructibleID')
+
+                if not id then
+                    continue
+                end
+
+                local character = localPlayer.Character
+
+                if not character then
+                    continue
+                end
+
+                local humanoidRootPart = character:FindFirstChild('HumanoidRootPart')
+
+                if not humanoidRootPart then
+                    continue
+                end
+
+                humanoidRootPart.CFrame = v.PrimaryPart.CFrame + Vector3.new(0, 5, 0)
+
+                game:GetService('VirtualInputManager'):SendKeyEvent(true, 'W', false, game)
+                task.wait(waitTime)
+                game:GetService('VirtualInputManager'):SendKeyEvent(false, 'W', false, game)
+                game:GetService('VirtualInputManager'):SendKeyEvent(true, 'D', false, game)
+                task.wait(waitTime)
+                game:GetService('VirtualInputManager'):SendKeyEvent(false, 'D', false, game)
+                game:GetService('VirtualInputManager'):SendKeyEvent(true, 'S', false, game)
+                task.wait(waitTime)
+                game:GetService('VirtualInputManager'):SendKeyEvent(false, 'S', false, game)
+                game:GetService('VirtualInputManager'):SendKeyEvent(true, 'A', false, game)
+                task.wait(waitTime)
+                game:GetService('VirtualInputManager'):SendKeyEvent(false, 'A', false, game)
+
+                if not workspace.StaticMap.tear_up_toykyo_minigame_state.is_game_active.Value then
+                    break
+                end
+            end
+
+            return
+        end
+
+        return Spring2025
     end
 end
 
@@ -7550,7 +7658,7 @@ local TradeLicense = __DARKLUA_BUNDLE_MODULES.load('l')
 local BulkPotions = __DARKLUA_BUNDLE_MODULES.load('m')
 local Tutorials = __DARKLUA_BUNDLE_MODULES.load('n')
 local PotatoMode = __DARKLUA_BUNDLE_MODULES.load('o')
-local Blossom = __DARKLUA_BUNDLE_MODULES.load('p')
+local Spring2025 = __DARKLUA_BUNDLE_MODULES.load('p')
 local clipboard = Clipboard.new()
 local taskBoard = TaskBoard.new()
 
@@ -8027,11 +8135,11 @@ local ClickTradeWindowPopUps = function()
         end
     end
 end
-local removeGameOverButton = function()
+local removeGameOverButton = function(ScreenGuiName)
     task.wait()
-    localPlayer.PlayerGui.MinigameRewardsApp.Body.Button:WaitForChild('Face')
+    localPlayer.PlayerGui[ScreenGuiName].Body.Button:WaitForChild('Face')
 
-    for _, v in pairs(localPlayer.PlayerGui.MinigameRewardsApp.Body.Button:GetDescendants())do
+    for _, v in pairs(localPlayer.PlayerGui[ScreenGuiName].Body.Button:GetDescendants())do
         if v.Name == 'TextLabel' then
             if v.Text == 'NICE!' then
                 fireButton(v.Parent.Parent)
@@ -8044,7 +8152,7 @@ end
 local teleportToFarmSpotOrBlossomSpot = function()
     if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME then
         Teleport.DownloadMainMap()
-        Blossom.Teleport()
+        Spring2025.Teleport()
     else
         Teleport.FarmingHome()
     end
@@ -8216,14 +8324,14 @@ local CompletePetAilments = function(whichPet)
             Teleport.PlaceFloorAtBeachParty()
             Ailments:BeachPartyAilment(petUnique)
             Teleport.DownloadMainMap()
-            Blossom.Teleport()
+            Spring2025.Teleport()
 
             return true
         elseif key == 'camping' then
             Teleport.PlaceFloorAtCampSite()
             Ailments:CampingAilment(petUnique)
             Teleport.DownloadMainMap()
-            Blossom.Teleport()
+            Spring2025.Teleport()
 
             return true
         end
@@ -8754,7 +8862,14 @@ localPlayer.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal('Enabled'):Conn
                 isInMiniGame = true
 
                 task.wait(2)
-                Blossom.StartEvent()
+                Spring2025.StartSakuraSwoop()
+            end
+        elseif localPlayer.PlayerGui.MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match('TEAR UP TOYKYO') then
+            if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME then
+                isInMiniGame = true
+
+                task.wait(math.random(5, 15))
+                Spring2025.StartTearUpToykyo()
             end
         end
     end
@@ -8770,6 +8885,8 @@ localPlayer.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(
                 NormalDialogChild.Info.TextLabel:GetPropertyChangedSignal('Text'):Connect(function(
                 )
                     if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Sakura Swoop') then
+                        onTextChangedMiniGame()
+                    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Tear Up Toykyo') then
                         onTextChangedMiniGame()
                     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('invitation') then
                         game:Shutdown()
@@ -8789,6 +8906,8 @@ localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal('Vi
         localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal('Text'):Connect(function(
         )
             if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Sakura Swoop') then
+                onTextChangedMiniGame()
+            elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Tear Up Toykyo') then
                 onTextChangedMiniGame()
             elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('invitation') then
                 game:Shutdown()
@@ -8811,12 +8930,32 @@ localPlayer.PlayerGui.MinigameRewardsApp.Body:GetPropertyChangedSignal('Visible'
             localPlayer.Character.HumanoidRootPart.Anchored = false
 
             task.wait(10)
-            removeGameOverButton()
+            removeGameOverButton('MinigameRewardsApp')
 
             isInMiniGame = false
 
             Teleport.DownloadMainMap()
-            Blossom.Teleport()
+            Spring2025.Teleport()
+        end
+    end
+end)
+localPlayer.PlayerGui.MinigameNewsPaperApp.Body:GetPropertyChangedSignal('Visible'):Connect(function(
+)
+    if localPlayer.PlayerGui.MinigameNewsPaperApp.Body.Visible then
+        localPlayer.PlayerGui.MinigameNewsPaperApp.Body:WaitForChild('Button')
+        localPlayer.PlayerGui.MinigameNewsPaperApp.Body.Button:WaitForChild('Face')
+        localPlayer.PlayerGui.MinigameNewsPaperApp.Body.Button.Face:WaitForChild('TextLabel')
+
+        if localPlayer.PlayerGui.MinigameNewsPaperApp.Body.Button.Face.TextLabel.Text:match('NICE!') then
+            localPlayer.Character.HumanoidRootPart.Anchored = false
+
+            task.wait(10)
+            removeGameOverButton('MinigameNewsPaperApp')
+
+            isInMiniGame = false
+
+            Teleport.DownloadMainMap()
+            Spring2025.Teleport()
         end
     end
 end)
