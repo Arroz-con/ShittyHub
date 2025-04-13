@@ -7417,7 +7417,9 @@ Check the Developer Console for more information.]],
 
             for _, child in ipairs(staticMap:GetChildren())do
                 if child:IsA('Folder') and string.match(child.Name, '^' .. mapName .. '::[%w%-]+_minigame_state$') then
-                    return string.gsub(child.Name, '_minigame_state', '')
+                    if child:FindFirstChild('player_user_ids') and string.find(child.player_user_ids.Value, localPlayer.UserId) then
+                        return string.gsub(child.Name, '_minigame_state', '')
+                    end
                 end
             end
 
