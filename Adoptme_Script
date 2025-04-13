@@ -4310,6 +4310,13 @@ Check the Developer Console for more information.]],
         local InventoryDB = require(ReplicatedStorage:WaitForChild('ClientDB'):WaitForChild('Inventory'):WaitForChild('InventoryDB'))
         local localPlayer = Players.LocalPlayer
         local GetInventory = {}
+        local blackListIds = {
+            'practice_dog',
+            'spring_2025_minigame_spiked_kaijunior',
+            'spring_2025_minigame_scorching_kaijunior',
+            'spring_2025_minigame_toxic_kaijunior',
+            'spring_2025_minigame_spotted_kaijunior',
+        }
         local equipWhichPet = function(whichPet, petUnique)
             if whichPet == 1 then
                 ReplicatedStorage.API['ToolAPI/Equip']:InvokeServer(petUnique, {
@@ -4343,7 +4350,7 @@ Check the Developer Console for more information.]],
             local inventoryTable = {}
 
             for _, v in ClientData.get_data()[localPlayer.Name].inventory[tabId]do
-                if v.id == 'practice_dog' then
+                if table.find(blackListIds, v.id) then
                     continue
                 end
                 if table.find(inventoryTable, v.id) then
@@ -4387,7 +4394,7 @@ Check the Developer Console for more information.]],
             local petUnique = nil
 
             for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
-                if pet.id == 'practice_dog' then
+                if table.find(blackListIds, pet.id) then
                     continue
                 end
                 if not pet.properties then
@@ -4425,7 +4432,10 @@ Check the Developer Console for more information.]],
 
             while not petFound do
                 for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
-                    if pet.id ~= 'practice_dog' and pet.properties.age == PetageCounter and pet.properties.neon == isNeon then
+                    if table.find(blackListIds, pet.id) then
+                        continue
+                    end
+                    if pet.properties.age == PetageCounter and pet.properties.neon == isNeon then
                         if pet.unique == getgenv().petCurrentlyFarming1 then
                             continue
                         end
@@ -4462,7 +4472,10 @@ Check the Developer Console for more information.]],
             while not petFound do
                 for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
                     for _, petDB in InventoryDB.pets do
-                        if rarity == petDB.rarity and pet.id == petDB.id and pet.id ~= 'practice_dog' and pet.properties.age == PetageCounter and pet.properties.neon == isNeon then
+                        if table.find(blackListIds, pet.id) then
+                            continue
+                        end
+                        if rarity == petDB.rarity and pet.id == petDB.id and pet.properties.age == PetageCounter and pet.properties.neon == isNeon then
                             if pet.unique == getgenv().petCurrentlyFarming1 then
                                 continue
                             end
@@ -4581,7 +4594,10 @@ Check the Developer Console for more information.]],
         function GetInventory:PriorityEgg(whichPet)
             for _, v in ipairs(getgenv().SETTINGS.HATCH_EGG_PRIORITY_NAMES)do
                 for _, v2 in ClientData.get_data()[localPlayer.Name].inventory.pets do
-                    if v == v2.id and v2.id ~= 'practice_dog' then
+                    if table.find(blackListIds, v2.id) then
+                        continue
+                    end
+                    if v == v2.id then
                         if v2.unique == getgenv().petCurrentlyFarming1 then
                             continue
                         end
@@ -4616,7 +4632,10 @@ Check the Developer Console for more information.]],
 
             while not found_pet do
                 for _, v in ClientData.get_data()[localPlayer.Name].inventory.pets do
-                    if v.id ~= 'practice_dog' and v.properties.age == Petage and v.properties.neon == isNeon then
+                    if table.find(blackListIds, v.id) then
+                        continue
+                    end
+                    if v.properties.age == Petage and v.properties.neon == isNeon then
                         if v.unique == getgenv().petCurrentlyFarming1 then
                             continue
                         end
@@ -4658,7 +4677,10 @@ Check the Developer Console for more information.]],
                         if v2.unique == getgenv().petCurrentlyFarming2 then
                             continue
                         end
-                        if v == v2.id and v2.id ~= 'practice_dog' and v2.properties.age == Petage and v2.properties.neon == isNeon then
+                        if table.find(blackListIds, v2.id) then
+                            continue
+                        end
+                        if v == v2.id and v2.properties.age == Petage and v2.properties.neon == isNeon then
                             print('PriorityPet:')
                             equipWhichPet(whichPet, v2.unique)
 
@@ -7268,9 +7290,6 @@ Check the Developer Console for more information.]],
     end
     function __DARKLUA_BUNDLE_MODULES.p()
         local Workspace = game:GetService('Workspace')
-
-        game:GetService('VirtualInputManager')
-
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
         local localPlayer = Players.LocalPlayer
@@ -8073,6 +8092,8 @@ local getPet = function(whichPet)
     if getEgg(whichPet) then
         return
     end
+
+    return
 end
 local removeHandHeldItem = function()
     local tool = localPlayer.Character:FindFirstChildOfClass('Tool')
