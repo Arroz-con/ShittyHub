@@ -7781,6 +7781,20 @@ Check the Developer Console for more information.]],
 
             print('[DEBUG] Finished ExchangeItemForReward')
         end
+        function Spring2025.StartCollectingEggs()
+            local eggSpawnsFolder = Workspace.StaticMap.Springfest2025.EggSpawns
+
+            if not eggSpawnsFolder then
+                return
+            end
+
+            for i, v in eggSpawnsFolder do
+                ReplicatedStorage.API['SpringfestEventAPI/EggHuntCollectEgg']:FireServer(v)
+                task.wait(1)
+            end
+
+            print('[DEBUG] COLLECTED EGGS?')
+        end
 
         return Spring2025
     end
@@ -8846,8 +8860,8 @@ local onTextChangedNormalDialog = function()
         findButton('Awesome!')
     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Burtaur') then
         findButton('Cool!')
-    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Gingerbread!') then
-        findButton('Awesome!')
+    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('2X EGG HUNT') then
+        findButton('Okay')
     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Thanks for') then
         findButton('Okay')
     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Right now') then
