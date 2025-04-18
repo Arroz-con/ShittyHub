@@ -7342,11 +7342,30 @@ Check the Developer Console for more information.]],
 
             return
         end
+
+        local formatTableToDict = function(tableToFormat)
+            print('[DEBUG] formatting table')
+
+            local mytable = {}
+
+            for _, v in tableToFormat do
+                table.insert(mytable, {
+                    NameId = v,
+                    MaxAmount = 666,
+                })
+            end
+
+            return mytable
+        end
+
         function BulkPotions:StartAgingPets(petsTable)
             if typeof(petsTable) ~= 'table' then
                 print('is not a table')
 
                 return
+            end
+            if typeof(petsTable[1]) ~= 'table' then
+                petsTable = formatTableToDict(petsTable)
             end
 
             for _, value in ipairs(petsTable)do
@@ -7358,6 +7377,9 @@ Check the Developer Console for more information.]],
 
                 local result = getMaxMega(value.NameId)
 
+                if not value.MaxAmount then
+                    value.MaxAmount = 666
+                end
                 if result >= value.MaxAmount then
                     return false, print(string.format('Pet: %s has maxed Amount: %s', tostring(value.NameId), tostring(result)))
                 end
