@@ -7782,15 +7782,25 @@ Check the Developer Console for more information.]],
             print('[DEBUG] Finished ExchangeItemForReward')
         end
         function Spring2025.StartCollectingEggs()
-            local eggSpawnsFolder = Workspace.StaticMap.Springfest2025.EggSpawns
+            local eventFolder = Workspace.Interiors:FindFirstChildWhichIsA('Model'):FindFirstChild('Event')
+
+            if not eventFolder then
+                return
+            end
+
+            local eggSpawnsFolder = Workspace.Interiors:FindFirstChildWhichIsA('Model').Event:FindFirstChild('EggHuntEggBin')
 
             if not eggSpawnsFolder then
                 return
             end
 
-            for i, v in eggSpawnsFolder do
+            for _, v in eggSpawnsFolder:GetChildren()do
+                if not v then
+                    continue
+                end
+
                 ReplicatedStorage.API['SpringfestEventAPI/EggHuntCollectEgg']:FireServer(v)
-                task.wait(1)
+                task.wait(math.random(0.1, 1))
             end
 
             print('[DEBUG] COLLECTED EGGS?')
@@ -8861,6 +8871,9 @@ local onTextChangedNormalDialog = function()
     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Burtaur') then
         findButton('Cool!')
     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('2X EGG HUNT') then
+        findButton('Okay')
+        Spring2025.StartCollectingEggs()
+    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('MECHA R4BBIT ACTIVATED!') then
         findButton('Okay')
     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Thanks for') then
         findButton('Okay')
