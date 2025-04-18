@@ -7782,7 +7782,7 @@ Check the Developer Console for more information.]],
             print('[DEBUG] Finished ExchangeItemForReward')
         end
         function Spring2025.StartCollectingEggs()
-            local mainMapFolder = Workspace.Interiors:WaitForChild(ClientData.get_data()[localPlayer.Name].LiveOpsMapType, 60)
+            local mainMapFolder = Workspace.Interiors:WaitForChild(string.format('MainMap!%s', tostring(ClientData.get_data()[localPlayer.Name].LiveOpsMapType)), 120)
 
             if not mainMapFolder then
                 return
