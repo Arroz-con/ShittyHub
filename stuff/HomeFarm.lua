@@ -7,7 +7,7 @@ getgenv().BUY_BEFORE_FARMING = {
 -- }
 
 getgenv().AGE_PETS_BEFORE_FARMING = {
-	{NameId = "lunar_2025_nebula_snake", MaxAmount = 99},
+	{NameId = "spring_2025_super_saru", MaxAmount = 99},
 }
 
 
