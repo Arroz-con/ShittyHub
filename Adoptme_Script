@@ -7279,7 +7279,7 @@ Check the Developer Console for more information.]],
 
         local hasAgeUpPotion = function()
             for _, v in ClientData.get_data()[localPlayer.Name].inventory.food do
-                if v.id == 'pet_age_potion' or v.id == 'tiny_pet_age_potion' then
+                if v.id == 'pet_age_potion' then
                     return true
                 end
             end
