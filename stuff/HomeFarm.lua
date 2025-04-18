@@ -7,13 +7,15 @@
 -- }
 
 -- getgenv().AGE_PETS_BEFORE_FARMING = {
--- 	"spring_2025_super_saru",
+-- 	{NameId = "lunar_2025_nebula_snake", MaxAmount = 99},
 -- }
+
 
 getgenv().SETTINGS = {
 	WEBHOOK = {
 		URL = "",
-		USER_ID = ""
+		USER_ID = "",
+		VPS_NAME = "VPS"
 	},
 
 	EVENT = {

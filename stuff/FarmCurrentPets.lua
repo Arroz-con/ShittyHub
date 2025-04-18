@@ -7,13 +7,15 @@ getgenv().BUY_BEFORE_FARMING = {
 -- }
 
 getgenv().AGE_PETS_BEFORE_FARMING = {
-	"spring_2025_kappakid"
+	{NameId = "spring_2025_kappakid", MaxAmount = 99},
 }
+
 
 getgenv().SETTINGS = {
 	WEBHOOK = {
 		URL = "",
-		USER_ID = ""
+		USER_ID = "",
+		VPS_NAME = "VPS"
 	},
 
 	EVENT = {
