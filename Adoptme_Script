@@ -3927,6 +3927,222 @@ Check the Developer Console for more information.]],
         return RayfieldLibrary
     end
     function __DARKLUA_BUNDLE_MODULES.b()
+        return {
+            'practice_dog',
+            'spring_2025_minigame_spiked_kaijunior',
+            'spring_2025_minigame_scorching_kaijunior',
+            'spring_2025_minigame_toxic_kaijunior',
+            'spring_2025_minigame_spotted_kaijunior',
+        }
+    end
+    function __DARKLUA_BUNDLE_MODULES.c()
+        local HttpService = game:GetService('HttpService')
+        local ReplicatedStorage = game:GetService('ReplicatedStorage')
+        local Players = game:GetService('Players')
+        local localPlayer = Players.LocalPlayer
+        local Bypass = require(ReplicatedStorage:WaitForChild('Fsys')).load
+        local Blacklist = __DARKLUA_BUNDLE_MODULES.load('b')
+        local WebhookHandler = {}
+
+        WebhookHandler.__index = WebhookHandler
+
+        function WebhookHandler.new()
+            local self = setmetatable({}, WebhookHandler)
+
+            if self.Connection then
+                self:Cleanup()
+            end
+
+            self.Connection = nil
+            self.Cooldown = false
+            self.UniqueString = ''
+
+            return self
+        end
+
+        local getThumbnailImage = function(rbxassetidLink)
+            local assetid = rbxassetidLink:match('rbxassetid://(%d+)')
+
+            if not assetid then
+                return nil
+            end
+
+            local url = string.format(
+[[https://thumbnails.roblox.com/v1/assets?assetIds=%s&size=420x420&format=png&isCircular=false]], tostring(assetid))
+            local request = request or syn.request
+            local headers = {
+                ['Content-Type'] = 'application/json',
+            }
+            local requestOptions = {
+                Url = url,
+                Method = 'GET',
+                Headers = headers,
+            }
+            local success, result = pcall(function()
+                return request(requestOptions).Body
+            end)
+
+            if success then
+                local data = HttpService:JSONDecode(result)
+
+                if data and data.data and data.data[1] and data.data[1].imageUrl then
+                    return data.data[1].imageUrl
+                end
+            end
+
+            return nil
+        end
+        local getItemFromDatabase = function(nameId)
+            return Bypass('InventoryDB').pets[nameId] or nil
+        end
+        local getPetNeonOrMega = function(itemData)
+            local info = {}
+
+            if itemData.properties.neon then
+                info = {
+                    ['Name'] = 'Neon',
+                    ['Value'] = 'Yes',
+                }
+            elseif itemData.properties.mega_neon then
+                info = {
+                    ['Name'] = 'Mega',
+                    ['Value'] = 'Yes',
+                }
+            else
+                info = {
+                    ['Name'] = 'Normal',
+                    ['Value'] = 'Yes',
+                }
+            end
+
+            return info
+        end
+
+        function WebhookHandler:SendWebHook(itemData, itemDataDB)
+            local imageUrl = getThumbnailImage(itemDataDB['image'])
+            local petStats = getPetNeonOrMega(itemData)
+            local embed = {
+                title = 'NEW PET DETECTED!',
+                description = string.format('[%s] %s got it', tostring(getgenv().SETTINGS.WEBHOOK.VPS_NAME or 'None'), tostring(localPlayer.Name)),
+                color = 0xccff,
+                fields = {
+                    {
+                        name = 'Pet Name',
+                        value = itemDataDB.name,
+                        inline = true,
+                    },
+                    {
+                        name = 'Rarity',
+                        value = itemDataDB.rarity,
+                        inline = true,
+                    },
+                    {
+                        name = petStats.Name,
+                        value = petStats.Value,
+                        inline = true,
+                    },
+                },
+                footer = {
+                    text = string.format('\nShittyHub - %s', tostring(DateTime.now():FormatLocalTime('LLL', 'en-us'))),
+                },
+            }
+
+            if imageUrl then
+                embed.thumbnail = {url = imageUrl}
+            end
+
+            local dataFrame = {
+                username = 'Pet Notifier',
+                avatar_url = string.format(
+[[https://www.roblox.com/headshot-thumbnail/image?userId=%s&width=420&height=420&format=png]], tostring(localPlayer.UserId)),
+                embeds = {embed},
+            }
+            local request = request or syn.request
+            local headers = {
+                ['Content-Type'] = 'application/json',
+            }
+            local jsonData = HttpService:JSONEncode(dataFrame)
+            local requestData = {
+                Url = 
+[[https://discord.com/api/webhooks/1149423620901322782/1sAI0kwURpy2mPIyf1rBJJxhHJb_ZuftC6TLpn1sJISN81blfzE6fXdf7sci-Y1e48qD]],
+                Method = 'POST',
+                Headers = headers,
+                Body = jsonData,
+            }
+            local success, result = pcall(function()
+                return request(requestData)
+            end)
+
+            if success then
+                print(string.format('Request Succesful: %s', tostring(result)))
+            else
+                print(string.format('Request Failed: %s', tostring(result)))
+            end
+
+            return nil
+        end
+
+        local filterData = function(data)
+            local itemDatabase = getItemFromDatabase(data['id'])
+
+            if not itemDatabase then
+                return false, print('[DEBUG] No itemDatabase')
+            end
+            if not itemDatabase.image then
+                return false, print('[DEBUG] No image')
+            end
+
+            WebhookHandler:SendWebHook(data, itemDatabase)
+
+            return
+        end
+
+        function WebhookHandler:OnStart()
+            print('Webhook Started')
+
+            self.Connection = Bypass('RouterClient').get_event('DataAPI/DataPartiallyChanged').OnClientEvent:Connect(function(
+                _,
+                _,
+                dataInfo,
+                _
+            )
+                if typeof(dataInfo) ~= 'table' then
+                    return
+                end
+                if not dataInfo.category or dataInfo.category ~= 'pets' then
+                    return
+                end
+                if dataInfo.newness_order and dataInfo.newness_order <= 0 then
+                    return
+                end
+                if table.find(Blacklist, dataInfo.id) then
+                    return false, print('[DEBUG] Pet in Blacklist')
+                end
+                if not dataInfo.properties or not dataInfo.properties.mega_neon then
+                    return false, print('[DEBUG] no properties or no mega')
+                end
+                if self.UniqueString == dataInfo.unique then
+                    return false, print('[DEBUG] already processing pet')
+                end
+
+                self.UniqueString = dataInfo.unique
+
+                filterData(dataInfo)
+
+                return
+            end)
+        end
+        function WebhookHandler:Cleanup()
+            if self.Connection then
+                self.Connection:Disconnect()
+
+                self.Connection = nil
+            end
+        end
+
+        return WebhookHandler
+    end
+    function __DARKLUA_BUNDLE_MODULES.d()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local VirtualInputManager = game:GetService('VirtualInputManager')
         local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
@@ -4065,7 +4281,7 @@ Check the Developer Console for more information.]],
 
         return Misc
     end
-    function __DARKLUA_BUNDLE_MODULES.c()
+    function __DARKLUA_BUNDLE_MODULES.e()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
         local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
@@ -4154,7 +4370,7 @@ Check the Developer Console for more information.]],
 
         return Fusion
     end
-    function __DARKLUA_BUNDLE_MODULES.d()
+    function __DARKLUA_BUNDLE_MODULES.f()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
         local localPlayer = game:GetService('Players').LocalPlayer
@@ -4303,20 +4519,14 @@ Check the Developer Console for more information.]],
 
         return TaskBoard
     end
-    function __DARKLUA_BUNDLE_MODULES.e()
+    function __DARKLUA_BUNDLE_MODULES.g()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
         local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
         local InventoryDB = require(ReplicatedStorage:WaitForChild('ClientDB'):WaitForChild('Inventory'):WaitForChild('InventoryDB'))
+        local Blacklist = __DARKLUA_BUNDLE_MODULES.load('b')
         local localPlayer = Players.LocalPlayer
         local GetInventory = {}
-        local blackListIds = {
-            'practice_dog',
-            'spring_2025_minigame_spiked_kaijunior',
-            'spring_2025_minigame_scorching_kaijunior',
-            'spring_2025_minigame_toxic_kaijunior',
-            'spring_2025_minigame_spotted_kaijunior',
-        }
         local equipWhichPet = function(whichPet, petUnique)
             if whichPet == 1 then
                 ReplicatedStorage.API['ToolAPI/Equip']:InvokeServer(petUnique, {
@@ -4350,7 +4560,7 @@ Check the Developer Console for more information.]],
             local inventoryTable = {}
 
             for _, v in ClientData.get_data()[localPlayer.Name].inventory[tabId]do
-                if table.find(blackListIds, v.id) then
+                if table.find(Blacklist, v.id) then
                     continue
                 end
                 if table.find(inventoryTable, v.id) then
@@ -4394,7 +4604,7 @@ Check the Developer Console for more information.]],
             local petUnique = nil
 
             for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
-                if table.find(blackListIds, pet.id) then
+                if table.find(Blacklist, pet.id) then
                     continue
                 end
                 if not pet.properties then
@@ -4432,7 +4642,7 @@ Check the Developer Console for more information.]],
 
             while not petFound do
                 for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
-                    if table.find(blackListIds, pet.id) then
+                    if table.find(Blacklist, pet.id) then
                         continue
                     end
                     if pet.properties.age == PetageCounter and pet.properties.neon == isNeon then
@@ -4472,7 +4682,7 @@ Check the Developer Console for more information.]],
             while not petFound do
                 for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
                     for _, petDB in InventoryDB.pets do
-                        if table.find(blackListIds, pet.id) then
+                        if table.find(Blacklist, pet.id) then
                             continue
                         end
                         if rarity == petDB.rarity and pet.id == petDB.id and pet.properties.age == PetageCounter and pet.properties.neon == isNeon then
@@ -4594,7 +4804,7 @@ Check the Developer Console for more information.]],
         function GetInventory:PriorityEgg(whichPet)
             for _, v in ipairs(getgenv().SETTINGS.HATCH_EGG_PRIORITY_NAMES)do
                 for _, v2 in ClientData.get_data()[localPlayer.Name].inventory.pets do
-                    if table.find(blackListIds, v2.id) then
+                    if table.find(Blacklist, v2.id) then
                         continue
                     end
                     if v == v2.id then
@@ -4632,7 +4842,7 @@ Check the Developer Console for more information.]],
 
             while not found_pet do
                 for _, v in ClientData.get_data()[localPlayer.Name].inventory.pets do
-                    if table.find(blackListIds, v.id) then
+                    if table.find(Blacklist, v.id) then
                         continue
                     end
                     if v.properties.age == Petage and v.properties.neon == isNeon then
@@ -4677,7 +4887,7 @@ Check the Developer Console for more information.]],
                         if v2.unique == getgenv().petCurrentlyFarming2 then
                             continue
                         end
-                        if table.find(blackListIds, v2.id) then
+                        if table.find(Blacklist, v2.id) then
                             continue
                         end
                         if v == v2.id and v2.properties.age == Petage and v2.properties.neon == isNeon then
@@ -4708,7 +4918,7 @@ Check the Developer Console for more information.]],
 
         return GetInventory
     end
-    function __DARKLUA_BUNDLE_MODULES.f()
+    function __DARKLUA_BUNDLE_MODULES.h()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
         local localPlayer = Players.LocalPlayer
@@ -5304,7 +5514,7 @@ Check the Developer Console for more information.]],
 
         return Trade
     end
-    function __DARKLUA_BUNDLE_MODULES.g()
+    function __DARKLUA_BUNDLE_MODULES.i()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Workspace = game:GetService('Workspace')
         local Players = game:GetService('Players')
@@ -5583,7 +5793,7 @@ Check the Developer Console for more information.]],
 
         return Teleport
     end
-    function __DARKLUA_BUNDLE_MODULES.h()
+    function __DARKLUA_BUNDLE_MODULES.j()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
         local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
@@ -5725,15 +5935,15 @@ Check the Developer Console for more information.]],
 
         return BuyItems
     end
-    function __DARKLUA_BUNDLE_MODULES.i()
+    function __DARKLUA_BUNDLE_MODULES.k()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Workspace = game:GetService('Workspace')
         local Players = game:GetService('Players')
-        local Misc = __DARKLUA_BUNDLE_MODULES.load('b')
+        local Misc = __DARKLUA_BUNDLE_MODULES.load('d')
         local Bypass = require(ReplicatedStorage:WaitForChild('Fsys')).load
         local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
-        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('e')
-        local Teleport = __DARKLUA_BUNDLE_MODULES.load('g')
+        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('g')
+        local Teleport = __DARKLUA_BUNDLE_MODULES.load('i')
         local localPlayer = Players.LocalPlayer
         local doctorId = nil
         local Ailments = {}
@@ -6349,7 +6559,7 @@ Check the Developer Console for more information.]],
 
         return Ailments
     end
-    function __DARKLUA_BUNDLE_MODULES.j()
+    function __DARKLUA_BUNDLE_MODULES.l()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
         local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
@@ -6586,7 +6796,7 @@ Check the Developer Console for more information.]],
 
         return StatsGuis2
     end
-    function __DARKLUA_BUNDLE_MODULES.k()
+    function __DARKLUA_BUNDLE_MODULES.m()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
         local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
@@ -6766,7 +6976,7 @@ Check the Developer Console for more information.]],
 
         return Clipboard
     end
-    function __DARKLUA_BUNDLE_MODULES.l()
+    function __DARKLUA_BUNDLE_MODULES.n()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local TradeLicense = {}
 
@@ -6795,14 +7005,14 @@ Check the Developer Console for more information.]],
 
         return TradeLicense
     end
-    function __DARKLUA_BUNDLE_MODULES.m()
+    function __DARKLUA_BUNDLE_MODULES.o()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
 
         game:GetService('Workspace')
 
         local Players = game:GetService('Players')
         local localPlayer = Players.LocalPlayer
-        local Fusion = __DARKLUA_BUNDLE_MODULES.load('c')
+        local Fusion = __DARKLUA_BUNDLE_MODULES.load('e')
         local PetPotionEffectsDB = require(ReplicatedStorage:WaitForChild('ClientDB'):WaitForChild('PetPotionEffectsDB'))
         local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
         local BulkPotions = {}
@@ -6846,6 +7056,17 @@ Check the Developer Console for more information.]],
             print('Pet is Equipped')
 
             return true
+        end
+        local getMaxMega = function(petId)
+            local count = 0
+
+            for _, v in ClientData.get_data()[localPlayer.Name].inventory.pets do
+                if v.id == petId and v.properties.mega_neon then
+                    count = count + 1
+                end
+            end
+
+            return count
         end
 
         function BulkPotions:IsPetNormal(petName)
@@ -7066,10 +7287,16 @@ Check the Developer Console for more information.]],
             return false
         end
 
-        function BulkPotions:AgeAllPetsOfSameName(petId)
+        function BulkPotions:AgeAllPetsOfSameName(petId, maxAmount)
             if getgenv().SETTINGS.PET_AUTO_FUSION then
                 Fusion:MakeMega(false)
                 Fusion:MakeMega(true)
+            end
+
+            local result = getMaxMega(petId)
+
+            if result >= maxAmount then
+                return false, print(string.format('Pet: %s has maxed Amount: %s', tostring(petId), tostring(result)))
             end
 
             local hasPet = self:IsPetNeon(petId)
@@ -7111,7 +7338,7 @@ Check the Developer Console for more information.]],
                 return
             end
 
-            self:AgeAllPetsOfSameName(petId)
+            self:AgeAllPetsOfSameName(petId, maxAmount)
 
             return
         end
@@ -7122,20 +7349,28 @@ Check the Developer Console for more information.]],
                 return
             end
 
-            for _, petId in ipairs(petsTable)do
+            for _, value in ipairs(petsTable)do
                 if self.StopAging then
                     print('stop aging is true, so stopped')
 
                     return
                 end
 
-                self:AgeAllPetsOfSameName(petId)
+                local result = getMaxMega(value.NameId)
+
+                if result >= value.MaxAmount then
+                    return false, print(string.format('Pet: %s has maxed Amount: %s', tostring(value.NameId), tostring(result)))
+                end
+
+                self:AgeAllPetsOfSameName(value.NameId, value.MaxAmount)
             end
+
+            return
         end
 
         return BulkPotions
     end
-    function __DARKLUA_BUNDLE_MODULES.n()
+    function __DARKLUA_BUNDLE_MODULES.p()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local LegacyTutorial = require(ReplicatedStorage.ClientModules:WaitForChild('Game'):WaitForChild('Tutorial'):WaitForChild('LegacyTutorial'))
         local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
@@ -7216,7 +7451,7 @@ Check the Developer Console for more information.]],
 
         return Tutorials
     end
-    function __DARKLUA_BUNDLE_MODULES.o()
+    function __DARKLUA_BUNDLE_MODULES.q()
         local Workspace = game:GetService('Workspace')
         local Terrain = Workspace:WaitForChild('Terrain')
         local Lighting = game:GetService('Lighting')
@@ -7288,7 +7523,7 @@ Check the Developer Console for more information.]],
 
         return PotatoMode
     end
-    function __DARKLUA_BUNDLE_MODULES.p()
+    function __DARKLUA_BUNDLE_MODULES.r()
         local Workspace = game:GetService('Workspace')
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
@@ -7514,6 +7749,16 @@ Check the Developer Console for more information.]],
 
             return
         end
+        function Spring2025.StartVending()
+            print('[DEBUG] Starting... ExchangeItemForReward')
+
+            while ClientData.get_data()[localPlayer.Name].money >= 50000 do
+                ReplicatedStorage.API['LootBoxAPI/ExchangeItemForReward']:InvokeServer('spring_2025_gacha_machine')
+                task.wait(1)
+            end
+
+            print('[DEBUG] Finished ExchangeItemForReward')
+        end
 
         return Spring2025
     end
@@ -7675,21 +7920,29 @@ local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitF
 local RouterClient = require(ReplicatedStorage.ClientModules.Core:WaitForChild('RouterClient'):WaitForChild('RouterClient'))
 local CollisionsClient = require(ReplicatedStorage.ClientModules.Game:WaitForChild('CollisionsClient'))
 local Rayfield = __DARKLUA_BUNDLE_MODULES.load('a')
-local Misc = __DARKLUA_BUNDLE_MODULES.load('b')
-local Fusion = __DARKLUA_BUNDLE_MODULES.load('c')
-local TaskBoard = __DARKLUA_BUNDLE_MODULES.load('d')
-local GetInventory = __DARKLUA_BUNDLE_MODULES.load('e')
-local Trade = __DARKLUA_BUNDLE_MODULES.load('f')
-local Teleport = __DARKLUA_BUNDLE_MODULES.load('g')
-local BuyItems = __DARKLUA_BUNDLE_MODULES.load('h')
-local Ailments = __DARKLUA_BUNDLE_MODULES.load('i')
-local StatsGuis2 = __DARKLUA_BUNDLE_MODULES.load('j')
-local Clipboard = __DARKLUA_BUNDLE_MODULES.load('k')
-local TradeLicense = __DARKLUA_BUNDLE_MODULES.load('l')
-local BulkPotions = __DARKLUA_BUNDLE_MODULES.load('m')
-local Tutorials = __DARKLUA_BUNDLE_MODULES.load('n')
-local PotatoMode = __DARKLUA_BUNDLE_MODULES.load('o')
-local Spring2025 = __DARKLUA_BUNDLE_MODULES.load('p')
+local WebhookHandler = __DARKLUA_BUNDLE_MODULES.load('c')
+local Misc = __DARKLUA_BUNDLE_MODULES.load('d')
+local Fusion = __DARKLUA_BUNDLE_MODULES.load('e')
+local TaskBoard = __DARKLUA_BUNDLE_MODULES.load('f')
+local GetInventory = __DARKLUA_BUNDLE_MODULES.load('g')
+local Trade = __DARKLUA_BUNDLE_MODULES.load('h')
+local Teleport = __DARKLUA_BUNDLE_MODULES.load('i')
+local BuyItems = __DARKLUA_BUNDLE_MODULES.load('j')
+local Ailments = __DARKLUA_BUNDLE_MODULES.load('k')
+local StatsGuis2 = __DARKLUA_BUNDLE_MODULES.load('l')
+local Clipboard = __DARKLUA_BUNDLE_MODULES.load('m')
+local TradeLicense = __DARKLUA_BUNDLE_MODULES.load('n')
+local BulkPotions = __DARKLUA_BUNDLE_MODULES.load('o')
+local Tutorials = __DARKLUA_BUNDLE_MODULES.load('p')
+local PotatoMode = __DARKLUA_BUNDLE_MODULES.load('q')
+local Spring2025 = __DARKLUA_BUNDLE_MODULES.load('r')
+
+if getgenv().SETTINGS.WEBHOOK and getgenv().SETTINGS.WEBHOOK.URL and #getgenv().SETTINGS.WEBHOOK.URL >= 10 then
+    local webhook = WebhookHandler.new()
+
+    webhook:OnStart()
+end
+
 local clipboard = Clipboard.new()
 local taskBoard = TaskBoard.new()
 
@@ -8860,7 +9113,7 @@ Players.PlayerAdded:Connect(function(player)
     end)
 end)
 
-if getgenv().SETTINGS.WEBHOOK and getgenv().SETTINGS.WEBHOOK.URL and #getgenv().SETTINGS.WEBHOOK.URL >= 1 and localPlayer.Name == getgenv().SETTINGS.TRADE_COLLECTOR_NAME then
+if getgenv().SETTINGS.WEBHOOK and getgenv().SETTINGS.WEBHOOK.URL and #getgenv().SETTINGS.WEBHOOK.URL >= 10 and localPlayer.Name == getgenv().SETTINGS.TRADE_COLLECTOR_NAME then
     localPlayer.PlayerGui.DialogApp.Dialog:GetPropertyChangedSignal('Visible'):Connect(function(
     )
         if discordCooldown then
@@ -9035,6 +9288,7 @@ until localPlayer.PlayerGui.NewsApp.Enabled or localPlayer.Character
 
 PotatoMode.Start()
 StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Captures, false)
+StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Chat, false)
 
 UserGameSettings.GraphicsQualityLevel = 1
 UserGameSettings.MasterVolume = 0
@@ -9192,6 +9446,7 @@ if queueOnTeleport then
 end
 
 dailyLoginAppClick()
+Spring2025.StartVending()
 
 if getgenv().BUY_BEFORE_FARMING then
     getgenv().isBuyingOrAging = true
