@@ -7774,7 +7774,7 @@ Check the Developer Console for more information.]],
         function Spring2025.StartVending()
             print('[DEBUG] Starting... ExchangeItemForReward')
 
-            while ClientData.get_data()[localPlayer.Name].money >= 50000 do
+            while ClientData.get_data()[localPlayer.Name].money >= 100000 do
                 ReplicatedStorage.API['LootBoxAPI/ExchangeItemForReward']:InvokeServer('spring_2025_gacha_machine')
                 task.wait(1)
             end
