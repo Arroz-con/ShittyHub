@@ -7799,6 +7799,10 @@ Check the Developer Console for more information.]],
             if not eggSpawnsFolder then
                 return
             end
+            if #eggSpawnsFolder:GetChildren() == 0 then
+                print('[DEBUG] eggSpawnsFolder has 0 eggs')
+                task.wait(10)
+            end
 
             for _, v in eggSpawnsFolder:GetChildren()do
                 if not v then
@@ -8875,9 +8879,11 @@ local onTextChangedNormalDialog = function()
     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Burtaur') then
         findButton('Cool!')
     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('2X EGG HUNT') then
+        task.wait(10)
         findButton('Okay')
         Spring2025.StartCollectingEggs()
     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('MECHA R4BBIT ACTIVATED!') then
+        print('[DEBUG] MECHA R4BBIT ACTIVATED!')
         findButton('Okay')
     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Thanks for') then
         findButton('Okay')
@@ -9243,6 +9249,7 @@ localPlayer.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(
                     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Tear Up Toykyo') then
                         onTextChangedMiniGame()
                     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('invitation') then
+                        localPlayer:Kick()
                         game:Shutdown()
                     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('You found a') then
                         findButton('Okay')
@@ -9264,6 +9271,7 @@ localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal('Vi
             elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Tear Up Toykyo') then
                 onTextChangedMiniGame()
             elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('invitation') then
+                localPlayer:Kick()
                 game:Shutdown()
             elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('You found a') then
                 findButton('Okay')
@@ -9495,7 +9503,7 @@ Teleport.PlaceFloorAtBeachParty()
 local queueOnTeleport = (syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport)
 
 if queueOnTeleport then
-    queueOnTeleport('\r\n\t\trepeat task.wait() until game:IsLoaded()\r\n\t\tgame:Shutdown()\r\n\t')
+    queueOnTeleport('\r\n\t\trepeat task.wait() until game:IsLoaded()\r\n\t\tlocalPlayer:Kick()\r\n\t\tgame:Shutdown()\r\n\t')
 end
 
 dailyLoginAppClick()
