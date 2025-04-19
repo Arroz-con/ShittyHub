@@ -12,11 +12,11 @@ getgenv().AGE_PETS_BEFORE_FARMING = {
 
 
 getgenv().SETTINGS = {
-	WEBHOOK = {
-		URL = "",
-		USER_ID = "",
-		VPS_NAME = "VPS"
-	},
+	-- WEBHOOK = {
+	-- 	URL = "",
+	-- 	USER_ID = "",
+	-- 	VPS_NAME = "VPS"
+	-- },
 
 	EVENT = {
 		DO_MINIGAME = true,
