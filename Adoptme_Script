@@ -3928,11 +3928,16 @@ Check the Developer Console for more information.]],
     end
     function __DARKLUA_BUNDLE_MODULES.b()
         return {
-            'practice_dog',
-            'spring_2025_minigame_spiked_kaijunior',
-            'spring_2025_minigame_scorching_kaijunior',
-            'spring_2025_minigame_toxic_kaijunior',
-            'spring_2025_minigame_spotted_kaijunior',
+            Denylist = {
+                'practice_dog',
+                'spring_2025_minigame_spiked_kaijunior',
+                'spring_2025_minigame_scorching_kaijunior',
+                'spring_2025_minigame_toxic_kaijunior',
+                'spring_2025_minigame_spotted_kaijunior',
+            },
+            Allowlist = {
+                'ice_dimension_2025_frostbite_bear',
+            },
         }
     end
     function __DARKLUA_BUNDLE_MODULES.c()
@@ -3941,7 +3946,7 @@ Check the Developer Console for more information.]],
         local Players = game:GetService('Players')
         local localPlayer = Players.LocalPlayer
         local Bypass = require(ReplicatedStorage:WaitForChild('Fsys')).load
-        local Blacklist = __DARKLUA_BUNDLE_MODULES.load('b')
+        local Allow_Deny_List = __DARKLUA_BUNDLE_MODULES.load('b')
         local WebhookHandler = {}
 
         WebhookHandler.__index = WebhookHandler
@@ -4023,7 +4028,7 @@ Check the Developer Console for more information.]],
             local petStats = getPetNeonOrMega(itemData)
             local embed = {
                 title = 'NEW PET DETECTED!',
-                description = string.format('[%s] %s got it', tostring(getgenv().SETTINGS.WEBHOOK.VPS_NAME or 'None'), tostring(localPlayer.Name)),
+                description = string.format('[%s] %s got it', tostring(getgenv().WEBHOOK.VPS_NAME or 'None'), tostring(localPlayer.Name)),
                 color = 0xccff,
                 fields = {
                     {
@@ -4115,19 +4120,21 @@ Check the Developer Console for more information.]],
                 if dataInfo.newness_order and dataInfo.newness_order <= 0 then
                     return
                 end
-                if table.find(Blacklist, dataInfo.id) then
-                    return false, print('[DEBUG] Pet in Blacklist')
+                if table.find(Allow_Deny_List.Denylist, dataInfo.id) then
+                    return false, print('[DEBUG] Pet in Denylist')
                 end
-                if not dataInfo.properties or not dataInfo.properties.mega_neon then
+                if not dataInfo.properties then
                     return false, print('[DEBUG] no properties or no mega')
                 end
-                if self.UniqueString == dataInfo.unique then
-                    return false, print('[DEBUG] already processing pet')
+                if table.find(Allow_Deny_List.Allowlist, dataInfo.id) or dataInfo.properties.mega_neon then
+                    if self.UniqueString == dataInfo.unique then
+                        return false, print('[DEBUG] already processing pet')
+                    end
+
+                    self.UniqueString = dataInfo.unique
+
+                    filterData(dataInfo)
                 end
-
-                self.UniqueString = dataInfo.unique
-
-                filterData(dataInfo)
 
                 return
             end)
@@ -4524,7 +4531,7 @@ Check the Developer Console for more information.]],
         local Players = game:GetService('Players')
         local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
         local InventoryDB = require(ReplicatedStorage:WaitForChild('ClientDB'):WaitForChild('Inventory'):WaitForChild('InventoryDB'))
-        local Blacklist = __DARKLUA_BUNDLE_MODULES.load('b')
+        local Allow_Deny_List = __DARKLUA_BUNDLE_MODULES.load('b')
         local localPlayer = Players.LocalPlayer
         local GetInventory = {}
         local equipWhichPet = function(whichPet, petUnique)
@@ -4560,7 +4567,7 @@ Check the Developer Console for more information.]],
             local inventoryTable = {}
 
             for _, v in ClientData.get_data()[localPlayer.Name].inventory[tabId]do
-                if table.find(Blacklist, v.id) then
+                if table.find(Allow_Deny_List.Denylist, v.id) then
                     continue
                 end
                 if table.find(inventoryTable, v.id) then
@@ -4604,7 +4611,7 @@ Check the Developer Console for more information.]],
             local petUnique = nil
 
             for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
-                if table.find(Blacklist, pet.id) then
+                if table.find(Allow_Deny_List.Denylist, pet.id) then
                     continue
                 end
                 if not pet.properties then
@@ -4642,7 +4649,7 @@ Check the Developer Console for more information.]],
 
             while not petFound do
                 for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
-                    if table.find(Blacklist, pet.id) then
+                    if table.find(Allow_Deny_List.Denylist, pet.id) then
                         continue
                     end
                     if pet.properties.age == PetageCounter and pet.properties.neon == isNeon then
@@ -4682,7 +4689,7 @@ Check the Developer Console for more information.]],
             while not petFound do
                 for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
                     for _, petDB in InventoryDB.pets do
-                        if table.find(Blacklist, pet.id) then
+                        if table.find(Allow_Deny_List.Denylist, pet.id) then
                             continue
                         end
                         if rarity == petDB.rarity and pet.id == petDB.id and pet.properties.age == PetageCounter and pet.properties.neon == isNeon then
@@ -4804,7 +4811,7 @@ Check the Developer Console for more information.]],
         function GetInventory:PriorityEgg(whichPet)
             for _, v in ipairs(getgenv().SETTINGS.HATCH_EGG_PRIORITY_NAMES)do
                 for _, v2 in ClientData.get_data()[localPlayer.Name].inventory.pets do
-                    if table.find(Blacklist, v2.id) then
+                    if table.find(Allow_Deny_List.Denylist, v2.id) then
                         continue
                     end
                     if v == v2.id then
@@ -4842,7 +4849,7 @@ Check the Developer Console for more information.]],
 
             while not found_pet do
                 for _, v in ClientData.get_data()[localPlayer.Name].inventory.pets do
-                    if table.find(Blacklist, v.id) then
+                    if table.find(Allow_Deny_List.Denylist, v.id) then
                         continue
                     end
                     if v.properties.age == Petage and v.properties.neon == isNeon then
@@ -4887,7 +4894,7 @@ Check the Developer Console for more information.]],
                         if v2.unique == getgenv().petCurrentlyFarming2 then
                             continue
                         end
-                        if table.find(Blacklist, v2.id) then
+                        if table.find(Allow_Deny_List.Denylist, v2.id) then
                             continue
                         end
                         if v == v2.id and v2.properties.age == Petage and v2.properties.neon == isNeon then
@@ -7993,7 +8000,7 @@ local Tutorials = __DARKLUA_BUNDLE_MODULES.load('p')
 local PotatoMode = __DARKLUA_BUNDLE_MODULES.load('q')
 local Spring2025 = __DARKLUA_BUNDLE_MODULES.load('r')
 
-if getgenv().SETTINGS.WEBHOOK and getgenv().SETTINGS.WEBHOOK.URL and #getgenv().SETTINGS.WEBHOOK.URL >= 10 then
+if getgenv().WEBHOOK and getgenv().WEBHOOK.URL and #getgenv().WEBHOOK.URL >= 10 then
     local webhook = WebhookHandler.new()
 
     webhook:OnStart()
@@ -9172,7 +9179,7 @@ Players.PlayerAdded:Connect(function(player)
     end)
 end)
 
-if getgenv().SETTINGS.WEBHOOK and getgenv().SETTINGS.WEBHOOK.URL and #getgenv().SETTINGS.WEBHOOK.URL >= 10 and localPlayer.Name == getgenv().SETTINGS.TRADE_COLLECTOR_NAME then
+if getgenv().WEBHOOK and getgenv().WEBHOOK.URL and #getgenv().WEBHOOK.URL >= 10 and localPlayer.Name == getgenv().SETTINGS.TRADE_COLLECTOR_NAME then
     localPlayer.PlayerGui.DialogApp.Dialog:GetPropertyChangedSignal('Visible'):Connect(function(
     )
         if discordCooldown then
@@ -9192,7 +9199,7 @@ if getgenv().SETTINGS.WEBHOOK and getgenv().SETTINGS.WEBHOOK.URL and #getgenv().
             localPlayer.PlayerGui.DialogApp.Dialog.HeaderDialog.Info:WaitForChild('TextLabel')
             localPlayer.PlayerGui.DialogApp.Dialog.HeaderDialog.Info.TextLabel:GetPropertyChangedSignal('Text'):Connect(function(
             )
-                SendMessage(getgenv().SETTINGS.WEBHOOK.URL, localPlayer.PlayerGui.DialogApp.Dialog.HeaderDialog.Info.TextLabel.Text, getgenv().SETTINGS.WEBHOOK.USER_ID)
+                SendMessage(getgenv().WEBHOOK.URL, localPlayer.PlayerGui.DialogApp.Dialog.HeaderDialog.Info.TextLabel.Text, getgenv().WEBHOOK.USER_ID)
                 task.wait(1)
 
                 discordCooldown = false
