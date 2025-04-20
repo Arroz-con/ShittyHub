@@ -4124,7 +4124,7 @@ Check the Developer Console for more information.]],
                     return false, print('[DEBUG] Pet in Denylist')
                 end
                 if not dataInfo.properties then
-                    return false, print('[DEBUG] no properties or no mega')
+                    return false, print('[DEBUG] no properties')
                 end
                 if table.find(Allow_Deny_List.Allowlist, dataInfo.id) or dataInfo.properties.mega_neon then
                     if self.UniqueString == dataInfo.unique then
@@ -6449,19 +6449,10 @@ Check the Developer Console for more information.]],
             Misc.ReEquipPet(Ailments.whichPet)
             Misc.DebugModePrint(string.format('\u{1f9b4} Doing play task on %s \u{1f9b4}', tostring(Ailments.whichPet)))
 
-            local toyId = GetInventory:GetUniqueId('toys', 'squeaky_bone')
+            local toyId = GetInventory:GetUniqueId('toys', 'squeaky_bone_default')
 
             if not toyId then
-                ReplicatedStorage.API:FindFirstChild('ShopAPI/BuyItem'):InvokeServer('toys', 'raw_bone', {})
-                task.wait(3)
-
-                toyId = GetInventory:GetUniqueId('toys', 'raw_bone')
-
-                if not toyId then
-                    Misc.DebugModePrint("\u{26a0}\u{fe0f} Doesn't have raw bone so exiting \u{26a0}\u{fe0f}")
-
-                    return false
-                end
+                return false, Misc.DebugModePrint("\u{26a0}\u{fe0f} Doesn't have squeaky_bone so exiting \u{26a0}\u{fe0f}")
             end
 
             local args = {
