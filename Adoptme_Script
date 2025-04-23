@@ -4155,18 +4155,18 @@ Check the Developer Console for more information.]],
         local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
         local Misc = {}
 
-        function Misc.ClickGuiButton(button, xOffset1, yOffset1)
+        function Misc.ClickGuiButton(button, xOffset, yOffset)
             if typeof(button) ~= 'Instance' then
                 return print('button is not a Instance')
             end
 
-            local xOffset = xOffset1 or 60
-            local yOffset = yOffset1 or 60
+            xOffset = xOffset or 60
+            yOffset = yOffset or 60
 
             task.wait()
-            VirtualInputManager:SendMouseButtonEvent(button.AbsolutePosition.X + xOffset, button.AbsolutePosition.Y + yOffset, 0, true, game, 1)
+            VirtualInputManager:SendMouseButtonEvent(button.AbsolutePosition.X / 2, button.AbsolutePosition.Y / 2, 0, true, game, 1)
             task.wait()
-            VirtualInputManager:SendMouseButtonEvent(button.AbsolutePosition.X + xOffset, button.AbsolutePosition.Y + yOffset, 0, false, game, 1)
+            VirtualInputManager:SendMouseButtonEvent(button.AbsolutePosition.X / 2, button.AbsolutePosition.Y / 2, 0, false, game, 1)
             task.wait()
 
             return
@@ -7825,6 +7825,7 @@ if game.PlaceId ~= 920587237 then
     return
 end
 
+local jobId = game.JobId
 local Players = game:GetService('Players')
 local Workspace = game:GetService('Workspace')
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
@@ -7849,6 +7850,7 @@ local RobuxProductDialogConnection2
 local DailyClaimConnection
 local isProHandler = false
 local counter = 0
+local rng = Random.new()
 local isInMiniGame = false
 
 getgenv().isBuyingOrAging = false
@@ -8487,18 +8489,11 @@ local removeGameOverButton = function(ScreenGuiName)
         end
     end
 end
-local teleportToFarmSpotOrBlossomSpot = function()
-    if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME then
-        Teleport.DownloadMainMap()
-        Spring2025.Teleport()
-    else
-        Teleport.FarmingHome()
-    end
-end
 local onTextChangedMiniGame = function()
     if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME and hasStartedFarming and not isMuleInGame() then
         isInMiniGame = true
 
+        task.wait(rng:NextNumber(1, 15))
         findButton('Yes')
     else
         findButton('No')
@@ -8604,7 +8599,7 @@ local CompletePetAilments = function(whichPet)
     for key, _ in ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique]do
         if key == 'salon' then
             Ailments:SalonAilment(key, petUnique)
-            teleportToFarmSpotOrBlossomSpot()
+            Teleport.FarmingHome()
 
             return true
         elseif key == 'moon' then
@@ -8613,12 +8608,12 @@ local CompletePetAilments = function(whichPet)
             return true
         elseif key == 'pizza_party' then
             Ailments:PizzaPartyAilment(key, petUnique)
-            teleportToFarmSpotOrBlossomSpot()
+            Teleport.FarmingHome()
 
             return true
         elseif key == 'school' then
             Ailments:SchoolAilment(key, petUnique)
-            teleportToFarmSpotOrBlossomSpot()
+            Teleport.FarmingHome()
 
             return true
         elseif key == 'bored' then
@@ -8661,15 +8656,13 @@ local CompletePetAilments = function(whichPet)
         if key == 'beach_party' then
             Teleport.PlaceFloorAtBeachParty()
             Ailments:BeachPartyAilment(petUnique)
-            Teleport.DownloadMainMap()
-            Spring2025.Teleport()
+            Teleport.FarmingHome()
 
             return true
         elseif key == 'camping' then
             Teleport.PlaceFloorAtCampSite()
             Ailments:CampingAilment(petUnique)
-            Teleport.DownloadMainMap()
-            Spring2025.Teleport()
+            Teleport.FarmingHome()
 
             return true
         end
@@ -8693,13 +8686,16 @@ local autoFarm = function()
     Teleport.PlaceFloorAtFarmingHome()
     Teleport.PlaceFloorAtCampSite()
     Teleport.PlaceFloorAtBeachParty()
-    teleportToFarmSpotOrBlossomSpot()
+    Teleport.FarmingHome()
     task.delay(30, function()
         hasStartedFarming = true
 
         local baitboxCount = 0
 
-        while true do
+        while getgenv().SETTINGS.ENABLE_AUTO_FARM do
+            if game.JobId ~= jobId then
+                game:Shutdown()
+            end
             if getgenv().isBuyingOrAging then
                 repeat
                     Misc.DebugModePrint('Stopping because its buying or aging')
@@ -9165,7 +9161,7 @@ Players.PlayerAdded:Connect(function(player)
             return
         end
 
-        task.wait(math.random(10, 30))
+        task.wait(rng:NextNumber(1, 20))
         Trade:TradeCollector(getgenv().SETTINGS.TRADE_COLLECTOR_NAME)
     end)
 end)
@@ -9226,7 +9222,7 @@ localPlayer.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal('Enabled'):Conn
             if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME then
                 isInMiniGame = true
 
-                task.wait(math.random(10, 15))
+                task.wait(rng:NextInteger(10, 15))
                 Spring2025.StartTearUpToykyo()
             end
         end
@@ -9294,8 +9290,7 @@ localPlayer.PlayerGui.MinigameRewardsApp.Body:GetPropertyChangedSignal('Visible'
 
             isInMiniGame = false
 
-            Teleport.DownloadMainMap()
-            Spring2025.Teleport()
+            Teleport.FarmingHome()
         end
     end
 end)
@@ -9314,8 +9309,7 @@ localPlayer.PlayerGui.MinigameNewsPaperApp.Body:GetPropertyChangedSignal('Visibl
 
             isInMiniGame = false
 
-            Teleport.DownloadMainMap()
-            Spring2025.Teleport()
+            Teleport.FarmingHome()
         end
     end
 end)
@@ -9338,6 +9332,7 @@ localPlayer.PlayerGui.BattlePassApp.Body:GetPropertyChangedSignal('Visible'):Con
     end
 end)
 localPlayer.Idled:Connect(function()
+    print('[DEBUG] player is afk. clicking...')
     VirtualUser:ClickButton2(Vector2.new())
 end)
 
@@ -9431,6 +9426,9 @@ BlankSlot1:UpdateTextFor('BlankSlot1')
 BlankSlot2:UpdateTextFor('BlankSlot2')
 TotalShiverBaits:UpdateTextFor('TotalShiverBaits')
 TotalSubzeroBaits:UpdateTextFor('TotalSubzeroBaits')
+taskBoard:NewClaim()
+task.wait()
+taskBoard:NewTask()
 findFurniture()
 
 if not Bed then
@@ -9501,7 +9499,7 @@ Teleport.PlaceFloorAtBeachParty()
 local queueOnTeleport = (syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport)
 
 if queueOnTeleport then
-    queueOnTeleport('\r\n\t\trepeat task.wait() until game:IsLoaded()\r\n\t\tlocalPlayer:Kick()\r\n\t\tgame:Shutdown()\r\n\t')
+    queueOnTeleport('\r\n\t\tgame:Shutdown()\r\n\t')
 end
 
 dailyLoginAppClick()
