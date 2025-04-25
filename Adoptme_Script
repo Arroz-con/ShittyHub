@@ -8506,7 +8506,7 @@ local onTextChangedMiniGame = function()
         isInMiniGame = true
 
         task.wait(rng:NextNumber(1, 3))
-        findButton('No')
+        findButton('Yes')
     else
         findButton('No')
     end
