@@ -1,5 +1,5 @@
 getgenv().BUY_BEFORE_FARMING = {
-	{NameId = "spring_2025_super_saru", MaxAmount = 32},
+	{NameId = "spring_2025_mirai_moth", MaxAmount = 300},
 }
 
 -- getgenv().OPEN_ITEMS_BEFORE_FARMING = {
@@ -7,7 +7,7 @@ getgenv().BUY_BEFORE_FARMING = {
 -- }
 
 getgenv().AGE_PETS_BEFORE_FARMING = {
-	{NameId = "spring_2025_super_saru", MaxAmount = 99},
+	{NameId = "spring_2025_mirai_moth", MaxAmount = 300},
 }
 
 
@@ -26,7 +26,7 @@ getgenv().SETTINGS = {
 
 	PET_TO_BUY = "moon_2025_egg", -- add pet or egg to buy when bot has no pets/egg left to level
 
-	FOCUS_FARM_AGE_POTION = true, -- if true, this will only farm 1 pet an keep aging to get aging potions
+	FOCUS_FARM_AGE_POTION = false, -- if true, this will only farm 1 pet an keep aging to get aging potions
 
 	ENABLE_AUTO_FARM = true,
 	SET_FPS = 2,
@@ -54,9 +54,9 @@ getgenv().SETTINGS = {
 	HATCH_EGG_PRIORITY = false,
 	HATCH_EGG_PRIORITY_NAMES = { "moon_2025_egg" },
 
-	PET_ONLY_PRIORITY = false,
+	PET_ONLY_PRIORITY = true,
 	PET_ONLY_PRIORITY_NAMES = {
-		
+		"spring_2025_mirai_moth",
 	},
 }
 
