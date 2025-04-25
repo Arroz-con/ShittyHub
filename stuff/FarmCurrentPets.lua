@@ -1,5 +1,5 @@
 getgenv().BUY_BEFORE_FARMING = {
-	{NameId = "spring_2025_kappakid", MaxAmount = 300},
+	{NameId = "spring_2025_kappakid", MaxAmount = 48},
 	{NameId = "spring_2025_mirai_moth", MaxAmount = 300},
 }
 
