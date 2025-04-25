@@ -1,5 +1,6 @@
 getgenv().BUY_BEFORE_FARMING = {
-	{NameId = "spring_2025_kappakid", MaxAmount = 32},
+	{NameId = "spring_2025_kappakid", MaxAmount = 300},
+	{NameId = "spring_2025_mirai_moth", MaxAmount = 300},
 }
 
 -- getgenv().OPEN_ITEMS_BEFORE_FARMING = {
@@ -29,7 +30,7 @@ getgenv().SETTINGS = {
 	FOCUS_FARM_AGE_POTION = false, -- if true, this will only farm 1 pet an keep aging to get aging potions
 
 	ENABLE_AUTO_FARM = true,
-	SET_FPS = 2,
+	SET_FPS = 3,
 	PET_NEON_PRIORITY = true,
 	PET_AUTO_FUSION = true,
 
@@ -50,6 +51,7 @@ getgenv().SETTINGS = {
 	PET_ONLY_PRIORITY = true,
 	PET_ONLY_PRIORITY_NAMES = {
 		"spring_2025_kappakid",
+		"spring_2025_mirai_moth",
 		"spring_2025_kage_crow",
 		"spring_2025_bakeneko",
 		"moon_2025_puptune",
