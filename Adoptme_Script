@@ -7473,12 +7473,8 @@ Check the Developer Console for more information.]],
     end
     function __DARKLUA_BUNDLE_MODULES.q()
         local Workspace = game:GetService('Workspace')
-        local Players = game:GetService('Players')
         local Terrain = Workspace:WaitForChild('Terrain')
         local Lighting = game:GetService('Lighting')
-        local RunService = game:GetService('RunService')
-        local UserInputService = game:GetService('UserInputService')
-        local localPlayer = Players.LocalPlayer
 
         PotatoMode = {}
 
@@ -7493,30 +7489,6 @@ Check the Developer Console for more information.]],
             Lighting.GlobalShadows = false
             Lighting.FogEnd = math.huge
             Lighting.FogStart = 0
-        end
-        local blackScreenSetup = function()
-            local screenGui = Instance.new('ScreenGui')
-
-            screenGui.Name = 'BlackScreenGui'
-            screenGui.IgnoreGuiInset = true
-            screenGui.Parent = localPlayer:WaitForChild('PlayerGui')
-
-            local frame = Instance.new('Frame')
-
-            frame.Name = 'BlackFrame'
-            frame.Size = UDim2.new(1, 0, 1, 0)
-            frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-            frame.BackgroundTransparency = 0
-            frame.Visible = true
-            frame.Parent = screenGui
-        end
-        local blackScreenEnabled = function(bool)
-            local blackscreenGui = localPlayer:WaitForChild('PlayerGui'):WaitForChild('BlackScreenGui')
-
-            blackscreenGui.Enabled = bool
-        end
-        local renderingEnabled = function(bool)
-            RunService:Set3dRenderingEnabled(bool)
         end
         local lowSpecTextures = function(v)
             if v:IsA('Part') then
@@ -7559,9 +7531,6 @@ Check the Developer Console for more information.]],
             sethiddenproperty(Workspace, 'StreamingMinRadius', 16)
             sethiddenproperty(Workspace, 'StreamingTargetRadius', 32)
             Lighting:ClearAllChildren()
-            blackScreenSetup()
-            blackScreenEnabled(true)
-            renderingEnabled(false)
 
             for _, v in pairs(Workspace:GetDescendants())do
                 lowSpecTextures(v)
@@ -7569,14 +7538,6 @@ Check the Developer Console for more information.]],
 
             Workspace.DescendantAdded:Connect(function(v)
                 lowSpecTextures(v)
-            end)
-            UserInputService.WindowFocused:Connect(function()
-                blackScreenEnabled(false)
-                renderingEnabled(true)
-            end)
-            UserInputService.WindowFocusReleased:Connect(function()
-                blackScreenEnabled(true)
-                renderingEnabled(false)
             end)
         end
 
