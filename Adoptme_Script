@@ -6639,7 +6639,7 @@ Check the Developer Console for more information.]],
             local TextButton = Instance.new('TextButton')
 
             StatsGui.Name = 'StatsGui'
-            StatsGui.DisplayOrder = 10
+            StatsGui.DisplayOrder = 0
             StatsGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
             StatsGui.Parent = Players.LocalPlayer:WaitForChild('PlayerGui')
             MainFrame.Name = 'MainFrame'
