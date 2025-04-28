@@ -41,7 +41,17 @@ getgenv().SETTINGS = {
 		-- "lures_2023_blazing_lion",
 		-- "ice_dimension_2025_frostbite_bear",
 		-- "winter_2024_frostbite_cub"
-
+		"urban_2023_fly",
+		"urban_2023_cockroach",
+		"urban_2023_seagull",
+		"urban_2023_black_kite",
+		"urban_2023_tawny_frogmouth",
+		"desert_2024_rattlesnake",
+		"desert_2024_thorny_devil",
+		"desert_2024_vulture",
+		"desert_2024_gila_monster",
+		"desert_2024_deathstalker_scorpion",
+		"desert_2024_oryx",
 		"moon_2025_hopbop",
 		"desert_2024_sandfish",
 		"garden_2024_garden_snake",
