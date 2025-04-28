@@ -8722,16 +8722,10 @@ local autoFarm = function()
     end
 
     CollisionsClient.set_collidable(false)
-    Teleport.PlaceCameraPart()
     Teleport.PlaceFloorAtFarmingHome()
     Teleport.PlaceFloorAtCampSite()
     Teleport.PlaceFloorAtBeachParty()
     Teleport.FarmingHome()
-
-    local camera = workspace.CurrentCamera
-
-    camera.CameraSubject = workspace:WaitForChild('CameraPartLocation')
-
     task.delay(30, function()
         hasStartedFarming = true
 
