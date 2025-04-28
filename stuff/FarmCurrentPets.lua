@@ -51,7 +51,7 @@ getgenv().SETTINGS = {
 		"AnthonyMercedesz14",
 		"DoughertyNeilj9364",
 	},
-	
+
 	TRADE_LIST = {
 		-- "moon_2025_royal_egg",
 		-- "lures_2023_blazing_lion",
@@ -81,7 +81,17 @@ getgenv().SETTINGS = {
 		"capuchin_2024_peanut_balloon",
 		"capuchin_2024_tophat_flying_disc",
 		"capuchin_2024_fire_ring_propeller",
-		"capuchin_2024_peanut_friend_chew_toy"
+		"capuchin_2024_peanut_friend_chew_toy",
+		"halloween_2024_franken_feline",
+		"capuchin_2024_whip_grappling_hook",
+		"lunar_2024_doltokki_kite",
+		"lunar_2024_jegi_throw_toy",
+		"lunar_2024_diamond_fanghorn_kite",
+		"lunar_2024_rainbow_dragon_kite",
+		"lunar_2024_lunar_moon_throw_toy",
+		"lunar_2024_midnight_dragon_kite",
+		"lunar_2024_fanghorn_kite",
+		"lunar_2024_rice_cake_rabbit_kite",
 	},
 
 	HATCH_EGG_PRIORITY = false,
