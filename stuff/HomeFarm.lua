@@ -35,7 +35,23 @@ getgenv().SETTINGS = {
 
 	ENABLE_TRADE_COLLECTOR = true,
 	TRADE_ONLY_LUMINOUS_MEGA = true,
-	TRADE_COLLECTOR_NAME = {"exp_potion", "Tiredbloxypets", "Chest19548", "Chest28745", "tr67ht", "McneilLeahw9", "WeissKennethp9", "FlynnJeanettec0286", "CareyPattyd191", "WadeTonyz9"},
+	TRADE_COLLECTOR_NAME = {
+		"exp_potion", 
+		"Tiredbloxypets", 
+		"Chest19548", 
+		"Chest28745",
+		"tr67ht", 
+		"McneilLeahw9",
+		"WeissKennethp9",
+		"FlynnJeanettec0286",
+		"CareyPattyd191",
+		"WadeTonyz9",
+		"LozanoRayt7340",
+		"HendrixAlext135",
+		"AnthonyMercedesz14",
+		"DoughertyNeilj9364",
+	},
+	
 	TRADE_LIST = {
 		-- "moon_2025_royal_egg",
 		-- "lures_2023_blazing_lion",
