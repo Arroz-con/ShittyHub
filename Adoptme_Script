@@ -5590,6 +5590,20 @@ Check the Developer Console for more information.]],
             TextLabel.TextSize = 14
             TextLabel.TextWrapped = true
         end
+        function Teleport.PlaceCameraPart()
+            if Workspace:FindFirstChild('CameraPartLocation') then
+                return
+            end
+
+            local part = Instance.new('Part')
+
+            part.Position = Vector3.new(100000, 10000, 100000)
+            part.Size = Vector3.new(2, 2, 2)
+            part.Anchored = true
+            part.Transparency = 1
+            part.Name = 'CameraPartLocation'
+            part.Parent = Workspace
+        end
         function Teleport.PlaceFloorAtCampSite()
             if Workspace:FindFirstChild('CampingLocation') then
                 return
@@ -7462,8 +7476,6 @@ Check the Developer Console for more information.]],
                 LegacyTutorial.cancel_tutorial()
                 task.wait(2)
                 ReplicatedStorage.API['LegacyTutorialAPI/MarkTutorialCompleted']:FireServer()
-                task.wait(2)
-                localPlayer:Kick('Finished tutorial?')
             end)
 
             print('tutorial', success, errorMessage)
@@ -7681,7 +7693,19 @@ Check the Developer Console for more information.]],
             return nil
         end
         local getBuildingFolder = function(model)
-            for _, v in model.Programmed.Map:GetChildren()do
+            local programmedFolder = model:WaitForChild('Programmed', 20)
+
+            if not programmedFolder then
+                return nil
+            end
+
+            local mapFolder = programmedFolder:WaitForChild('Map', 20)
+
+            if not mapFolder then
+                return nil
+            end
+
+            for _, v in mapFolder:GetChildren()do
                 if v.Name == 'Buildings' and v:IsA('Folder') then
                     return v
                 end
@@ -7848,6 +7872,8 @@ local RoleChooserDialogConnection
 local RobuxProductDialogConnection1
 local RobuxProductDialogConnection2
 local DailyClaimConnection
+local certificateConn
+local starterPackAppConn
 local isProHandler = false
 local counter = 0
 local rng = Random.new()
@@ -8696,10 +8722,16 @@ local autoFarm = function()
     end
 
     CollisionsClient.set_collidable(false)
+    Teleport.PlaceCameraPart()
     Teleport.PlaceFloorAtFarmingHome()
     Teleport.PlaceFloorAtCampSite()
     Teleport.PlaceFloorAtBeachParty()
     Teleport.FarmingHome()
+
+    local camera = workspace.CurrentCamera
+
+    camera.CameraSubject = workspace:WaitForChild('CameraPartLocation')
+
     task.delay(30, function()
         hasStartedFarming = true
 
@@ -9164,6 +9196,45 @@ localPlayer.PlayerGui.DialogApp.Dialog.ChildAdded:Connect(function(Child)
         end)
     end
 end)
+
+certificateConn = localPlayer.PlayerGui.CertificateApp:GetPropertyChangedSignal('Enabled'):Connect(function(
+)
+    if not localPlayer.PlayerGui.CertificateApp.Enabled then
+        return
+    end
+    if not localPlayer.PlayerGui.CertificateApp:WaitForChild('Content', 10) then
+        return
+    end
+    if not localPlayer.PlayerGui.CertificateApp.Content:WaitForChild('ExitButton', 10) then
+        return
+    end
+
+    fireButton(localPlayer.PlayerGui.CertificateApp.Content.ExitButton)
+
+    if certificateConn then
+        certificateConn:Disconnect()
+
+        certificateConn = nil
+    end
+end)
+starterPackAppConn = localPlayer.PlayerGui.FTUEStarterPackApp.Popups.Default:GetPropertyChangedSignal('Visible'):Connect(function(
+)
+    if not localPlayer.PlayerGui.FTUEStarterPackApp.Popups.Default.Visible then
+        return
+    end
+    if not localPlayer.PlayerGui.FTUEStarterPackApp.Popups.Default:WaitForChild('ExitButton', 10) then
+        return
+    end
+
+    fireButton(localPlayer.PlayerGui.FTUEStarterPackApp.Popups.Default.ExitButton)
+
+    if starterPackAppConn then
+        starterPackAppConn:Disconnect()
+
+        starterPackAppConn = nil
+    end
+end)
+
 Players.PlayerAdded:Connect(function(player)
     player.CharacterAdded:Connect(function(character)
         if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, localPlayer.Name) then
@@ -10201,4 +10272,16 @@ NewAltTab:CreateButton({
     end,
 })
 Rayfield:SetVisibility(false)
+task.delay((300), function()
+    if certificateConn then
+        certificateConn:Disconnect()
+
+        certificateConn = nil
+    end
+    if starterPackAppConn then
+        starterPackAppConn:Disconnect()
+
+        starterPackAppConn = nil
+    end
+end)
 Misc.DebugModePrint('Loaded. lastest update 2/25/2025  mm/dd/yyyy')
