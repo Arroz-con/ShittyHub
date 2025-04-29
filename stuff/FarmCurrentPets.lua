@@ -1,5 +1,5 @@
 getgenv().BUY_BEFORE_FARMING = {
-	{NameId = "spring_2025_kappakid", MaxAmount = 500},
+	{NameId = "spring_2025_mirai_moth", MaxAmount = 500},
 }
 
 -- getgenv().OPEN_ITEMS_BEFORE_FARMING = {
@@ -7,7 +7,7 @@ getgenv().BUY_BEFORE_FARMING = {
 -- }
 
 getgenv().AGE_PETS_BEFORE_FARMING = {
-	{NameId = "spring_2025_kappakid", MaxAmount = 99},
+	{NameId = "spring_2025_mirai_moth", MaxAmount = 99},
 }
 
 
