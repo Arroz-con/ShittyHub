@@ -5026,7 +5026,7 @@ Check the Developer Console for more information.]],
                     ReplicatedStorage.API:FindFirstChild('TradeAPI/SendTradeRequest'):FireServer(Players[selectedPlayer])
                 end
 
-                task.wait(math.random(5, 10))
+                task.wait(math.random(1, 5))
             end
 
             if localPlayer.PlayerGui.TradeApp.Frame.Visible then
@@ -8897,6 +8897,8 @@ local onTextChangedNormalDialog = function()
         findButton('Next')
     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('sent you a trade request') then
         findButton('Accept')
+    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Trade request from') then
+        findButton('Okay')
     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Any items lost') then
         findButton('I understand')
     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('4.5%% Legendary') then
