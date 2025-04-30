@@ -5004,15 +5004,6 @@ Check the Developer Console for more information.]],
 
             return false
         end
-        local getMuleNotCurrentlyTrading = function(playerTable)
-            for _, playerName in playerTable do
-                if ClientData.get_data()[playerName] and not ClientData.get_data()[playerName].in_active_trade then
-                    return playerName
-                end
-            end
-
-            return false
-        end
 
         function Trade:SendTradeRequest(playerTable)
             if typeof(playerTable) ~= 'table' then
@@ -5020,10 +5011,11 @@ Check the Developer Console for more information.]],
             end
 
             while isMulesInGame(playerTable) and not localPlayer.PlayerGui.TradeApp.Frame.Visible do
-                local selectedPlayer = getMuleNotCurrentlyTrading(playerTable)
-
-                if selectedPlayer then
-                    ReplicatedStorage.API:FindFirstChild('TradeAPI/SendTradeRequest'):FireServer(Players[selectedPlayer])
+                for _, playerName in playerTable do
+                    if ClientData.get_data()[playerName] and not ClientData.get_data()[playerName].in_active_trade then
+                        ReplicatedStorage.API['TradeAPI/SendTradeRequest']:FireServer(Players[playerName])
+                        task.wait()
+                    end
                 end
 
                 task.wait(math.random(1, 5))
