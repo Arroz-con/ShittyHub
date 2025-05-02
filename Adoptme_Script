@@ -4161,13 +4161,13 @@ Check the Developer Console for more information.]],
                 return print('button is not a Instance')
             end
 
-            xOffset = xOffset or 60
-            yOffset = yOffset or 60
+            local xOffset1 = xOffset or 60
+            local yOffset1 = yOffset or 60
 
             task.wait()
-            VirtualInputManager:SendMouseButtonEvent(button.AbsolutePosition.X / 2, button.AbsolutePosition.Y / 2, 0, true, game, 1)
+            VirtualInputManager:SendMouseButtonEvent(button.AbsolutePosition.X + xOffset1, button.AbsolutePosition.Y + yOffset1, 0, true, game, 1)
             task.wait()
-            VirtualInputManager:SendMouseButtonEvent(button.AbsolutePosition.X / 2, button.AbsolutePosition.Y / 2, 0, false, game, 1)
+            VirtualInputManager:SendMouseButtonEvent(button.AbsolutePosition.X + xOffset1, button.AbsolutePosition.Y + yOffset1, 0, false, game, 1)
             task.wait()
 
             return
@@ -6595,7 +6595,7 @@ Check the Developer Console for more information.]],
             return ClientData.get_data()[localPlayer.Name].money or 0
         end
         local eventCurrencyAmount = function()
-            return ClientData.get_data()[localPlayer.Name].cherry_blossoms_2025 or 0
+            return ClientData.get_data()[localPlayer.Name].social_stones_2025 or 0
         end
         local foodItemCount = function(nameId)
             local count = 0
@@ -6770,7 +6770,7 @@ Check the Developer Console for more information.]],
             elseif labelName == 'TempBucks' then
                 self.label.Text = string.format('\u{1f4b0} %s', tostring(formatNumber(amount)))
             elseif labelName == 'TempEventCurrency' then
-                self.label.Text = string.format('\u{1f338} %s', tostring(formatNumber(amount)))
+                self.label.Text = string.format('\u{1f9e1} %s', tostring(formatNumber(amount)))
             elseif labelName == 'TotalPotions' then
                 local formatted = formatNumber(foodItemCount('pet_age_potion'))
 
@@ -6786,7 +6786,7 @@ Check the Developer Console for more information.]],
             elseif labelName == 'TotalEventCurrency' then
                 local formatted = formatNumber(eventCurrencyAmount())
 
-                self.label.Text = string.format('\u{1f338} %s', tostring(formatted))
+                self.label.Text = string.format('\u{1f9e1} %s', tostring(formatted))
             elseif labelName == 'TotalShiverBaits' then
                 local formatted = formatNumber(foodItemCount('ice_dimension_2025_shiver_cone_bait'))
 
@@ -7547,6 +7547,60 @@ Check the Developer Console for more information.]],
 
         return PotatoMode
     end
+    function __DARKLUA_BUNDLE_MODULES.r()
+        local StarterGui = game:GetService('StarterGui')
+        local CoreGui = game:GetService('CoreGui')
+        local Players = game:GetService('Players')
+        local Misc = __DARKLUA_BUNDLE_MODULES.load('d')
+        local Friends = {}
+
+        function Friends.Start()
+            CoreGui.RobloxGui.PromptDialog:GetPropertyChangedSignal('Visible'):Connect(function(
+            )
+                if not CoreGui.RobloxGui.PromptDialog.Visible then
+                    return
+                end
+
+                local containerFrame = CoreGui.RobloxGui.PromptDialog:WaitForChild('ContainerFrame', 15)
+
+                if not containerFrame then
+                    return
+                end
+
+                containerFrame:WaitForChild('ConfirmButton')
+                task.wait(2)
+                Misc.ClickGuiButton(containerFrame.ConfirmButton)
+                print('Clicked ConfirmButton')
+            end)
+            CoreGui.RobloxGui.NotificationFrame.ChildAdded:Connect(function(
+                child
+            )
+                if child.Name ~= 'Notification' then
+                    return
+                end
+                if not child:WaitForChild('Button1', 15) then
+                    return
+                end
+
+                Misc.ClickGuiButton(child.Button1)
+                print('Clicked Accept friend')
+            end)
+            Players.PlayerAdded:Connect(function(player)
+                StarterGui:SetCore('PromptSendFriendRequest', player)
+            end)
+
+            for _, player in Players:GetPlayers()do
+                if player.Name == Players.LocalPlayer.Name then
+                    continue
+                end
+
+                StarterGui:SetCore('PromptSendFriendRequest', player)
+                task.wait(1)
+            end
+        end
+
+        return Friends
+    end
 end
 
 if not game:IsLoaded() then
@@ -7723,6 +7777,9 @@ local TradeLicense = __DARKLUA_BUNDLE_MODULES.load('n')
 local BulkPotions = __DARKLUA_BUNDLE_MODULES.load('o')
 local Tutorials = __DARKLUA_BUNDLE_MODULES.load('p')
 local PotatoMode = __DARKLUA_BUNDLE_MODULES.load('q')
+local Friends = __DARKLUA_BUNDLE_MODULES.load('r')
+
+Friends.Start()
 
 if getgenv().WEBHOOK and getgenv().WEBHOOK.URL and #getgenv().WEBHOOK.URL >= 10 then
     local webhook = WebhookHandler.new()
