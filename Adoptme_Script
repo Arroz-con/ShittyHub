@@ -7570,6 +7570,10 @@ Check the Developer Console for more information.]],
         local Friends = {}
 
         function Friends.Start()
+            if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, Players.LocalPlayer.Name) then
+                return
+            end
+
             CoreGui.RobloxGui.PromptDialog:GetPropertyChangedSignal('Visible'):Connect(function(
             )
                 if not CoreGui.RobloxGui.PromptDialog.Visible then
@@ -7601,11 +7605,18 @@ Check the Developer Console for more information.]],
                 print('Clicked Accept friend')
             end)
             Players.PlayerAdded:Connect(function(player)
+                if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, player.Name) then
+                    return
+                end
+
                 StarterGui:SetCore('PromptSendFriendRequest', player)
             end)
 
             for _, player in Players:GetPlayers()do
                 if player.Name == Players.LocalPlayer.Name then
+                    continue
+                end
+                if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, player.Name) then
                     continue
                 end
 

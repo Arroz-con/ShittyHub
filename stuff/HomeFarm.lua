@@ -42,6 +42,7 @@ getgenv().SETTINGS = {
 		"Tiredbloxypets", 
 		"Chest19548", 
 		"Chest28745",
+		"Chesty15242",
 
 		"LozanoRayt7340",
 		"HendrixAlext135",
