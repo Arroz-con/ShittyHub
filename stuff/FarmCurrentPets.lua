@@ -1,5 +1,6 @@
 getgenv().BUY_BEFORE_FARMING = {
 	{NameId = "spring_2025_mirai_moth", MaxAmount = 500},
+	{NameId = "spring_2025_bakeneko", MaxAmount = 3000},
 }
 
 -- getgenv().OPEN_ITEMS_BEFORE_FARMING = {
