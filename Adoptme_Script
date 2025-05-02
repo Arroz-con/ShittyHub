@@ -7515,9 +7515,11 @@ Check the Developer Console for more information.]],
                 v.EnableFluidForces = false
                 v.CastShadow = false
                 v.Reflectance = 0
+                v.Transparency = 1
             elseif v:IsA('BasePart') and not v:IsA('MeshPart') then
                 v.Material = Enum.Material.Plastic
                 v.Reflectance = 0
+                v.Transparency = 1
             elseif v:IsA('Decal') or v:IsA('Texture') then
                 v.Transparency = 1
             elseif v:IsA('ParticleEmitter') or v:IsA('Trail') then
@@ -7533,6 +7535,7 @@ Check the Developer Console for more information.]],
                 v.CastShadow = false
                 v.Reflectance = 0
                 v.TextureID = '10385902758728957'
+                v.Transparency = 1
             elseif v:IsA('SpecialMesh') then
                 v.TextureId = 0
             elseif v:IsA('ShirtGraphic') then
