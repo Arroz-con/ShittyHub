@@ -6591,10 +6591,6 @@ Check the Developer Console for more information.]],
             local minutes = math.floor((currentTime % 3600) / 60)
             local seconds = currentTime % 60
 
-            if hours >= 10 then
-                game:Shutdown()
-            end
-
             return string.format('%02d:%02d:%02d', hours, minutes, seconds)
         end
         local formatNumber = function(num)
@@ -7574,6 +7570,10 @@ Check the Developer Console for more information.]],
         local Friends = {}
 
         function Friends.init()
+            if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, localPlayer.Name) then
+                return
+            end
+
             CoreGui.RobloxGui.PromptDialog:GetPropertyChangedSignal('Visible'):Connect(function(
             )
                 if not CoreGui.RobloxGui.PromptDialog.Visible then
@@ -7629,6 +7629,10 @@ Check the Developer Console for more information.]],
             end)
         end
         function Friends.start()
+            if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, localPlayer.Name) then
+                return
+            end
+
             for _, player in Players:GetPlayers()do
                 if player.Name == Players.LocalPlayer.Name then
                     continue
