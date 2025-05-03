@@ -8617,7 +8617,7 @@ local autoFarm = function()
 
             baitboxCount = baitboxCount + 2
 
-            task.wait(2)
+            task.wait(rng:NextNumber(1, 15))
         end
     end)
 
