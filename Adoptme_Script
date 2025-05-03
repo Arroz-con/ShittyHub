@@ -7569,14 +7569,11 @@ Check the Developer Console for more information.]],
         local StarterGui = game:GetService('StarterGui')
         local CoreGui = game:GetService('CoreGui')
         local Players = game:GetService('Players')
+        local localPlayer = Players.LocalPlayer
         local Misc = __DARKLUA_BUNDLE_MODULES.load('d')
         local Friends = {}
 
-        function Friends.Start()
-            if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, Players.LocalPlayer.Name) then
-                return
-            end
-
+        function Friends.init()
             CoreGui.RobloxGui.PromptDialog:GetPropertyChangedSignal('Visible'):Connect(function(
             )
                 if not CoreGui.RobloxGui.PromptDialog.Visible then
@@ -7590,8 +7587,12 @@ Check the Developer Console for more information.]],
                 end
 
                 containerFrame:WaitForChild('ConfirmButton')
-                task.wait(2)
-                Misc.ClickGuiButton(containerFrame.ConfirmButton)
+
+                repeat
+                    Misc.ClickGuiButton(containerFrame.ConfirmButton)
+                    task.wait(1)
+                until not CoreGui.RobloxGui.PromptDialog.Visible
+
                 print('Clicked ConfirmButton')
             end)
             CoreGui.RobloxGui.NotificationFrame.ChildAdded:Connect(function(
@@ -7604,28 +7605,41 @@ Check the Developer Console for more information.]],
                     return
                 end
 
-                Misc.ClickGuiButton(child.Button1)
+                repeat
+                    Misc.ClickGuiButton(child.Button1)
+                    task.wait(1)
+                until not CoreGui.RobloxGui.NotificationFrame:FindFirstChild('Notification')
+
                 print('Clicked Accept friend')
             end)
             Players.PlayerAdded:Connect(function(player)
-                if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, player.Name) then
-                    return
-                end
-                if player:IsFriendsWith(player.UserId) then
-                    return
-                end
+                player.CharacterAdded:Connect(function(character)
+                    if not player.Character then
+                        return
+                    end
+                    if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, player.Name) then
+                        return
+                    end
+                    if localPlayer:IsFriendsWith(player.UserId) then
+                        return
+                    end
 
-                StarterGui:SetCore('PromptSendFriendRequest', player)
+                    StarterGui:SetCore('PromptSendFriendRequest', player)
+                end)
             end)
-
+        end
+        function Friends.start()
             for _, player in Players:GetPlayers()do
                 if player.Name == Players.LocalPlayer.Name then
                     continue
                 end
+                if not player.Character then
+                    continue
+                end
                 if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, player.Name) then
                     continue
                 end
-                if player:IsFriendsWith(player.UserId) then
+                if localPlayer:IsFriendsWith(player.UserId) then
                     continue
                 end
 
@@ -7814,7 +7828,7 @@ local Tutorials = __DARKLUA_BUNDLE_MODULES.load('p')
 local PotatoMode = __DARKLUA_BUNDLE_MODULES.load('q')
 local Friends = __DARKLUA_BUNDLE_MODULES.load('r')
 
-Friends.Start()
+Friends.init()
 
 if getgenv().WEBHOOK and getgenv().WEBHOOK.URL and #getgenv().WEBHOOK.URL >= 10 then
     local webhook = WebhookHandler.new()
@@ -10014,4 +10028,5 @@ task.delay((300), function()
         starterPackAppConn = nil
     end
 end)
+Friends.start()
 Misc.DebugModePrint('Loaded. lastest update 2/25/2025  mm/dd/yyyy')
