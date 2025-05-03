@@ -7571,17 +7571,6 @@ Check the Developer Console for more information.]],
         local Players = game:GetService('Players')
         local Misc = __DARKLUA_BUNDLE_MODULES.load('d')
         local Friends = {}
-        local isFriends = function(player)
-            local result, _ = pcall(function()
-                player:IsFriendsWith(player.UserId)
-            end)
-
-            if result then
-                return true
-            end
-
-            return false
-        end
 
         function Friends.Start()
             if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, Players.LocalPlayer.Name) then
@@ -7622,7 +7611,7 @@ Check the Developer Console for more information.]],
                 if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, player.Name) then
                     return
                 end
-                if isFriends(player) then
+                if player:IsFriendsWith(player.UserId) then
                     return
                 end
 
@@ -7636,7 +7625,7 @@ Check the Developer Console for more information.]],
                 if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, player.Name) then
                     continue
                 end
-                if isFriends(player) then
+                if player:IsFriendsWith(player.UserId) then
                     continue
                 end
 
