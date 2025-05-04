@@ -7568,6 +7568,40 @@ Check the Developer Console for more information.]],
         local localPlayer = Players.LocalPlayer
         local Misc = __DARKLUA_BUNDLE_MODULES.load('d')
         local Friends = {}
+        local getLocalPlayerFriends = function()
+            local iterPageItems = function(pages)
+                return coroutine.wrap(function()
+                    local pagenum = 1
+
+                    while true do
+                        for _, item in ipairs(pages:GetCurrentPage())do
+                            coroutine.yield(item, pagenum)
+                        end
+
+                        if pages.IsFinished then
+                            break
+                        end
+
+                        pages:AdvanceToNextPageAsync()
+
+                        pagenum = pagenum + 1
+                    end
+                end)
+            end
+            local friendPages = Players:GetFriendsAsync(localPlayer.UserId)
+            local usernames = {}
+
+            for item, _pageNo in iterPageItems(friendPages)do
+                table.insert(usernames, item.Username)
+            end
+
+            return usernames
+        end
+        local requestFriendshipWith = function(player)
+            pcall(function()
+                StarterGui:SetCore('PromptSendFriendRequest', player)
+            end)
+        end
 
         function Friends.init()
             if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, localPlayer.Name) then
@@ -7612,6 +7646,14 @@ Check the Developer Console for more information.]],
 
                 print('Clicked Accept friend')
             end)
+        end
+        function Friends.start()
+            if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, localPlayer.Name) then
+                return
+            end
+
+            local friendList = getLocalPlayerFriends()
+
             Players.PlayerAdded:Connect(function(player)
                 player.CharacterAdded:Connect(function(character)
                     if not player.Character then
@@ -7620,35 +7662,27 @@ Check the Developer Console for more information.]],
                     if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, player.Name) then
                         return
                     end
-                    if localPlayer:IsFriendsWith(player.UserId) then
+                    if table.find(friendList, player.Name) then
                         return
                     end
 
-                    StarterGui:SetCore('PromptSendFriendRequest', player)
+                    requestFriendshipWith(player)
                 end)
             end)
-        end
-        function Friends.start()
-            if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, localPlayer.Name) then
-                return
-            end
 
             for _, player in Players:GetPlayers()do
                 if player.Name == Players.LocalPlayer.Name then
                     continue
                 end
-                if not player.Character then
-                    continue
-                end
                 if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, player.Name) then
                     continue
                 end
-                if localPlayer:IsFriendsWith(player.UserId) then
+                if table.find(friendList, player.Name) then
                     continue
                 end
 
-                StarterGui:SetCore('PromptSendFriendRequest', player)
-                task.wait(1)
+                requestFriendshipWith(player)
+                task.wait(0.1)
             end
         end
 
