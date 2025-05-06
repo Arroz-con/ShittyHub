@@ -4161,14 +4161,16 @@ Check the Developer Console for more information.]],
                 return print('button is not a Instance')
             end
 
-            local xOffset1 = xOffset or 60
-            local yOffset1 = yOffset or 60
+            pcall(function()
+                local xOffset1 = xOffset or 60
+                local yOffset1 = yOffset or 60
 
-            task.wait()
-            VirtualInputManager:SendMouseButtonEvent(button.AbsolutePosition.X + xOffset1, button.AbsolutePosition.Y + yOffset1, 0, true, game, 1)
-            task.wait()
-            VirtualInputManager:SendMouseButtonEvent(button.AbsolutePosition.X + xOffset1, button.AbsolutePosition.Y + yOffset1, 0, false, game, 1)
-            task.wait()
+                task.wait()
+                VirtualInputManager:SendMouseButtonEvent(button.AbsolutePosition.X + xOffset1, button.AbsolutePosition.Y + yOffset1, 0, true, game, 1)
+                task.wait()
+                VirtualInputManager:SendMouseButtonEvent(button.AbsolutePosition.X + xOffset1, button.AbsolutePosition.Y + yOffset1, 0, false, game, 1)
+                task.wait()
+            end)
 
             return
         end
@@ -7566,6 +7568,7 @@ Check the Developer Console for more information.]],
         local CoreGui = game:GetService('CoreGui')
         local Players = game:GetService('Players')
         local localPlayer = Players.LocalPlayer
+        local rng = Random.new()
         local Misc = __DARKLUA_BUNDLE_MODULES.load('d')
         local Friends = {}
         local getLocalPlayerFriends = function()
@@ -7635,12 +7638,15 @@ Check the Developer Console for more information.]],
                 if child.Name ~= 'Notification' then
                     return
                 end
-                if not child:WaitForChild('Button1', 15) then
+
+                local button1 = child:WaitForChild('Button1', 15)
+
+                if not button1 then
                     return
                 end
 
                 repeat
-                    Misc.ClickGuiButton(child.Button1)
+                    Misc.ClickGuiButton(button1)
                     task.wait(1)
                 until not CoreGui.RobloxGui.NotificationFrame:FindFirstChild('Notification')
 
@@ -7682,7 +7688,7 @@ Check the Developer Console for more information.]],
                 end
 
                 requestFriendshipWith(player)
-                task.wait(0.1)
+                task.wait(rng:NextNumber(1, 5))
             end
         end
 
