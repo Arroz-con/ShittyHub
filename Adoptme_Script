@@ -8535,10 +8535,6 @@ local CompletePetAilments = function(whichPet)
             Ailments:ToiletAilment(LitterBox, petUnique)
 
             return true
-        elseif key == 'ride' then
-            Ailments:RideAilment(strollerId, petUnique)
-
-            return true
         elseif key == 'play' then
             if not Ailments:PlayAilment(key, petUnique) then
                 return false
