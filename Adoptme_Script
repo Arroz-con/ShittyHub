@@ -7564,137 +7564,6 @@ Check the Developer Console for more information.]],
 
         return PotatoMode
     end
-    function __DARKLUA_BUNDLE_MODULES.r()
-        local StarterGui = game:GetService('StarterGui')
-        local CoreGui = game:GetService('CoreGui')
-        local Players = game:GetService('Players')
-        local localPlayer = Players.LocalPlayer
-        local rng = Random.new()
-        local Misc = __DARKLUA_BUNDLE_MODULES.load('d')
-        local Friends = {}
-        local getLocalPlayerFriends = function()
-            local iterPageItems = function(pages)
-                return coroutine.wrap(function()
-                    local pagenum = 1
-
-                    while true do
-                        for _, item in ipairs(pages:GetCurrentPage())do
-                            coroutine.yield(item, pagenum)
-                        end
-
-                        if pages.IsFinished then
-                            break
-                        end
-
-                        pages:AdvanceToNextPageAsync()
-
-                        pagenum = pagenum + 1
-                    end
-                end)
-            end
-            local friendPages = Players:GetFriendsAsync(localPlayer.UserId)
-            local usernames = {}
-
-            for item, _pageNo in iterPageItems(friendPages)do
-                table.insert(usernames, item.Username)
-            end
-
-            return usernames
-        end
-        local requestFriendshipWith = function(player)
-            pcall(function()
-                StarterGui:SetCore('PromptSendFriendRequest', player)
-            end)
-        end
-
-        function Friends.init()
-            if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, localPlayer.Name) then
-                return
-            end
-
-            CoreGui.RobloxGui.PromptDialog:GetPropertyChangedSignal('Visible'):Connect(function(
-            )
-                if not CoreGui.RobloxGui.PromptDialog.Visible then
-                    return
-                end
-
-                local containerFrame = CoreGui.RobloxGui.PromptDialog:WaitForChild('ContainerFrame', 15)
-
-                if not containerFrame then
-                    return
-                end
-
-                containerFrame:WaitForChild('ConfirmButton')
-
-                repeat
-                    Misc.ClickGuiButton(containerFrame.ConfirmButton)
-                    task.wait(1)
-                until not CoreGui.RobloxGui.PromptDialog.Visible
-
-                print('Clicked ConfirmButton')
-            end)
-            CoreGui.RobloxGui.NotificationFrame.ChildAdded:Connect(function(
-                child
-            )
-                if child.Name ~= 'Notification' then
-                    return
-                end
-
-                local button1 = child:WaitForChild('Button1', 15)
-
-                if not button1 then
-                    return
-                end
-
-                repeat
-                    Misc.ClickGuiButton(button1)
-                    task.wait(1)
-                until not CoreGui.RobloxGui.NotificationFrame:FindFirstChild('Notification')
-
-                print('Clicked Accept friend')
-            end)
-        end
-        function Friends.start()
-            if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, localPlayer.Name) then
-                return
-            end
-
-            local friendList = getLocalPlayerFriends()
-
-            Players.PlayerAdded:Connect(function(player)
-                player.CharacterAdded:Connect(function(character)
-                    if not player.Character then
-                        return
-                    end
-                    if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, player.Name) then
-                        return
-                    end
-                    if table.find(friendList, player.Name) then
-                        return
-                    end
-
-                    requestFriendshipWith(player)
-                end)
-            end)
-
-            for _, player in Players:GetPlayers()do
-                if player.Name == Players.LocalPlayer.Name then
-                    continue
-                end
-                if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, player.Name) then
-                    continue
-                end
-                if table.find(friendList, player.Name) then
-                    continue
-                end
-
-                requestFriendshipWith(player)
-                task.wait(rng:NextNumber(1, 5))
-            end
-        end
-
-        return Friends
-    end
 end
 
 if not game:IsLoaded() then
@@ -7871,9 +7740,6 @@ local TradeLicense = __DARKLUA_BUNDLE_MODULES.load('n')
 local BulkPotions = __DARKLUA_BUNDLE_MODULES.load('o')
 local Tutorials = __DARKLUA_BUNDLE_MODULES.load('p')
 local PotatoMode = __DARKLUA_BUNDLE_MODULES.load('q')
-local Friends = __DARKLUA_BUNDLE_MODULES.load('r')
-
-Friends.init()
 
 if getgenv().WEBHOOK and getgenv().WEBHOOK.URL and #getgenv().WEBHOOK.URL >= 10 then
     local webhook = WebhookHandler.new()
@@ -8829,6 +8695,9 @@ localPlayer.PlayerGui.HintApp.TextLabel:GetPropertyChangedSignal('Text'):Connect
         local text = localPlayer.PlayerGui.HintApp.TextLabel.Text
 
         if not text then
+            return
+        end
+        if not text:split('+')[2] then
             return
         end
 
@@ -10073,5 +9942,4 @@ task.delay((300), function()
         starterPackAppConn = nil
     end
 end)
-Friends.start()
 Misc.DebugModePrint('Loaded. lastest update 2/25/2025  mm/dd/yyyy')
