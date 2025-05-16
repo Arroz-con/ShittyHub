@@ -4152,7 +4152,7 @@ Check the Developer Console for more information.]],
         local VirtualInputManager = game:GetService('VirtualInputManager')
         local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
         local Misc = {}
-        local debugMode = true
+        local debugMode = false
 
         function Misc.ClickGuiButton(button, xOffset, yOffset)
             if typeof(button) ~= 'Instance' or typeof(button) ~= 'GuiBase2d' then
