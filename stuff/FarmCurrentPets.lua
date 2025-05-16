@@ -103,13 +103,20 @@ getgenv().SETTINGS = {
 
 	PET_ONLY_PRIORITY = true,
 	PET_ONLY_PRIORITY_NAMES = {
-		"moon_2025_glormy_dolphin",
-		"spring_2025_mirai_moth",
-		"spring_2025_kappakid",
-		"spring_2025_kage_crow",
-		"spring_2025_bakeneko",
-		"moon_2025_puptune",
-		"st_patricks_2025_clover_cow",
+		-- "moon_2025_glormy_dolphin",
+		-- "spring_2025_mirai_moth",
+		-- "spring_2025_kappakid",
+		-- "spring_2025_kage_crow",
+		-- "spring_2025_bakeneko",
+		-- "moon_2025_puptune",
+		-- "st_patricks_2025_clover_cow",
+
+		"gibbon_2025_influencer_gibbon",
+		"gibbon_2025_villain_gibbon",
+		"gibbon_2025_hero_gibbon",
+		"gibbon_2025_ringmaster_gibbon",
+		"gibbon_2025_firefighter_gibbon",
+		"gibbon_2025_officer_gibbon",
 	},
 }
 

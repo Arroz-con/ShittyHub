@@ -480,8 +480,6 @@ This version of Rayfield is intended for interface build ]] .. InterfaceBuild ..
         Rayfield.DisplayOrder = 100
         LoadingFrame.Version.Text = Release
 
-        local Icons = useStudio and require(script.Parent.icons) or loadstring(game:HttpGet(
-[[https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/refs/heads/main/icons.lua]]))()
         local CFileName = nil
         local CEnabled = false
         local Minimised = false
@@ -4154,11 +4152,11 @@ Check the Developer Console for more information.]],
         local VirtualInputManager = game:GetService('VirtualInputManager')
         local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
         local Misc = {}
-        local debugMode = false
+        local debugMode = true
 
         function Misc.ClickGuiButton(button, xOffset, yOffset)
-            if typeof(button) ~= 'Instance' then
-                return print('button is not a Instance')
+            if typeof(button) ~= 'Instance' or typeof(button) ~= 'GuiBase2d' then
+                return print('button is not a Instance/GuiBase2d')
             end
 
             pcall(function()
@@ -4169,7 +4167,6 @@ Check the Developer Console for more information.]],
                 VirtualInputManager:SendMouseButtonEvent(button.AbsolutePosition.X + xOffset1, button.AbsolutePosition.Y + yOffset1, 0, true, game, 1)
                 task.wait()
                 VirtualInputManager:SendMouseButtonEvent(button.AbsolutePosition.X + xOffset1, button.AbsolutePosition.Y + yOffset1, 0, false, game, 1)
-                task.wait()
             end)
 
             return
@@ -5970,7 +5967,7 @@ Check the Developer Console for more information.]],
         local Players = game:GetService('Players')
         local Misc = __DARKLUA_BUNDLE_MODULES.load('d')
         local Bypass = require(ReplicatedStorage:WaitForChild('Fsys')).load
-        local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
+        local ClientData = require(ReplicatedStorage.ClientModules.Core.ClientData)
         local GetInventory = __DARKLUA_BUNDLE_MODULES.load('g')
         local Teleport = __DARKLUA_BUNDLE_MODULES.load('i')
         local localPlayer = Players.LocalPlayer
@@ -5990,7 +5987,7 @@ Check the Developer Console for more information.]],
             local foodItem = Workspace.PetObjects:WaitForChild(tostring(Workspace.PetObjects:FindFirstChildWhichIsA('Model')), 10)
 
             if not foodItem then
-                print('NO food item in workspace')
+                Misc.DebugModePrint('NO food item in workspace')
 
                 return
             end
@@ -6964,7 +6961,7 @@ Check the Developer Console for more information.]],
 
             self.AllInventory = self.AllInventory .. string.format('%s Age-up Potions + %s Bucks | Adopt me\n', tostring(potions), tostring(addComma(bucks)))
 
-            local formatNumber = string.format('%.2f', (potionAmount))
+            local formatNumber = string.format('%.2f', potionAmount)
 
             self.AllInventory = self.AllInventory .. string.format('sell for $%s  %s\n\n', tostring(tostring(formatNumber)), tostring(localPlayer.Name))
         end
@@ -7495,6 +7492,7 @@ Check the Developer Console for more information.]],
         local Lighting = game:GetService('Lighting')
 
         PotatoMode = {}
+        PotatoMode.isOn = false
 
         local lowSpecTerrain = function()
             Terrain.WaterReflectance = 0
@@ -7522,7 +7520,7 @@ Check the Developer Console for more information.]],
             elseif v:IsA('Decal') or v:IsA('Texture') then
                 v.Transparency = 1
             elseif v:IsA('ParticleEmitter') or v:IsA('Trail') then
-                v.Lifetime = NumberRange.new(0)
+                v.Lifetime = NumberRange.new(0, 0.1)
             elseif v:IsA('Explosion') then
                 v.BlastPressure = 1
                 v.BlastRadius = 1
@@ -7545,6 +7543,10 @@ Check the Developer Console for more information.]],
         end
 
         function PotatoMode.Start()
+            if not PotatoMode.isOn then
+                return
+            end
+
             lowSpecTerrain()
             lowSpecLighting()
             sethiddenproperty(Lighting, 'Technology', 2)
@@ -7564,6 +7566,152 @@ Check the Developer Console for more information.]],
 
         return PotatoMode
     end
+    function __DARKLUA_BUNDLE_MODULES.r()
+        local GibbonFairground2025 = {}
+        local ReplicatedStorage = game:GetService('ReplicatedStorage')
+        local localPlayer = game:GetService('Players').LocalPlayer
+        local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
+        local buyAndOpen = function()
+            local canBuy = Bypass('RouterClient').get('ShopAPI/BuyItem'):InvokeServer('gifts', 'gibbon_2025_standard_box', {})
+
+            task.wait(0.1)
+
+            if canBuy == 'too little money' then
+                return false
+            end
+
+            for _, v in Bypass('ClientData').get_data()[localPlayer.Name].inventory.gifts do
+                if v['id'] == 'gibbon_2025_standard_box' then
+                    Bypass('RouterClient').get('LootBoxAPI/ExchangeItemForReward'):InvokeServer(v['id'], v['unique'])
+                    task.wait(0.1)
+
+                    if Bypass('ClientData').get_data()[localPlayer.Name].gibbon_2025_manager.boxes_opened >= 40 then
+                        Bypass('RouterClient').get('GibbonAPI/AttemptClaimRingmaster'):FireServer()
+                    end
+
+                    break
+                end
+            end
+
+            return true
+        end
+        local hasPetInInventory = function()
+            for _, v in Bypass('ClientData').get_data()[localPlayer.Name].inventory.pets do
+                if v.id == 'gibbon_2025_gibbon' then
+                    return true
+                end
+            end
+
+            return false
+        end
+        local getFurnitureId = function(monkeyId)
+            for i, v in Bypass('ClientData').get_data()[localPlayer.Name].house_interior.furniture do
+                if v.id == string.format('%s_trader', tostring(monkeyId)) then
+                    return i
+                end
+            end
+
+            return nil
+        end
+        local ExchangeCapuchin = function(item, Capuchin, tab)
+            local itemsNeeded = {}
+
+            for _, v in Bypass('ClientData').get_data()[localPlayer.Name].inventory[tab]do
+                if v.id == item then
+                    table.insert(itemsNeeded, v.unique)
+
+                    if #itemsNeeded >= 3 then
+                        break
+                    end
+                end
+            end
+
+            if #itemsNeeded <= 2 then
+                return false
+            end
+            if not hasPetInInventory() then
+                if Bypass('ClientData').get_data()[localPlayer.Name].money < 30000 then
+                    return false
+                end
+
+                local canBuy = Bypass('RouterClient').get('ShopAPI/BuyItem'):InvokeServer('pets', 'gibbon_2025_gibbon', {})
+
+                task.wait(2)
+
+                if canBuy == 'too little money' then
+                    return false
+                end
+            end
+
+            for _, v in Bypass('ClientData').get_data()[localPlayer.Name].inventory.pets do
+                if v.id == 'gibbon_2025_gibbon' then
+                    local fNumberId = getFurnitureId(Capuchin)
+
+                    if not fNumberId then
+                        return false
+                    end
+
+                    local args = {
+                        fNumberId,
+                        'UseBlock',
+                        {
+                            r_2 = itemsNeeded[1],
+                            r_4 = itemsNeeded[2],
+                            r_3 = itemsNeeded[3],
+                            r_1 = v.unique,
+                        },
+                        localPlayer.Character,
+                    }
+
+                    Bypass('RouterClient').get('HousingAPI/ActivateInteriorFurniture'):InvokeServer(unpack(args))
+
+                    break
+                end
+            end
+
+            table.clear(itemsNeeded)
+
+            return true
+        end
+
+        function GibbonFairground2025.Start()
+            Bypass('RouterClient').get('LocationAPI/SetLocation'):FireServer('Gibbon2025FairgroundInterior')
+            task.wait(1)
+
+            while Bypass('ClientData').get_data()[localPlayer.Name].money > 50000 do
+                if not buyAndOpen() then
+                    break
+                end
+
+                task.wait()
+            end
+
+            repeat
+                local hasMore = ExchangeCapuchin('gibbon_2025_hero_mask', 'gibbon_2025_hero_gibbon', 'pet_accessories')
+
+                task.wait(1)
+            until not hasMore
+            repeat
+                local hasMore = ExchangeCapuchin('gibbon_2025_pluboneium_chew_toy', 'gibbon_2025_villain_gibbon', 'toys')
+
+                task.wait(1)
+            until not hasMore
+            repeat
+                local hasMore = ExchangeCapuchin('gibbon_2025_fire_hose_scarf', 'gibbon_2025_firefighter_gibbon', 'pet_accessories')
+
+                task.wait(1)
+            until not hasMore
+            repeat
+                local hasMore = ExchangeCapuchin('gibbon_2025_whistle_necklace', 'gibbon_2025_officer_gibbon', 'pet_accessories')
+
+                task.wait(1)
+            until not hasMore
+
+            print('done, no more pets to transform')
+        end
+
+        return GibbonFairground2025
+    end
 end
 
 if not game:IsLoaded() then
@@ -7578,7 +7726,6 @@ local Players = game:GetService('Players')
 local Workspace = game:GetService('Workspace')
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
 local UserInputService = game:GetService('UserInputService')
-local VirtualInputManager = game:GetService('VirtualInputManager')
 local UserGameSettings = UserSettings():GetService('UserGameSettings')
 
 UserGameSettings.GraphicsQualityLevel = 1
@@ -7587,9 +7734,23 @@ UserGameSettings.MasterVolume = 0
 local VirtualUser = game:GetService('VirtualUser')
 local StarterGui = game:GetService('StarterGui')
 local localPlayer = Players.LocalPlayer
+local playerGui = localPlayer:WaitForChild('PlayerGui', 60)
 
-localPlayer:WaitForChild('PlayerGui', 600)
-localPlayer.PlayerGui:WaitForChild('NewsApp', 600)
+if not playerGui then
+    return print('PlayerGui took too long to load so exiting')
+end
+
+local dialogApp = playerGui:WaitForChild('DialogApp', 60)
+
+if not dialogApp then
+    return print('DialogApp took too long to load so exiting')
+end
+
+local newsApp = playerGui:WaitForChild('NewsApp', 60)
+
+if not newsApp then
+    return print('NewsApp took too long to load so exiting')
+end
 
 local PickColorConn
 local RoleChooserDialogConnection
@@ -7721,25 +7882,27 @@ local multipleOptionsTable = {
     ['ages'] = {},
     ['neons'] = {},
 }
-local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
-local RouterClient = require(ReplicatedStorage.ClientModules.Core:WaitForChild('RouterClient'):WaitForChild('RouterClient'))
-local CollisionsClient = require(ReplicatedStorage.ClientModules.Game:WaitForChild('CollisionsClient'))
-local Rayfield = __DARKLUA_BUNDLE_MODULES.load('a')
-local WebhookHandler = __DARKLUA_BUNDLE_MODULES.load('c')
-local Misc = __DARKLUA_BUNDLE_MODULES.load('d')
-local Fusion = __DARKLUA_BUNDLE_MODULES.load('e')
-local TaskBoard = __DARKLUA_BUNDLE_MODULES.load('f')
-local GetInventory = __DARKLUA_BUNDLE_MODULES.load('g')
-local Trade = __DARKLUA_BUNDLE_MODULES.load('h')
-local Teleport = __DARKLUA_BUNDLE_MODULES.load('i')
-local BuyItems = __DARKLUA_BUNDLE_MODULES.load('j')
-local Ailments = __DARKLUA_BUNDLE_MODULES.load('k')
-local StatsGuis2 = __DARKLUA_BUNDLE_MODULES.load('l')
-local Clipboard = __DARKLUA_BUNDLE_MODULES.load('m')
-local TradeLicense = __DARKLUA_BUNDLE_MODULES.load('n')
-local BulkPotions = __DARKLUA_BUNDLE_MODULES.load('o')
-local Tutorials = __DARKLUA_BUNDLE_MODULES.load('p')
-local PotatoMode = __DARKLUA_BUNDLE_MODULES.load('q')
+local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
+local ClientData = Bypass('ClientData')
+local RouterClient = Bypass('RouterClient')
+local CollisionsClient = Bypass('CollisionsClient')
+local Rayfield = (__DARKLUA_BUNDLE_MODULES.load('a'))
+local WebhookHandler = (__DARKLUA_BUNDLE_MODULES.load('c'))
+local Misc = (__DARKLUA_BUNDLE_MODULES.load('d'))
+local Fusion = (__DARKLUA_BUNDLE_MODULES.load('e'))
+local TaskBoard = (__DARKLUA_BUNDLE_MODULES.load('f'))
+local GetInventory = (__DARKLUA_BUNDLE_MODULES.load('g'))
+local Trade = (__DARKLUA_BUNDLE_MODULES.load('h'))
+local Teleport = (__DARKLUA_BUNDLE_MODULES.load('i'))
+local BuyItems = (__DARKLUA_BUNDLE_MODULES.load('j'))
+local Ailments = (__DARKLUA_BUNDLE_MODULES.load('k'))
+local StatsGuis2 = (__DARKLUA_BUNDLE_MODULES.load('l'))
+local Clipboard = (__DARKLUA_BUNDLE_MODULES.load('m'))
+local TradeLicense = (__DARKLUA_BUNDLE_MODULES.load('n'))
+local BulkPotions = (__DARKLUA_BUNDLE_MODULES.load('o'))
+local Tutorials = (__DARKLUA_BUNDLE_MODULES.load('p'))
+local PotatoMode = (__DARKLUA_BUNDLE_MODULES.load('q'))
+local GibbonFairground2025 = (__DARKLUA_BUNDLE_MODULES.load('r'))
 
 if getgenv().WEBHOOK and getgenv().WEBHOOK.URL and #getgenv().WEBHOOK.URL >= 10 then
     local webhook = WebhookHandler.new()
@@ -7797,21 +7960,18 @@ if #foodTable == 0 then
 end
 
 local peteggs = GetInventory:GetPetEggs()
-local clickGuiButton = function(button, xOffset, yOffset)
-    local xOffset1 = xOffset or 60
-    local yOffset1 = yOffset or 60
-
-    task.wait()
-    VirtualInputManager:SendMouseButtonEvent(button.AbsolutePosition.X + xOffset1, button.AbsolutePosition.Y + yOffset1, 0, true, game, 1)
-    task.wait()
-    VirtualInputManager:SendMouseButtonEvent(button.AbsolutePosition.X + xOffset1, button.AbsolutePosition.Y + yOffset1, 0, false, game, 1)
-    task.wait()
-
-    return
-end
 local fireButton = function(button)
+    if not button then
+        return
+    end
+    if not (button:IsA('ImageButton') or button:IsA('TextButton')) then
+        print(string.format('%s is not imagebutton', tostring(button)))
+        print(string.format('%s: %s ', tostring(button), tostring(button.ClassName)))
+
+        return
+    end
     if firesignal then
-        local success, errorMessage = pcall(function()
+        local success, _ = pcall(function()
             firesignal(button.MouseButton1Down)
             task.wait(1)
             firesignal(button.MouseButton1Click)
@@ -7823,17 +7983,30 @@ local fireButton = function(button)
         end
     else
         Misc.DebugModePrint('NO FIRESIGNAL, USING MOUSE TO CLICK')
-        clickGuiButton(button)
+        Misc.ClickGuiButton(button)
     end
 end
 local findButton = function(text, dialogFramePassOn)
-    task.wait()
+    if typeof(dialogFramePassOn) ~= 'string' then
+        return
+    end
+    if not dialogFramePassOn then
+        dialogFramePassOn = 'NormalDialog'
+    end
 
-    local dialogFrame = dialogFramePassOn or 'NormalDialog'
+    local dialog = dialogApp:WaitForChild('Dialog')
 
-    for _, v in localPlayer.PlayerGui.DialogApp.Dialog[dialogFrame].Buttons:GetDescendants()do
+    if not dialog then
+        return
+    end
+
+    for _, v in dialog:WaitForChild(dialogFramePassOn):WaitForChild('Buttons'):GetDescendants()do
         if v:IsA('TextLabel') then
             if v.Text == text then
+                if not v.Parent or not v.Parent.Parent then
+                    return
+                end
+
                 fireButton(v.Parent.Parent)
 
                 break
@@ -7876,7 +8049,7 @@ local buyFurniture = function(furnitureId)
         },
     }
 
-    ReplicatedStorage:WaitForChild('API'):WaitForChild('HousingAPI/BuyFurnitures'):InvokeServer(unpack(args))
+    RouterClient.get('HousingAPI/BuyFurnitures'):InvokeServer(unpack(args))
 end
 local grabDailyReward = function()
     Misc.DebugModePrint('getting daily rewards')
@@ -7888,7 +8061,7 @@ local grabDailyReward = function()
             if i < Daily.stars or i == Daily.stars then
                 if not Daily.claimed_star_rewards[v] then
                     Misc.DebugModePrint('grabbing dialy reward!')
-                    Misc.DebugModePrint(ReplicatedStorage.API:FindFirstChild('DailyLoginAPI/ClaimStarReward'):InvokeServer(v))
+                    Misc.DebugModePrint(RouterClient.get('DailyLoginAPI/ClaimStarReward'):InvokeServer(v))
                 end
             end
         end
@@ -7897,7 +8070,7 @@ local grabDailyReward = function()
             if i < Daily.stars or i == Daily.stars then
                 if not Daily.claimed_star_rewards[v] then
                     Misc.DebugModePrint('grabbing dialy reward!')
-                    Misc.DebugModePrint(ReplicatedStorage.API:FindFirstChild('DailyLoginAPI/ClaimStarReward'):InvokeServer(v))
+                    Misc.DebugModePrint(RouterClient.get('DailyLoginAPI/ClaimStarReward'):InvokeServer(v))
                 end
             end
         end
@@ -7916,7 +8089,7 @@ local isMuleInGame = function()
     return false
 end
 local consumeItem = function(potionName)
-    local agePotion = Workspace.PetObjects:WaitForChild(potionName, 15)
+    local agePotion = Workspace:WaitForChild('PetObjects'):WaitForChild(potionName, 15)
 
     if not agePotion then
         Misc.DebugModePrint('no age potion in workspace')
@@ -7924,7 +8097,7 @@ local consumeItem = function(potionName)
         return
     end
 
-    ReplicatedStorage.API['PetAPI/ConsumeFoodObject']:FireServer(agePotion, ClientData.get('pet_char_wrappers')[1].pet_unique)
+    RouterClient.get('PetAPI/ConsumeFoodObject'):FireServer(agePotion, ClientData.get('pet_char_wrappers')[1].pet_unique)
 end
 local agePotion = function(FoodPassOn)
     for _, v in pairs(ClientData.get_data()[localPlayer.Name].inventory.food)do
@@ -7948,7 +8121,7 @@ local agePotion = function(FoodPassOn)
                 },
             }
 
-            ReplicatedStorage.API['PetObjectAPI/CreatePetObject']:InvokeServer(unpack(args))
+            RouterClient.get('PetObjectAPI/CreatePetObject'):InvokeServer(unpack(args))
             consumeItem('AgePotion')
 
             return
@@ -7981,20 +8154,23 @@ local placeBaitOrPickUp = function(baitUniquePasson)
     if not baitUniquePasson then
         return
     end
+    if not localPlayer.Character then
+        return
+    end
 
     Misc.DebugModePrint('placing bait or picking up')
 
     local args = {
-        [1] = game:GetService('Players').LocalPlayer,
+        [1] = localPlayer,
         [2] = NormalLure,
         [3] = 'UseBlock',
         [4] = {
             ['bait_unique'] = baitUniquePasson,
         },
-        [5] = game:GetService('Players').LocalPlayer.Character,
+        [5] = localPlayer.Character,
     }
     local success, errorMessage = pcall(function()
-        ReplicatedStorage.API:FindFirstChild('HousingAPI/ActivateFurniture'):InvokeServer(unpack(args))
+        RouterClient.get('HousingAPI/ActivateFurniture'):InvokeServer(unpack(args))
     end)
 
     Misc.DebugModePrint('FIRING BAITBOX', success, errorMessage)
@@ -8074,7 +8250,7 @@ end
 local getEgg = function(whichPet)
     for _, v in pairs(ClientData.get_data()[localPlayer.Name].inventory.pets)do
         if v.id == Egg2Buy and v.id ~= 'practice_dog' and v.properties.age ~= 6 and not v.properties.mega_neon then
-            ReplicatedStorage.API['ToolAPI/Equip']:InvokeServer(v.unique, {
+            RouterClient.get('ToolAPI/Equip'):InvokeServer(v.unique, {
                 ['use_sound_delay'] = true,
             })
 
@@ -8084,7 +8260,7 @@ local getEgg = function(whichPet)
         end
     end
 
-    local BuyEgg = ReplicatedStorage.API['ShopAPI/BuyItem']:InvokeServer('pets', Egg2Buy, {})
+    local BuyEgg = RouterClient.get('ShopAPI/BuyItem'):InvokeServer('pets', Egg2Buy, {})
 
     if BuyEgg == 'too little money' then
         return false
@@ -8129,7 +8305,7 @@ local getPet = function(whichPet)
             return
         end
 
-        local hasMoney = ReplicatedStorage.API['ShopAPI/BuyItem']:InvokeServer('pets', getgenv().SETTINGS.HATCH_EGG_PRIORITY_NAMES[1], {})
+        local hasMoney = RouterClient.get('ShopAPI/BuyItem'):InvokeServer('pets', getgenv().SETTINGS.HATCH_EGG_PRIORITY_NAMES[1], {})
 
         if hasMoney then
             return
@@ -8167,11 +8343,25 @@ local getPet = function(whichPet)
     return
 end
 local removeHandHeldItem = function()
-    local tool = localPlayer.Character:FindFirstChildOfClass('Tool')
+    local character = localPlayer.Character
+    local tool = (character and {
+        (character:FindFirstChildOfClass('Tool')),
+    } or {nil})[1]
 
-    if tool then
-        ReplicatedStorage.API['ToolAPI/Unequip']:InvokeServer(tool.unique.Value, {})
+    if not tool then
+        return
     end
+
+    local unique = tool:FindFirstChild('unique')
+
+    if not unique then
+        return
+    end
+    if not unique:IsA('StringValue') then
+        return
+    end
+
+    RouterClient.get('ToolAPI/Unequip'):InvokeServer(unique.Value, {})
 end
 local CheckifEgg = function(whichPet)
     if not ClientData.get('pet_char_wrappers') then
@@ -8218,18 +8408,57 @@ local SwitchOutFullyGrown = function(whichPet)
     end
 end
 local ClickTradeWindowPopUps = function()
-    for _, v in pairs(localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Buttons:GetDescendants())do
-        if v.Name == 'TextLabel' then
+    local dialog = dialogApp:FindFirstChild('dialog')
+
+    if not dialog then
+        return
+    end
+
+    local normalDialog = dialog:FindFirstChild('NormalDialog')
+
+    if not normalDialog then
+        return
+    end
+
+    local buttons = normalDialog:FindFirstChild('Buttons')
+
+    if not buttons then
+        return
+    end
+
+    for _, v in pairs(buttons:GetDescendants())do
+        if v:IsA('TextLabel') then
             if v.Text == 'Accept' or v.Text == 'Okay' or v.Text == 'Next' or v.Text == 'I understand' or v.Text == 'No' then
+                if not v.Parent or v.Parent.Parent then
+                    return
+                end
+
                 fireButton(v.Parent.Parent)
 
                 return
             end
         end
     end
-    for _, v in pairs(localPlayer.PlayerGui.DialogApp.Dialog.HeaderDialog.Buttons:GetDescendants())do
-        if v.Name == 'TextLabel' then
+
+    local headerDialog = dialog:FindFirstChild('HeaderDialog')
+
+    if not headerDialog then
+        return
+    end
+
+    buttons = normalDialog:FindFirstChild('Buttons')
+
+    if not buttons then
+        return
+    end
+
+    for _, v in pairs(buttons:GetDescendants())do
+        if v:IsA('TextLabel') then
             if v.Text == 'Accept' or v.Text == 'Okay' or v.Text == 'Next' or v.Text == 'I understand' then
+                if not v.Parent or v.Parent.Parent then
+                    return
+                end
+
                 fireButton(v.Parent.Parent)
 
                 return
@@ -8237,17 +8466,30 @@ local ClickTradeWindowPopUps = function()
         end
     end
 end
-local removeGameOverButton = function(ScreenGuiName)
-    task.wait()
-    localPlayer.PlayerGui[ScreenGuiName].Body.Button:WaitForChild('Face')
+local removeGameOverButton = function(screenGuiName)
+    local guiFrame = playerGui:FindFirstChild(screenGuiName)
 
-    for _, v in pairs(localPlayer.PlayerGui[ScreenGuiName].Body.Button:GetDescendants())do
-        if v.Name == 'TextLabel' then
-            if v.Text == 'NICE!' then
-                fireButton(v.Parent.Parent)
+    if not guiFrame then
+        return
+    end
 
-                break
-            end
+    local body = guiFrame:FindFirstChild('Body')
+    local button = (body and {
+        (body:WaitForChild('Button', 10)),
+    } or {nil})[1]
+    local face = (button and {
+        (button:WaitForChild('Face', 10)),
+    } or {nil})[1]
+
+    if not (button and face) then
+        return
+    end
+
+    for _, v in pairs(button:GetDescendants())do
+        if v:IsA('TextLabel') and v.Text == 'NICE!' and v.Parent then
+            fireButton(v.Parent.Parent)
+
+            return
         end
     end
 end
@@ -8441,6 +8683,8 @@ local CompletePetAilments = function(whichPet)
 end
 local autoFarm = function()
     if not getgenv().auto_farm then
+        Misc.DebugModePrint('farming is off so not running auto farm')
+
         return
     end
 
@@ -8449,13 +8693,22 @@ local autoFarm = function()
     Teleport.PlaceFloorAtCampSite()
     Teleport.PlaceFloorAtBeachParty()
     Teleport.FarmingHome()
+    Misc.DebugModePrint('teleported to farming place')
+
+    if getgenv().SETTINGS.EVENT.DO_MINIGAME then
+        GibbonFairground2025.Start()
+    end
+
     task.delay(30, function()
+        Misc.DebugModePrint('Started Farming')
+
         hasStartedFarming = true
 
         local baitboxCount = 0
 
         while getgenv().SETTINGS.ENABLE_AUTO_FARM do
             if game.JobId ~= jobId then
+                Misc.DebugModePrint('not same jobid')
                 game:Shutdown()
 
                 return
@@ -8585,25 +8838,33 @@ local SendMessage = function(url, message, userId)
     end
 end
 local dailyLoginAppClick = function()
-    task.wait(0.1)
+    Misc.DebugModePrint('Clicking on Daily login app')
 
-    if not localPlayer.PlayerGui.DailyLoginApp.Enabled then
+    local dailyLoginApp = (playerGui and {
+        (playerGui:FindFirstChild('DailyLoginApp')),
+    } or {nil})[1]
+    local frame = (dailyLoginApp and {
+        (dailyLoginApp:FindFirstChild('Frame')),
+    } or {nil})[1]
+    local body = (frame and {
+        (frame:FindFirstChild('Body')),
+    } or {nil})[1]
+    local buttons = (body and {
+        (body:FindFirstChild('Buttons')),
+    } or {nil})[1]
+
+    if not buttons then
         return
     end
 
-    Misc.DebugModePrint('Clicking on Daily login app')
-    localPlayer.PlayerGui.DailyLoginApp:WaitForChild('Frame')
-    localPlayer.PlayerGui.DailyLoginApp.Frame:WaitForChild('Body')
-    localPlayer.PlayerGui.DailyLoginApp.Frame.Body:WaitForChild('Buttons')
-
-    for _, v in localPlayer.PlayerGui.DailyLoginApp.Frame.Body.Buttons:GetDescendants()do
-        if v.Name == 'TextLabel' then
-            if v.Text == 'CLOSE' then
+    for _, v in buttons:GetDescendants()do
+        if v:IsA('TextLabel') then
+            if v.Text == 'CLOSE' and v.Parent and v.Parent.Parent then
                 Misc.DebugModePrint('pressed Close on daily login')
                 fireButton(v.Parent.Parent)
                 task.wait(1)
                 grabDailyReward()
-            elseif v.Text == 'CLAIM!' then
+            elseif v.Text == 'CLAIM!' and v.Parent then
                 Misc.DebugModePrint('pressed claim on daily login')
                 fireButton(v.Parent.Parent)
                 task.wait()
@@ -8613,51 +8874,81 @@ local dailyLoginAppClick = function()
         end
     end
 end
+local getNormalDialogTextLabel = function()
+    local dialog = (dialogApp and {
+        (dialogApp:FindFirstChild('Dialog')),
+    } or {nil})[1]
+    local normalDialog = (dialog and {
+        (dialog:FindFirstChild('NormalDialog')),
+    } or {nil})[1]
+    local info = (normalDialog and {
+        (normalDialog:FindFirstChild('Info')),
+    } or {nil})[1]
+    local textLabel = (info and {
+        (info:FindFirstChild('TextLabel')),
+    } or {nil})[1]
+
+    if not textLabel or not textLabel:IsA('TextLabel') then
+        return nil
+    end
+
+    return textLabel
+end
 local onTextChangedNormalDialog = function()
-    if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Be careful when trading') then
+    local textLabel = getNormalDialogTextLabel()
+
+    if not textLabel then
+        return
+    end
+    if textLabel.Text:match('Be careful when trading') then
         findButton('Okay')
-    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('This trade seems unbalanced') then
+    elseif textLabel.Text:match('This trade seems unbalanced') then
         findButton('Next')
-    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('sent you a trade request') then
+    elseif textLabel.Text:match('sent you a trade request') then
         findButton('Accept')
-    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Trade request from') then
+    elseif textLabel.Text:match('Trade request from') then
         findButton('Okay')
-    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Any items lost') then
+    elseif textLabel.Text:match('Any items lost') then
         findButton('I understand')
-    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('4.5%% Legendary') then
+    elseif textLabel.Text:match('4.5%% Legendary') then
         findButton('Okay')
-    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('You have been awarded') then
+    elseif textLabel.Text:match('You have been awarded') then
         findButton('Awesome!')
-    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Thanks for subscribing!') then
+    elseif textLabel.Text:match('Thanks for subscribing!') then
         findButton('Okay')
-    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Let's start the day") then
+    elseif textLabel.Text:match("Let's start the day") then
         findButton('Start')
-    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Are you subscribed') then
+    elseif textLabel.Text:match('Are you subscribed') then
         findButton('Yes')
-    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('your inventory!') then
+    elseif textLabel.Text:match('your inventory!') then
         findButton('Awesome!')
-    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Burtaur') then
+    elseif textLabel.Text:match('Burtaur') then
         findButton('Cool!')
-    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('You have enough') then
+    elseif textLabel.Text:match('You have enough') then
         findButton('Okay')
         BuyItems.BuyGlormy()
-    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('MECHA R4BBIT ACTIVATED!') then
+    elseif textLabel.Text:match('MECHA R4BBIT ACTIVATED!') then
         print('[DEBUG] MECHA R4BBIT ACTIVATED!')
         findButton('Okay')
-    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Thanks for') then
+    elseif textLabel.Text:match('Thanks for') then
         findButton('Okay')
-    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Right now') then
+    elseif textLabel.Text:match('Right now') then
         findButton('Next')
-    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('You can customize it') then
+    elseif textLabel.Text:match('You can customize it') then
         findButton('Start')
-    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Your subscription') then
+    elseif textLabel.Text:match('Your subscription') then
         findButton('Okay!')
-    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('You have been refunded') then
+    elseif textLabel.Text:match('You have been refunded') then
         findButton('Awesome!')
     end
 end
 local doStarterTutorial = function()
-    if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Welcome to Adopt Me!') then
+    local textLabel = getNormalDialogTextLabel()
+
+    if not textLabel then
+        return
+    end
+    if textLabel.Text:match('Welcome to Adopt Me!') then
         findButton('Next')
         task.wait(2)
         Misc.DebugModePrint('doing tutorial')
@@ -8710,7 +9001,7 @@ localPlayer.PlayerGui.HintApp.TextLabel:GetPropertyChangedSignal('Text'):Connect
     end
 end)
 UserInputService.InputBegan:Connect(function(input, processed)
-    if (input.KeyCode == Enum.KeyCode.Q and not processed) then
+    if input.KeyCode == Enum.KeyCode.Q and not processed then
         if debounce then
             return
         end
@@ -8798,8 +9089,6 @@ DailyClaimConnection = localPlayer.PlayerGui.DailyLoginApp:GetPropertyChangedSig
 
     if DailyClaimConnection then
         DailyClaimConnection:Disconnect()
-
-        DailyClaimConnection = nil
     end
 end)
 
@@ -8898,8 +9187,6 @@ certificateConn = localPlayer.PlayerGui.CertificateApp:GetPropertyChangedSignal(
 
     if certificateConn then
         certificateConn:Disconnect()
-
-        certificateConn = nil
     end
 end)
 starterPackAppConn = localPlayer.PlayerGui.FTUEStarterPackApp.Popups.Default:GetPropertyChangedSignal('Visible'):Connect(function(
@@ -8915,8 +9202,6 @@ starterPackAppConn = localPlayer.PlayerGui.FTUEStarterPackApp.Popups.Default:Get
 
     if starterPackAppConn then
         starterPackAppConn:Disconnect()
-
-        starterPackAppConn = nil
     end
 end)
 
@@ -9085,7 +9370,7 @@ end)
 
 repeat
     task.wait(1)
-until localPlayer.PlayerGui.NewsApp.Enabled or localPlayer.Character
+until newsApp.Enabled or localPlayer.Character
 
 PotatoMode.Start()
 StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Captures, false)
@@ -9246,10 +9531,9 @@ Teleport.PlaceFloorAtBeachParty()
 local queueOnTeleport = (syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport)
 
 if queueOnTeleport then
-    queueOnTeleport('\r\n\t\tgame:Shutdown()\r\n\t')
+    queueOnTeleport('\t\tgame:Shutdown()\n\t')
 end
 
-dailyLoginAppClick()
 BuyItems.BuyGlormy()
 
 if getgenv().BUY_BEFORE_FARMING then
@@ -9283,8 +9567,6 @@ if isMuleInGame() then
 end
 if DailyClaimConnection then
     DailyClaimConnection:Disconnect()
-
-    DailyClaimConnection = nil
 end
 if Players.LocalPlayer.Name == getgenv().SETTINGS.TRADE_COLLECTOR_NAME and getgenv().SETTINGS.ENABLE_TRADE_COLLECTOR == true then
     getgenv().AutoTradeToggle:Set(true)
@@ -9933,13 +10215,9 @@ Rayfield:SetVisibility(false)
 task.delay((300), function()
     if certificateConn then
         certificateConn:Disconnect()
-
-        certificateConn = nil
     end
     if starterPackAppConn then
         starterPackAppConn:Disconnect()
-
-        starterPackAppConn = nil
     end
 end)
 Misc.DebugModePrint('Loaded. lastest update 2/25/2025  mm/dd/yyyy')
