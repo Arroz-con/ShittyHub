@@ -4150,10 +4150,96 @@ Check the Developer Console for more information.]],
     function __DARKLUA_BUNDLE_MODULES.d()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local VirtualInputManager = game:GetService('VirtualInputManager')
-        local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
+        local Players = game:GetService('Players')
+        local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
+        local ClientData = Bypass('ClientData')
+        local InventoryDB = Bypass('InventoryDB')
         local Misc = {}
         local debugMode = false
+        local localPlayer = Players.LocalPlayer
+        local getItemInfoFromDatabase = function(nameId)
+            if typeof(nameId) ~= 'string' then
+                print(string.format('%s is not a string', tostring(nameId)))
 
+                return nil
+            end
+
+            for _, v in InventoryDB do
+                for key, value in v do
+                    if key == nameId then
+                        return value
+                    end
+                end
+            end
+
+            return nil
+        end
+        local getAmountToPurchase = function(valuesTable, currencyLimit)
+            local currency = ClientData.get_data()[localPlayer.Name][valuesTable.currency_id] or ClientData.get_data()[localPlayer.Name]['money']
+
+            if not currency then
+                return 0, print('NO CURRENCY ON PLAYER')
+            end
+
+            currency = currency - currencyLimit
+
+            print('===========================')
+            print(string.format('currency to use: %s', tostring(currency)))
+
+            local count = 0
+
+            while true do
+                local moneyLeft = currency - valuesTable.cost
+
+                if moneyLeft <= 0 then
+                    break
+                end
+                if count >= 99 then
+                    break
+                end
+
+                currency = moneyLeft
+                count = count + 1
+            end
+
+            return count
+        end
+        local buyItem = function(valuesTable, howManyToBuy)
+            print(string.format('CAN BUY %s', tostring(howManyToBuy)))
+
+            local hasMoney = Bypass('RouterClient').get('ShopAPI/BuyItem'):InvokeServer(valuesTable.category, valuesTable.id, {
+                ['buy_count'] = howManyToBuy,
+            })
+
+            if hasMoney ~= 'success' then
+                return false
+            end
+
+            return true
+        end
+
+        function Misc.BuyItemWithCurrencyLimit(itemNameId, currencyLimit)
+            while Bypass('ClientData').get_data()[localPlayer.Name].money > currencyLimit do
+                local itemValues = getItemInfoFromDatabase(itemNameId)
+
+                if not itemValues then
+                    return false, print('no data returned')
+                end
+
+                local amountPurchase = getAmountToPurchase(itemValues, currencyLimit)
+
+                if amountPurchase <= 0 then
+                    return false, print(string.format('No money to purchase: %s', tostring(amountPurchase)))
+                end
+                if not buyItem(itemValues, amountPurchase) then
+                    return false, print('Has no money to buy more or something went wrong.')
+                end
+
+                task.wait()
+            end
+
+            return true
+        end
         function Misc.ClickGuiButton(button, xOffset, yOffset)
             if typeof(button) ~= 'Instance' or typeof(button) ~= 'GuiBase2d' then
                 return print('button is not a Instance/GuiBase2d')
@@ -4960,6 +5046,21 @@ Check the Developer Console for more information.]],
                 return
             end
         end
+        local waitForActiveTrade = function()
+            local timeOut = 60
+
+            while not ClientData.get_data()[localPlayer.Name].in_active_trade do
+                task.wait(1)
+
+                timeOut = timeOut - 1
+
+                if timeOut <= 0 then
+                    return false, print('\u{26a0}\u{fe0f} waiting for trade timedout \u{26a0}\u{fe0f}')
+                end
+            end
+
+            return true
+        end
 
         function Trade:AcceptNegotiationAndConfirm()
             local timeOut = 30
@@ -5006,24 +5107,25 @@ Check the Developer Console for more information.]],
 
         function Trade:SendTradeRequest(playerTable)
             if typeof(playerTable) ~= 'table' then
-                return
+                return false, print('playerTable is not a table')
             end
 
-            while isMulesInGame(playerTable) and not localPlayer.PlayerGui.TradeApp.Frame.Visible do
+            while true do
+                if not isMulesInGame(playerTable) then
+                    return false
+                end
+                if localPlayer.PlayerGui.TradeApp.Frame.Visible then
+                    return true
+                end
+
                 for _, playerName in playerTable do
                     if ClientData.get_data()[playerName] and not ClientData.get_data()[playerName].in_active_trade then
                         ReplicatedStorage.API['TradeAPI/SendTradeRequest']:FireServer(Players[playerName])
-                        task.wait()
+                        task.wait(1)
                     end
                 end
 
                 task.wait(math.random(1, 5))
-            end
-
-            if localPlayer.PlayerGui.TradeApp.Frame.Visible then
-                return true
-            else
-                return false
             end
         end
         function Trade:SelectTabAndTrade(tab, selectedItem)
@@ -5431,7 +5533,12 @@ Check the Developer Console for more information.]],
                     return print('\u{1f6ab} NO ITEMS TO TRADE')
                 end
                 if not Trade:SendTradeRequest(namePassOn) then
-                    return print('\u{26a0}\u{fe0f} PLAYER YOU WERE TRADING LEFT GAME \u{26a0}\u{fe0f}')
+                    return print('\u{26a0}\u{fe0f} NO MULES TO TRADE \u{26a0}\u{fe0f}')
+                end
+                if not waitForActiveTrade() then
+                    task.wait(1)
+
+                    continue
                 end
                 if getgenv().SETTINGS.TRADE_ONLY_LUMINOUS_MEGA then
                     for _, v in ClientData.get_data()[localPlayer.Name].inventory do
@@ -7022,14 +7129,13 @@ Check the Developer Console for more information.]],
     end
     function __DARKLUA_BUNDLE_MODULES.o()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
-
-        game:GetService('Workspace')
-
         local Players = game:GetService('Players')
         local localPlayer = Players.LocalPlayer
         local Fusion = __DARKLUA_BUNDLE_MODULES.load('e')
-        local PetPotionEffectsDB = require(ReplicatedStorage:WaitForChild('ClientDB'):WaitForChild('PetPotionEffectsDB'))
-        local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
+        local PetPotionEffectsDB = (require(ReplicatedStorage:WaitForChild('ClientDB'):WaitForChild('PetPotionEffectsDB')))
+        local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
+        local ClientData = Bypass('ClientData')
+        local RouterClient = Bypass('RouterClient')
         local BulkPotions = {}
 
         BulkPotions.__index = BulkPotions
@@ -7042,7 +7148,11 @@ Check the Developer Console for more information.]],
             self.StopAging = false
             self.EggsTable = {}
             self.PetAge = 0
-            self.PetUniqueId = nil
+            self.PetUniqueId = ''
+            self.MainFrame = localPlayer:WaitForChild('PlayerGui'):WaitForChild('StatsGui'):WaitForChild('MainFrame')
+            self.MiddleFrame = self.MainFrame:WaitForChild('MiddleFrame')
+            self.TotalPotions = (self.MiddleFrame:WaitForChild('TotalPotions'))
+            self.TotalTinyPotions = (self.MiddleFrame:WaitForChild('TotalTinyPotions'))
 
             return self
         end
@@ -7084,9 +7194,9 @@ Check the Developer Console for more information.]],
             return count
         end
 
-        function BulkPotions:IsPetNormal(petName)
+        function BulkPotions.IsPetNormal(self, petName)
             self.PetAge = 0
-            self.PetUniqueId = nil
+            self.PetUniqueId = ''
 
             for _, v in ClientData.get_data()[localPlayer.Name].inventory.pets do
                 if v.id == petName and v.id ~= 'practice_dog' and v.properties.age ~= 6 and not v.properties.mega_neon then
@@ -7097,12 +7207,12 @@ Check the Developer Console for more information.]],
                 end
             end
 
-            if self.PetUniqueId then
-                ReplicatedStorage.API['ToolAPI/Unequip']:InvokeServer(self.PetUniqueId, {
+            if self.PetUniqueId ~= '' then
+                RouterClient.get('ToolAPI/Unequip'):InvokeServer(self.PetUniqueId, {
                     ['use_sound_delay'] = true,
                 })
                 task.wait(1)
-                ReplicatedStorage.API['ToolAPI/Equip']:InvokeServer(self.PetUniqueId, {
+                RouterClient.get('ToolAPI/Equip'):InvokeServer(self.PetUniqueId, {
                     ['use_sound_delay'] = true,
                 })
                 waitForPetToEquip()
@@ -7113,9 +7223,9 @@ Check the Developer Console for more information.]],
 
             return false
         end
-        function BulkPotions:IsPetNeon(petName)
+        function BulkPotions.IsPetNeon(self, petName)
             self.PetAge = 0
-            self.PetUniqueId = nil
+            self.PetUniqueId = ''
 
             for _, v in ClientData.get_data()[localPlayer.Name].inventory.pets do
                 if v.id == petName and v.id ~= 'practice_dog' and v.properties.age ~= 6 and v.properties.neon and not v.properties.mega_neon then
@@ -7126,12 +7236,12 @@ Check the Developer Console for more information.]],
                 end
             end
 
-            if self.PetUniqueId then
-                ReplicatedStorage.API['ToolAPI/Unequip']:InvokeServer(self.PetUniqueId, {
+            if self.PetUniqueId ~= '' then
+                RouterClient.get('ToolAPI/Unequip'):InvokeServer(self.PetUniqueId, {
                     ['use_sound_delay'] = true,
                 })
                 task.wait(1)
-                ReplicatedStorage.API['ToolAPI/Equip']:InvokeServer(self.PetUniqueId, {
+                RouterClient.get('ToolAPI/Equip'):InvokeServer(self.PetUniqueId, {
                     ['use_sound_delay'] = true,
                 })
                 waitForPetToEquip()
@@ -7139,7 +7249,7 @@ Check the Developer Console for more information.]],
 
                 return true
             end
-            if self:IsPetNormal(petName) then
+            if self.IsPetNormal(self, petName) then
                 return true
             else
                 return false
@@ -7162,8 +7272,12 @@ Check the Developer Console for more information.]],
             local amountNeeded = PetPotionEffectsDB[nameId].multi_use_count(ClientData.get('pet_char_wrappers')[1], ClientData.get_data()[localPlayer.Name].inventory.pets[ClientData.get('pet_char_wrappers')[1].pet_unique])
 
             if amountNeeded <= 0 then
+                print(string.format('no potions for %s', tostring(nameId)))
+
                 return potions
             end
+
+            print(string.format('amountNeeded: %s', tostring(amountNeeded)))
 
             for _, v in ClientData.get_data()[localPlayer.Name].inventory.food do
                 if v.id == nameId then
@@ -7180,7 +7294,7 @@ Check the Developer Console for more information.]],
             return potions
         end
 
-        function BulkPotions:IsSameUnique()
+        function BulkPotions.IsSameUnique(self)
             for _, v in ClientData.get_data()[localPlayer.Name].inventory.food do
                 if v.id == 'pet_age_potion' or v.id == 'tiny_pet_age_potion' then
                     if table.find(self.SameUnqiue, v.unique) then
@@ -7207,10 +7321,10 @@ Check the Developer Console for more information.]],
 
             return false
         end
-        function BulkPotions:SetEggTable(newEggTable)
+        function BulkPotions.SetEggTable(self, newEggTable)
             self.EggsTable = newEggTable
         end
-        function BulkPotions:IsEgg()
+        function BulkPotions.IsEgg(self)
             local EquipTimeout = 0
             local hasPetChar = false
 
@@ -7235,50 +7349,57 @@ Check the Developer Console for more information.]],
         end
 
         local createPotionObject = function(potionTable)
-            local args = {}
+            local petIndex = ClientData.get('pet_char_wrappers')[1]
+            local petUnique = (petIndex and {
+                (petIndex.pet_unique),
+            } or {nil})[1]
 
+            if not petUnique then
+                return
+            end
             if #potionTable == 1 then
-                args = {
-                    [1] = '__Enum_PetObjectCreatorType_2',
-                    [2] = {
-                        ['pet_unique'] = ClientData.get('pet_char_wrappers')[1].pet_unique,
-                        ['unique_id'] = potionTable[1],
-                        ['additional_consume_uniques'] = {},
-                    },
-                }
+                return RouterClient.get('PetObjectAPI/CreatePetObject'):InvokeServer('__Enum_PetObjectCreatorType_2', {
+                    ['pet_unique'] = petUnique,
+                    ['unique_id'] = potionTable[1],
+                })
             elseif #potionTable >= 2 then
                 local newpotionTable = table.clone(potionTable)
 
                 table.remove(newpotionTable, 1)
 
-                args = {
-                    [1] = '__Enum_PetObjectCreatorType_2',
-                    [2] = {
-                        ['pet_unique'] = ClientData.get('pet_char_wrappers')[1].pet_unique,
-                        ['unique_id'] = potionTable[1],
-                        ['additional_consume_uniques'] = newpotionTable,
-                    },
-                }
+                return RouterClient.get('PetObjectAPI/CreatePetObject'):InvokeServer('__Enum_PetObjectCreatorType_2', {
+                    ['pet_unique'] = petUnique,
+                    ['unique_id'] = potionTable[1],
+                    ['additional_consume_uniques'] = newpotionTable,
+                })
             end
 
-            return ReplicatedStorage.API['PetObjectAPI/CreatePetObject']:InvokeServer(unpack(args))
+            return false
         end
 
-        function BulkPotions:FeedAgePotion()
-            if self:IsEgg() then
+        function BulkPotions.FeedAgePotion(self)
+            if self.IsEgg(self) then
                 return print('Pet Equipped is a EGG! or No pet Equipped')
             end
-            if self:IsSameUnique() then
+            if self.IsSameUnique(self) then
                 return
             end
 
             self.SameUnqiueCount = 0
 
-            local TotalPotions = localPlayer.PlayerGui.StatsGui.MainFrame.MiddleFrame.TotalPotions
-            local potionUniques = getPotionUniques('pet_age_potion')
+            print('getting potion uniques')
+
+            local potionUniques
+
+            potionUniques = getPotionUniques('pet_age_potion')
 
             if #potionUniques <= 0 then
-                return
+                table.clear(potionUniques)
+
+                potionUniques = getPotionUniques('tiny_pet_age_potion')
+            end
+            if #potionUniques <= 0 then
+                return print('No potions left')
             end
 
             self.SameUnqiue = potionUniques
@@ -7287,14 +7408,15 @@ Check the Developer Console for more information.]],
             print(createPotionObject(potionUniques))
             task.wait(2)
 
-            TotalPotions.Text = string.format('\u{1f9ea} %s', tostring(agePotionCount('pet_age_potion')))
+            self.TotalPotions.Text = string.format('\u{1f9ea} %s', tostring(agePotionCount('pet_age_potion')))
+            self.TotalTinyPotions.Text = string.format('\u{2697}\u{fe0f} %s', tostring(agePotionCount('tiny_pet_age_potion')))
 
             return
         end
 
         local hasAgeUpPotion = function()
             for _, v in ClientData.get_data()[localPlayer.Name].inventory.food do
-                if v.id == 'pet_age_potion' then
+                if v.id == 'pet_age_potion' or v.id == 'tiny_pet_age_potion' then
                     return true
                 end
             end
@@ -7302,10 +7424,12 @@ Check the Developer Console for more information.]],
             return false
         end
 
-        function BulkPotions:AgeAllPetsOfSameName(petId, maxAmount)
+        function BulkPotions.AgeAllPetsOfSameName(self, petId, maxAmount)
             if getgenv().SETTINGS.PET_AUTO_FUSION then
                 Fusion:MakeMega(false)
+                task.wait(1)
                 Fusion:MakeMega(true)
+                task.wait(1)
             end
 
             local result = getMaxMega(petId)
@@ -7317,14 +7441,14 @@ Check the Developer Console for more information.]],
             local hasPet = self:IsPetNeon(petId)
 
             if not hasPet then
-                return print(string.format('no %s so moving to next pet or stopping', tostring(petId)))
+                return false, print(string.format('no %s so moving to next pet or stopping', tostring(petId)))
             end
 
             while true do
                 local isEgg = self:IsEgg()
 
                 if isEgg then
-                    return print('Pet Equipped is an EGG, Stopping')
+                    return false, print('Pet Equipped is an EGG, Stopping')
                 end
 
                 local age = ClientData.get('pet_char_wrappers')[1]['pet_progression']['age']
@@ -7342,20 +7466,22 @@ Check the Developer Console for more information.]],
 
                     print('no more age up potions')
 
-                    return
+                    return false
                 end
 
-                self:FeedAgePotion()
+                self.FeedAgePotion(self)
                 task.wait()
             end
 
             if self.StopAging then
-                return
+                print('StopAging is true')
+
+                return false
             end
 
-            self:AgeAllPetsOfSameName(petId, maxAmount)
+            self.AgeAllPetsOfSameName(self, petId, maxAmount)
 
-            return
+            return false
         end
 
         local formatTableToDict = function(tableToFormat)
@@ -7373,7 +7499,7 @@ Check the Developer Console for more information.]],
             return mytable
         end
 
-        function BulkPotions:StartAgingPets(petsTable)
+        function BulkPotions.StartAgingPets(self, petsTable)
             if typeof(petsTable) ~= 'table' then
                 print('is not a table')
 
@@ -7571,23 +7697,20 @@ Check the Developer Console for more information.]],
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local localPlayer = game:GetService('Players').LocalPlayer
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
-        local buyAndOpen = function()
-            local canBuy = Bypass('RouterClient').get('ShopAPI/BuyItem'):InvokeServer('gifts', 'gibbon_2025_standard_box', {})
-
-            task.wait(0.1)
-
-            if canBuy == 'too little money' then
-                return false
-            end
+        local Misc = __DARKLUA_BUNDLE_MODULES.load('d')
+        local buyAndOpen = function(currencyLimit)
+            Misc.BuyItemWithCurrencyLimit('gibbon_2025_standard_box', currencyLimit)
 
             for _, v in Bypass('ClientData').get_data()[localPlayer.Name].inventory.gifts do
                 if v['id'] == 'gibbon_2025_standard_box' then
                     Bypass('RouterClient').get('LootBoxAPI/ExchangeItemForReward'):InvokeServer(v['id'], v['unique'])
-                    task.wait(0.1)
 
                     if Bypass('ClientData').get_data()[localPlayer.Name].gibbon_2025_manager.boxes_opened >= 40 then
                         Bypass('RouterClient').get('GibbonAPI/AttemptClaimRingmaster'):FireServer()
+                        task.wait(0.1)
                     end
+
+                    task.wait(0.1)
 
                     break
                 end
@@ -7674,12 +7797,12 @@ Check the Developer Console for more information.]],
             return true
         end
 
-        function GibbonFairground2025.Start()
+        function GibbonFairground2025.Start(currencyLimit)
             Bypass('RouterClient').get('LocationAPI/SetLocation'):FireServer('Gibbon2025FairgroundInterior')
             task.wait(1)
 
-            while Bypass('ClientData').get_data()[localPlayer.Name].money > 50000 do
-                if not buyAndOpen() then
+            while Bypass('ClientData').get_data()[localPlayer.Name].money > currencyLimit do
+                if not buyAndOpen(currencyLimit) then
                     break
                 end
 
@@ -7731,7 +7854,8 @@ local UserGameSettings = UserSettings():GetService('UserGameSettings')
 UserGameSettings.GraphicsQualityLevel = 1
 UserGameSettings.MasterVolume = 0
 
-local VirtualUser = game:GetService('VirtualUser')
+game:GetService('VirtualUser')
+
 local StarterGui = game:GetService('StarterGui')
 local localPlayer = Players.LocalPlayer
 local playerGui = localPlayer:WaitForChild('PlayerGui', 60)
@@ -7902,7 +8026,8 @@ local TradeLicense = (__DARKLUA_BUNDLE_MODULES.load('n'))
 local BulkPotions = (__DARKLUA_BUNDLE_MODULES.load('o'))
 local Tutorials = (__DARKLUA_BUNDLE_MODULES.load('p'))
 local PotatoMode = (__DARKLUA_BUNDLE_MODULES.load('q'))
-local GibbonFairground2025 = (__DARKLUA_BUNDLE_MODULES.load('r'))
+
+__DARKLUA_BUNDLE_MODULES.load('r')
 
 if getgenv().WEBHOOK and getgenv().WEBHOOK.URL and #getgenv().WEBHOOK.URL >= 10 then
     local webhook = WebhookHandler.new()
@@ -7962,14 +8087,11 @@ end
 local peteggs = GetInventory:GetPetEggs()
 local fireButton = function(button)
     if not button then
-        return
+        return Misc.DebugModePrint('button is nil')
     end
-    if not (button:IsA('ImageButton') or button:IsA('TextButton')) then
-        print(string.format('%s is not imagebutton', tostring(button)))
-        print(string.format('%s: %s ', tostring(button), tostring(button.ClassName)))
 
-        return
-    end
+    Misc.DebugModePrint('firing button?')
+
     if firesignal then
         local success, _ = pcall(function()
             firesignal(button.MouseButton1Down)
@@ -7987,20 +8109,27 @@ local fireButton = function(button)
     end
 end
 local findButton = function(text, dialogFramePassOn)
+    task.wait(0.1)
+
+    dialogFramePassOn = dialogFramePassOn or 'NormalDialog'
+
     if typeof(dialogFramePassOn) ~= 'string' then
-        return
-    end
-    if not dialogFramePassOn then
-        dialogFramePassOn = 'NormalDialog'
+        return Misc.DebugModePrint('dialogFramePassOn is not a string')
     end
 
-    local dialog = dialogApp:WaitForChild('Dialog')
+    local dialog = dialogApp:WaitForChild('Dialog', 10)
 
     if not dialog then
-        return
+        return Misc.DebugModePrint('no dialog')
     end
 
-    for _, v in dialog:WaitForChild(dialogFramePassOn):WaitForChild('Buttons'):GetDescendants()do
+    local buttons = dialog:WaitForChild(dialogFramePassOn):WaitForChild('Buttons')
+
+    if not buttons then
+        return Misc.DebugModePrint('NO BUTTONS')
+    end
+
+    for _, v in buttons:GetDescendants()do
         if v:IsA('TextLabel') then
             if v.Text == text then
                 if not v.Parent or not v.Parent.Parent then
@@ -8467,6 +8596,8 @@ local ClickTradeWindowPopUps = function()
     end
 end
 local removeGameOverButton = function(screenGuiName)
+    task.wait(0.1)
+
     local guiFrame = playerGui:FindFirstChild(screenGuiName)
 
     if not guiFrame then
@@ -8694,11 +8825,6 @@ local autoFarm = function()
     Teleport.PlaceFloorAtBeachParty()
     Teleport.FarmingHome()
     Misc.DebugModePrint('teleported to farming place')
-
-    if getgenv().SETTINGS.EVENT.DO_MINIGAME then
-        GibbonFairground2025.Start()
-    end
-
     task.delay(30, function()
         Misc.DebugModePrint('Started Farming')
 
@@ -8780,7 +8906,6 @@ local autoFarm = function()
             end
 
             updateStatsGui()
-            Misc.DebugModePrint('\u{23f1}\u{fe0f} Waiting for 5 secs \u{23f1}\u{fe0f}')
 
             baitboxCount = baitboxCount + 2
 
@@ -8803,6 +8928,10 @@ local autoFarm = function()
 
     task.wait()
     TradeLicense.Get(ClientData, localPlayer.Name)
+
+    for _, v in getconnections(localPlayer.Idled)do
+        v:Disable()
+    end
 end
 local startAutoFarm = function()
     counter = counter + 1
@@ -8876,69 +9005,66 @@ local dailyLoginAppClick = function()
 end
 local getNormalDialogTextLabel = function()
     local dialog = (dialogApp and {
-        (dialogApp:FindFirstChild('Dialog')),
+        (dialogApp:WaitForChild('Dialog', 10)),
     } or {nil})[1]
     local normalDialog = (dialog and {
-        (dialog:FindFirstChild('NormalDialog')),
+        (dialog:WaitForChild('NormalDialog', 10)),
     } or {nil})[1]
     local info = (normalDialog and {
-        (normalDialog:FindFirstChild('Info')),
-    } or {nil})[1]
-    local textLabel = (info and {
-        (info:FindFirstChild('TextLabel')),
+        (normalDialog:WaitForChild('Info', 10)),
     } or {nil})[1]
 
-    if not textLabel or not textLabel:IsA('TextLabel') then
+    if not info then
+        return
+    end
+
+    local textLabel = info:WaitForChild('TextLabel', 10)
+
+    if not textLabel then
         return nil
     end
 
     return textLabel
 end
 local onTextChangedNormalDialog = function()
-    local textLabel = getNormalDialogTextLabel()
-
-    if not textLabel then
-        return
-    end
-    if textLabel.Text:match('Be careful when trading') then
+    if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Be careful when trading') then
         findButton('Okay')
-    elseif textLabel.Text:match('This trade seems unbalanced') then
+    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('This trade seems unbalanced') then
         findButton('Next')
-    elseif textLabel.Text:match('sent you a trade request') then
+    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('sent you a trade request') then
         findButton('Accept')
-    elseif textLabel.Text:match('Trade request from') then
+    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Trade request from') then
         findButton('Okay')
-    elseif textLabel.Text:match('Any items lost') then
+    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Any items lost') then
         findButton('I understand')
-    elseif textLabel.Text:match('4.5%% Legendary') then
+    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('4.5%% Legendary') then
         findButton('Okay')
-    elseif textLabel.Text:match('You have been awarded') then
+    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('You have been awarded') then
         findButton('Awesome!')
-    elseif textLabel.Text:match('Thanks for subscribing!') then
+    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Thanks for subscribing!') then
         findButton('Okay')
-    elseif textLabel.Text:match("Let's start the day") then
+    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match("Let's start the day") then
         findButton('Start')
-    elseif textLabel.Text:match('Are you subscribed') then
+    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Are you subscribed') then
         findButton('Yes')
-    elseif textLabel.Text:match('your inventory!') then
+    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('your inventory!') then
         findButton('Awesome!')
-    elseif textLabel.Text:match('Burtaur') then
+    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Burtaur') then
         findButton('Cool!')
-    elseif textLabel.Text:match('You have enough') then
+    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('You have enough') then
         findButton('Okay')
-        BuyItems.BuyGlormy()
-    elseif textLabel.Text:match('MECHA R4BBIT ACTIVATED!') then
+    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('MECHA R4BBIT ACTIVATED!') then
         print('[DEBUG] MECHA R4BBIT ACTIVATED!')
         findButton('Okay')
-    elseif textLabel.Text:match('Thanks for') then
+    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Thanks for') then
         findButton('Okay')
-    elseif textLabel.Text:match('Right now') then
+    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Right now') then
         findButton('Next')
-    elseif textLabel.Text:match('You can customize it') then
+    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('You can customize it') then
         findButton('Start')
-    elseif textLabel.Text:match('Your subscription') then
+    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Your subscription') then
         findButton('Okay!')
-    elseif textLabel.Text:match('You have been refunded') then
+    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('You have been refunded') then
         findButton('Awesome!')
     end
 end
@@ -9037,7 +9163,7 @@ RobuxProductDialogConnection1 = localPlayer.PlayerGui.DialogApp.Dialog.RobuxProd
     end
 
     localPlayer.PlayerGui.DialogApp.Dialog.RobuxProductDialog:WaitForChild('Buttons')
-    task.wait()
+    task.wait(0.1)
 
     for _, v in localPlayer.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Buttons:GetDescendants()do
         if v.Name == 'TextLabel' then
@@ -9067,7 +9193,7 @@ RobuxProductDialogConnection2 = localPlayer.PlayerGui.DialogApp.Dialog:GetProper
     end
 
     localPlayer.PlayerGui.DialogApp.Dialog.RobuxProductDialog:WaitForChild('Buttons')
-    task.wait()
+    task.wait(0.1)
 
     for _, v in localPlayer.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Buttons:GetDescendants()do
         if v.Name == 'TextLabel' then
@@ -9363,10 +9489,6 @@ localPlayer.PlayerGui.BattlePassApp.Body:GetPropertyChangedSignal('Visible'):Con
         end
     end
 end)
-localPlayer.Idled:Connect(function()
-    print('[DEBUG] player is afk. clicking...')
-    VirtualUser:ClickButton2(Vector2.new())
-end)
 
 repeat
     task.wait(1)
@@ -9374,7 +9496,6 @@ until newsApp.Enabled or localPlayer.Character
 
 PotatoMode.Start()
 StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Captures, false)
-StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Chat, false)
 
 UserGameSettings.GraphicsQualityLevel = 1
 UserGameSettings.MasterVolume = 0
@@ -9534,7 +9655,21 @@ if queueOnTeleport then
     queueOnTeleport('\t\tgame:Shutdown()\n\t')
 end
 
-BuyItems.BuyGlormy()
+local character = localPlayer.Character or (localPlayer.CharacterAdded:Wait())
+local humanoidRootPart = (character:WaitForChild('HumanoidRootPart', 20))
+
+if not humanoidRootPart then
+    return false, Misc.DebugModePrint('NO humanoidRootPart so exiting')
+end
+
+local partUnderChar = Instance.new('Part')
+
+partUnderChar.Position = humanoidRootPart.Position + Vector3.new(0, -5, 0)
+partUnderChar.Size = Vector3.new(50, 2, 50)
+partUnderChar.Anchored = true
+partUnderChar.Transparency = 1
+partUnderChar.Name = 'partUnderChar'
+partUnderChar.Parent = Workspace
 
 if getgenv().BUY_BEFORE_FARMING then
     getgenv().isBuyingOrAging = true
@@ -9984,7 +10119,7 @@ MultipleChoiceToggle = TradeTab:CreateToggle({
 
         while getgenv().auto_trade_multi_choice do
             if not Trade:SendTradeRequest({selectedPlayer}) then
-                print('\u{26a0}\u{fe0f} PLAYER YOU WERE TRADING LEFT GAME \u{26a0}\u{fe0f}')
+                Misc.DebugModePrint('\u{26a0}\u{fe0f} PLAYER YOU WERE TRADING LEFT GAME \u{26a0}\u{fe0f}')
                 MultipleChoiceToggle:Set(false)
 
                 return
