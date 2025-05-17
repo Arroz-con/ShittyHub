@@ -35,29 +35,13 @@ getgenv().SETTINGS = {
 	PET_AUTO_FUSION = true,
 
 	ENABLE_TRADE_COLLECTOR = true,
-	TRADE_ONLY_LUMINOUS_MEGA = true,
+	TRADE_ONLY_LUMINOUS_MEGA = false,
 	TRADE_COLLECTOR_NAME = {
 		"exp_potion", 
 		"Tiredbloxypets", 
 		"Chest19548", 
 		"Chest28745",
 		"Chesty15242",
-
-		"LozanoRayt7340",
-		"HendrixAlext135",
-		"AnthonyMercedesz14",
-		"DoughertyNeilj9364",
-		"NickelConniem51",
-		"WilsonDonaldh188",
-		"FullerBearyb7579",
-		"PastelAndrewd5404",
-		"VincentConnorm561",
-		"MurphyTeddyy3",
-		"FosterNathanf0578",
-		"GouldDianec6599",
-		"WaltersCindye34",
-		"SweeneyDwaynev31",
-		"CranePhillipf8576",
 	},
 
 	TRADE_LIST = {
@@ -108,14 +92,15 @@ getgenv().SETTINGS = {
 
 	PET_ONLY_PRIORITY = true,
 	PET_ONLY_PRIORITY_NAMES = {
-		-- "moon_2025_glormy_dolphin",
-		-- "spring_2025_mirai_moth",
 		"gibbon_2025_influencer_gibbon",
 		"gibbon_2025_villain_gibbon",
 		"gibbon_2025_hero_gibbon",
 		"gibbon_2025_ringmaster_gibbon",
 		"gibbon_2025_firefighter_gibbon",
 		"gibbon_2025_officer_gibbon",
+		"moon_2025_glormy_dolphin",
+		"spring_2025_mirai_moth",
+		"spring_2025_kappakid",
 	},
 }
 
