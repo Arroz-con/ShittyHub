@@ -4219,26 +4219,28 @@ Check the Developer Console for more information.]],
         end
 
         function Misc.BuyItemWithCurrencyLimit(itemNameId, currencyLimit)
-            while Bypass('ClientData').get_data()[localPlayer.Name].money > currencyLimit do
+            while Bypass('ClientData').get_data()[localPlayer.Name].money >= currencyLimit do
+                print('BUYING BOXES')
+
                 local itemValues = getItemInfoFromDatabase(itemNameId)
 
                 if not itemValues then
-                    return false, print('no data returned')
+                    break
                 end
 
                 local amountPurchase = getAmountToPurchase(itemValues, currencyLimit)
 
                 if amountPurchase <= 0 then
-                    return false, print(string.format('No money to purchase: %s', tostring(amountPurchase)))
+                    break
                 end
                 if not buyItem(itemValues, amountPurchase) then
-                    return false, print('Has no money to buy more or something went wrong.')
+                    break
                 end
 
-                task.wait()
+                task.wait(1)
             end
 
-            return true
+            print('FINISHED BUYING BOXES')
         end
         function Misc.ClickGuiButton(button, xOffset, yOffset)
             if typeof(button) ~= 'Instance' or typeof(button) ~= 'GuiBase2d' then
@@ -7699,9 +7701,7 @@ Check the Developer Console for more information.]],
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local Misc = __DARKLUA_BUNDLE_MODULES.load('d')
         local buyAndOpen = function(currencyLimit)
-            if not Misc.BuyItemWithCurrencyLimit('gibbon_2025_standard_box', currencyLimit) then
-                return false
-            end
+            Misc.BuyItemWithCurrencyLimit('gibbon_2025_standard_box', currencyLimit)
 
             for _, v in Bypass('ClientData').get_data()[localPlayer.Name].inventory.gifts do
                 if v['id'] == 'gibbon_2025_standard_box' then
@@ -7717,8 +7717,6 @@ Check the Developer Console for more information.]],
                     break
                 end
             end
-
-            return true
         end
         local hasPetInInventory = function()
             for _, v in Bypass('ClientData').get_data()[localPlayer.Name].inventory.pets do
@@ -7802,14 +7800,7 @@ Check the Developer Console for more information.]],
         function GibbonFairground2025.Start(currencyLimit)
             Bypass('RouterClient').get('LocationAPI/SetLocation'):FireServer('Gibbon2025FairgroundInterior')
             task.wait(1)
-
-            while Bypass('ClientData').get_data()[localPlayer.Name].money > currencyLimit do
-                if not buyAndOpen(currencyLimit) then
-                    break
-                end
-
-                task.wait()
-            end
+            buyAndOpen(currencyLimit)
 
             repeat
                 local hasMore = ExchangeCapuchin('gibbon_2025_hero_mask', 'gibbon_2025_hero_gibbon', 'pet_accessories')
