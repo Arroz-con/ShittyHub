@@ -7699,7 +7699,9 @@ Check the Developer Console for more information.]],
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local Misc = __DARKLUA_BUNDLE_MODULES.load('d')
         local buyAndOpen = function(currencyLimit)
-            Misc.BuyItemWithCurrencyLimit('gibbon_2025_standard_box', currencyLimit)
+            if not Misc.BuyItemWithCurrencyLimit('gibbon_2025_standard_box', currencyLimit) then
+                return false
+            end
 
             for _, v in Bypass('ClientData').get_data()[localPlayer.Name].inventory.gifts do
                 if v['id'] == 'gibbon_2025_standard_box' then
