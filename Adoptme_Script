@@ -7753,7 +7753,7 @@ Check the Developer Console for more information.]],
                 return false
             end
             if not hasPetInInventory() then
-                if Bypass('ClientData').get_data()[localPlayer.Name].money < 30000 then
+                if Bypass('ClientData').get_data()[localPlayer.Name].money < 25000 then
                     return false
                 end
 
@@ -7849,14 +7849,33 @@ local Players = game:GetService('Players')
 local Workspace = game:GetService('Workspace')
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
 local UserInputService = game:GetService('UserInputService')
+local StarterGui = game:GetService('StarterGui')
 local UserGameSettings = UserSettings():GetService('UserGameSettings')
 
 UserGameSettings.GraphicsQualityLevel = 1
 UserGameSettings.MasterVolume = 0
 
-game:GetService('VirtualUser')
-
-local StarterGui = game:GetService('StarterGui')
+local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
+local ClientData = Bypass('ClientData')
+local RouterClient = Bypass('RouterClient')
+local CollisionsClient = Bypass('CollisionsClient')
+local Rayfield = (__DARKLUA_BUNDLE_MODULES.load('a'))
+local WebhookHandler = (__DARKLUA_BUNDLE_MODULES.load('c'))
+local Misc = (__DARKLUA_BUNDLE_MODULES.load('d'))
+local Fusion = (__DARKLUA_BUNDLE_MODULES.load('e'))
+local TaskBoard = (__DARKLUA_BUNDLE_MODULES.load('f'))
+local GetInventory = (__DARKLUA_BUNDLE_MODULES.load('g'))
+local Trade = (__DARKLUA_BUNDLE_MODULES.load('h'))
+local Teleport = (__DARKLUA_BUNDLE_MODULES.load('i'))
+local BuyItems = (__DARKLUA_BUNDLE_MODULES.load('j'))
+local Ailments = (__DARKLUA_BUNDLE_MODULES.load('k'))
+local StatsGuis2 = (__DARKLUA_BUNDLE_MODULES.load('l'))
+local Clipboard = (__DARKLUA_BUNDLE_MODULES.load('m'))
+local TradeLicense = (__DARKLUA_BUNDLE_MODULES.load('n'))
+local BulkPotions = (__DARKLUA_BUNDLE_MODULES.load('o'))
+local Tutorials = (__DARKLUA_BUNDLE_MODULES.load('p'))
+local PotatoMode = (__DARKLUA_BUNDLE_MODULES.load('q'))
+local GibbonFairground2025 = (__DARKLUA_BUNDLE_MODULES.load('r'))
 local localPlayer = Players.LocalPlayer
 local playerGui = localPlayer:WaitForChild('PlayerGui', 60)
 
@@ -8006,28 +8025,6 @@ local multipleOptionsTable = {
     ['ages'] = {},
     ['neons'] = {},
 }
-local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
-local ClientData = Bypass('ClientData')
-local RouterClient = Bypass('RouterClient')
-local CollisionsClient = Bypass('CollisionsClient')
-local Rayfield = (__DARKLUA_BUNDLE_MODULES.load('a'))
-local WebhookHandler = (__DARKLUA_BUNDLE_MODULES.load('c'))
-local Misc = (__DARKLUA_BUNDLE_MODULES.load('d'))
-local Fusion = (__DARKLUA_BUNDLE_MODULES.load('e'))
-local TaskBoard = (__DARKLUA_BUNDLE_MODULES.load('f'))
-local GetInventory = (__DARKLUA_BUNDLE_MODULES.load('g'))
-local Trade = (__DARKLUA_BUNDLE_MODULES.load('h'))
-local Teleport = (__DARKLUA_BUNDLE_MODULES.load('i'))
-local BuyItems = (__DARKLUA_BUNDLE_MODULES.load('j'))
-local Ailments = (__DARKLUA_BUNDLE_MODULES.load('k'))
-local StatsGuis2 = (__DARKLUA_BUNDLE_MODULES.load('l'))
-local Clipboard = (__DARKLUA_BUNDLE_MODULES.load('m'))
-local TradeLicense = (__DARKLUA_BUNDLE_MODULES.load('n'))
-local BulkPotions = (__DARKLUA_BUNDLE_MODULES.load('o'))
-local Tutorials = (__DARKLUA_BUNDLE_MODULES.load('p'))
-local PotatoMode = (__DARKLUA_BUNDLE_MODULES.load('q'))
-
-__DARKLUA_BUNDLE_MODULES.load('r')
 
 if getgenv().WEBHOOK and getgenv().WEBHOOK.URL and #getgenv().WEBHOOK.URL >= 10 then
     local webhook = WebhookHandler.new()
@@ -8089,9 +8086,6 @@ local fireButton = function(button)
     if not button then
         return Misc.DebugModePrint('button is nil')
     end
-
-    Misc.DebugModePrint('firing button?')
-
     if firesignal then
         local success, _ = pcall(function()
             firesignal(button.MouseButton1Down)
@@ -8130,16 +8124,16 @@ local findButton = function(text, dialogFramePassOn)
     end
 
     for _, v in buttons:GetDescendants()do
-        if v:IsA('TextLabel') then
-            if v.Text == text then
-                if not v.Parent or not v.Parent.Parent then
-                    return
-                end
+        if v:IsA('TextLabel') and v.Text == text then
+            local button = v:FindFirstAncestorWhichIsA('ImageButton') or v:FindFirstAncestorWhichIsA('TextButton')
 
-                fireButton(v.Parent.Parent)
-
-                break
+            if not button then
+                return
             end
+
+            fireButton(button)
+
+            return
         end
     end
 end
@@ -9680,6 +9674,9 @@ if getgenv().OPEN_ITEMS_BEFORE_FARMING then
     getgenv().isBuyingOrAging = true
 
     BuyItems:OpenItems(getgenv().OPEN_ITEMS_BEFORE_FARMING)
+end
+if getgenv().SETTINGS.EVENT.DO_MINIGAME then
+    GibbonFairground2025.Start(50000)
 end
 if getgenv().AGE_PETS_BEFORE_FARMING then
     getgenv().isBuyingOrAging = true
