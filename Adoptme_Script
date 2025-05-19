@@ -3943,7 +3943,7 @@ Check the Developer Console for more information.]],
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
         local localPlayer = Players.LocalPlayer
-        local Bypass = require(ReplicatedStorage:WaitForChild('Fsys')).load
+        local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local Allow_Deny_List = __DARKLUA_BUNDLE_MODULES.load('b')
         local WebhookHandler = {}
 
@@ -4040,7 +4040,12 @@ Check the Developer Console for more information.]],
                         inline = true,
                     },
                     {
-                        name = petStats.Name,
+                        name = 'Age',
+                        value = itemData.properties.age,
+                        inline = true,
+                    },
+                    {
+                        name = tostring(petStats.Name),
                         value = petStats.Value,
                         inline = true,
                     },
@@ -4097,7 +4102,7 @@ Check the Developer Console for more information.]],
 
             WebhookHandler:SendWebHook(data, itemDatabase)
 
-            return
+            return true
         end
 
         function WebhookHandler:OnStart()
@@ -4119,14 +4124,17 @@ Check the Developer Console for more information.]],
                     return
                 end
                 if table.find(Allow_Deny_List.Denylist, dataInfo.id) then
-                    return false, print('[DEBUG] Pet in Denylist')
+                    return
                 end
                 if not dataInfo.properties then
-                    return false, print('[DEBUG] no properties')
+                    return
                 end
-                if table.find(Allow_Deny_List.Allowlist, dataInfo.id) or dataInfo.properties.mega_neon then
+                if dataInfo.properties.neon or dataInfo.properties.mega_neon or table.find(Allow_Deny_List.Allowlist, dataInfo.id) then
+                    if dataInfo.properties.neon and dataInfo.properties.age ~= 6 then
+                        return
+                    end
                     if self.UniqueString == dataInfo.unique then
-                        return false, print('[DEBUG] already processing pet')
+                        return
                     end
 
                     self.UniqueString = dataInfo.unique
