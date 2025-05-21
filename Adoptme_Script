@@ -7749,8 +7749,6 @@ Check the Developer Console for more information.]],
                     end
 
                     task.wait(0.1)
-
-                    break
                 end
             end
         end
