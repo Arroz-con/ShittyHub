@@ -5135,7 +5135,7 @@ Check the Developer Console for more information.]],
                     end
                 end
 
-                task.wait(math.random(1, 5))
+                task.wait(math.random(20, 30))
             end
         end
         function Trade:SelectTabAndTrade(tab, selectedItem)
