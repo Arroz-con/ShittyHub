@@ -3952,10 +3952,6 @@ Check the Developer Console for more information.]],
         function WebhookHandler.new()
             local self = setmetatable({}, WebhookHandler)
 
-            if self.Connection then
-                self:Cleanup()
-            end
-
             self.Connection = nil
             self.Cooldown = false
             self.UniqueString = ''
@@ -4381,6 +4377,9 @@ Check the Developer Console for more information.]],
                 print(message)
             end
         end
+        function Misc.GetPlayerGui()
+            return localPlayer:WaitForChild('PlayerGui')
+        end
 
         return Misc
     end
@@ -4702,12 +4701,15 @@ Check the Developer Console for more information.]],
 
             return
         end
-        function GetInventory:GetPetFriendship(whichPet)
+        function GetInventory:GetPetFriendship(petTable, whichPet)
             local level = 0
             local petUnique = nil
 
             for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
                 if table.find(Allow_Deny_List.Denylist, pet.id) then
+                    continue
+                end
+                if not table.find(petTable, pet.id) then
                     continue
                 end
                 if not pet.properties then
@@ -4818,12 +4820,12 @@ Check the Developer Console for more information.]],
 
             return false
         end
-        function GetInventory:CheckForPetAndEquip(nameId, whichPet)
+        function GetInventory:CheckForPetAndEquip(nameIds, whichPet)
             local level = 0
             local petUnique = nil
 
             for _, pet in ClientData.get_data()[localPlayer.Name].inventory['pets']do
-                if pet.id == nameId then
+                if table.find(nameIds, pet.id) then
                     if not pet.properties then
                         continue
                     end
@@ -4857,7 +4859,7 @@ Check the Developer Console for more information.]],
 
             while not petFound do
                 for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
-                    if pet.id == nameId and pet.properties.age == PetageCounter and pet.properties.neon == isNeon then
+                    if table.find(nameIds, pet.id) and pet.properties.age == PetageCounter and pet.properties.neon == isNeon then
                         if pet.unique == getgenv().petCurrentlyFarming1 then
                             continue
                         end
@@ -5022,11 +5024,1234 @@ Check the Developer Console for more information.]],
         return GetInventory
     end
     function __DARKLUA_BUNDLE_MODULES.h()
+        return {
+            'soda_fountain_water',
+            'coffee_paper_cup',
+            'pizza_shop_pizza',
+            'popcorn',
+            'hotdog',
+            'ice_cream_2025_snow_cone',
+            'lures_2023_magma_melon',
+            'apple',
+            'candy_floss_chew',
+            'smores',
+            'pizza_shop_tomato',
+            'raspberry_pie',
+            'snow_2022_ice_lolly',
+            'water',
+            'donut',
+            'tea',
+            'soda',
+            'chocolate_milk',
+            'lemonade',
+            'cheese',
+            'jasmine_tea_cup',
+            'seaweed',
+            'pizza',
+            'baby_bottle',
+            'cookie',
+            'candycane',
+            'chocolate_drop',
+            'gibbon_2025_cinnamon_roasted_almonds',
+            'candy_corn',
+            'free_cake',
+            'ice_cream_2025_cup',
+            'fall_2022_cinnamon_roll',
+            'burger',
+            'patterns_egg',
+            'sofahog_2024_diner_hot_dog_and_fries',
+            'honey_candy',
+            'watermelon',
+            'oolong_tea_cup',
+            'sandwich',
+            'ice_tub',
+            'sofahog_2024_diner_milkshake',
+            'honey',
+            'pizza_shop_mushroom',
+            'pet_food',
+            'dim_sum',
+            'golden_goldfish',
+            'water_paper_cup',
+            'stripes_egg',
+            'cake',
+            'soda_fountain_soda',
+            'green_tea_cup',
+            'chocolate_twist',
+            'ham',
+            'pizza_shop_ham',
+            'stars_egg',
+            'coffee',
+            'cotton_candy_stick',
+            'blueberry_pie',
+            'sofahog_2024_diner_mac_and_cheese',
+            'icecream',
+            'free_pizza',
+            'babyformula',
+            'lolipop',
+            'rain_2023_coconut_drink',
+            'broken_egg',
+            'sofahog_2024_diner_lemonade',
+            'winter_2023_hot_cocoa',
+            'pizza_shop_pepperoni',
+            'lures_2023_overcooked_tart',
+            'taco',
+            'sofahog_2024_diner_pancakes',
+            'sofahog_2024_diner_apple_pie',
+            'pizza_shop_pineapple',
+            'desert_2022_mud_ball',
+            'mooncake',
+            'pizza_shop_cheese',
+            'stingray',
+            'bandicoot',
+            'buffalo',
+            'cracked_egg',
+            'desert_2024_rattlesnake',
+            'urban_2023_cockroach',
+            'gorilla_fair_2023_gorilla',
+            'desert_2024_deathstalker_scorpion',
+            'tasmanian_tiger',
+            'desert_2024_thorny_devil',
+            'lny_2023_water_moon_bear',
+            'japan_2022_dugong',
+            'seasia_2023_binturong',
+            'garden_2024_garden_snake',
+            'sunshine_2024_peregrine_falcon',
+            'merhorse',
+            'danger_2023_mosquito',
+            'danger_2023_angler_fish',
+            'dingo',
+            'fall_2022_badger',
+            'moon_2025_moonpine',
+            'halloween_2022_basilisk',
+            'lunar_ox',
+            'shiba',
+            'japan_2022_trapdoor_snail',
+            'garden_2024_blue_jay',
+            'seasia_2023_yellow_lipped_sea_krait',
+            'urban_2023_black_kite',
+            'japan_2022_spider_crab',
+            'basic_egg_2022_swordfish',
+            'easter_2024_dotted_eggy',
+            'woodland_2022_red_fox',
+            'woodland_2022_bullfrog',
+            'dog',
+            'basic_egg_2022_robot',
+            'regular_pet_egg',
+            'moon_2025_hopbop',
+            'winter_2023_arctic_hare',
+            'moon_2025_zeopod',
+            'snow_puma',
+            'basic_egg_2022_orangutan',
+            'puma',
+            'woodland_2022_salamander',
+            'narwhal',
+            'seasia_2023_banded_palm_civet',
+            'pterodactyl',
+            'fennec',
+            'danger_2023_piranha',
+            'cat',
+            'garden_2024_weevil',
+            'gru_2022_zodiac_egg',
+            'deinonychus',
+            'snow_cat',
+            'basic_egg_2022_camel',
+            'ox',
+            'sabertooth',
+            'seasia_2023_bali_starling',
+            'seasia_2023_komodo_dragon',
+            'woolly_mammoth',
+            'stegosaurus',
+            'ocean_2024_lionfish',
+            'urban_2023_pigeon',
+            'japan_2022_sado_mole',
+            'capuchin_2024_capuchin_monkey',
+            'beach_2024_mahi_mahi',
+            'lny_2023_moon_bear',
+            'urban_2023_fly',
+            'woodland_2022_red_cardinal',
+            'sunshine_2024_black_marlin',
+            'woodland_2022_woodpecker',
+            'desert_2024_oryx',
+            'danger_2023_borhyaena_gigantica',
+            'japan_2022_koi_carp',
+            'metal_ox',
+            'basic_egg_2022_parakeet',
+            'moon_2025_starmite',
+            'rose',
+            'halloween_2022_bat_lollipop_earrings',
+            'pink_instant_camera',
+            'cassette',
+            'pink_cap',
+            'gifthat_november_2024_ponytail',
+            'fall_2022_candy_apple',
+            'gifthat_may_2024_duck_feet',
+            'fur_boots',
+            'pink_bowtie',
+            'halloween_2021_pumpkin_friend',
+            'fez',
+            'gifthat_2023_fire_axe',
+            'legend_hat_sept_2022_writing_brush',
+            'gift_refresh_2023_heart_ribbon',
+            'easter_2022_spring_bunny_hood',
+            'legend_hat_2022_fantasy_blade',
+            'gifthat_may_2024_unfortunate_eyelashes',
+            'gifthat_may_2024_clown_wig',
+            'winter_2023_elf_bandana',
+            'legend_hat_2022_tool_box',
+            'wave_badge',
+            'rain_2023_spyglass_glasses',
+            'ace_pride_pin',
+            'black_hightops',
+            'halo',
+            'legend_hat_sept_2022_paper_bag_hat',
+            'winter_2021_red_christmas_stocking_shoes',
+            'detective_hat',
+            'legend_hat_sept_2022_puffer_jacket',
+            'yellow_5_panel_cap',
+            'gift_refresh_2023_ar_headset',
+            'legend_hat_sept_2022_bumblebee_hat',
+            'legend_hat_2022_cool_quad_skates',
+            'gifthat_2023_potion_necklace',
+            'soccer_2024_italy_scarf',
+            'red_ribbon',
+            'winter_2021_red_scarf',
+            'halloween_2023_wicked_boots',
+            'growing_flower_hat',
+            'eyepatch',
+            'eco_grey_origami_boat_hat',
+            'summerfest_2024_corndog_mustache',
+            'winter_2023_ugly_christmas_cape',
+            'gifthat_may_2024_exposed_brain',
+            'legend_hat_2022_leaf_sprout_hat',
+            'lny_2022_collar',
+            'snow_2022_fluffy_earmuffs',
+            'lavender_scarf',
+            'bee_hive',
+            'springfest_2023_flower_bunny_ears',
+            'spring_2025_sakura_wings',
+            'briefcase',
+            'gifthat_november_2024_bush_backpack',
+            'winter_2024_ice_shoes',
+            'gifthat_may_2024_castle_tower',
+            'gay_man_pride_pin',
+            'halloween_2022_mule_baskets',
+            'halloween_2024_gothic_horns',
+            'legend_hat_sept_2022_glass_slippers',
+            'fall_2022_badge',
+            'antenna',
+            'star_rewards_2022_wind_turbine_earrings',
+            'sketchbook',
+            [[gifthat_november_2024_strawberry_shortcake_bat_dragon_backpack]],
+            'legend_hat_2022_sandwich_hat',
+            'gifthat_november_2024_natures_crown',
+            'legend_hat_2022_back_taco',
+            'halloween_2024_slime_shades',
+            'gifthat_november_2024_radish_friend',
+            'gifthat_2023_gemstone_band',
+            'jade_moth_wings',
+            'legend_hat_sept_2022_brain_jar',
+            'winter_2023_marshmallow_friend',
+            'snow_2022_snow_cloud_wings',
+            'eco_red_apple_basket_hat',
+            'aromantic_pride_pin',
+            'red_bowtie',
+            'rgb_laptop',
+            'soccer_2024_denmark_soccer_earrings',
+            'eco_orange_maple_leaf_scarf',
+            'gift_refresh_2023_rain_cloud_hat',
+            'gifthat_may_2024_human_feet_shoes',
+            'red_beanie',
+            'winter_2024_gingerbread_beard',
+            'watermelon_backpack',
+            'sky_ux_2023_macaw_wings',
+            'lunar_2024_hanbok',
+            'gorilla_fair_2023_tuxedo_top_hat',
+            'explorer_hat',
+            'legend_hat_2022_magical_staff',
+            'lunar_2024_rice_cake_hat',
+            'beaked_whale_badge',
+            'legend_hat_2022_crayon_mohawk',
+            'ice_wings',
+            'lunar_2025_dancing_lion_mask',
+            'gifthat_2023_bell_flower_hat',
+            'gifthat_november_2024_microphone',
+            'fall_2022_rake_wings',
+            'moon_tome',
+            'gifthat_may_2024_angry_eyebrows',
+            'angel_wings',
+            'yellow_designer_backpack',
+            'bucket_hat',
+            'flower_crown',
+            'pride_2022_butterfly_clip',
+            'gifthat_2023_flower_lapel',
+            'spring_2025_ninja_collar',
+            'gifthat_november_2024_cactus_bat',
+            'eco_blue_recycling_bin_badge',
+            'eco_brown_hiking_backpack',
+            'fall_2022_pumpkin_knit_hat',
+            'springfest_2023_cherry_blossom_earring',
+            'halloween_2023_jack_o_lantern_shades',
+            'wings_2022_invisible_wings',
+            'gifthat_may_2024_doggy_door_face',
+            'forgotten_flower',
+            'legend_hat_2022_modern_jetpack',
+            'pib_2022_boots',
+            'gifthat_may_2024_sheriffs_badge',
+            'gifthat_november_2024_gothic_necklace',
+            'legend_hat_sept_2022_bamboo_bindle',
+            'purple_and_green_beads',
+            'sing2_reward_space_helmet',
+            'pride_2022_pride_headphones',
+            'legend_hat_2022_ten_gallon_hat',
+            'gifthat_november_2024_jailers_keys',
+            'pride_2022_pride_glasses',
+            'legend_hat_2022_crystal_necklace',
+            'halloween_2022_candy_corn_hat',
+            'gifthat_2023_formal_big_bow_hat',
+            'eco_orange_maple_leaf_mustache',
+            'bee_wings',
+            'ice_crown',
+            'legend_hat_sept_2022_aviator_hat',
+            'winter_2023_festive_beard',
+            'legend_hat_sept_2022_knight_helmet',
+            'black_boots',
+            'legend_hat_sept_2022_viking_shield',
+            'gifthat_november_2024_steel_toe_heel',
+            'gifthat_2023_two_toned_fedora',
+            'gifthat_2023_mailbox_hat',
+            'gifthat_2023_cyborg_eye',
+            'lny_2023_earring',
+            'halloween_2022_bat_backpack',
+            'fall_2022_striped_fall_scarf',
+            'gifthat_2023_balloon_dog',
+            'beret',
+            'gorilla_fair_2023_chef_accessory',
+            'gifthat_november_2024_sky_wings',
+            'gifthat_may_2024_african_bead_necklace',
+            'ivy_necklace',
+            'egg_barrette',
+            'legend_hat_2022_cowboy_boots',
+            'legend_hat_2022_victorian_collar',
+            'gift_refresh_2023_carrot_headphones',
+            'legend_hat_sept_2022_lightbulb_hat',
+            'gifthat_2023_copter_cap',
+            'ski_goggles',
+            'winter_2023_hot_cocoa_hat',
+            'eco_red_cranberry_branch_wings',
+            'summerfest_2023_summer_straw_hat',
+            'socks_and_sandals',
+            'soccer_2024_switzerland_soccer_boots',
+            'ice_dimension_2025_ice_monocle',
+            'gifthat_may_2024_solar_system_necklace',
+            'gifthat_november_2024_raven_hood',
+            'eco_green_leaf_glasses',
+            'eco_green_vine_barrette',
+            'rain_2023_parrot_hood',
+            'wings_2022_magpie_wings',
+            'snow_2022_snowflake_earrings',
+            'nautilus_shell_necklace',
+            'legend_hat_2022_puddleducks_hood',
+            'winter_2022_gingerbread_star_eye_patch',
+            'windup_key',
+            'st_patricks_2025_leprechaun_shoes',
+            'summerfest_2024_peace_shades',
+            'summerfest_2023_flowery_sunhat',
+            'spike_collar',
+            'gifthat_november_2024_balloon_flower_hat',
+            'green_lotus',
+            'sperm_whale_badge',
+            'ruff',
+            'winter_2024_snowy_tree_hat',
+            'gifthat_2023_bone_booties',
+            'rgb_headset',
+            'summerfest_2024_sticky_hand_earrings',
+            'legend_hat_sept_2022_chimney_hat',
+            'orange_backpack',
+            'pink_heart_glasses',
+            'lunar_2025_knot_earrings',
+            'striped_necktie',
+            'red_back_ribbon',
+            'legend_hat_2022_rainbow_bucket_hat',
+            'legend_hat_2022_rainbow_maker',
+            'halloween_2024_witch_nose',
+            'rain_2023_rain_leaf_wings',
+            'gifthat_2023_living_wizard_hat',
+            'legend_hat_sept_2022_skull_toy',
+            'capuchin_2024_cool_sunglasses',
+            'spring_2025_kaijunior_hat',
+            'gay_pride_pin',
+            'halloween_2023_death_cloak',
+            'gifthat_may_2024_long_fringe',
+            'halloween_2023_monster_hat',
+            'halloween_2021_gravestone_backpack',
+            'halloween_2022_spider_web_crown',
+            'gifthat_2023_thimble_cap',
+            'legend_hat_2022_ronin_hat',
+            'ice_dimension_2025_ice_cape',
+            'chick_hat',
+            'traffic_cone',
+            'gift_refresh_2023_fragile_box',
+            'ice_dimension_2025_frozen_crown',
+            'witch_boots',
+            'winter_2023_wreath_necklace',
+            'gift_refresh_2023_fairy_bell_necklace',
+            'gifthat_november_2024_star_hoodie',
+            'legend_hat_2022_guitar_case',
+            'white_cozy_hood',
+            'gibbon_2025_mobile_phone',
+            'gifthat_may_2024_bucket_shoes',
+            'gift_refresh_2023_golden_circlet',
+            'party_crown',
+            'rain_2023_rain_badge',
+            'gift_refresh_2023_winged_necklace',
+            'moon_2025_crater_flag_hat',
+            'sky_ux_2023_fairy_wings',
+            'rb_battles_trophy_hat',
+            'capuchin_2024_preppy_sweater',
+            'halloween_2024_midnight_wings',
+            'skeleton_shell',
+            'red_necktie',
+            'gorilla_fair_2023_tuxedo_tie',
+            'halloween_2024_web_cape',
+            'birthday_2022_party_hat',
+            'gifthat_may_2024_brick_pile',
+            'hoop_earrings',
+            'sunshine_2024_sports_shirt',
+            'gifthat_may_2024_ferris_wheel_hat',
+            'legend_hat_2022_gold_coin_monocle',
+            'reindeer_antlers',
+            'legend_hat_sept_2022_snorkel_set',
+            'sky_ux_2023_clockwork_wings',
+            'gifthat_2023_cheese_hat',
+            'gifthat_2023_plunger_hat',
+            'eco_yellow_corncob_bowtie',
+            'desert_2022_pyramids_badge',
+            'gift_refresh_2023_sausage_link',
+            'sunhat',
+            'birthday_2022_party_horn',
+            'birthday_2022_cupcake_shoes',
+            'gifthat_november_2024_stylish_neckerchief',
+            'headset',
+            'black_bandana',
+            'newsboy_cap',
+            'sunshine_2024_silver_medal',
+            'springfest_2023_flower_wreath_pin',
+            'gifthat_2023_sticky_stick',
+            'halloween_2021_cauldron_hat',
+            'gifthat_2023_water_can',
+            'rain_2023_rainy_cloud_earrings',
+            'gift_refresh_2023_lace_heart_backpack',
+            'desert_2022_lotus_earrings',
+            'gifthat_may_2024_walrus_tusks',
+            'legend_hat_2022_nest_of_eggs',
+            'legend_hat_2022_unicorn_horn',
+            'gifthat_november_2024_orange_hat',
+            'gift_refresh_2023_welders_mask',
+            'gifthat_november_2024_flower_drop_earrings',
+            'red_sneakers',
+            'halloween_2022_ghost_hat',
+            'witch_broom',
+            'halloween_2024_sorcerer_wand',
+            'gifthat_2023_bready_necklace',
+            'fire_dimension_2024_flame_cape',
+            'cute_circle_glasses',
+            'summerfest_2023_beach_umbrella',
+            'black_purse',
+            'summerfest_2024_strongperson_barbell',
+            'white_purse',
+            'gift_refresh_2023_stitched_up_beanie',
+            'buzz_off_skateboard',
+            'capuchin_2024_princess_booties',
+            'moon_2025_lunar_new_year_headdress',
+            'snow_2022_cosy_snow_scarf',
+            'wings_2022_magic_girl_wings',
+            'ice_earrings',
+            'shuriken',
+            'gifthat_2023_triangle_shades',
+            'winter_2024_ice_halo',
+            'winter_2024_tree_skirt',
+            'moon_2025_moon_boots',
+            'legend_hat_sept_2022_boxing_glove_necklace',
+            'winter_2024_santas_bow',
+            'gift_refresh_2023_frigid_hat',
+            'winter_2024_gold_fairy_crown',
+            'sky_ux_2023_gull_wings',
+            'jetpack',
+            'winter_2024_adopt_lanyard',
+            'desert_2022_nemes_headdress',
+            'winter_2024_snowman_nose',
+            'birthday_2022_confetti_drape',
+            'gibbon_2025_whistle_necklace',
+            'winter_2024_jinglebell_earrings',
+            'legend_hat_2022_angler_fish_light',
+            'winter_2023_christmas_tree_earrings',
+            'legend_hat_2022_googly_eye_glasses',
+            'legend_hat_sept_2022_hair_buns',
+            'desert_2022_wesekh_necklace',
+            'winter_2023_poinsettia_hair_clip',
+            'halloween_2023_ball_and_chain_earrings',
+            'winter_2023_holly_crown',
+            'winter_2023_christmas_boots',
+            'legend_hat_2022_saucepan_hat',
+            'legend_hat_2022_clan_banner',
+            'winter_2023_reindeer_hood',
+            'winter_2023_gingerbread_wings',
+            'sunglasses',
+            'gift_refresh_2023_foragers_reward',
+            'sky_ux_2023_ember_wings',
+            'winter_2023_sleigh_earrings',
+            'gifthat_november_2024_butterfly_headphones',
+            'winter_2023_2024_glasses',
+            'winter_2023_candy_cane_wings',
+            'winter_2022_strawberry_crown',
+            'gift_refresh_2023_laced_yellow_heels',
+            'winter_2021_red_mistletoe_hat',
+            'winter_2021_golden_walrus_crown',
+            'trans_pride_pin',
+            'winter_2021_red_candy_cane',
+            'winter_2021_yellow_star_pin',
+            'leaf_wings',
+            'gift_refresh_2023_joystick_controller',
+            'winter_2021_blue_eggnog_hat',
+            'eco_glowing_lightbulb_necklace',
+            'neckerchief',
+            'bug_net',
+            'sunshine_2024_sports_hat',
+            'gift_refresh_2023_heart_bucket_hat',
+            'golden_headset',
+            'sky_ux_2023_flying_fish_wings',
+            'black_bowtie',
+            'legend_hat_sept_2022_winged_cap',
+            'lny_2022_red_envelope',
+            'fire_dimension_2024_heat_vent_hat',
+            'eco_brown_pinecone_earrings',
+            'gift_refresh_2023_feather_boa',
+            'springfest_2023_strawberry_clip',
+            'birthday_2022_confetti_cannon',
+            'respectful_mustache',
+            'bunny_ear_tiara',
+            'snow_2022_tundra_explorer_goggles',
+            'summerfest_2024_cotton_candy_hat',
+            'leprechaun_hat',
+            'detective_mustache',
+            'eco_orange_pumpkin_pie_wings',
+            'legend_hat_sept_2022_curved_bow',
+            'headband',
+            'fried_egg',
+            'gold_chain',
+            'bi_pride_pin',
+            'capuchin_2024_royal_capuchin_cape',
+            'pink_bandana',
+            'goth_shoes',
+            'fall_2022_donut_glasses',
+            'legend_hat_2022_cowboy_saddle',
+            'blue_sneakers',
+            'legend_hat_2022_spikey_hair_wig',
+            'moon_2025_alien_eyes_hat',
+            'gift_refresh_2023_shovel',
+            'lures_2023_flame_glasses',
+            'festive_tree_hat',
+            'k9_badge',
+            'sunshine_2024_bronze_medal',
+            'celestial_2024_galaxy_boots',
+            'legend_hat_sept_2022_yarn_ball_toy',
+            'eco_orange_pumpkin_eyepatch',
+            'demi_pride_pin',
+            'chicken_hat',
+            'gifthat_may_2024_chinese_tea_tray',
+            'morion',
+            'flower_collar',
+            'number_one_ribbon',
+            'easter_2024_flower_bunny_clip',
+            'eco_green_vine_badge',
+            'pearl_necklace',
+            'sun_tome',
+            'aviators',
+            'easter_2022_three_egg_basket',
+            'pink_butterfly_wings',
+            'gifthat_november_2024_love_letter',
+            'jokes_2024_arrow_through_head_hat',
+            'legend_hat_2022_carrot_on_a_stick',
+            'rain_boots',
+            'pink_designer_backpack',
+            'gifthat_may_2024_snack_and_beverage_carrier',
+            'pink_boots',
+            'gifthat_november_2024_flower_scarf',
+            'amber_earrings',
+            'gifthat_may_2024_steampunk_clock_hat',
+            'pink_hightops',
+            'pink_lotus',
+            'sky_ux_2023_flower_wings',
+            'firey_aura',
+            'platinum_tiara',
+            'purple_masquerade_mask',
+            'halloween_2024_fang_necklace',
+            'gardener_hat',
+            'luggage',
+            'black_cozy_hood',
+            'construction_hat',
+            'eco_orange_maple_cape',
+            'prescription_glasses',
+            'gifthat_2023_fire_hydrant',
+            'rain_hat',
+            'valentines_2025_heart_bow',
+            'red_and_yellow_beads',
+            'eco_orange_maple_headpiece',
+            'red_butterfly',
+            'red_masquerade_mask',
+            'easter_2022_spring_bunny_nose',
+            'red_purse',
+            'pretty_red_bow',
+            'gift_refresh_2023_winged_cap',
+            'whale_badge',
+            'winter_2024_winter_bow_wings',
+            'penguin_comp_2022_ice_cream_cone_hat',
+            'daisy_glasses',
+            'santa_hat',
+            'eco_brown_branch_headphones',
+            'capuchin_2024_royal_capuchin_saber_pin',
+            'gift_refresh_2023_safety_pin_beanie',
+            'shadow_wings',
+            'gifthat_2023_heavy_anvil',
+            'legend_hat_sept_2022_walkie_talkie',
+            'springfest_2023_flower_beret',
+            'head_tie',
+            'spin_masters_purse_pet',
+            'springfest_2023_flower_monocle',
+            'lny_2023_dumpling_friend',
+            'scythe',
+            'silver_chain',
+            'chef_hat',
+            'blue_backpack',
+            'gifthat_november_2024_fortune_teller_hood',
+            'black_5_panel_cap',
+            'legend_hat_2022_battle_axe',
+            'legend_hat_sept_2022_fur_collared_cape',
+            'gift_refresh_2023_burger_boots',
+            'beluga_badge',
+            'clear_glasses',
+            'skis',
+            'adventurers_hood',
+            'legend_hat_sept_2022_rubber_ducks',
+            'gifthat_2023_dino_hood',
+            'strawberry_hat',
+            'winter_scarf',
+            'gift_refresh_2023_spikey_goggles',
+            'winter_2021_summer_walrus_sunhat',
+            'spring_glasses',
+            'soccer_2024_romania_soccer_cap',
+            'striped_tophat',
+            'gifthat_november_2024_heart_eyepatch',
+            'soccer_2024_belgium_scarf',
+            'gift_refresh_2023_bear_cap',
+            'jeffs_nametag',
+            'halloween_2021_skull_hat',
+            'sunshine_2024_sports_shoes',
+            'black_scarf',
+            'soccer_2024_france_soccer_cap',
+            'turtle_shell',
+            'sombrero',
+            'gifthat_november_2024_rocket_ship_hat',
+            'umbrella_hat',
+            'vampire_cape',
+            'easter_2024_egg_friends_backpack',
+            'legend_hat_2022_life_preserver',
+            'legend_hat_sept_2022_flower_power_earrings',
+            'pink_cat_ear_headphones',
+            'legend_hat_sept_2022_vr_goggles',
+            'fancy_top_hat',
+            'propeller_hat',
+            'gifthat_2023_satellite_spinner',
+            'gifthat_may_2024_dancing_tube_hat',
+            'halloween_2021_axe_guitar',
+            'white_designer_backpack',
+            'spring_2025_spiky_blue_hair',
+            'white_winter_hat',
+            'pride_2022_gender_queer_pride_pin',
+            'halloween_2024_monster_friend_hat',
+            'witch_hat',
+            'gift_refresh_2023_card_reader',
+            'gifthat_november_2024_watermelon_shoes',
+            'soccer_2024_england_soccer_boots',
+            'kiwi_2023_red_scarf',
+            'legend_hat_sept_2022_bear_hood',
+            'wool_beard',
+            'pink_5_panel_cap',
+            'gibbon_2025_folded_paper_wings',
+            'yellow_cap',
+            'gibbon_2025_firefighter_boots',
+            'halloween_2022_planchette_hair_clip',
+            'snowman_winter_hat',
+            'monkey_king_crown',
+            'gifthat_may_2024_viking_beard',
+            'summerfest_2023_lei',
+            'pink_sneakers',
+            'summerfest_2024_target_board',
+            'cowboy_hat',
+            'white_visor',
+            'summerfest_2024_pretzel_eye_patch',
+            'flowery_hair_bow',
+            'gibbon_2025_fire_hose_scarf',
+            'eco_green_vine_mustache',
+            'genderfluid_pride_pin',
+            'leaf_crown',
+            'black_sneakers',
+            'legend_hat_sept_2022_money_hat',
+            'wings_2022_fantasy_wings',
+            'gifthat_2023_personal_controller',
+            'gifthat_november_2024_tv_hood',
+            'eco_white_spider_web_badge',
+            'halloween_2023_skull_bow',
+            'chick_backpack',
+            'gift_refresh_2023_pancake_stack',
+            'lures_2023_volcano_hat',
+            'yellow_instant_camera',
+            'gifthat_november_2024_shooting_star_glasses',
+            'red_collar',
+            'lny_2022_shoes',
+            'soccer_2024_germany_bucket_hat',
+            'gift_refresh_2023_winged_heels',
+            'blue_butterfly_wings',
+            'blue_cap',
+            'yellow_sneakers',
+            'lny_2023_shoes',
+            'eco_blue_recycling_bin_hat',
+            'easter_2024_flower_hair',
+            'celestial_2024_galaxy_collar',
+            'picnic_basket',
+            'sky_ux_2023_paper_wings',
+            'gifthat_may_2024_venus_flytrap_hat',
+            'gifthat_2023_robotic_runners',
+            'conductor_hat',
+            'halloween_2021_evil_barrel_backpack',
+            'egg_glasses',
+            'eco_green_leaf_afro',
+            'shark_fin',
+            'eco_red_apple_hat',
+            'gifthat_november_2024_raven_collar',
+            'orange_glasses',
+            'flamenco_hat',
+            'froggy_hat',
+            'gifthat_november_2024_bow_shoes',
+            'eco_orange_maple_earrings',
+            'k9_hat',
+            'handheld',
+            'eco_black_tree_motif_cap',
+            'killer_whale_badge',
+            'enby_pride_pin',
+            'gift_refresh_2023_waterfall_hat',
+            'yellow_beanie',
+            'gold_circle_glasses',
+            'shadow_shuriken',
+            'pride_2022_pride_wings',
+            'rain_2023_captains_jacket',
+            'adventurers_sword',
+            'gift_refresh_2023_royal_crown_pillow',
+            'agender_pride_pin',
+            'gifthat_november_2024_cherry_blossom_glasses',
+            'pride_2022_pride_earrings',
+            'black_designer_backpack',
+            'lgbtq_pride_pin',
+            'monocle',
+            'guitar_accessory',
+            'soccer_2024_spain_soccer_earrings',
+            'capuchin_2024_ship_wheel_necklace',
+            'head_chef',
+            'wdc_badge',
+            'spring_2025_black_hero_hair',
+            'thermometer',
+            'eco_orange_leaf_wings',
+            'icepack',
+            'legend_hat_2022_honey_jar',
+            'bat_wings',
+            'elf_hat',
+            'gifthat_2023_flower_cloche',
+            'pirate_hat_and_friend',
+            'gifthat_november_2024_constellation_cape',
+            'pride_2022_omnisex_pride_pin',
+            'bewitched_hat',
+            'dolphin_badge',
+            'eco_blue_solar_panel_backpack',
+            'gift_refresh_2023_katana_set',
+            'gifthat_2023_spray_can',
+            'eco_blue_reusable_bottle_backpack',
+            'tusks',
+            'wizard_hat',
+            'white_bandana',
+            'cutlass',
+            'gifthat_2023_fox_eared_beret',
+            'gifthat_may_2024_monstera_plant_pot',
+            'legend_hat_sept_2022_skater_helmet',
+            'bowler',
+            'valentines_2025_heart_heels',
+            'gift_refresh_2023_monstera_leaf_cape',
+            'watermelon_hat',
+            'rain_2023_fishers_headdress',
+            'gibbon_2025_police_cap',
+            'summerfest_2024_magic_hat_face',
+            'gifthat_may_2024_honey_bee_collar',
+            'winter_2023_festive_light_crown',
+            'pirate_hat',
+            'legend_hat_sept_2022_footwrap_shoes',
+            'gorilla_fair_2023_tuxedo_walking_stick',
+            'shadow_aura',
+            'gibbon_2025_villainous_eyebrows',
+            'black_fedora',
+            'cyborg_shades',
+            'gifthat_2023_golden_hair',
+            'pocket_protector',
+            'gifthat_may_2024_nose_goop',
+            'springfest_2023_buttercup_collar',
+            'eco_brown_earth_wizard_hat',
+            'eco_red_mushroom_hood',
+            'pan_pride_pin',
+            'brown_cozy_hood',
+            'gifthat_2023_fancy_footwear',
+            'legend_hat_2022_toaster_hat',
+            'cherry_earrings',
+            'purple_rose',
+            'buttoned_ushanka',
+            'pib_2022_sword',
+            'gifthat_2023_claw_grabber',
+            'gifthat_2023_nap_mask',
+            'birthday_2022_birthday_cake',
+            'jokes_2024_disguise_glasses',
+            'icey_aura',
+            'cowbell',
+            'gift_refresh_2023_hourglass',
+            'desert_2022_horus_monocle',
+            'halloween_2023_evil_headphones',
+            'sunshine_2024_gold_medal',
+            'wings_2022_clam_wings',
+            'legend_hat_sept_2022_stethoscope',
+            'sunshine_2024_laurel_wreath',
+            'gifthat_may_2024_viking_helmet',
+            'lny_2022_mandarin_hat',
+            'gifthat_2023_safety_scissors',
+            'white_bowtie',
+            'clout_goggles',
+            'legend_hat_sept_2022_space_helmet',
+            'gibbon_2025_fancy_top_hat',
+            'gift_refresh_2023_fishbone_badge',
+            'halloween_2023_eye_bat_monocle',
+            'legend_hat_sept_2022_sock_hat',
+            'gift_refresh_2023_giraffe_bucket_hat',
+            'halloween_2021_candy_corn_earrings',
+            'purple_heart_glasses',
+            'summerfest_2023_shark_swim',
+            'eco_brown_wooden_clogs',
+            'fall_2022_wreath_necklace',
+            'summerfest_2024_shooting_star_earrings',
+            'gorilla_fair_2023_karate_accessory',
+            'gifthat_may_2024_half_skirt',
+            'bear_winter_hat',
+            'halloween_2022_ghost_kitty_backpack',
+            'nest',
+            'gifthat_2023_winged_medal',
+            'summerfest_2023_drinks_cooler',
+            'summerfest_2023_star_sunglasses',
+            'likes_reward_2025_cap',
+            'halloween_2024_sorcerer_hat',
+            'summerfest_2024_knockdown_cans',
+            'summerfest_2023_duck_floatie',
+            'gibbon_2025_super_hero_hair',
+            'gifthat_november_2024_kraken_hat',
+            'gift_refresh_2023_lava_lamp_hat',
+            'summerfest_2023_diving_fins',
+            'st_patricks_2025_leprechaun_jacket',
+            'sailor_cap',
+            'rgb_collar',
+            'spring_2025_pink_twintails',
+            'lures_2023_flame_crown',
+            'spring_2025_energy_wings',
+            'spring_2025_magic_wing_badge',
+            'gifthat_2023_buttoned_front',
+            'spring_2025_kage_scarf',
+            'spring_2025_sakura_scythe',
+            'legend_hat_sept_2022_brim_beanie',
+            'springfest_2023_heart_lock_necklace',
+            'gold_tiara',
+            'springfest_2023_dandelion_hat',
+            'spin_master_2022_llama_purse_pet',
+            'spring_2025_kage_cape',
+            'soccer_2024_netherlands_bucket_hat',
+            'legend_hat_2022_tropical_flower',
+            'sun_and_moon_earrings',
+            'fire_dimension_2024_fire_helmet',
+            'magnifying_glass',
+            'gifthat_may_2024_silly_duck_hat',
+            'lesbian_pride_pin',
+            'winter_2024_2025_crown',
+            'hype_crown',
+            'gorilla_fair_2023_emperor_accessory',
+            'tutorial_2023_graduation_cap',
+            'snow_2022_cosy_snow_hat',
+            'snow_2022_snowflake_badge',
+            'lunar_2024_rainbow_dragon_hat',
+            'easter_2024_cupcake_sprinkle_wings',
+            'gift_refresh_2023_music_box_hat',
+            'bone_wings',
+            'lny_2023_coin_necklace',
+            'winter_2024_shooting_star_wings',
+            'sky_ux_2023_balloon_wings',
+            'gift_refresh_2023_star_barrette',
+            'winter_2024_elf_shoes',
+            'gifthat_may_2024_cd_stack',
+            'legend_hat_2022_dueling_swords',
+            'fall_2022_yarn_ball_earrings',
+            'gifthat_may_2024_chest_monster',
+            'gifthat_november_2024_dog_backpack',
+            'legend_hat_sept_2022_jester_hat',
+            'easter_2022_spring_bunny_feet',
+            'gift_refresh_2023_bear_keychain',
+            'capuchin_2024_inmate_cap',
+            'fire_dimension_2024_volcanic_boots',
+            'desert_2022_sun_wings',
+            'gifthat_may_2024_springy_heart',
+            'rain_2023_glowing_skull_key',
+            'birthday_2022_badge',
+            'legend_hat_sept_2022_leaf_hat',
+            'pride_2022_intersex_pride_pin',
+            'spring_2025_sakura_earrings',
+            'lny_2022_gold_ingot',
+            'pib_2022_feather',
+            'gifthat_2023_regal_collar',
+            'gorilla_fair_2023_astronaut_accessory',
+            'gift_refresh_2023_combat_target_dummy',
+            'blue_cat_ear_headphones',
+            'ninja_headband',
+            'gifthat_2023_football_helmet',
+            'gifthat_november_2024_grape_earrings',
+            'pib_2022_hat',
+            'legend_hat_sept_2022_pink_trainer_shoes',
+            'neck_ribbon',
+            'lures_2023_magma_greatsword',
+            'legend_hat_2022_sack_of_cash',
+            'halloween_2023_slime_backpack',
+            'legend_hat_sept_2022_bunny_straw_hat',
+            'legend_hat_sept_2022_funky_disco_boots',
+            'legend_hat_sept_2022_banana_hat',
+            'legend_hat_2022_bionic_arms',
+            'legend_hat_sept_2022_heart_hat',
+            'halloween_2022_crescent_moon_ornament',
+            'gifthat_november_2024_ice_cream_heels',
+            'gifthat_2023_flower_heels',
+            'legend_hat_sept_2022_bolero_hat',
+            'first_aid_bag',
+            'gifthat_november_2024_mystic_wing_crown',
+            'playsets_2024_cherry_on_top_hat',
+            'legend_hat_2022_flower_aura',
+            'desert_2022_crown',
+            'gifthat_2023_butter_knife',
+            'sushi_skateboard',
+            'gifthat_november_2024_fishbowl_hat',
+            'gift_refresh_2023_sock_shoes',
+            'sky_ux_2023_owl_wings',
+            'smallgift',
+            'gifthat_november_2024_winged_skates',
+            'vehicle_shop_2022_jet_boat',
+            'standard_roller_skates',
+            'car',
+            'raw_bone',
+            'gibbon_2025_teacup_vehicle',
+            'spring_2025_mecha_rabbit_sticker',
+            'stickers_2024_diamond_ladybug_pet',
+            'fossil_2024_dilophosaurus_pet',
+            'pride_2024_gay_snake_in_a_boot_pet',
+            'stickers_2024_toad_pet',
+            'spring_2025_hang_glider_sticker',
+            'stickers_2024_beaver_pet',
+            'stickers_2024_lamb_pet',
+            'ice_dimension_2025_fire_dimension_portal_sticker',
+            'ocean_2024_treasure_chest_sticker',
+            'stickers_2024_cow_pet',
+            'ice_dimension_2025_ice_dimension_portal_sticker',
+            'spring_2025_cherry_blossom_tree',
+            'stickers_2024_pig_pet',
+            'winter_2024_christmas_tree_sticker',
+            'halloween_2024_scarecrow_sticker',
+            'stickers_2024_grass_platform_environment',
+            'stickers_2024_kiwi_pet',
+            'spring_2025_wood_pigeon_sticker',
+            'stickers_2024_diamond_bee_pet',
+            'spring_2025_cabbit_sticker',
+            'ocean_2024_octopus_sticker',
+            'halloween_2024_zombie_wolf_sticker',
+            'ice_dimension_2025_volcanic_rhino_sticker',
+            'fossil_2024_sabertooth_pet',
+            'ocean_2024_dracula_fish_sticker',
+            'subscription_2024_goldhorn_pet',
+            'stickers_2024_mouse_pet',
+            'fossil_2024_tasmanian_tiger_pet',
+            'halloween_2024_basilisk_sticker',
+            'pride_2024_demisexual_bat_pet',
+            'stickers_2024_fire_emote',
+            'ocean_2024_lionfish_sticker',
+            'stickers_2024_unicorn_pet',
+            'summerfest_2024_show_pony_sticker',
+            'fossil_2024_stegosaurus_pet',
+            'pride_2024_omnisex_pegasus_pet',
+            'summerfest_2024_castle_hermit_crab_sticker',
+            'subscription_2024_yule_log_dog_pet',
+            'winter_2024_bauble_buddies_sticker',
+            'winter_2024_nutcracker_squirrel_sticker',
+            'subscription_2024_owl_meme',
+            'stickers_2024_tree_1_environment',
+            'fossil_2024_elasmosaurus_pet',
+            'fossil_2024_copper_pickaxe_misc',
+            'halloween_2024_slime_sticker',
+            'stickers_2024_fallow_deer_pet',
+            'summerfest_2024_hot_doggo_sticker',
+            'summerfest_2024_corn_doggo_sticker',
+            'ocean_2024_cranky_coin_sticker',
+            'halloween_2024_sea_skeleton_panda_sticker',
+            'subscription_2024_ram_pet',
+            'summerfest_2024_leviathan_sticker',
+            'stickers_2024_ham_and_pineapple_pizza_misc',
+            'stickers_2024_koala_pet',
+            'subscription_2024_axolotl_pet',
+            'subscription_2024_puffin_pet',
+            'summerfest_2024_pirate_hermit_crab_sticker',
+            'halloween_2024_marabou_stork_sticker',
+            'stickers_2024_star_emote',
+            'spring_2025_kage_crow_sticker',
+            'summerfest_2024_punk_pony_sticker',
+            'summerfest_2024_mini_pig_sticker',
+            'stickers_2024_kitsune_pet',
+            'winter_2024_snowman_sticker',
+            'ocean_2024_urchin_sticker',
+            'subscription_2024_snowball_meme',
+            'pride_2024_genderqueer_seahorse_pet',
+            'ice_dimension_2025_shiver_wolf_sticker',
+            'fossil_2024_woolly_mammoth_pet',
+            'spring_2025_super_saru_sticker',
+            'ocean_2024_wishing_well_sticker',
+            'winter_2024_partridge_sticker',
+            'winter_2024_yeti_sticker',
+            'ocean_2024_dolphin_sticker',
+            'ocean_2024_white_sand_dollar_sticker',
+            'pride_2024_intersex_ringed_octopus_pet',
+            'stickers_2024_walrus_pet',
+            'spring_2025_kappakid_sticker',
+            'summerfest_2024_ice_cream_hermit_crab_sticker',
+            'ocean_2024_mahi_mahi_sticker',
+            'stickers_2024_donkey_pet',
+            'halloween_2024_white_skeleton_dog_sticker',
+            'subscription_2024_african_painted_dog_pet',
+            'ice_dimension_2025_magma_moose_sticker',
+            'pride_2024_lesbian_flag_misc',
+            'pride_2024_happy_pride_zebra_pet',
+            'subscription_2024_butterfly_pet',
+            'spring_2025_scorching_kaijunior_sticker',
+            'ocean_2024_shark_sticker',
+            'stickers_2024_mushroom_pizza_misc',
+            'ocean_2024_jellyfish_sticker',
+            'stickers_2024_panda_pet',
+            'pride_2024_agender_flag_misc',
+            'ice_dimension_2025_magma_snail_sticker',
+            'pride_2024_intersex_flag_misc',
+            'stickers_2024_grey_cat_pet',
+            'summerfest_2024_kid_goat_sticker',
+            'spring_2025_sakura_spirit_sticker',
+            'winter_2024_robin_sticker',
+            'fossil_2024_trex_throw_toy',
+            'stickers_2024_angry_emote',
+            'stickers_2024_poodle_pet',
+            'subscription_2024_pudding_cat_pet',
+            'subscription_2024_cat_meme',
+            'pride_2024_bi_dodo_pet',
+            'fossil_2024_amber_bone',
+            'stickers_2024_sloth_pet',
+            'subscription_2024_chick_pet',
+            'stickers_2024_elephant_pet',
+            'ice_dimension_2025_campfire_cookies_bait_sticker',
+            'ocean_2024_crab_sticker',
+            'stickers_2024_cloud_1_environment',
+            'stickers_2024_surprised_emote',
+            'ocean_2024_narwhal_sticker',
+            'stickers_2024_parrot_pet',
+            'stickers_2024_spiral_emote',
+            'summerfest_2024_leopard_shark_sticker',
+            'stickers_2024_eyes_emote',
+            'stickers_2024_silly_duck_pet',
+            'stickers_2024_cool_emote',
+            'pride_2024_transgender_flag_misc',
+            'stickers_2024_plain_cheese_pizza_misc',
+            'stickers_2024_red_panda_pet',
+            'pride_2024_trans_glyptodon_barv_pet',
+            'stickers_2024_pepperoni_pizza_misc',
+            'winter_2024_tree_sasquatch_sticker',
+            'stickers_2024_sasquatch_pet',
+            'pride_2024_bi_flag_misc',
+            'spring_2025_toxic_kaijunior_sticker',
+            'fossil_2024_trex_pet',
+            'stickers_2024_penguin_pet',
+            'pride_2024_gender_fluid_ghost_dog_pet',
+            'pride_2024_ace_flag_misc',
+            'subscription_2024_hamster_meme',
+            'summerfest_2024_cow_calf_sticker',
+            'ocean_2024_clownfish_sticker',
+            'halloween_2024_evil_unicorn_sticker',
+            'stickers_2024_zzz_emote',
+            'halloween_2024_frankenfeline_sticker',
+            'stickers_2024_frog_pet',
+            'stickers_2024_phoenix_pet',
+            'stickers_2024_cloud_2_environment',
+            'stickers_2024_raccoon_pet',
+            'stickers_2024_tree_2_environment',
+            'summerfest_2024_lobster_sticker',
+            'spring_2025_cherry_blossom_flower_sticker',
+            'stickers_2024_koi_fish_pet',
+            'pride_2024_gender_queer_flag_misc',
+            'summerfest_2024_pink_betta_fish_sticker',
+            'fossil_2024_dimorphodon_pet',
+            'pride_2024_lesbian_cat_snake_alliance_pet',
+            'stickers_2024_100_emote',
+            'halloween_2024_bat_sticker',
+            'summerfest_2024_many_mackerel_sticker',
+            'pride_2024_progress_pride_flag_misc',
+            'stickers_2024_dog_pet',
+            'halloween_2024_jousting_horse_sticker',
+            'fossil_2024_diamond_pickaxe_misc',
+            'pride_2024_aromatic_trex_pet',
+            'summerfest_2024_happy_clam_sticker',
+            'stickers_2024_sweat_emote',
+            'pride_2024_enby_flag_misc',
+            'stickers_2024_heart_emote',
+            'summerfest_2024_orange_betta_fish_sticker',
+            'ocean_2024_rare_chest_sticker',
+            'spring_2025_candyfloss_chick_sticker',
+            'halloween_2024_trick_or_treat_basket_sticker',
+            'stickers_2024_turtle_pet',
+            'ocean_2024_stringray_sticker',
+            'stickers_2024_silly_rock_pet',
+            'spring_2025_dotted_eggy_sticker',
+            'winter_2024_aurora_fox_sticker',
+            'ice_dimension_2025_subzero_scorpion_sticker',
+            'stickers_2024_rat_pet',
+            'ocean_2024_nautilus_sticker',
+            'ice_dimension_2025_toasty_red_panda_sticker',
+            'winter_2024_reindeer_sticker',
+            'stickers_2024_laugh_cry_emote',
+            'winter_2024_winter_doe_sticker',
+            'winter_2024_shetland_pony_dark_brown_sticker',
+            'stickers_2024_parakeet_pet',
+            'pride_2024_gay_man_flag_misc',
+            'winter_2024_santas_throne_sticker',
+            'winter_2024_naughty_mistletroll_sticker',
+            'winter_2024_merry_mistletroll_sticker',
+            'winter_2024_fairy_bat_dragon_sticker',
+            'winter_2024_gingerbread_hare_sticker',
+            'ice_dimension_2025_frostbite_bear_sticker',
+            'halloween_2024_slug_sticker',
+            'ice_dimension_2025_christmas_pudding_pup_sticker',
+            'winter_2024_ratatoskr_sticker',
+            'ice_dimension_2025_wildfire_hawk_sticker',
+            'stickers_2024_squid_pet',
+            'pride_2024_pan_flag_misc',
+            'winter_2024_santa_sticker',
+            'winter_2024_peppermint_penguin_sticker',
+            'stickers_2024_ocelot_pet',
+            'stickers_2024_bucks_misc',
+            'halloween_2024_grim_dragon_sticker',
+            'subscription_2024_lavender_dragon_pet',
+            'winter_2024_husky_sticker',
+            'winter_2024_great_pyrenees_sticker',
+            'summerfest_2024_rodeo_bull_sticker',
+            'summerfest_2024_pretty_pony_sticker',
+            'summerfest_2024_majestic_pony_sticker',
+            'summerfest_2024_arctic_tern_sticker',
+            'stickers_2024_flamingo_pet',
+            'fossil_2024_trex_rattle',
+            'fossil_2024_dodo_pet',
+            'summerfest_2024_hermit_crab_sticker',
+            'summerfest_2024_tortuga_de_la_isla_sticker',
+            'stickers_2024_orange_cat_pet',
+            'summerfest_2024_blue_betta_fish_sticker',
+            'summerfest_2024_flying_fish_sticker',
+            'stickers_2024_question_emote',
+            'summerfest_2024_balloon_unicorn_sticker',
+            'fossil_2024_stegosaurus_throw_toy',
+            'halloween_2024_indian_flying_fox_sticker',
+            'summerfest_2024_shark_puppy_sticker',
+            'ice_dimension_2025_flaming_zebra_sticker',
+            'spring_2025_flower_power_duckling_sticker',
+            'ocean_2024_kraken_sticker',
+            'stickers_2024_toucan_pet',
+            'stickers_2024_blue_dog_pet',
+            'stickers_2024_dragon_pet',
+            'fossil_2024_ground_sloth_pet',
+            'subscription_2024_chameleon_pet',
+            'spring_2025_kaijunior_sticker',
+            'stickers_2024_bee_pet',
+            'pride_2024_non_beenary_pet',
+            'subscription_2024_capricorn_pet',
+            'fossil_2024_deinonychus_pet',
+            'subscription_2024_starfish_pet',
+            'ice_dimension_2025_burning_bunny_sticker',
+            'pride_2024_omnisex_flag_misc',
+            'fossil_2024_velociraptor_pet',
+            'pride_2024_pan_parrot_pet',
+            'spring_2025_egg_basket_sticker',
+            'winter_2024_snow_globe_sticker',
+            'halloween_2024_cuteacabra_sticker',
+            'pride_2024_ace_goose_pet',
+            'subscription_2024_gold_penguin_pet',
+            'halloween_2024_ghost_sticker',
+            'fossil_2024_ankylosaurus_pet',
+            'ocean_2024_sea_angel_sticker',
+            'fossil_2024_iron_pickaxe_misc',
+            'stickers_2024_pink_cat_pet',
+            'fossil_2024_brachiosaurus_pet',
+            'halloween_2024_scarebear_sticker',
+            'ice_dimension_2025_ash_zebra_sticker',
+            'stickers_2024_space_whale_pet',
+            'ice_dimension_2025_cold_tim_sticker',
+            'ice_dimension_2025_chilly_penguin_sticker',
+            'stickers_2024_smile_emote',
+            'stickers_2024_tree_3_environment',
+            'pride_2024_aromantic_flag_misc',
+            'stickers_2024_ladybug_pet',
+            'stickers_2024_shiba_inu_pet',
+            'stickers_2024_red_fox_pet',
+            'spring_2025_easter_egg_sticker',
+            'halloween_2024_ghost_bunny_sticker',
+            'halloween_2024_chickatrice_sticker',
+            'stickers_2024_bat_dragon_pet',
+            'stickers_2024_question_mark_emote',
+            'pride_2024_gender_fluid_flag_misc',
+            'spring_2025_bakeneko_sticker',
+            'pride_2024_agender_rat_pet',
+            'stickers_2024_winged_horse_pet',
+            'stickers_2024_otter_pet',
+            'fossil_2024_glyptodon_pet',
+            'stickers_2024_zebra_pet',
+            'ice_dimension_2025_icy_porcupine_sticker',
+            'stickers_2024_rose_environment',
+            'stickers_2024_exclamation_emote',
+            'subscription_2024_pelican_pet',
+            'ice_dimension_2025_flaming_fox_sticker',
+            'stickers_2024_dalmation_pet',
+            'stickers_2024_seahorse_pet',
+            'stickers_2024_confetti_emote',
+            'ice_dimension_2025_snowy_mammoth_sticker',
+            'fossil_2024_triceratops_pet',
+            'spring_2025_mirai_moth_sticker',
+            'fossil_2024_pterodactyl_pet',
+            'subscription_2024_red_panda_meme',
+            'spring_2025_primal_kaijunior_sticker',
+            'pride_2024_demi_flag_misc',
+            'fossil_2024_long_neck_throw_toy',
+        }
+    end
+    function __DARKLUA_BUNDLE_MODULES.i()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
         local localPlayer = Players.LocalPlayer
-        local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
-        local InventoryDB = require(ReplicatedStorage:WaitForChild('ClientDB'):WaitForChild('Inventory'):WaitForChild('InventoryDB'))
+        local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
+        local ClientData = Bypass('ClientData')
+        local InventoryDB = Bypass('InventoryDB')
+        local TrashItemsList = __DARKLUA_BUNDLE_MODULES.load('h')
         local Trade = {}
         local lowTierRarity = {
             'common',
@@ -5628,9 +6853,98 @@ Check the Developer Console for more information.]],
             return
         end
 
+        local hasTrashItems = function()
+            for _, v in ClientData.get_data()[localPlayer.Name].inventory do
+                for _, item in v do
+                    if not table.find(TrashItemsList, item.id) then
+                        continue
+                    end
+                    if not item.properties.age then
+                        return true
+                    end
+                    if item.properties.age == 6 or item.properties.neon or item.properties.mega_neon then
+                        continue
+                    end
+
+                    return true
+                end
+            end
+
+            return false
+        end
+
+        function Trade:TradeTrashCollector(namePassOn)
+            local isInventoryFull = false
+
+            if table.find(namePassOn, localPlayer.Name) then
+                return print('\u{1f6ab} MULE CANNOT TRADE ITSELF')
+            end
+
+            while getgenv().SETTINGS.ENABLE_TRASH_COLLECTOR do
+                if not isMulesInGame(namePassOn) then
+                    return print('\u{26a0}\u{fe0f} MULE NOT INGAME \u{26a0}\u{fe0f}')
+                end
+                if not hasTrashItems() then
+                    return print('\u{1f6ab} NO ITEMS TO TRADE')
+                end
+                if not Trade:SendTradeRequest(namePassOn) then
+                    return print('\u{26a0}\u{fe0f} NO MULES TO TRADE \u{26a0}\u{fe0f}')
+                end
+                if not waitForActiveTrade() then
+                    task.wait(1)
+
+                    continue
+                end
+
+                for _, v in ClientData.get_data()[localPlayer.Name].inventory do
+                    if isInventoryFull then
+                        break
+                    end
+
+                    for _, item in v do
+                        if not table.find(TrashItemsList, item.id) then
+                            continue
+                        end
+                        if item.properties.age and (item.properties.age == 6 or item.properties.neon or item.properties.mega_neon) then
+                            continue
+                        end
+                        if not ClientData.get_data()[localPlayer.Name].in_active_trade then
+                            return
+                        end
+
+                        ReplicatedStorage.API:FindFirstChild('TradeAPI/AddItemToOffer'):FireServer(item.unique)
+
+                        if #ClientData.get_data()[localPlayer.Name].trade.sender_offer.items >= 18 then
+                            isInventoryFull = true
+
+                            break
+                        end
+
+                        task.wait(0.1)
+                    end
+
+                    if isInventoryFull then
+                        break
+                    end
+                end
+
+                local hasPets = Trade:AcceptNegotiationAndConfirm()
+
+                if not hasPets then
+                    print('\u{1f389} DONE TRADING ITEMS \u{1f389}')
+
+                    return
+                end
+
+                isInventoryFull = false
+            end
+
+            return
+        end
+
         return Trade
     end
-    function __DARKLUA_BUNDLE_MODULES.i()
+    function __DARKLUA_BUNDLE_MODULES.j()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Workspace = game:GetService('Workspace')
         local Players = game:GetService('Players')
@@ -5921,7 +7235,7 @@ Check the Developer Console for more information.]],
 
         return Teleport
     end
-    function __DARKLUA_BUNDLE_MODULES.j()
+    function __DARKLUA_BUNDLE_MODULES.k()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
         local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
@@ -6078,7 +7392,7 @@ Check the Developer Console for more information.]],
 
         return BuyItems
     end
-    function __DARKLUA_BUNDLE_MODULES.k()
+    function __DARKLUA_BUNDLE_MODULES.l()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Workspace = game:GetService('Workspace')
         local Players = game:GetService('Players')
@@ -6086,7 +7400,7 @@ Check the Developer Console for more information.]],
         local Bypass = require(ReplicatedStorage:WaitForChild('Fsys')).load
         local ClientData = require(ReplicatedStorage.ClientModules.Core.ClientData)
         local GetInventory = __DARKLUA_BUNDLE_MODULES.load('g')
-        local Teleport = __DARKLUA_BUNDLE_MODULES.load('i')
+        local Teleport = __DARKLUA_BUNDLE_MODULES.load('j')
         local localPlayer = Players.LocalPlayer
         local doctorId = nil
         local Ailments = {}
@@ -6694,10 +8008,10 @@ Check the Developer Console for more information.]],
 
         return Ailments
     end
-    function __DARKLUA_BUNDLE_MODULES.l()
+    function __DARKLUA_BUNDLE_MODULES.m()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
-        local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
+        local ClientData = (require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData')))
         local localPlayer = Players.LocalPlayer
         local StatsGuis2 = {}
 
@@ -6847,26 +8161,34 @@ Check the Developer Console for more information.]],
                 MainFrame.Visible = isVisible
             end)
         end
-        function StatsGuis2:CopyInventoryButton(CopyInventorySettings)
-            local CopyInventoryButton = Instance.new('TextButton')
 
-            CopyInventoryButton.AnchorPoint = Vector2.new(0.5, 0.5)
-            CopyInventoryButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-            CopyInventoryButton.BackgroundTransparency = 1
-            CopyInventoryButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
-            CopyInventoryButton.BorderSizePixel = 0
-            CopyInventoryButton.Position = UDim2.new(0.68, 0, 0.88, 0)
-            CopyInventoryButton.Size = UDim2.new(0.2, 0, 0.2, 0)
-            CopyInventoryButton.Font = Enum.Font.FredokaOne
-            CopyInventoryButton.Text = '\u{1f4cb}'
-            CopyInventoryButton.TextColor3 = Color3.fromRGB(0, 0, 0)
-            CopyInventoryButton.TextScaled = true
-            CopyInventoryButton.TextSize = 14
-            CopyInventoryButton.TextWrapped = true
-            CopyInventoryButton.TextXAlignment = Enum.TextXAlignment.Left
-            CopyInventoryButton.Parent = Players.LocalPlayer:WaitForChild('PlayerGui'):WaitForChild('StatsGui')
+        local setButtonUiSettings = function(buttonSettings)
+            local button = Instance.new('TextButton')
 
-            CopyInventoryButton.Activated:Connect(function()
+            button.Name = buttonSettings.Name
+            button.AnchorPoint = Vector2.new(0.5, 0.5)
+            button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            button.BackgroundTransparency = 1
+            button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            button.BorderSizePixel = 0
+            button.Position = buttonSettings.Position
+            button.Size = UDim2.new(0.2, 0, 0.2, 0)
+            button.Font = Enum.Font.FredokaOne
+            button.Text = buttonSettings.Text
+            button.TextColor3 = Color3.fromRGB(0, 0, 0)
+            button.TextScaled = true
+            button.TextSize = 14
+            button.TextWrapped = true
+            button.TextXAlignment = Enum.TextXAlignment.Left
+            button.Parent = Players.LocalPlayer:WaitForChild('PlayerGui'):WaitForChild('StatsGui')
+
+            return button
+        end
+
+        function StatsGuis2:CreateButton(buttonSettings)
+            local button = setButtonUiSettings(buttonSettings)
+
+            button.Activated:Connect(function()
                 if self.Debounce then
                     print('\u{1f6ab} button is on cooldown \u{1f6ab}')
 
@@ -6875,13 +8197,13 @@ Check the Developer Console for more information.]],
 
                 self.Debounce = true
 
-                CopyInventorySettings.callback()
+                buttonSettings.Callback()
 
-                CopyInventoryButton.Text = '\u{2705}'
+                button.Text = '\u{2705}'
 
                 task.wait(1)
 
-                CopyInventoryButton.Text = '\u{1f4cb}'
+                button.Text = buttonSettings.Text
                 self.Debounce = false
             end)
         end
@@ -6928,11 +8250,12 @@ Check the Developer Console for more information.]],
 
         return StatsGuis2
     end
-    function __DARKLUA_BUNDLE_MODULES.m()
+    function __DARKLUA_BUNDLE_MODULES.n()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
-        local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
-        local InventoryDB = require(ReplicatedStorage:WaitForChild('ClientDB'):WaitForChild('Inventory'):WaitForChild('InventoryDB'))
+        local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
+        local ClientData = Bypass('ClientData')
+        local InventoryDB = Bypass('InventoryDB')
         local localPlayer = Players.LocalPlayer
         local Clipboard = {}
 
@@ -6997,7 +8320,6 @@ Check the Developer Console for more information.]],
         local clearTables = function(self)
             for i, v in self do
                 if typeof(v) == 'table' then
-                    print(string.format('table %s cleared', tostring(v)))
                     table.clear(v)
                 end
             end
@@ -7105,10 +8427,32 @@ Check the Developer Console for more information.]],
 
             clearTables(self)
         end
+        function Clipboard.CopyAllIdsFromDatabase()
+            local data = ''
+            local lines = 
+[[
+
+============================================================
+]]
+
+            for catagoryName, catagoryTable in InventoryDB do
+                data = data .. lines
+                data = data .. string.format('\n                    %s                    \n', tostring(string.upper(catagoryName)))
+                data = data .. lines .. '\n'
+
+                for id, _ in catagoryTable do
+                    data = data .. string.format('%s\n', tostring(id))
+                end
+            end
+
+            setclipboard(data)
+
+            data = ''
+        end
 
         return Clipboard
     end
-    function __DARKLUA_BUNDLE_MODULES.n()
+    function __DARKLUA_BUNDLE_MODULES.o()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local TradeLicense = {}
 
@@ -7137,7 +8481,7 @@ Check the Developer Console for more information.]],
 
         return TradeLicense
     end
-    function __DARKLUA_BUNDLE_MODULES.o()
+    function __DARKLUA_BUNDLE_MODULES.p()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
         local localPlayer = Players.LocalPlayer
@@ -7543,7 +8887,7 @@ Check the Developer Console for more information.]],
 
         return BulkPotions
     end
-    function __DARKLUA_BUNDLE_MODULES.p()
+    function __DARKLUA_BUNDLE_MODULES.q()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local LegacyTutorial = require(ReplicatedStorage.ClientModules:WaitForChild('Game'):WaitForChild('Tutorial'):WaitForChild('LegacyTutorial'))
         local ClientData = require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Core'):WaitForChild('ClientData'))
@@ -7622,7 +8966,7 @@ Check the Developer Console for more information.]],
 
         return Tutorials
     end
-    function __DARKLUA_BUNDLE_MODULES.q()
+    function __DARKLUA_BUNDLE_MODULES.r()
         local Workspace = game:GetService('Workspace')
         local Terrain = Workspace:WaitForChild('Terrain')
         local Lighting = game:GetService('Lighting')
@@ -7730,137 +9074,44 @@ Check the Developer Console for more information.]],
 
         return PotatoMode
     end
-    function __DARKLUA_BUNDLE_MODULES.r()
-        local GibbonFairground2025 = {}
+    function __DARKLUA_BUNDLE_MODULES.s()
+        local Manager = {}
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
-        local localPlayer = game:GetService('Players').LocalPlayer
-        local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
-        local Misc = __DARKLUA_BUNDLE_MODULES.load('d')
-        local buyAndOpen = function(currencyLimit)
-            Misc.BuyItemWithCurrencyLimit('gibbon_2025_standard_box', currencyLimit)
+        local modules = nil
 
-            for _, v in Bypass('ClientData').get_data()[localPlayer.Name].inventory.gifts do
-                if v['id'] == 'gibbon_2025_standard_box' then
-                    Bypass('RouterClient').get('LootBoxAPI/ExchangeItemForReward'):InvokeServer(v['id'], v['unique'])
-
-                    if Bypass('ClientData').get_data()[localPlayer.Name].gibbon_2025_manager.boxes_opened >= 40 then
-                        Bypass('RouterClient').get('GibbonAPI/AttemptClaimRingmaster'):FireServer()
-                        task.wait(0.1)
-                    end
-
-                    task.wait(0.1)
-                end
-            end
-        end
-        local hasPetInInventory = function()
-            for _, v in Bypass('ClientData').get_data()[localPlayer.Name].inventory.pets do
-                if v.id == 'gibbon_2025_gibbon' then
-                    return true
-                end
+        function Manager.Init()
+            if modules then
+                return modules
             end
 
-            return false
-        end
-        local getFurnitureId = function(monkeyId)
-            for i, v in Bypass('ClientData').get_data()[localPlayer.Name].house_interior.furniture do
-                if v.id == string.format('%s_trader', tostring(monkeyId)) then
-                    return i
-                end
-            end
+            local self = setmetatable({}, Manager)
 
-            return nil
-        end
-        local ExchangeCapuchin = function(item, Capuchin, tab)
-            local itemsNeeded = {}
+            self.Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
+            self.ClientData = self.Bypass('ClientData')
+            self.RouterClient = self.Bypass('RouterClient')
+            self.CollisionsClient = self.Bypass('CollisionsClient')
+            self.Rayfield = (__DARKLUA_BUNDLE_MODULES.load('a'))
+            self.WebhookHandler = (__DARKLUA_BUNDLE_MODULES.load('c'))
+            self.Misc = (__DARKLUA_BUNDLE_MODULES.load('d'))
+            self.Fusion = (__DARKLUA_BUNDLE_MODULES.load('e'))
+            self.TaskBoard = (__DARKLUA_BUNDLE_MODULES.load('f'))
+            self.GetInventory = (__DARKLUA_BUNDLE_MODULES.load('g'))
+            self.Trade = (__DARKLUA_BUNDLE_MODULES.load('i'))
+            self.Teleport = (__DARKLUA_BUNDLE_MODULES.load('j'))
+            self.BuyItems = (__DARKLUA_BUNDLE_MODULES.load('k'))
+            self.Ailments = (__DARKLUA_BUNDLE_MODULES.load('l'))
+            self.StatsGuis2 = (__DARKLUA_BUNDLE_MODULES.load('m'))
+            self.Clipboard = (__DARKLUA_BUNDLE_MODULES.load('n'))
+            self.TradeLicense = (__DARKLUA_BUNDLE_MODULES.load('o'))
+            self.BulkPotions = (__DARKLUA_BUNDLE_MODULES.load('p'))
+            self.Tutorials = (__DARKLUA_BUNDLE_MODULES.load('q'))
+            self.PotatoMode = (__DARKLUA_BUNDLE_MODULES.load('r'))
+            modules = self
 
-            for _, v in Bypass('ClientData').get_data()[localPlayer.Name].inventory[tab]do
-                if v.id == item then
-                    table.insert(itemsNeeded, v.unique)
-
-                    if #itemsNeeded >= 3 then
-                        break
-                    end
-                end
-            end
-
-            if #itemsNeeded <= 2 then
-                return false
-            end
-            if not hasPetInInventory() then
-                if Bypass('ClientData').get_data()[localPlayer.Name].money < 25000 then
-                    return false
-                end
-
-                local canBuy = Bypass('RouterClient').get('ShopAPI/BuyItem'):InvokeServer('pets', 'gibbon_2025_gibbon', {})
-
-                task.wait(2)
-
-                if canBuy == 'too little money' then
-                    return false
-                end
-            end
-
-            for _, v in Bypass('ClientData').get_data()[localPlayer.Name].inventory.pets do
-                if v.id == 'gibbon_2025_gibbon' then
-                    local fNumberId = getFurnitureId(Capuchin)
-
-                    if not fNumberId then
-                        return false
-                    end
-
-                    local args = {
-                        fNumberId,
-                        'UseBlock',
-                        {
-                            r_2 = itemsNeeded[1],
-                            r_4 = itemsNeeded[2],
-                            r_3 = itemsNeeded[3],
-                            r_1 = v.unique,
-                        },
-                        localPlayer.Character,
-                    }
-
-                    Bypass('RouterClient').get('HousingAPI/ActivateInteriorFurniture'):InvokeServer(unpack(args))
-
-                    break
-                end
-            end
-
-            table.clear(itemsNeeded)
-
-            return true
+            return self
         end
 
-        function GibbonFairground2025.Start(currencyLimit)
-            Bypass('RouterClient').get('LocationAPI/SetLocation'):FireServer('Gibbon2025FairgroundInterior')
-            task.wait(1)
-            buyAndOpen(currencyLimit)
-
-            repeat
-                local hasMore = ExchangeCapuchin('gibbon_2025_hero_mask', 'gibbon_2025_hero_gibbon', 'pet_accessories')
-
-                task.wait(1)
-            until not hasMore
-            repeat
-                local hasMore = ExchangeCapuchin('gibbon_2025_pluboneium_chew_toy', 'gibbon_2025_villain_gibbon', 'toys')
-
-                task.wait(1)
-            until not hasMore
-            repeat
-                local hasMore = ExchangeCapuchin('gibbon_2025_fire_hose_scarf', 'gibbon_2025_firefighter_gibbon', 'pet_accessories')
-
-                task.wait(1)
-            until not hasMore
-            repeat
-                local hasMore = ExchangeCapuchin('gibbon_2025_whistle_necklace', 'gibbon_2025_officer_gibbon', 'pet_accessories')
-
-                task.wait(1)
-            until not hasMore
-
-            print('done, no more pets to transform')
-        end
-
-        return GibbonFairground2025
+        return Manager
     end
 end
 
@@ -7882,27 +9133,7 @@ local UserGameSettings = UserSettings():GetService('UserGameSettings')
 UserGameSettings.GraphicsQualityLevel = 1
 UserGameSettings.MasterVolume = 0
 
-local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
-local ClientData = Bypass('ClientData')
-local RouterClient = Bypass('RouterClient')
-local CollisionsClient = Bypass('CollisionsClient')
-local Rayfield = (__DARKLUA_BUNDLE_MODULES.load('a'))
-local WebhookHandler = (__DARKLUA_BUNDLE_MODULES.load('c'))
-local Misc = (__DARKLUA_BUNDLE_MODULES.load('d'))
-local Fusion = (__DARKLUA_BUNDLE_MODULES.load('e'))
-local TaskBoard = (__DARKLUA_BUNDLE_MODULES.load('f'))
-local GetInventory = (__DARKLUA_BUNDLE_MODULES.load('g'))
-local Trade = (__DARKLUA_BUNDLE_MODULES.load('h'))
-local Teleport = (__DARKLUA_BUNDLE_MODULES.load('i'))
-local BuyItems = (__DARKLUA_BUNDLE_MODULES.load('j'))
-local Ailments = (__DARKLUA_BUNDLE_MODULES.load('k'))
-local StatsGuis2 = (__DARKLUA_BUNDLE_MODULES.load('l'))
-local Clipboard = (__DARKLUA_BUNDLE_MODULES.load('m'))
-local TradeLicense = (__DARKLUA_BUNDLE_MODULES.load('n'))
-local BulkPotions = (__DARKLUA_BUNDLE_MODULES.load('o'))
-local Tutorials = (__DARKLUA_BUNDLE_MODULES.load('p'))
-local PotatoMode = (__DARKLUA_BUNDLE_MODULES.load('q'))
-local GibbonFairground2025 = (__DARKLUA_BUNDLE_MODULES.load('r'))
+local Manager = __DARKLUA_BUNDLE_MODULES.load('s').Init()
 local localPlayer = Players.LocalPlayer
 local playerGui = localPlayer:WaitForChild('PlayerGui', 60)
 
@@ -7994,6 +9225,14 @@ local RarityToggle
 local GiftToggle
 local ToyToggle
 local FoodToggle
+local potionFarmPets = {
+    'dog',
+    'cat',
+    'starter_egg',
+    'cracked_egg',
+    'basic_egg_2022_ant',
+    'basic_egg_2022_mouse',
+}
 local DailyRewardTable = {
     [9] = 'reward_1',
     [30] = 'reward_2',
@@ -8054,29 +9293,29 @@ local multipleOptionsTable = {
 }
 
 if getgenv().WEBHOOK and getgenv().WEBHOOK.URL and #getgenv().WEBHOOK.URL >= 10 then
-    local webhook = WebhookHandler.new()
+    local webhook = Manager.WebhookHandler.new()
 
     webhook:OnStart()
 end
 
-local clipboard = Clipboard.new()
-local taskBoard = TaskBoard.new()
+local clipboard = Manager.Clipboard.new()
+local taskBoard = Manager.TaskBoard.new()
 
-StatsGuis2.Setup()
+Manager.StatsGuis2.Setup()
 
-local TempPotions = StatsGuis2.new('TempPotions')
-local TempTinyPotions = StatsGuis2.new('TempTinyPotions')
-local TempBucks = StatsGuis2.new('TempBucks')
-local TempEventCurrency = StatsGuis2.new('TempEventCurrency')
-local TotalPotions = StatsGuis2.new('TotalPotions')
-local TotalTinyPotions = StatsGuis2.new('TotalTinyPotions')
-local TotalBucks = StatsGuis2.new('TotalBucks')
-local TotalEventCurrency = StatsGuis2.new('TotalEventCurrency')
-local BlankSlot1 = StatsGuis2.new('BlankSlot1')
-local BlankSlot2 = StatsGuis2.new('BlankSlot1')
-local TotalShiverBaits = StatsGuis2.new('TotalShiverBaits')
-local TotalSubzeroBaits = StatsGuis2.new('TotalSubzeroBaits')
-local petsTable = GetInventory:TabId('pets')
+local TempPotions = Manager.StatsGuis2.new('TempPotions')
+local TempTinyPotions = Manager.StatsGuis2.new('TempTinyPotions')
+local TempBucks = Manager.StatsGuis2.new('TempBucks')
+local TempEventCurrency = Manager.StatsGuis2.new('TempEventCurrency')
+local TotalPotions = Manager.StatsGuis2.new('TotalPotions')
+local TotalTinyPotions = Manager.StatsGuis2.new('TotalTinyPotions')
+local TotalBucks = Manager.StatsGuis2.new('TotalBucks')
+local TotalEventCurrency = Manager.StatsGuis2.new('TotalEventCurrency')
+local BlankSlot1 = Manager.StatsGuis2.new('BlankSlot1')
+local BlankSlot2 = Manager.StatsGuis2.new('BlankSlot1')
+local TotalShiverBaits = Manager.StatsGuis2.new('TotalShiverBaits')
+local TotalSubzeroBaits = Manager.StatsGuis2.new('TotalSubzeroBaits')
+local petsTable = Manager.GetInventory:TabId('pets')
 
 if #petsTable == 0 then
     petsTable = {
@@ -8084,7 +9323,7 @@ if #petsTable == 0 then
     }
 end
 
-local giftsTable = GetInventory:TabId('gifts')
+local giftsTable = Manager.GetInventory:TabId('gifts')
 
 if #giftsTable == 0 then
     giftsTable = {
@@ -8092,7 +9331,7 @@ if #giftsTable == 0 then
     }
 end
 
-local toysTable = GetInventory:TabId('toys')
+local toysTable = Manager.GetInventory:TabId('toys')
 
 if #toysTable == 0 then
     toysTable = {
@@ -8100,7 +9339,7 @@ if #toysTable == 0 then
     }
 end
 
-local foodTable = GetInventory:TabId('food')
+local foodTable = Manager.GetInventory:TabId('food')
 
 if #foodTable == 0 then
     foodTable = {
@@ -8108,10 +9347,10 @@ if #foodTable == 0 then
     }
 end
 
-local peteggs = GetInventory:GetPetEggs()
+local peteggs = Manager.GetInventory:GetPetEggs()
 local fireButton = function(button)
     if not button then
-        return Misc.DebugModePrint('button is nil')
+        return Manager.Misc.DebugModePrint('button is nil')
     end
     if firesignal then
         local success, _ = pcall(function()
@@ -8122,11 +9361,11 @@ local fireButton = function(button)
         end)
 
         if success then
-            Misc.DebugModePrint(string.format('Successfully fired button: %s', tostring(button.Name)))
+            Manager.Misc.DebugModePrint(string.format('Successfully fired button: %s', tostring(button.Name)))
         end
     else
-        Misc.DebugModePrint('NO FIRESIGNAL, USING MOUSE TO CLICK')
-        Misc.ClickGuiButton(button)
+        Manager.Misc.DebugModePrint('NO FIRESIGNAL, USING MOUSE TO CLICK')
+        Manager.Misc.ClickGuiButton(button)
     end
 end
 local findButton = function(text, dialogFramePassOn)
@@ -8135,19 +9374,19 @@ local findButton = function(text, dialogFramePassOn)
     dialogFramePassOn = dialogFramePassOn or 'NormalDialog'
 
     if typeof(dialogFramePassOn) ~= 'string' then
-        return Misc.DebugModePrint('dialogFramePassOn is not a string')
+        return Manager.Misc.DebugModePrint('dialogFramePassOn is not a string')
     end
 
     local dialog = dialogApp:WaitForChild('Dialog', 10)
 
     if not dialog then
-        return Misc.DebugModePrint('no dialog')
+        return Manager.Misc.DebugModePrint('no dialog')
     end
 
     local buttons = dialog:WaitForChild(dialogFramePassOn):WaitForChild('Buttons')
 
     if not buttons then
-        return Misc.DebugModePrint('NO BUTTONS')
+        return Manager.Misc.DebugModePrint('NO BUTTONS')
     end
 
     for _, v in buttons:GetDescendants()do
@@ -8169,9 +9408,9 @@ local findFurniture = function()
         return
     end
 
-    Misc.DebugModePrint('getting furniture ids')
+    Manager.Misc.DebugModePrint('getting furniture ids')
 
-    for key, value in ClientData.get_data()[localPlayer.Name].house_interior.furniture do
+    for key, value in Manager.ClientData.get_data()[localPlayer.Name].house_interior.furniture do
         if value.id == 'basiccrib' then
             Bed = key
         elseif value.id == 'stylishshower' or value.id == 'modernshower' then
@@ -8186,7 +9425,7 @@ local findFurniture = function()
     end
 end
 local buyFurniture = function(furnitureId)
-    Misc.DebugModePrint(string.format('\u{1f4b8} No %s, so buying it \u{1f4b8}', tostring(furnitureId)))
+    Manager.Misc.DebugModePrint(string.format('\u{1f4b8} No %s, so buying it \u{1f4b8}', tostring(furnitureId)))
 
     local args = {
         {
@@ -8199,19 +9438,19 @@ local buyFurniture = function(furnitureId)
         },
     }
 
-    RouterClient.get('HousingAPI/BuyFurnitures'):InvokeServer(unpack(args))
+    Manager.RouterClient.get('HousingAPI/BuyFurnitures'):InvokeServer(unpack(args))
 end
 local grabDailyReward = function()
-    Misc.DebugModePrint('getting daily rewards')
+    Manager.Misc.DebugModePrint('getting daily rewards')
 
-    local Daily = ClientData.get('daily_login_manager')
+    local Daily = Manager.ClientData.get('daily_login_manager')
 
     if Daily.prestige % 2 == 0 then
         for i, v in pairs(DailyRewardTable)do
             if i < Daily.stars or i == Daily.stars then
                 if not Daily.claimed_star_rewards[v] then
-                    Misc.DebugModePrint('grabbing dialy reward!')
-                    Misc.DebugModePrint(RouterClient.get('DailyLoginAPI/ClaimStarReward'):InvokeServer(v))
+                    Manager.Misc.DebugModePrint('grabbing dialy reward!')
+                    Manager.Misc.DebugModePrint(Manager.RouterClient.get('DailyLoginAPI/ClaimStarReward'):InvokeServer(v))
                 end
             end
         end
@@ -8219,19 +9458,19 @@ local grabDailyReward = function()
         for i, v in pairs(DailyRewardTable2)do
             if i < Daily.stars or i == Daily.stars then
                 if not Daily.claimed_star_rewards[v] then
-                    Misc.DebugModePrint('grabbing dialy reward!')
-                    Misc.DebugModePrint(RouterClient.get('DailyLoginAPI/ClaimStarReward'):InvokeServer(v))
+                    Manager.Misc.DebugModePrint('grabbing dialy reward!')
+                    Manager.Misc.DebugModePrint(Manager.RouterClient.get('DailyLoginAPI/ClaimStarReward'):InvokeServer(v))
                 end
             end
         end
     end
 end
-local isMuleInGame = function()
+local isCollectorInGame = function(collectorNames)
     for _, player in Players:GetPlayers()do
         if player.Name == localPlayer.Name then
             continue
         end
-        if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, player.Name) then
+        if table.find(collectorNames, player.Name) then
             return true
         end
     end
@@ -8242,22 +9481,22 @@ local consumeItem = function(potionName)
     local agePotion = Workspace:WaitForChild('PetObjects'):WaitForChild(potionName, 15)
 
     if not agePotion then
-        Misc.DebugModePrint('no age potion in workspace')
+        Manager.Misc.DebugModePrint('no age potion in workspace')
 
         return
     end
 
-    RouterClient.get('PetAPI/ConsumeFoodObject'):FireServer(agePotion, ClientData.get('pet_char_wrappers')[1].pet_unique)
+    Manager.RouterClient.get('PetAPI/ConsumeFoodObject'):FireServer(agePotion, Manager.ClientData.get('pet_char_wrappers')[1].pet_unique)
 end
 local agePotion = function(FoodPassOn)
-    for _, v in pairs(ClientData.get_data()[localPlayer.Name].inventory.food)do
+    for _, v in pairs(Manager.ClientData.get_data()[localPlayer.Name].inventory.food)do
         if v.id == FoodPassOn then
-            if not ClientData.get('pet_char_wrappers')[1] then
+            if not Manager.ClientData.get('pet_char_wrappers')[1] then
                 return
             end
 
-            local isEgg = table.find(peteggs, ClientData.get('pet_char_wrappers')[1]['pet_id']) and true or false
-            local petAge = ClientData.get('pet_char_wrappers')[1]['pet_progression']['age']
+            local isEgg = table.find(peteggs, Manager.ClientData.get('pet_char_wrappers')[1]['pet_id']) and true or false
+            local petAge = Manager.ClientData.get('pet_char_wrappers')[1]['pet_progression']['age']
 
             if isEgg or petAge >= 6 then
                 return
@@ -8271,7 +9510,7 @@ local agePotion = function(FoodPassOn)
                 },
             }
 
-            RouterClient.get('PetObjectAPI/CreatePetObject'):InvokeServer(unpack(args))
+            Manager.RouterClient.get('PetObjectAPI/CreatePetObject'):InvokeServer(unpack(args))
             consumeItem('AgePotion')
 
             return
@@ -8308,7 +9547,7 @@ local placeBaitOrPickUp = function(baitUniquePasson)
         return
     end
 
-    Misc.DebugModePrint('placing bait or picking up')
+    Manager.Misc.DebugModePrint('placing bait or picking up')
 
     local args = {
         [1] = localPlayer,
@@ -8320,15 +9559,15 @@ local placeBaitOrPickUp = function(baitUniquePasson)
         [5] = localPlayer.Character,
     }
     local success, errorMessage = pcall(function()
-        RouterClient.get('HousingAPI/ActivateFurniture'):InvokeServer(unpack(args))
+        Manager.RouterClient.get('HousingAPI/ActivateFurniture'):InvokeServer(unpack(args))
     end)
 
-    Misc.DebugModePrint('FIRING BAITBOX', success, errorMessage)
+    Manager.Misc.DebugModePrint('FIRING BAITBOX', success, errorMessage)
 end
 local agePotionCount = function(nameId)
     local count = 0
 
-    for _, v in ClientData.get_data()[localPlayer.Name].inventory.food do
+    for _, v in Manager.ClientData.get_data()[localPlayer.Name].inventory.food do
         if v.id == nameId then
             count = count + 1
         end
@@ -8337,10 +9576,10 @@ local agePotionCount = function(nameId)
     return count
 end
 local eventCurrencyAmount = function()
-    return ClientData.get_data()[localPlayer.Name].cherry_blossoms_2025 or 0
+    return Manager.ClientData.get_data()[localPlayer.Name].cherry_blossoms_2025 or 0
 end
 local updateStatsGui = function()
-    StatsGuis2:UpdateTextFor('TimeLabel', startTime)
+    Manager.StatsGuis2:UpdateTextFor('TimeLabel', startTime)
 
     potionsGained = agePotionCount('pet_age_potion') - startPotionAmount
 
@@ -8388,7 +9627,7 @@ local findBait = function()
     end
 
     for _, id in ipairs(baits)do
-        for _, v in pairs(ClientData.get_data()[localPlayer.Name].inventory.food)do
+        for _, v in pairs(Manager.ClientData.get_data()[localPlayer.Name].inventory.food)do
             if id == v.id then
                 return v.unique
             end
@@ -8398,9 +9637,9 @@ local findBait = function()
     return nil
 end
 local getEgg = function(whichPet)
-    for _, v in pairs(ClientData.get_data()[localPlayer.Name].inventory.pets)do
+    for _, v in pairs(Manager.ClientData.get_data()[localPlayer.Name].inventory.pets)do
         if v.id == Egg2Buy and v.id ~= 'practice_dog' and v.properties.age ~= 6 and not v.properties.mega_neon then
-            RouterClient.get('ToolAPI/Equip'):InvokeServer(v.unique, {
+            Manager.RouterClient.get('ToolAPI/Equip'):InvokeServer(v.unique, {
                 ['use_sound_delay'] = true,
             })
 
@@ -8410,7 +9649,7 @@ local getEgg = function(whichPet)
         end
     end
 
-    local BuyEgg = RouterClient.get('ShopAPI/BuyItem'):InvokeServer('pets', Egg2Buy, {})
+    local BuyEgg = Manager.RouterClient.get('ShopAPI/BuyItem'):InvokeServer('pets', Egg2Buy, {})
 
     if BuyEgg == 'too little money' then
         return false
@@ -8420,70 +9659,103 @@ local getEgg = function(whichPet)
 
     return false
 end
+local isfocusFarmPets = function()
+    local equippedPet = Manager.ClientData.get('pet_char_wrappers')[1]
+
+    if not equippedPet then
+        return false
+    end
+
+    local petId = equippedPet.pet_id
+
+    if not petId then
+        return false
+    end
+
+    local result = table.find(potionFarmPets, petId) and true or false
+
+    return result
+end
 local getPet = function(whichPet)
     if getgenv().SETTINGS.FOCUS_FARM_AGE_POTION then
-        if whichPet == 1 and getgenv().petCurrentlyFarming1 then
+        if whichPet == 1 and isfocusFarmPets() then
+            Manager.Misc.DebugModePrint(string.format('Has focusFarmpets equipped, %s', tostring(whichPet)))
+
             return
         end
         if whichPet == 2 and isProHandler and getgenv().petCurrentlyFarming2 then
             return
         end
 
-        Misc.DebugModePrint(string.format('\u{1f414}\u{1f414} Getting pet to Farm age up potion, %s \u{1f414}\u{1f414}', tostring(whichPet)))
+        Manager.Misc.DebugModePrint(string.format('\u{1f414}\u{1f414} Getting pet to Farm age up potion, %s \u{1f414}\u{1f414}', tostring(whichPet)))
 
-        if GetInventory:CheckForPetAndEquip('winter_2024_frostbite_cub', whichPet) then
-            return true
-        end
-        if GetInventory:GetPetFriendship(whichPet) then
-            return true
-        end
-        if GetInventory:CheckForPetAndEquip('starter_egg', whichPet) then
-            return true
-        end
-        if GetInventory:CheckForPetAndEquip('dog', whichPet) then
-            return true
-        end
-        if GetInventory:CheckForPetAndEquip('cat', whichPet) then
-            return true
-        end
-        if GetInventory:GetHighestGrownPet(6, whichPet) then
-            return true
-        end
-    end
-    if getgenv().SETTINGS.HATCH_EGG_PRIORITY then
-        if GetInventory:PriorityEgg(whichPet) then
+        if Manager.GetInventory:CheckForPetAndEquip({
+            'starter_egg',
+        }, whichPet) then
             return
         end
 
-        local hasMoney = RouterClient.get('ShopAPI/BuyItem'):InvokeServer('pets', getgenv().SETTINGS.HATCH_EGG_PRIORITY_NAMES[1], {})
+        Manager.Misc.DebugModePrint(string.format('\u{1f414}\u{1f414} No starter egg found, trying cdog or cat %s \u{1f414}\u{1f414}', tostring(whichPet)))
+
+        if Manager.GetInventory:GetPetFriendship(potionFarmPets, whichPet) then
+            return
+        end
+
+        Manager.Misc.DebugModePrint(string.format('\u{1f414}\u{1f414} No friendship pet. checking if pet without friend exist %s \u{1f414}\u{1f414}', tostring(whichPet)))
+
+        if Manager.GetInventory:CheckForPetAndEquip(potionFarmPets, whichPet) then
+            return
+        end
+        if Manager.GetInventory:CheckForPetAndEquip({
+            'cracked_egg',
+        }, whichPet) then
+            return
+        end
+
+        Manager.Misc.DebugModePrint(string.format('\u{1f414}\u{1f414} No cracked egg found, buying it %s \u{1f414}\u{1f414}', tostring(whichPet)))
+
+        local hasMoney = Manager.RouterClient.get('ShopAPI/BuyItem'):InvokeServer('pets', 'cracked_egg', {})
+
+        print(string.format('hasMoney: %s', tostring(hasMoney)))
+
+        if hasMoney then
+            return
+        end
+    end
+    if getgenv().SETTINGS.HATCH_EGG_PRIORITY then
+        if Manager.GetInventory:PriorityEgg(whichPet) then
+            return
+        end
+
+        local hasMoney = Manager.RouterClient.get('ShopAPI/BuyItem'):InvokeServer('pets', getgenv().SETTINGS.HATCH_EGG_PRIORITY_NAMES[1], {})
 
         if hasMoney then
             return
         end
     end
     if getgenv().SETTINGS.PET_ONLY_PRIORITY then
-        if GetInventory:PriorityPet(whichPet) then
+        if Manager.GetInventory:PriorityPet(whichPet) then
             return
         end
     end
     if getgenv().SETTINGS.PET_NEON_PRIORITY then
-        if GetInventory:GetNeonPet(whichPet) then
+        if Manager.GetInventory:GetNeonPet(whichPet) then
             return
         end
     end
-    if GetInventory:PetRarityAndAge('legendary', 5, whichPet) then
+    if Manager.GetInventory:PetRarityAndAge('legendary', 5, whichPet) then
         return
     end
-    if GetInventory:PetRarityAndAge('ultra_rare', 5, whichPet) then
+    if Manager.GetInventory:PetRarityAndAge('ultra_rare', 5, whichPet) then
         return
     end
-    if GetInventory:PetRarityAndAge('rare', 5, whichPet) then
+    if Manager.GetInventory:PetRarityAndAge('rare', 5, whichPet) then
         return
     end
-    if GetInventory:PetRarityAndAge('uncommon', 5, whichPet) then
+    if Manager.GetInventory:PetRarityAndAge('uncommon', 5, whichPet) then
         return
     end
-    if GetInventory:PetRarityAndAge('common', 5, whichPet) then
+    if Manager.GetInventory:PetRarityAndAge('common', 5, whichPet) then
         return
     end
     if getEgg(whichPet) then
@@ -8511,20 +9783,20 @@ local removeHandHeldItem = function()
         return
     end
 
-    RouterClient.get('ToolAPI/Unequip'):InvokeServer(unique.Value, {})
+    Manager.RouterClient.get('ToolAPI/Unequip'):InvokeServer(unique.Value, {})
 end
 local CheckifEgg = function(whichPet)
-    if not ClientData.get('pet_char_wrappers') then
+    if not Manager.ClientData.get('pet_char_wrappers') then
         return
     end
-    if not ClientData.get('pet_char_wrappers')[whichPet] then
+    if not Manager.ClientData.get('pet_char_wrappers')[whichPet] then
         return
     end
-    if table.find(peteggs, ClientData.get('pet_char_wrappers')[whichPet].pet_id) then
+    if table.find(peteggs, Manager.ClientData.get('pet_char_wrappers')[whichPet].pet_id) then
         return
     end
 
-    Misc.DebugModePrint(string.format('NOT A EGG SO GETTING NEW EGG %s', tostring(whichPet)))
+    Manager.Misc.DebugModePrint(string.format('NOT A EGG SO GETTING NEW EGG %s', tostring(whichPet)))
     getPet(whichPet)
 
     return
@@ -8533,9 +9805,9 @@ local SwitchOutFullyGrown = function(whichPet)
     if getgenv().isBuyingOrAging then
         return
     end
-    if not ClientData.get('pet_char_wrappers')[whichPet] then
-        if not Misc.ReEquipPet(whichPet) then
-            Misc.DebugModePrint('SwitchOutFullyGrown: GETTING NEW PETS')
+    if not Manager.ClientData.get('pet_char_wrappers')[whichPet] then
+        if not Manager.Misc.ReEquipPet(whichPet) then
+            Manager.Misc.DebugModePrint('SwitchOutFullyGrown: GETTING NEW PETS')
             getPet(whichPet)
 
             return
@@ -8544,12 +9816,12 @@ local SwitchOutFullyGrown = function(whichPet)
         task.wait(1)
     end
 
-    local PetAge = ClientData.get('pet_char_wrappers')[whichPet]['pet_progression']['age']
+    local PetAge = Manager.ClientData.get('pet_char_wrappers')[whichPet]['pet_progression']['age']
 
     if PetAge == 6 then
         if getgenv().SETTINGS.PET_AUTO_FUSION then
-            Fusion:MakeMega(false)
-            Fusion:MakeMega(true)
+            Manager.Fusion:MakeMega(false)
+            Manager.Fusion:MakeMega(true)
         end
 
         getPet(whichPet)
@@ -8646,7 +9918,7 @@ local removeGameOverButton = function(screenGuiName)
     end
 end
 local onTextChangedMiniGame = function()
-    if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME and hasStartedFarming and not isMuleInGame() then
+    if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME and hasStartedFarming then
         isInMiniGame = true
 
         task.wait(rng:NextNumber(1, 15))
@@ -8660,25 +9932,25 @@ local completeBabyAilments = function()
         return
     end
 
-    for key, _ in ClientData.get_data()[localPlayer.Name].ailments_manager.baby_ailments do
+    for key, _ in Manager.ClientData.get_data()[localPlayer.Name].ailments_manager.baby_ailments do
         if key == 'hungry' then
-            Ailments:BabyHungryAilment()
+            Manager.Ailments:BabyHungryAilment()
 
             return
         elseif key == 'thirsty' then
-            Ailments:BabyThirstyAilment()
+            Manager.Ailments:BabyThirstyAilment()
 
             return
         elseif key == 'bored' then
-            Ailments:BabyBoredAilment(Piano)
+            Manager.Ailments:BabyBoredAilment(Piano)
 
             return
         elseif key == 'sleepy' then
-            Ailments:BabySleepyAilment(Bed)
+            Manager.Ailments:BabySleepyAilment(Bed)
 
             return
         elseif key == 'dirty' then
-            Ailments:BabyDirtyAilment(Shower)
+            Manager.Ailments:BabyDirtyAilment(Shower)
 
             return
         end
@@ -8692,38 +9964,38 @@ local CompletePetAilments = function(whichPet)
         return
     end
 
-    local petWrapper = ClientData.get_data()[localPlayer.Name].pet_char_wrappers
+    local petWrapper = Manager.ClientData.get_data()[localPlayer.Name].pet_char_wrappers
 
     if not petWrapper or not petWrapper[whichPet] then
-        if not Misc.ReEquipPet(whichPet) then
+        if not Manager.Misc.ReEquipPet(whichPet) then
             getPet(whichPet)
         end
     end
-    if not ClientData.get_data()[localPlayer.Name].ailments_manager then
+    if not Manager.ClientData.get_data()[localPlayer.Name].ailments_manager then
         return false
     end
-    if not ClientData.get_data()[localPlayer.Name].ailments_manager.ailments then
+    if not Manager.ClientData.get_data()[localPlayer.Name].ailments_manager.ailments then
         return false
     end
-    if not ClientData.get_data()[localPlayer.Name].pet_char_wrappers then
+    if not Manager.ClientData.get_data()[localPlayer.Name].pet_char_wrappers then
         return false
     end
-    if not ClientData.get_data()[localPlayer.Name].pet_char_wrappers[whichPet] then
+    if not Manager.ClientData.get_data()[localPlayer.Name].pet_char_wrappers[whichPet] then
         return false
     end
 
-    local petUnique = ClientData.get_data()[localPlayer.Name].pet_char_wrappers[whichPet].pet_unique
+    local petUnique = Manager.ClientData.get_data()[localPlayer.Name].pet_char_wrappers[whichPet].pet_unique
 
     if not petUnique then
         return false
     end
-    if not ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique] then
+    if not Manager.ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique] then
         return false
     end
 
     local petcount = 0
 
-    for _ in ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique]do
+    for _ in Manager.ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique]do
         petcount = petcount + 1
     end
 
@@ -8731,101 +10003,101 @@ local CompletePetAilments = function(whichPet)
         return false
     end
 
-    Ailments.whichPet = whichPet
+    Manager.Ailments.whichPet = whichPet
 
-    for key, _ in ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique]do
+    for key, _ in Manager.ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique]do
         if key == 'hungry' then
-            Ailments:HungryAilment()
+            Manager.Ailments:HungryAilment()
 
             return true
         elseif key == 'thirsty' then
-            Ailments:ThirstyAilment()
+            Manager.Ailments:ThirstyAilment()
 
             return true
         elseif key == 'sick' then
-            Ailments:SickAilment()
+            Manager.Ailments:SickAilment()
 
             return true
         elseif key == 'pet_me' then
-            Ailments:PetMeAilment()
+            Manager.Ailments:PetMeAilment()
 
             return true
         end
     end
-    for key, _ in ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique]do
+    for key, _ in Manager.ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique]do
         if key == 'salon' then
-            Ailments:SalonAilment(key, petUnique)
-            Teleport.FarmingHome()
+            Manager.Ailments:SalonAilment(key, petUnique)
+            Manager.Teleport.FarmingHome()
 
             return true
         elseif key == 'moon' then
-            Ailments:MoonAilment(key, petUnique)
+            Manager.Ailments:MoonAilment(key, petUnique)
 
             return true
         elseif key == 'pizza_party' then
-            Ailments:PizzaPartyAilment(key, petUnique)
-            Teleport.FarmingHome()
+            Manager.Ailments:PizzaPartyAilment(key, petUnique)
+            Manager.Teleport.FarmingHome()
 
             return true
         elseif key == 'school' then
-            Ailments:SchoolAilment(key, petUnique)
-            Teleport.FarmingHome()
+            Manager.Ailments:SchoolAilment(key, petUnique)
+            Manager.Teleport.FarmingHome()
 
             return true
         elseif key == 'bored' then
-            Ailments:BoredAilment(Piano, petUnique)
+            Manager.Ailments:BoredAilment(Piano, petUnique)
 
             return true
         elseif key == 'sleepy' then
-            Ailments:SleepyAilment(Bed, petUnique)
+            Manager.Ailments:SleepyAilment(Bed, petUnique)
 
             return true
         elseif key == 'dirty' then
-            Ailments:DirtyAilment(Shower, petUnique)
+            Manager.Ailments:DirtyAilment(Shower, petUnique)
 
             return true
         elseif key == 'walk' then
-            Ailments:WalkAilment(petUnique)
+            Manager.Ailments:WalkAilment(petUnique)
 
             return true
         elseif key == 'toilet' then
             if not LitterBox then
-                Misc.DebugModePrint('DOEST HAVE LITTER BOX')
+                Manager.Misc.DebugModePrint('DOEST HAVE LITTER BOX')
             end
 
-            Ailments:ToiletAilment(LitterBox, petUnique)
+            Manager.Ailments:ToiletAilment(LitterBox, petUnique)
 
             return true
         elseif key == 'ride' then
-            Ailments:RideAilment(strollerId, petUnique)
+            Manager.Ailments:RideAilment(strollerId, petUnique)
 
             return true
         elseif key == 'play' then
-            if not Ailments:PlayAilment(key, petUnique) then
+            if not Manager.Ailments:PlayAilment(key, petUnique) then
                 return false
             end
 
             return true
         end
     end
-    for key, _ in ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique]do
+    for key, _ in Manager.ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique]do
         if key == 'beach_party' then
-            Teleport.PlaceFloorAtBeachParty()
-            Ailments:BeachPartyAilment(petUnique)
-            Teleport.FarmingHome()
+            Manager.Teleport.PlaceFloorAtBeachParty()
+            Manager.Ailments:BeachPartyAilment(petUnique)
+            Manager.Teleport.FarmingHome()
 
             return true
         elseif key == 'camping' then
-            Teleport.PlaceFloorAtCampSite()
-            Ailments:CampingAilment(petUnique)
-            Teleport.FarmingHome()
+            Manager.Teleport.PlaceFloorAtCampSite()
+            Manager.Ailments:CampingAilment(petUnique)
+            Manager.Teleport.FarmingHome()
 
             return true
         end
     end
-    for key, _ in ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique]do
+    for key, _ in Manager.ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique]do
         if key:match('mystery') then
-            Ailments:MysteryAilment(key, petUnique)
+            Manager.Ailments:MysteryAilment(key, petUnique)
 
             return true
         end
@@ -8835,19 +10107,19 @@ local CompletePetAilments = function(whichPet)
 end
 local autoFarm = function()
     if not getgenv().auto_farm then
-        Misc.DebugModePrint('farming is off so not running auto farm')
+        Manager.Misc.DebugModePrint('farming is off so not running auto farm')
 
         return
     end
 
-    CollisionsClient.set_collidable(false)
-    Teleport.PlaceFloorAtFarmingHome()
-    Teleport.PlaceFloorAtCampSite()
-    Teleport.PlaceFloorAtBeachParty()
-    Teleport.FarmingHome()
-    Misc.DebugModePrint('teleported to farming place')
+    Manager.CollisionsClient.set_collidable(false)
+    Manager.Teleport.PlaceFloorAtFarmingHome()
+    Manager.Teleport.PlaceFloorAtCampSite()
+    Manager.Teleport.PlaceFloorAtBeachParty()
+    Manager.Teleport.FarmingHome()
+    Manager.Misc.DebugModePrint('teleported to farming place')
     task.delay(30, function()
-        Misc.DebugModePrint('Started Farming')
+        Manager.Misc.DebugModePrint('Started Farming')
 
         hasStartedFarming = true
 
@@ -8855,20 +10127,20 @@ local autoFarm = function()
 
         while getgenv().SETTINGS.ENABLE_AUTO_FARM do
             if game.JobId ~= jobId then
-                Misc.DebugModePrint('not same jobid')
+                Manager.Misc.DebugModePrint('not same jobid')
                 game:Shutdown()
 
                 return
             end
             if getgenv().isBuyingOrAging then
                 repeat
-                    Misc.DebugModePrint('Stopping because its buying or aging')
+                    Manager.Misc.DebugModePrint('Stopping because its buying or aging')
                     task.wait(20)
                 until not getgenv().isBuyingOrAging
             end
             if isInMiniGame then
                 repeat
-                    Misc.DebugModePrint('\u{23f1}\u{fe0f} Waiting for 20 secs [inside minigame] \u{23f1}\u{fe0f}')
+                    Manager.Misc.DebugModePrint('\u{23f1}\u{fe0f} Waiting for 20 secs [inside minigame] \u{23f1}\u{fe0f}')
                     task.wait(20)
                 until not isInMiniGame
 
@@ -8885,6 +10157,9 @@ local autoFarm = function()
                     CheckifEgg(2)
                     task.wait(1)
                 end
+            end
+            if getgenv().SETTINGS.FOCUS_FARM_AGE_POTION then
+                getPet(1)
             end
             if not CompletePetAilments(1) then
                 task.wait()
@@ -8914,11 +10189,11 @@ local autoFarm = function()
                 baitboxCount = 0
             end
             if not getgenv().SETTINGS.FOCUS_FARM_AGE_POTION then
-                if ClientData.get('pet_char_wrappers')[1] and table.find(peteggs, ClientData.get('pet_char_wrappers')[1].pet_id) then
-                    Misc.DebugModePrint('is egg, not feeding age potion')
+                if Manager.ClientData.get('pet_char_wrappers')[1] and table.find(peteggs, Manager.ClientData.get('pet_char_wrappers')[1].pet_id) then
+                    Manager.Misc.DebugModePrint('is egg, not feeding age potion')
                 else
-                    if ClientData.get('pet_char_wrappers')[1] and table.find(getgenv().SETTINGS.PET_ONLY_PRIORITY_NAMES, ClientData.get('pet_char_wrappers')[1].pet_unique) then
-                        Misc.DebugModePrint('FEEDING AGE POTION')
+                    if Manager.ClientData.get('pet_char_wrappers')[1] and table.find(getgenv().SETTINGS.PET_ONLY_PRIORITY_NAMES, Manager.ClientData.get('pet_char_wrappers')[1].pet_unique) then
+                        Manager.Misc.DebugModePrint('FEEDING AGE POTION')
                         agePotion('pet_age_potion')
                         task.wait()
                         agePotion('tiny_pet_age_potion')
@@ -8935,8 +10210,8 @@ local autoFarm = function()
     end)
 
     if getgenv().SETTINGS.PET_AUTO_FUSION then
-        Fusion:MakeMega(false)
-        Fusion:MakeMega(true)
+        Manager.Fusion:MakeMega(false)
+        Manager.Fusion:MakeMega(true)
         task.wait(1)
     end
 
@@ -8948,7 +10223,7 @@ local autoFarm = function()
     end
 
     task.wait()
-    TradeLicense.Get(ClientData, localPlayer.Name)
+    Manager.TradeLicense.Get(Manager.ClientData, localPlayer.Name)
 
     for _, v in getconnections(localPlayer.Idled)do
         v:Disable()
@@ -8984,11 +10259,11 @@ local SendMessage = function(url, message, userId)
     })
 
     for i, v in response do
-        Misc.DebugModePrint(i, v)
+        Manager.Misc.DebugModePrint(i, v)
     end
 end
 local dailyLoginAppClick = function()
-    Misc.DebugModePrint('Clicking on Daily login app')
+    Manager.Misc.DebugModePrint('Clicking on Daily login app')
 
     local dailyLoginApp = (playerGui and {
         (playerGui:FindFirstChild('DailyLoginApp')),
@@ -9010,12 +10285,12 @@ local dailyLoginAppClick = function()
     for _, v in buttons:GetDescendants()do
         if v:IsA('TextLabel') then
             if v.Text == 'CLOSE' and v.Parent and v.Parent.Parent then
-                Misc.DebugModePrint('pressed Close on daily login')
+                Manager.Misc.DebugModePrint('pressed Close on daily login')
                 fireButton(v.Parent.Parent)
                 task.wait(1)
                 grabDailyReward()
             elseif v.Text == 'CLAIM!' and v.Parent then
-                Misc.DebugModePrint('pressed claim on daily login')
+                Manager.Misc.DebugModePrint('pressed claim on daily login')
                 fireButton(v.Parent.Parent)
                 task.wait()
                 fireButton(v.Parent.Parent)
@@ -9098,12 +10373,12 @@ local doStarterTutorial = function()
     if textLabel.Text:match('Welcome to Adopt Me!') then
         findButton('Next')
         task.wait(2)
-        Misc.DebugModePrint('doing tutorial')
-        Tutorials.CompleteNewStarterTutorial()
+        Manager.Misc.DebugModePrint('doing tutorial')
+        Manager.Tutorials.CompleteNewStarterTutorial()
         task.wait(1)
-        Misc.DebugModePrint('doing trade license')
+        Manager.Misc.DebugModePrint('doing trade license')
         task.wait(1)
-        TradeLicense.Get(ClientData, localPlayer.Name)
+        Manager.TradeLicense.Get(Manager.ClientData, localPlayer.Name)
         findButton('Next')
     end
 end
@@ -9124,7 +10399,7 @@ local pickColorTutorial = function()
     end
 
     fireButton(doneButton)
-    Misc.DebugModePrint('PICKED COLOR')
+    Manager.Misc.DebugModePrint('PICKED COLOR')
 end
 
 localPlayer.PlayerGui.HintApp.TextLabel:GetPropertyChangedSignal('Text'):Connect(function(
@@ -9167,7 +10442,7 @@ RoleChooserDialogConnection = localPlayer.PlayerGui.DialogApp.Dialog.RoleChooser
     task.wait()
 
     if localPlayer.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
-        Misc.DebugModePrint('Clicking on baby dialog button')
+        Manager.Misc.DebugModePrint('Clicking on baby dialog button')
         firesignal(localPlayer.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby.MouseButton1Click)
 
         if RoleChooserDialogConnection then
@@ -9189,7 +10464,7 @@ RobuxProductDialogConnection1 = localPlayer.PlayerGui.DialogApp.Dialog.RobuxProd
     for _, v in localPlayer.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Buttons:GetDescendants()do
         if v.Name == 'TextLabel' then
             if v.Text == 'No Thanks' then
-                Misc.DebugModePrint('clicking on no thanks for robux')
+                Manager.Misc.DebugModePrint('clicking on no thanks for robux')
                 firesignal(v.Parent.Parent.MouseButton1Click)
 
                 if RobuxProductDialogConnection1 then
@@ -9368,7 +10643,15 @@ Players.PlayerAdded:Connect(function(player)
         end
 
         task.wait(rng:NextNumber(1, 20))
-        Trade:TradeCollector(getgenv().SETTINGS.TRADE_COLLECTOR_NAME)
+
+        if getgenv().SETTINGS.ENABLE_TRASH_COLLECTOR then
+            getgenv().SETTINGS.ENABLE_TRADE_COLLECTOR = false
+
+            print('TRADING trash collector')
+            Manager.Trade:TradeTrashCollector(getgenv().SETTINGS.TRASH_COLLECTOR_NAMES)
+        elseif getgenv().SETTINGS.ENABLE_TRADE_COLLECTOR then
+            Manager.Trade:TradeCollector(getgenv().SETTINGS.TRADE_COLLECTOR_NAME)
+        end
     end)
 end)
 
@@ -9403,11 +10686,11 @@ end
 
 localPlayer.PlayerGui.TradeApp.Frame.NegotiationFrame.Body.PartnerOffer.Accepted:GetPropertyChangedSignal('ImageTransparency'):Connect(function(
 )
-    Trade:AutoAcceptTrade()
+    Manager.Trade:AutoAcceptTrade()
 end)
 localPlayer.PlayerGui.TradeApp.Frame.ConfirmationFrame.PartnerOffer.Accepted:GetPropertyChangedSignal('ImageTransparency'):Connect(function(
 )
-    Trade:AutoAcceptTrade()
+    Manager.Trade:AutoAcceptTrade()
 end)
 localPlayer.PlayerGui.MinigameInGameApp:GetPropertyChangedSignal('Enabled'):Connect(function(
 )
@@ -9488,7 +10771,7 @@ localPlayer.PlayerGui.MinigameRewardsApp.Body:GetPropertyChangedSignal('Visible'
 
             isInMiniGame = false
 
-            Teleport.FarmingHome()
+            Manager.Teleport.FarmingHome()
         end
     end
 end)
@@ -9515,37 +10798,26 @@ repeat
     task.wait(1)
 until newsApp.Enabled or localPlayer.Character
 
-PotatoMode.Start()
+Manager.PotatoMode.Start()
 StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Captures, false)
 
 UserGameSettings.GraphicsQualityLevel = 1
 UserGameSettings.MasterVolume = 0
 
-for i, v in debug.getupvalue(RouterClient.init, 7)do
+for i, v in debug.getupvalue(Manager.RouterClient.init, 7)do
     v.Name = i
 end
 
-setfpscap(getgenv().SETTINGS.SET_FPS)
-Misc.DebugModePrint(string.format('SET FPS TO %s', tostring(getgenv().SETTINGS.SET_FPS)))
-StatsGuis2:CopyInventoryButton({
-    callback = function()
-        clipboard:CopyAllInventory()
-    end,
-})
-
 if localPlayer.PlayerGui.NewsApp.Enabled then
-    Misc.DebugModePrint('NEWSAPP ENABLED')
+    Manager.Misc.DebugModePrint('NEWSAPP ENABLED')
 
     local AbsPlay = localPlayer.PlayerGui.NewsApp:WaitForChild('EnclosingFrame'):WaitForChild('MainFrame'):WaitForChild('Buttons'):WaitForChild('PlayButton')
 
     fireButton(AbsPlay)
-    Misc.DebugModePrint('NEWSAPP CLICKED')
+    Manager.Misc.DebugModePrint('NEWSAPP CLICKED')
 end
 if localPlayer.PlayerGui.DialogApp.Dialog.ThemeColorDialog.Visible then
-    Misc.DebugModePrint('picking color')
-
-    newAccount = true
-
+    Manager.Misc.DebugModePrint('picking color')
     pickColorTutorial()
 
     if PickColorConn then
@@ -9565,14 +10837,14 @@ if localPlayer.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
     end
 end
 if not localPlayer.Character then
-    Misc.DebugModePrint('NO CHARACTER SO WAITING')
+    Manager.Misc.DebugModePrint('NO CHARACTER SO WAITING')
     localPlayer.CharacterAdded:Wait()
 end
 
 task.wait(10)
 
-if not ClientData.get_data()[localPlayer.Name].boolean_flags.tutorial_v3_completed and not ClientData.get_data()[localPlayer.Name].tutorial_manager.completed then
-    Misc.DebugModePrint('new alt detected. doing tutorial')
+if not Manager.ClientData.get_data()[localPlayer.Name].boolean_flags.tutorial_v3_completed and not Manager.ClientData.get_data()[localPlayer.Name].tutorial_manager.completed then
+    Manager.Misc.DebugModePrint('new alt detected. doing tutorial')
     doStarterTutorial()
 end
 if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
@@ -9582,12 +10854,31 @@ if localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Visible then
     end
 end
 
+setfpscap(getgenv().SETTINGS.SET_FPS)
+Manager.Misc.DebugModePrint(string.format('SET FPS TO %s', tostring(getgenv().SETTINGS.SET_FPS)))
+Manager.StatsGuis2:CreateButton({
+    Name = 'copy all inventory display names',
+    Text = '\u{1f4cb}',
+    Position = UDim2.new(0.68, 0, 0.95, 0),
+    Callback = function()
+        clipboard:CopyAllInventory()
+    end,
+})
+Manager.StatsGuis2:CreateButton({
+    Name = 'copy all inventory ids',
+    Text = '\u{1f4c3}',
+    Position = UDim2.new(0.78, 0, 0.95, 0),
+    Callback = function()
+        clipboard.CopyAllIdsFromDatabase()
+    end,
+})
+
 startTime = DateTime.now().UnixTimestamp
 startPotionAmount = agePotionCount('pet_age_potion')
 startTinyPotionAmount = agePotionCount('tiny_pet_age_potion')
 startEventCurrencyAmount = eventCurrencyAmount()
 
-StatsGuis2:UpdateTextFor('TimeLabel', startTime)
+Manager.StatsGuis2:UpdateTextFor('TimeLabel', startTime)
 TempPotions:UpdateTextFor('TempPotions', potionsGained)
 TempTinyPotions:UpdateTextFor('TempTinyPotions', tinyPotionsGained)
 TempBucks:UpdateTextFor('TempBucks', bucksGained)
@@ -9631,44 +10922,44 @@ task.wait(1)
 
 baitUnique = findBait()
 
-Misc.DebugModePrint(string.format('\u{1f36a} Found baitUnique: %s \u{1f36a}', tostring(baitUnique)))
+Manager.Misc.DebugModePrint(string.format('\u{1f36a} Found baitUnique: %s \u{1f36a}', tostring(baitUnique)))
 placeBaitOrPickUp(baitUnique)
 task.wait(1)
 placeBaitOrPickUp(baitUnique)
 
-strollerId = GetInventory:GetUniqueId('strollers', 'stroller-default')
+strollerId = Manager.GetInventory:GetUniqueId('strollers', 'stroller-default')
 
 findFurniture()
-Misc.DebugModePrint(string.format('Has Bed: %s \u{1f6cf}\u{fe0f} | Has Piano: %s \u{1f3b9} | Has LitterBox: %s \u{1f4a9} | Has Lure: %s', tostring(Bed), tostring(Piano), tostring(LitterBox), tostring(NormalLure)))
-ReplicatedStorage:WaitForChild('API'):WaitForChild('HousingAPI/SetDoorLocked'):InvokeServer(true)
+Manager.Misc.DebugModePrint(string.format('Has Bed: %s \u{1f6cf}\u{fe0f} | Has Piano: %s \u{1f3b9} | Has LitterBox: %s \u{1f4a9} | Has Lure: %s', tostring(Bed), tostring(Piano), tostring(LitterBox), tostring(NormalLure)))
+Manager.RouterClient.get('HousingAPI/SetDoorLocked'):InvokeServer(true)
 
 if not localPlayer.Character then
-    Misc.DebugModePrint('NO CHARACTER SO WAITING')
+    Manager.Misc.DebugModePrint('NO CHARACTER SO WAITING')
     localPlayer.CharacterAdded:Wait()
 end
 if localPlayer.Character:WaitForChild('HumanoidRootPart') then
-    ReplicatedStorage.API['TeamAPI/ChooseTeam']:InvokeServer('Babies', {
+    Manager.RouterClient.get('TeamAPI/ChooseTeam'):InvokeServer('Babies', {
         ['dont_send_back_home'] = true,
     })
     task.wait(1)
 end
-if ClientData.get('pet_char_wrappers') then
-    Misc.DebugModePrint('Un Equip Pet')
+if Manager.ClientData.get('pet_char_wrappers') then
+    Manager.Misc.DebugModePrint('Un Equip Pet')
 
-    if Misc.WaitForPetToEquip() then
-        ReplicatedStorage.API['ToolAPI/Unequip']:InvokeServer(ClientData.get('pet_char_wrappers')[1].pet_unique, {})
+    if Manager.Misc.WaitForPetToEquip() then
+        Manager.RouterClient.get('ToolAPI/Unequip'):InvokeServer(Manager.ClientData.get('pet_char_wrappers')[1].pet_unique, {})
         task.wait(1)
 
-        if ClientData.get('pet_char_wrappers')[1] then
-            ReplicatedStorage.API['ToolAPI/Unequip']:InvokeServer(ClientData.get('pet_char_wrappers')[1].pet_unique, {})
+        if Manager.ClientData.get('pet_char_wrappers')[1] then
+            Manager.RouterClient.get('ToolAPI/Unequip'):InvokeServer(Manager.ClientData.get('pet_char_wrappers')[1].pet_unique, {})
             task.wait(1)
         end
     end
 end
 
-Teleport.PlaceFloorAtFarmingHome()
-Teleport.PlaceFloorAtCampSite()
-Teleport.PlaceFloorAtBeachParty()
+Manager.Teleport.PlaceFloorAtFarmingHome()
+Manager.Teleport.PlaceFloorAtCampSite()
+Manager.Teleport.PlaceFloorAtBeachParty()
 
 local queueOnTeleport = (syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport)
 
@@ -9680,7 +10971,7 @@ local character = localPlayer.Character or (localPlayer.CharacterAdded:Wait())
 local humanoidRootPart = (character:WaitForChild('HumanoidRootPart', 20))
 
 if not humanoidRootPart then
-    return false, Misc.DebugModePrint('NO humanoidRootPart so exiting')
+    return false, Manager.Misc.DebugModePrint('NO humanoidRootPart so exiting')
 end
 
 local partUnderChar = Instance.new('Part')
@@ -9695,68 +10986,68 @@ partUnderChar.Parent = Workspace
 if getgenv().BUY_BEFORE_FARMING then
     getgenv().isBuyingOrAging = true
 
-    BuyItems:StartBuyItems(getgenv().BUY_BEFORE_FARMING)
+    Manager.BuyItems:StartBuyItems(getgenv().BUY_BEFORE_FARMING)
 end
 if getgenv().OPEN_ITEMS_BEFORE_FARMING then
     getgenv().isBuyingOrAging = true
 
-    BuyItems:OpenItems(getgenv().OPEN_ITEMS_BEFORE_FARMING)
-end
-if getgenv().SETTINGS.EVENT.DO_MINIGAME then
-    GibbonFairground2025.Start(50000)
+    Manager.BuyItems:OpenItems(getgenv().OPEN_ITEMS_BEFORE_FARMING)
 end
 if getgenv().AGE_PETS_BEFORE_FARMING then
     getgenv().isBuyingOrAging = true
 
-    local bulkPotions = BulkPotions.new()
+    local bulkPotions = Manager.BulkPotions.new()
 
-    bulkPotions:SetEggTable(GetInventory:GetPetEggs())
+    bulkPotions:SetEggTable(Manager.GetInventory:GetPetEggs())
     bulkPotions:StartAgingPets(getgenv().AGE_PETS_BEFORE_FARMING)
-    Misc.DebugModePrint('DONE aging pets')
+    Manager.Misc.DebugModePrint('DONE aging pets')
 end
 if getgenv().SETTINGS.PET_AUTO_FUSION then
-    Fusion:MakeMega(false)
-    Fusion:MakeMega(true)
+    Manager.Fusion:MakeMega(false)
+    Manager.Fusion:MakeMega(true)
 end
 
 getgenv().isBuyingOrAging = false
 
-if isMuleInGame() then
-    Trade:TradeCollector(getgenv().SETTINGS.TRADE_COLLECTOR_NAME)
+if getgenv().SETTINGS.ENABLE_TRASH_COLLECTOR and isCollectorInGame(getgenv().SETTINGS.TRASH_COLLECTOR_NAMES) then
+    getgenv().SETTINGS.ENABLE_TRADE_COLLECTOR = false
+
+    Manager.Misc.DebugModePrint('TRADING trash collector')
+    Manager.Trade:TradeTrashCollector(getgenv().SETTINGS.TRASH_COLLECTOR_NAMES)
+elseif getgenv().SETTINGS.ENABLE_TRADE_COLLECTOR and isCollectorInGame(getgenv().SETTINGS.TRADE_COLLECTOR_NAME) then
+    Manager.Misc.DebugModePrint('TRADING MULE COLLECTOR')
+    Manager.Trade:TradeCollector(getgenv().SETTINGS.TRADE_COLLECTOR_NAME)
 end
 if DailyClaimConnection then
     DailyClaimConnection:Disconnect()
 end
-if Players.LocalPlayer.Name == getgenv().SETTINGS.TRADE_COLLECTOR_NAME and getgenv().SETTINGS.ENABLE_TRADE_COLLECTOR == true then
-    getgenv().AutoTradeToggle:Set(true)
-end
 
 task.wait(2)
 
-isProHandler = ClientData.get_data()[localPlayer.Name].subscription_manager.equip_2x_pets.active and true or false
+isProHandler = Manager.ClientData.get_data()[localPlayer.Name].subscription_manager.equip_2x_pets.active and true or false
 
-Misc.DebugModePrint(string.format('Does it have Pro Handler Certificate?: %s', tostring(isProHandler)))
+Manager.Misc.DebugModePrint(string.format('Does it have Pro Handler Certificate?: %s', tostring(isProHandler)))
 
 if not isProHandler then
     if not table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, localPlayer.Name) then
-        Misc.DebugModePrint('Checking inventory to see if it has Pro Handler Certificate')
+        Manager.Misc.DebugModePrint('Checking inventory to see if it has Pro Handler Certificate')
 
-        local proHandlerCert = GetInventory:GetUniqueId('gifts', 'subscription_2024_2x_pet_certificate')
+        local proHandlerCert = Manager.GetInventory:GetUniqueId('gifts', 'subscription_2024_2x_pet_certificate')
 
         if proHandlerCert then
-            ReplicatedStorage.API['ToolAPI/ServerUseTool']:FireServer(proHandlerCert, 'END', true)
+            Manager.RouterClient.get('ToolAPI/ServerUseTool'):FireServer(proHandlerCert, 'END', true)
             task.wait(1)
 
-            isProHandler = ClientData.get_data()[localPlayer.Name].subscription_manager.equip_2x_pets.active and true or false
+            isProHandler = Manager.ClientData.get_data()[localPlayer.Name].subscription_manager.equip_2x_pets.active and true or false
 
-            Misc.DebugModePrint(string.format('Does it have Pro Handler Certificate now?: %s', tostring(isProHandler)))
+            Manager.Misc.DebugModePrint(string.format('Does it have Pro Handler Certificate now?: %s', tostring(isProHandler)))
         end
     end
 end
 
 startAutoFarm()
 
-local Window = Rayfield:CreateWindow({
+local Window = Manager.Rayfield:CreateWindow({
     Name = localPlayer.Name,
     Theme = 'Default',
     DisableRayfieldPrompts = true,
@@ -9804,13 +11095,13 @@ FarmTab:CreateSection('1 Click = ALL Neon/Mega')
 FarmTab:CreateButton({
     Name = 'Make Neons',
     Callback = function()
-        Fusion:MakeMega(false)
+        Manager.Fusion:MakeMega(false)
     end,
 })
 FarmTab:CreateButton({
     Name = 'Make Megas',
     Callback = function()
-        Fusion:MakeMega(true)
+        Manager.Fusion:MakeMega(true)
     end,
 })
 
@@ -9826,12 +11117,12 @@ getgenv().AutoTradeToggle = TradeTab:CreateToggle({
         getgenv().auto_accept_trade = Value
 
         if getgenv().auto_accept_trade then
-            Rayfield:SetVisibility(false)
+            Manager.Rayfield:SetVisibility(false)
             task.wait(1)
         end
 
         while getgenv().auto_accept_trade do
-            Trade:AutoAcceptTrade()
+            Manager.Trade:AutoAcceptTrade()
             ClickTradeWindowPopUps()
             task.wait(1)
         end
@@ -9867,7 +11158,7 @@ TradeTab:CreateToggle({
         getgenv().auto_trade_semi_auto = Value
 
         while getgenv().auto_trade_semi_auto do
-            Trade:SendTradeRequest({selectedPlayer})
+            Manager.Trade:SendTradeRequest({selectedPlayer})
             task.wait(1)
         end
     end,
@@ -9889,16 +11180,16 @@ TradeAllInventory = TradeTab:CreateToggle({
         getgenv().auto_trade_all_inventory = Value
 
         while getgenv().auto_trade_all_inventory do
-            Trade:SendTradeRequest({selectedPlayer})
-            Trade:AllInventory('pets')
-            Trade:AllInventory('pet_accessories')
-            Trade:AllInventory('strollers')
-            Trade:AllInventory('food')
-            Trade:AllInventory('transport')
-            Trade:AllInventory('toys')
-            Trade:AllInventory('gifts')
+            Manager.Trade:SendTradeRequest({selectedPlayer})
+            Manager.Trade:AllInventory('pets')
+            Manager.Trade:AllInventory('pet_accessories')
+            Manager.Trade:AllInventory('strollers')
+            Manager.Trade:AllInventory('food')
+            Manager.Trade:AllInventory('transport')
+            Manager.Trade:AllInventory('toys')
+            Manager.Trade:AllInventory('gifts')
 
-            local hasPets = Trade:AcceptNegotiationAndConfirm()
+            local hasPets = Manager.Trade:AcceptNegotiationAndConfirm()
 
             if not hasPets then
                 TradeAllInventory:Set(false)
@@ -9916,10 +11207,10 @@ AllPetsToggle = TradeTab:CreateToggle({
         getgenv().auto_trade_all_pets = Value
 
         while getgenv().auto_trade_all_pets do
-            Trade:SendTradeRequest({selectedPlayer})
-            Trade:AllPets()
+            Manager.Trade:SendTradeRequest({selectedPlayer})
+            Manager.Trade:AllPets()
 
-            local hasPets = Trade:AcceptNegotiationAndConfirm()
+            local hasPets = Manager.Trade:AcceptNegotiationAndConfirm()
 
             if not hasPets then
                 AllPetsToggle:Set(false)
@@ -9937,10 +11228,10 @@ AnyNeonToggle = TradeTab:CreateToggle({
         getgenv().auto_trade_fullgrown_neon_and_mega = Value
 
         while getgenv().auto_trade_fullgrown_neon_and_mega do
-            Trade:SendTradeRequest({selectedPlayer})
-            Trade:FullgrownAndAnyNeonsAndMegas()
+            Manager.Trade:SendTradeRequest({selectedPlayer})
+            Manager.Trade:FullgrownAndAnyNeonsAndMegas()
 
-            local hasPets = Trade:AcceptNegotiationAndConfirm()
+            local hasPets = Manager.Trade:AcceptNegotiationAndConfirm()
 
             if not hasPets then
                 AnyNeonToggle:Set(false)
@@ -9958,10 +11249,10 @@ LegendaryToggle = TradeTab:CreateToggle({
         getgenv().auto_trade_Legendary = Value
 
         while getgenv().auto_trade_Legendary do
-            Trade:SendTradeRequest({selectedPlayer})
-            Trade:AllPetsOfSameRarity('legendary')
+            Manager.Trade:SendTradeRequest({selectedPlayer})
+            Manager.Trade:AllPetsOfSameRarity('legendary')
 
-            local hasPets = Trade:AcceptNegotiationAndConfirm()
+            local hasPets = Manager.Trade:AcceptNegotiationAndConfirm()
 
             if not hasPets then
                 LegendaryToggle:Set(false)
@@ -9979,10 +11270,10 @@ FullgrownToggle = TradeTab:CreateToggle({
         getgenv().auto_trade_fullgrown_neon_and_mega = Value
 
         while getgenv().auto_trade_fullgrown_neon_and_mega do
-            Trade:SendTradeRequest({selectedPlayer})
-            Trade:Fullgrown()
+            Manager.Trade:SendTradeRequest({selectedPlayer})
+            Manager.Trade:Fullgrown()
 
-            local hasPets = Trade:AcceptNegotiationAndConfirm()
+            local hasPets = Manager.Trade:AcceptNegotiationAndConfirm()
 
             if not hasPets then
                 FullgrownToggle:Set(false)
@@ -10000,10 +11291,10 @@ TradeAllMegas = TradeTab:CreateToggle({
         getgenv().auto_trade_all_neons = Value
 
         while getgenv().auto_trade_all_neons do
-            Trade:SendTradeRequest({selectedPlayer})
-            Trade:AllNeons('mega_neon')
+            Manager.Trade:SendTradeRequest({selectedPlayer})
+            Manager.Trade:AllNeons('mega_neon')
 
-            local hasPets = Trade:AcceptNegotiationAndConfirm()
+            local hasPets = Manager.Trade:AcceptNegotiationAndConfirm()
 
             if not hasPets then
                 TradeAllMegas:Set(false)
@@ -10021,10 +11312,10 @@ TradeAllNeons = TradeTab:CreateToggle({
         getgenv().auto_trade_all_neons = Value
 
         while getgenv().auto_trade_all_neons do
-            Trade:SendTradeRequest({selectedPlayer})
-            Trade:AllNeons('neon')
+            Manager.Trade:SendTradeRequest({selectedPlayer})
+            Manager.Trade:AllNeons('neon')
 
-            local hasPets = Trade:AcceptNegotiationAndConfirm()
+            local hasPets = Manager.Trade:AcceptNegotiationAndConfirm()
 
             if not hasPets then
                 TradeAllNeons:Set(false)
@@ -10043,12 +11334,12 @@ LowTierToggle = TradeTab:CreateToggle({
 
         while getgenv().auto_trade_lowtier_pets do
             if selectedPlayer then
-                Trade:SendTradeRequest({selectedPlayer})
+                Manager.Trade:SendTradeRequest({selectedPlayer})
             end
 
-            Trade:LowTiers()
+            Manager.Trade:LowTiers()
 
-            local hasPets = Trade:AcceptNegotiationAndConfirm()
+            local hasPets = Manager.Trade:AcceptNegotiationAndConfirm()
 
             if not hasPets then
                 LowTierToggle:Set(false)
@@ -10067,12 +11358,12 @@ RarityToggle = TradeTab:CreateToggle({
 
         while getgenv().auto_trade_rarity_pets do
             if selectedPlayer then
-                Trade:SendTradeRequest({selectedPlayer})
+                Manager.Trade:SendTradeRequest({selectedPlayer})
             end
 
-            Trade:NewbornToPostteen('legendary')
+            Manager.Trade:NewbornToPostteen('legendary')
 
-            local hasPets = Trade:AcceptNegotiationAndConfirm()
+            local hasPets = Manager.Trade:AcceptNegotiationAndConfirm()
 
             if not hasPets then
                 RarityToggle:Set(false)
@@ -10127,31 +11418,31 @@ MultipleChoiceToggle = TradeTab:CreateToggle({
             if #multipleOptionsTable['rarity'] == 0 then
                 MultipleChoiceToggle:Set(false)
 
-                return Misc.DebugModePrint('\u{1f6d1} didnt select any rarity')
+                return Manager.Misc.DebugModePrint('\u{1f6d1} didnt select any rarity')
             end
             if #multipleOptionsTable['ages'] == 0 then
                 MultipleChoiceToggle:Set(false)
 
-                return Misc.DebugModePrint('\u{1f6d1} didnt select any ages')
+                return Manager.Misc.DebugModePrint('\u{1f6d1} didnt select any ages')
             end
             if #multipleOptionsTable['neons'] == 0 then
                 MultipleChoiceToggle:Set(false)
 
-                return Misc.DebugModePrint('\u{1f6d1} didnt select normal or neon or mega_neon')
+                return Manager.Misc.DebugModePrint('\u{1f6d1} didnt select normal or neon or mega_neon')
             end
         end
 
         while getgenv().auto_trade_multi_choice do
-            if not Trade:SendTradeRequest({selectedPlayer}) then
-                Misc.DebugModePrint('\u{26a0}\u{fe0f} PLAYER YOU WERE TRADING LEFT GAME \u{26a0}\u{fe0f}')
+            if not Manager.Trade:SendTradeRequest({selectedPlayer}) then
+                Manager.Misc.DebugModePrint('\u{26a0}\u{fe0f} PLAYER YOU WERE TRADING LEFT GAME \u{26a0}\u{fe0f}')
                 MultipleChoiceToggle:Set(false)
 
                 return
             end
 
-            Trade:MultipleOptions(multipleOptionsTable)
+            Manager.Trade:MultipleOptions(multipleOptionsTable)
 
-            local hasPets = Trade:AcceptNegotiationAndConfirm()
+            local hasPets = Manager.Trade:AcceptNegotiationAndConfirm()
 
             if not hasPets then
                 MultipleChoiceToggle:Set(false)
@@ -10192,7 +11483,7 @@ local petsDropdown = TradeTab:CreateDropdown({
 TradeTab:CreateButton({
     Name = 'Refesh Pet list',
     Callback = function()
-        petsDropdown:Set(GetInventory:TabId('pets'))
+        petsDropdown:Set(Manager.GetInventory:TabId('pets'))
     end,
 })
 
@@ -10204,10 +11495,10 @@ PetToggle = TradeTab:CreateToggle({
         getgenv().auto_trade_custom = Value
 
         while getgenv().auto_trade_custom do
-            Trade:SendTradeRequest({selectedPlayer})
-            Trade:SelectTabAndTrade('pets', selectedPet)
+            Manager.Trade:SendTradeRequest({selectedPlayer})
+            Manager.Trade:SelectTabAndTrade('pets', selectedPet)
 
-            local hasPets = Trade:AcceptNegotiationAndConfirm()
+            local hasPets = Manager.Trade:AcceptNegotiationAndConfirm()
 
             if not hasPets then
                 PetToggle:Set(false)
@@ -10236,7 +11527,7 @@ local giftsDropdown = TradeTab:CreateDropdown({
 TradeTab:CreateButton({
     Name = 'Refesh Gift list',
     Callback = function()
-        giftsDropdown:Set(GetInventory:TabId('gifts'))
+        giftsDropdown:Set(Manager.GetInventory:TabId('gifts'))
     end,
 })
 
@@ -10248,10 +11539,10 @@ GiftToggle = TradeTab:CreateToggle({
         getgenv().auto_trade_custom = Value
 
         while getgenv().auto_trade_custom do
-            Trade:SendTradeRequest({selectedPlayer})
-            Trade:SelectTabAndTrade('gifts', selectedGift)
+            Manager.Trade:SendTradeRequest({selectedPlayer})
+            Manager.Trade:SelectTabAndTrade('gifts', selectedGift)
 
-            local hasPets = Trade:AcceptNegotiationAndConfirm()
+            local hasPets = Manager.Trade:AcceptNegotiationAndConfirm()
 
             if not hasPets then
                 GiftToggle:Set(false)
@@ -10280,7 +11571,7 @@ local toysDropdown = TradeTab:CreateDropdown({
 TradeTab:CreateButton({
     Name = 'Refesh Toy list',
     Callback = function()
-        toysDropdown:Set(GetInventory:TabId('toys'))
+        toysDropdown:Set(Manager.GetInventory:TabId('toys'))
     end,
 })
 
@@ -10292,10 +11583,10 @@ ToyToggle = TradeTab:CreateToggle({
         getgenv().auto_trade_custom = Value
 
         while getgenv().auto_trade_custom do
-            Trade:SendTradeRequest({selectedPlayer})
-            Trade:SelectTabAndTrade('toys', selectedToy)
+            Manager.Trade:SendTradeRequest({selectedPlayer})
+            Manager.Trade:SelectTabAndTrade('toys', selectedToy)
 
-            local hasPets = Trade:AcceptNegotiationAndConfirm()
+            local hasPets = Manager.Trade:AcceptNegotiationAndConfirm()
 
             if not hasPets then
                 ToyToggle:Set(false)
@@ -10324,7 +11615,7 @@ local foodDropdown = TradeTab:CreateDropdown({
 TradeTab:CreateButton({
     Name = 'Refesh Food list',
     Callback = function()
-        foodDropdown:Set(GetInventory:TabId('food'))
+        foodDropdown:Set(Manager.GetInventory:TabId('food'))
     end,
 })
 
@@ -10336,10 +11627,10 @@ FoodToggle = TradeTab:CreateToggle({
         getgenv().auto_trade_custom = Value
 
         while getgenv().auto_trade_custom do
-            Trade:SendTradeRequest({selectedPlayer})
-            Trade:SelectTabAndTrade('food', selectedFood)
+            Manager.Trade:SendTradeRequest({selectedPlayer})
+            Manager.Trade:SelectTabAndTrade('food', selectedFood)
 
-            local hasPets = Trade:AcceptNegotiationAndConfirm()
+            local hasPets = Manager.Trade:AcceptNegotiationAndConfirm()
 
             if not hasPets then
                 FoodToggle:Set(false)
@@ -10355,13 +11646,13 @@ local NewAltTab = Window:CreateTab('New Alts', 4483362458)
 NewAltTab:CreateButton({
     Name = 'Complete Starter Tutorial',
     Callback = function()
-        Tutorials.CompleteStarterTutorial()
+        Manager.Tutorials.CompleteStarterTutorial()
     end,
 })
 NewAltTab:CreateButton({
     Name = 'Get Trade License',
     Callback = function()
-        TradeLicense.Get(ClientData, localPlayer.Name)
+        Manager.TradeLicense.Get(Manager.ClientData, localPlayer.Name)
     end,
 })
 NewAltTab:CreateButton({
@@ -10370,7 +11661,7 @@ NewAltTab:CreateButton({
         buyFurniture('basiccrib')
     end,
 })
-Rayfield:SetVisibility(false)
+Manager.Rayfield:SetVisibility(false)
 task.delay((300), function()
     if certificateConn then
         certificateConn:Disconnect()
@@ -10379,4 +11670,4 @@ task.delay((300), function()
         starterPackAppConn:Disconnect()
     end
 end)
-Misc.DebugModePrint('Loaded. lastest update 2/25/2025  mm/dd/yyyy')
+Manager.Misc.DebugModePrint('Loaded. lastest update 2/25/2025  mm/dd/yyyy')
