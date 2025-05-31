@@ -1,15 +1,14 @@
--- getgenv().BUY_BEFORE_FARMING = {
--- 	{NameId = "spring_2025_mirai_moth", MaxAmount = 500},
--- 	{NameId = "spring_2025_bakeneko", MaxAmount = 3000},
--- }
+getgenv().BUY_BEFORE_FARMING = {
+	{NameId = "camping_2025_muskrat", MaxAmount = 200},
+}
 
 -- getgenv().OPEN_ITEMS_BEFORE_FARMING = {
 -- 	"winter_2024_ice_tray"
 -- }
 
--- getgenv().AGE_PETS_BEFORE_FARMING = {
--- 	{NameId = "spring_2025_mirai_moth", MaxAmount = 99},
--- }
+getgenv().AGE_PETS_BEFORE_FARMING = {
+	{NameId = "camping_2025_muskrat", MaxAmount = 99},
+}
 
 
 getgenv().SETTINGS = {
