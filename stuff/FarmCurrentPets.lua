@@ -6,9 +6,9 @@ getgenv().BUY_BEFORE_FARMING = {
 -- 	"winter_2024_ice_tray"
 -- }
 
-getgenv().AGE_PETS_BEFORE_FARMING = {
-	{NameId = "camping_2025_muskrat", MaxAmount = 99},
-}
+-- getgenv().AGE_PETS_BEFORE_FARMING = {
+-- 	{NameId = "camping_2025_muskrat", MaxAmount = 99},
+-- }
 
 
 getgenv().SETTINGS = {
