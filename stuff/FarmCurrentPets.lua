@@ -1,10 +1,10 @@
-getgenv().BUY_BEFORE_FARMING = {
-    {NameId = "butterfly_2025_bluebell_flower", MaxAmount = 100},
-}
+-- getgenv().BUY_BEFORE_FARMING = {
+--     {NameId = "camping_2025_muskrat", MaxAmount = 100},
+-- }
 
-getgenv().OPEN_ITEMS_BEFORE_FARMING = {
-    "butterfly_2025_bluebell_flower"
-}
+-- getgenv().OPEN_ITEMS_BEFORE_FARMING = {
+--     "halloween_2024_chick_box"
+-- }
 
 -- getgenv().AGE_PETS_BEFORE_FARMING = {
 -- 	{NameId = "camping_2025_muskrat", MaxAmount = 99},
