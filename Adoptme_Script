@@ -10983,6 +10983,14 @@ partUnderChar.Transparency = 1
 partUnderChar.Name = 'partUnderChar'
 partUnderChar.Parent = Workspace
 
+if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME == true then
+	ReplicatedStorage.API["LocationAPI/SetLocation"]:FireServer("Butterfly2025Sanctuary")
+	task.wait(2)
+	Manager.BuyItems:StartBuyItems({NameId = "butterfly_2025_bluebell_flower", MaxAmount = 9999})
+	Manager.BuyItems:OpenItems("butterfly_2025_bluebell_flower")
+end
+
+
 if getgenv().BUY_BEFORE_FARMING then
     getgenv().isBuyingOrAging = true
 
