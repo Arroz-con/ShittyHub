@@ -10327,6 +10327,8 @@ local onTextChangedNormalDialog = function()
         findButton('Okay')
     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('This trade seems unbalanced') then
         findButton('Next')
+    elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('You earned 25') then
+        findButton('Okay')
     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('sent you a trade request') then
         findButton('Accept')
     elseif localPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Trade request from') then
