@@ -5681,7 +5681,7 @@ do
             return true
         end
         local startWebHook = function()
-            Utils.Utils.PrintDebugDebug('Webhook Started')
+            Utils.PrintDebug('Webhook Started')
 
             local DataPartiallyChanged = Bypass('RouterClient').get_event('DataAPI/DataPartiallyChanged')
 
