@@ -4099,6 +4099,9 @@ do
             end
 
             BuyItem.BuySnapDragonFlower()
+            BuyItem.OpenItems({
+                'butterfly_2025_snapdragon_flower',
+            })
 
             if getgenv().OPEN_ITEMS_BEFORE_FARMING then
                 getgenv().isBuyingOrAging = true
@@ -4835,6 +4838,9 @@ do
             elseif TextLabel.Text:match('Social Stones!') then
                 Utils.FindButton('Okay')
                 BuyItem.BuySnapDragonFlower()
+                BuyItem.OpenItems({
+                    'butterfly_2025_snapdragon_flower',
+                })
             elseif TextLabel.Text:match('sent you a trade request') then
                 Utils.PrintDebug('Friend send you a trade request 2')
                 Utils.FindButton('Accept')
