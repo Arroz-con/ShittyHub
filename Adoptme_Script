@@ -542,7 +542,7 @@ do
                     end
 
                     repeat
-                        Utils.ClickGuiButton(confirmButton, 70)
+                        Utils.ClickGuiButton(confirmButton, 80)
                         task.wait(1)
                     until not PromptDialog.Visible
                 end)
