@@ -542,7 +542,7 @@ do
                     end
 
                     repeat
-                        Utils.ClickGuiButton(confirmButton)
+                        Utils.ClickGuiButton(confirmButton, 70)
                         task.wait(1)
                     until not PromptDialog.Visible
                 end)
@@ -4032,6 +4032,7 @@ do
                 localPlayer.CharacterAdded:Wait()
             end
 
+            RouterClient.get('HousingAPI/SetDoorLocked'):InvokeServer(true)
             Utils.PlaceFLoorUnderPlayer()
             RouterClient.get('TeamAPI/ChooseTeam'):InvokeServer('Babies', {
                 ['dont_send_back_home'] = true,
@@ -4125,8 +4126,6 @@ do
             end
 
             getgenv().isBuyingOrAging = false
-
-            RouterClient.get('HousingAPI/SetDoorLocked'):InvokeServer(true)
         end
 
         return self
