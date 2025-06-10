@@ -3043,16 +3043,6 @@ do
 
             RouterClient.get('SocialStonesAPI/AttemptExchange'):FireServer('pets', 'moon_2025_glormy_dolphin', 1)
         end
-        function self.BuySnapDragonFlower()
-            local stones = ClientData.get_data()[localPlayer.Name].social_stones_2025 or 0
-
-            while stones >= 25 do
-                RouterClient.get('SocialStonesAPI/AttemptExchange'):FireServer('food', 'butterfly_2025_snapdragon_flower', 1)
-                task.wait(1)
-
-                stones = ClientData.get_data()[localPlayer.Name].social_stones_2025 or 0
-            end
-        end
         function self.BuyItemWithCurrencyLimit(itemNameId, currencyLimit)
             while Bypass('ClientData').get_data()[localPlayer.Name].money >= currencyLimit do
                 local itemValues = getItemInfoFromDatabase(itemNameId)
@@ -4084,7 +4074,6 @@ do
             UpdateTextEvent:Fire()
 
             if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME == true then
-                print('buying butterfly_2025_bluebell_flower')
                 RouterClient.get('LocationAPI/SetLocation'):FireServer('Butterfly2025Sanctuary')
                 task.wait(2)
                 BuyItem.BuyItemWithCurrencyLimit('butterfly_2025_bluebell_flower', 5000)
@@ -4097,12 +4086,6 @@ do
 
                 BuyItem.StartBuyItems(getgenv().BUY_BEFORE_FARMING)
             end
-
-            BuyItem.BuySnapDragonFlower()
-            BuyItem.OpenItems({
-                'butterfly_2025_snapdragon_flower',
-            })
-
             if getgenv().OPEN_ITEMS_BEFORE_FARMING then
                 getgenv().isBuyingOrAging = true
 
@@ -4787,7 +4770,6 @@ do
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local Trade = __DARKLUA_BUNDLE_MODULES.load('f')
         local Teleport = __DARKLUA_BUNDLE_MODULES.load('g')
-        local BuyItem = __DARKLUA_BUNDLE_MODULES.load('h')
         local self = {}
         local localPlayer = Players.LocalPlayer
         local PlayerGui = localPlayer:WaitForChild('PlayerGui')
@@ -4837,10 +4819,6 @@ do
                 Utils.FindButton('Next')
             elseif TextLabel.Text:match('Social Stones!') then
                 Utils.FindButton('Okay')
-                BuyItem.BuySnapDragonFlower()
-                BuyItem.OpenItems({
-                    'butterfly_2025_snapdragon_flower',
-                })
             elseif TextLabel.Text:match('sent you a trade request') then
                 Utils.PrintDebug('Friend send you a trade request 2')
                 Utils.FindButton('Accept')
@@ -5703,7 +5681,7 @@ do
             return true
         end
         local startWebHook = function()
-            Utils.PrintDebug('Webhook Started')
+            Utils.Utils.PrintDebugDebug('Webhook Started')
 
             local DataPartiallyChanged = Bypass('RouterClient').get_event('DataAPI/DataPartiallyChanged')
 
@@ -5814,9 +5792,9 @@ do
             end)
 
             if success then
-                print(string.format('Request Succesful: %s', tostring(result)))
+                Utils.PrintDebug(string.format('Request Succesful: %s', tostring(result)))
             else
-                print(string.format('Request Failed: %s', tostring(result)))
+                Utils.PrintDebug(string.format('Request Failed: %s', tostring(result)))
             end
 
             return nil
@@ -11578,6 +11556,50 @@ Check the Developer Console for more information.]],
 
         return self
     end
+    function __DARKLUA_BUNDLE_MODULES.C()
+        local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
+        local Players = cloneref(game:GetService('Players'))
+        local Lighting = cloneref(game:GetService('Lighting'))
+        local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
+        local ClientData = Bypass('ClientData')
+        local RouterClient = Bypass('RouterClient')
+        local BuyItem = __DARKLUA_BUNDLE_MODULES.load('h')
+        local self = {}
+        local localPlayer = Players.LocalPlayer
+        local timeDebouce = false
+        local buyAndOpenSnapDragonFlower = function()
+            if Lighting.ClockTime ~= 13 then
+                return
+            end
+            if timeDebouce then
+                return
+            end
+
+            timeDebouce = true
+
+            local stones = ClientData.get_data()[localPlayer.Name].social_stones_2025 or 0
+
+            while stones >= 25 do
+                RouterClient.get('SocialStonesAPI/AttemptExchange'):FireServer('food', 'butterfly_2025_snapdragon_flower', 1)
+                task.wait(1)
+
+                stones = ClientData.get_data()[localPlayer.Name].social_stones_2025 or 0
+            end
+
+            BuyItem.OpenItems({
+                'butterfly_2025_snapdragon_flower',
+            })
+
+            timeDebouce = false
+        end
+
+        function self.Init()
+            Lighting:GetPropertyChangedSignal('ClockTime'):Connect(buyAndOpenSnapDragonFlower)
+        end
+        function self.Start() end
+
+        return self
+    end
 end
 
 if not game:IsLoaded() then
@@ -11669,6 +11691,9 @@ local files = {
     },
     {
         RayfieldHandler = __DARKLUA_BUNDLE_MODULES.load('B'),
+    },
+    {
+        ButterflySanctuary2025 = __DARKLUA_BUNDLE_MODULES.load('C'),
     },
 }
 
