@@ -34,8 +34,8 @@ getgenv().SETTINGS = {
 	PET_NEON_PRIORITY = true,
 	PET_AUTO_FUSION = true,
 
-	ENABLE_TRADE_COLLECTOR = false,
-	TRADE_ONLY_LUMINOUS_MEGA = true,
+	ENABLE_TRADE_COLLECTOR = true,
+	TRADE_ONLY_LUMINOUS_MEGA = false,
 	TRADE_COLLECTOR_NAME = {
 		"exp_potion", 
 		"Tiredbloxypets", 
