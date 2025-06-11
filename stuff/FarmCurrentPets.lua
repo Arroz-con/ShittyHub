@@ -20,6 +20,7 @@ getgenv().SETTINGS = {
 
 	EVENT = {
 		DO_MINIGAME = true,
+		DONT_OPEN_FLOWER = true,
 		IS_AUTO_BUY = false,
 		BUY = "halloween_2024_chick_box"
 	},

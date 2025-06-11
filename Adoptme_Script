@@ -4337,57 +4337,30 @@ do
         local ClientData = Bypass('ClientData')
         local InventoryDB = Bypass('InventoryDB')
         local StatsGuiClass = __DARKLUA_BUNDLE_MODULES.load('m')
-        local self = {
-            Debouce = false,
-            MegaPets = {},
-            NeonPets = {},
-            NormalPets = {},
-            PetList = '',
-            PetsTable = {},
-            PetAccessoriesTable = {},
-            StrollersTable = {},
-            FoodTable = {},
-            TransportTable = {},
-            ToysTable = {},
-            GiftsTable = {},
-            AllInventory = '',
-        }
+        local ClipboardHandler = {}
         local localPlayer = Players.LocalPlayer
-        local getPetInfoMega = function(title)
-            for _, v in ClientData.get_data()[localPlayer.Name].inventory.pets do
-                for _, v2 in InventoryDB.pets do
-                    if v.id == v2.id and v.properties.mega_neon then
-                        self.MegaPets[title .. v2.name] = (self.MegaPets[title .. v2.name] or 0) + 1
-                    end
-                end
-            end
-            for i, v in self.MegaPets do
-                self.PetList = string.format('%s%s x%s\n', tostring(self.PetList), tostring(i), tostring(v))
-            end
-        end
-        local getPetInfoNeon = function(title)
-            for _, v in ClientData.get_data()[localPlayer.Name].inventory.pets do
-                for _, v2 in InventoryDB.pets do
-                    if v.id == v2.id and v.properties.neon then
-                        self.NeonPets[title .. v2.name] = (self.NeonPets[title .. v2.name] or 0) + 1
-                    end
-                end
-            end
-            for i, v in self.NeonPets do
-                self.PetList = string.format('%s%s x%s\n', tostring(self.PetList), tostring(i), tostring(v))
-            end
-        end
-        local getPetInfoNormal = function(title)
-            for _, v in pairs(ClientData.get_data()[localPlayer.Name].inventory.pets)do
-                for _, v2 in InventoryDB.pets do
-                    if v.id == v2.id and not v.properties.neon and not v.properties.mega_neon then
-                        self.NormalPets[title .. v2.name] = (self.NormalPets[title .. v2.name] or 0) + 1
-                    end
-                end
-            end
-            for i, v in self.NormalPets do
-                self.PetList = string.format('%s%s x%s\n', tostring(self.PetList), tostring(i), tostring(v))
-            end
+        local megaPets = {}
+        local neonPets = {}
+        local normalPets = {}
+        local petsTable = {}
+        local petAccessoriesTable = {}
+        local strollersTable = {}
+        local foodTable = {}
+        local transportTable = {}
+        local toysTable = {}
+        local giftsTable = {}
+        local allInventory = ''
+        local clearTables = function()
+            table.clear(megaPets)
+            table.clear(neonPets)
+            table.clear(normalPets)
+            table.clear(petsTable)
+            table.clear(petAccessoriesTable)
+            table.clear(strollersTable)
+            table.clear(foodTable)
+            table.clear(transportTable)
+            table.clear(toysTable)
+            table.clear(giftsTable)
         end
         local getInventoryInfo = function(tab, tablePassOn)
             for _, v in pairs(ClientData.get_data()[localPlayer.Name].inventory[tab])do
@@ -4402,7 +4375,7 @@ do
             for i, v in tablePassOn do
                 for _, v2 in InventoryDB[inventoryPassOn]do
                     if i == tostring(v2.id) then
-                        self.AllInventory = self.AllInventory .. '[' .. namePassOn .. '] ' .. v2.name .. ' x' .. v .. '\n'
+                        allInventory = allInventory .. '[' .. namePassOn .. '] ' .. v2.name .. ' x' .. v .. '\n'
                     end
                 end
             end
@@ -4437,74 +4410,35 @@ do
             local potionAmount = potions * 0.04
             local bucks = ClientData.get_data()[localPlayer.Name].money or 0
 
-            self.AllInventory = self.AllInventory .. string.format('%s Age-up Potions + %s Bucks | Adopt me\n', tostring(potions), tostring(addComma(bucks)))
+            allInventory = allInventory .. string.format('%s Age-up Potions + %s Bucks | Adopt me\n', tostring(potions), tostring(addComma(bucks)))
 
             local formatNumber = string.format('%.2f', potionAmount)
 
-            self.AllInventory = self.AllInventory .. string.format('sell for $%s  %s\n\n', tostring(tostring(formatNumber)), tostring(localPlayer.Name))
+            allInventory = allInventory .. string.format('sell for $%s  %s\n\n', tostring(tostring(formatNumber)), tostring(localPlayer.Name))
         end
-
-        function self.Init() end
-        function self.Start()
-            StatsGuiClass.CreateButton({
-                Name = 'copy all inventory display names',
-                Text = '\u{1f4cb}',
-                Position = UDim2.new(0.68, 0, 0.95, 0),
-                Callback = function()
-                    self:CopyAllInventory()
-                end,
-            })
-            StatsGuiClass.CreateButton({
-                Name = 'copy all inventory ids',
-                Text = '\u{1f4c3}',
-                Position = UDim2.new(0.78, 0, 0.95, 0),
-                Callback = function()
-                    self:CopyAllIdsFromDatabase()
-                end,
-            })
-        end
-        function self:CopyPetInfo()
-            if self.Debounce then
-                return
-            end
-
-            self.Debounce = true
-
-            getPetInfoMega('[MEGA NEON] ')
-            getPetInfoNeon('[NEON] ')
-            getPetInfoNormal('[Normal] ')
-            setclipboard(self.PetList)
-
-            self.PetList = ''
-
-            table.clear(self)
-            task.wait()
-
-            self.Debounce = false
-        end
-        function self:CopyAllInventory()
-            getInventoryInfo('pets', self.PetsTable)
-            getInventoryInfo('pet_accessories', self.PetAccessoriesTable)
-            getInventoryInfo('strollers', self.StrollersTable)
-            getInventoryInfo('food', self.FoodTable)
-            getInventoryInfo('transport', self.TransportTable)
-            getInventoryInfo('toys', self.ToysTable)
-            getInventoryInfo('gifts', self.GiftsTable)
+        local CopyAllInventory = function()
+            getInventoryInfo('pets', petsTable)
+            getInventoryInfo('pet_accessories', petAccessoriesTable)
+            getInventoryInfo('strollers', strollersTable)
+            getInventoryInfo('food', foodTable)
+            getInventoryInfo('transport', transportTable)
+            getInventoryInfo('toys', toysTable)
+            getInventoryInfo('gifts', giftsTable)
             getBucksInfo()
-            getTable('pets', self.PetsTable, 'PET')
-            getTable('pet_accessories', self.PetAccessoriesTable, 'PET_ACCESSORIE')
-            getTable('strollers', self.StrollersTable, 'STROLLER')
-            getTable('food', self.FoodTable, 'FOOD')
-            getTable('transport', self.TransportTable, 'TRANSPORT')
-            getTable('toys', self.ToysTable, 'TOY')
-            getTable('gifts', self.GiftsTable, 'GIFT')
-            setclipboard(self.AllInventory)
+            getTable('pets', petsTable, 'PET')
+            getTable('pet_accessories', petAccessoriesTable, 'PET_ACCESSORIE')
+            getTable('strollers', strollersTable, 'STROLLER')
+            getTable('food', foodTable, 'FOOD')
+            getTable('transport', transportTable, 'TRANSPORT')
+            getTable('toys', toysTable, 'TOY')
+            getTable('gifts', giftsTable, 'GIFT')
+            setclipboard(allInventory)
 
-            self.AllInventory = ''
+            allInventory = ''
 
-            table.clear(self)
+            clearTables()
         end
-        function self:CopyAllIdsFromDatabase()
+        local CopyAllIdsFromDatabase = function()
             local data = ''
             local lines = 
 [[
@@ -4527,7 +4461,27 @@ do
             data = ''
         end
 
-        return self
+        function ClipboardHandler.Init() end
+        function ClipboardHandler.Start()
+            StatsGuiClass.CreateButton({
+                Name = 'copy all inventory display names',
+                Text = '\u{1f4cb}',
+                Position = UDim2.new(0.68, 0, 0.95, 0),
+                Callback = function()
+                    CopyAllInventory()
+                end,
+            })
+            StatsGuiClass.CreateButton({
+                Name = 'copy all inventory ids',
+                Text = '\u{1f4c3}',
+                Position = UDim2.new(0.78, 0, 0.95, 0),
+                Callback = function()
+                    CopyAllIdsFromDatabase()
+                end,
+            })
+        end
+
+        return ClipboardHandler
     end
     function __DARKLUA_BUNDLE_MODULES.o()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
@@ -11586,9 +11540,11 @@ Check the Developer Console for more information.]],
                 stones = ClientData.get_data()[localPlayer.Name].social_stones_2025 or 0
             end
 
-            BuyItem.OpenItems({
-                'butterfly_2025_snapdragon_flower',
-            })
+            if getgenv().SETTINGS.EVENT and not getgenv().SETTINGS.EVENT.DONT_OPEN_FLOWER then
+                BuyItem.OpenItems({
+                    'butterfly_2025_snapdragon_flower',
+                })
+            end
 
             timeDebouce = false
         end
