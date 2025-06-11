@@ -6,9 +6,9 @@
 --     "halloween_2024_chick_box"
 -- }
 
--- getgenv().AGE_PETS_BEFORE_FARMING = {
--- 	{NameId = "camping_2025_muskrat", MaxAmount = 99},
--- }
+getgenv().AGE_PETS_BEFORE_FARMING = {
+	{NameId = "butterfly_2025_seafoam_butterfly", MaxAmount = 99},
+}
 
 
 getgenv().SETTINGS = {
@@ -34,7 +34,7 @@ getgenv().SETTINGS = {
 	PET_NEON_PRIORITY = true,
 	PET_AUTO_FUSION = true,
 
-	ENABLE_TRADE_COLLECTOR = true,
+	ENABLE_TRADE_COLLECTOR = false,
 	TRADE_ONLY_LUMINOUS_MEGA = true,
 	TRADE_COLLECTOR_NAME = {
 		"exp_potion", 
@@ -45,6 +45,8 @@ getgenv().SETTINGS = {
 	},
 
 	TRADE_LIST = {
+		"butterfly_2025_prismatic_butterfly",
+		"butterfly_2025_snapdragon_flower",
 		"moon_2025_royal_egg",
 		"lures_2023_blazing_lion",
 		"ice_dimension_2025_frostbite_bear",
