@@ -3187,6 +3187,31 @@ do
             return false
         end
 
+        function self.GetAgeablePets()
+            local ageablePets = {}
+            local eggList = self.GetPetEggs()
+
+            for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
+                if table.find(AllowOrDenyList.Denylist, pet.id) then
+                    continue
+                end
+                if table.find(eggList, pet.id) then
+                    continue
+                end
+                if pet.properties.age == 6 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon then
+                    continue
+                end
+                if table.find(ageablePets, pet.id) then
+                    continue
+                end
+
+                table.insert(ageablePets, pet.id)
+            end
+
+            table.sort(ageablePets)
+
+            return ageablePets
+        end
         function self.GetAll()
             return ClientData.get_data()[localPlayer.Name].inventory
         end
@@ -4117,373 +4142,6 @@ do
         return self
     end
     function __DARKLUA_BUNDLE_MODULES.m()
-        local Players = cloneref(game:GetService('Players'))
-        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local StatsGuiClass = {}
-
-        StatsGuiClass.__index = StatsGuiClass
-
-        local localPlayer = Players.LocalPlayer
-        local otherGuis = {}
-        local DEFAULT_COLOR = Color3.fromRGB(0, 0, 0)
-        local setButtonUiSettings = function(buttonSettings)
-            local button = Instance.new('TextButton')
-
-            button.Name = buttonSettings.Name
-            button.AnchorPoint = Vector2.new(0.5, 0.5)
-            button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-            button.BackgroundTransparency = 1
-            button.BorderColor3 = Color3.fromRGB(0, 0, 0)
-            button.BorderSizePixel = 0
-            button.Position = buttonSettings.Position
-            button.Size = UDim2.new(0.2, 0, 0.2, 0)
-            button.Font = Enum.Font.FredokaOne
-            button.Text = buttonSettings.Text
-            button.TextColor3 = Color3.fromRGB(0, 0, 0)
-            button.TextScaled = true
-            button.TextSize = 14
-            button.TextWrapped = true
-            button.TextXAlignment = Enum.TextXAlignment.Left
-            button.Parent = localPlayer:WaitForChild('PlayerGui'):WaitForChild('StatsGui')
-
-            return button
-        end
-
-        function StatsGuiClass.new(name)
-            local self = setmetatable({}, StatsGuiClass)
-
-            self.TextLabel = Instance.new('TextLabel')
-            self.UICorner = Instance.new('UICorner')
-            self.TextLabel.Name = name
-            self.TextLabel.BackgroundColor3 = DEFAULT_COLOR
-            self.TextLabel.BackgroundTransparency = 0.25
-            self.TextLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
-            self.TextLabel.BorderSizePixel = 0
-            self.TextLabel.Size = UDim2.new(0.330000013, 0, 0.486617982, 0)
-            self.TextLabel.Font = Enum.Font.FredokaOne
-            self.TextLabel.RichText = false
-            self.TextLabel.Text = ''
-            self.TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-            self.TextLabel.TextScaled = true
-            self.TextLabel.TextSize = 14
-            self.TextLabel.TextStrokeTransparency = 0
-            self.TextLabel.TextWrapped = true
-            self.StatsGui = localPlayer:WaitForChild('PlayerGui'):WaitForChild('StatsGui')
-            self.TextLabel.Parent = self.StatsGui:WaitForChild('MainFrame'):WaitForChild('MiddleFrame')
-            self.UICorner.CornerRadius = UDim.new(0, 16)
-            self.UICorner.Parent = self.TextLabel
-            self.Debounce = false
-
-            return self
-        end
-        function StatsGuiClass.Init()
-            local StatsGui = Instance.new('ScreenGui')
-
-            StatsGui.Name = 'StatsGui'
-            StatsGui.DisplayOrder = 0
-            StatsGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-            StatsGui.Parent = localPlayer:WaitForChild('PlayerGui')
-
-            local MainFrame = Instance.new('Frame')
-
-            MainFrame.Name = 'MainFrame'
-            MainFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-            MainFrame.BackgroundTransparency = 1
-            MainFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
-            MainFrame.BorderSizePixel = 0
-            MainFrame.Position = UDim2.new(0.276041657, 0, 0.0577475652, 0)
-            MainFrame.Size = UDim2.new(0.674468458, 0, 0.795313776, 0)
-            MainFrame.Parent = StatsGui
-            otherGuis.TimeLabel = Instance.new('TextLabel')
-            otherGuis.TimeLabel.Name = 'TimeLabel'
-            otherGuis.TimeLabel.BackgroundColor3 = DEFAULT_COLOR
-            otherGuis.TimeLabel.BackgroundTransparency = 0.25
-            otherGuis.TimeLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
-            otherGuis.TimeLabel.BorderSizePixel = 0
-            otherGuis.TimeLabel.Size = UDim2.new(1, 0, 0.200000018, 0)
-            otherGuis.TimeLabel.Font = Enum.Font.FredokaOne
-            otherGuis.TimeLabel.RichText = false
-            otherGuis.TimeLabel.Text = '\u{23f1}\u{fe0f} time'
-            otherGuis.TimeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-            otherGuis.TimeLabel.TextScaled = true
-            otherGuis.TimeLabel.TextSize = 14
-            otherGuis.TimeLabel.TextStrokeTransparency = 0
-            otherGuis.TimeLabel.TextWrapped = true
-            otherGuis.TimeLabel.Parent = MainFrame
-
-            local UICorner = Instance.new('UICorner')
-
-            UICorner.CornerRadius = UDim.new(0, 16)
-            UICorner.Parent = otherGuis.TimeLabel
-
-            local MiddleFrame = Instance.new('Frame')
-
-            MiddleFrame.Name = 'MiddleFrame'
-            MiddleFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-            MiddleFrame.BackgroundTransparency = 1
-            MiddleFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
-            MiddleFrame.BorderSizePixel = 0
-            MiddleFrame.Position = UDim2.new(0, 0, 0.219711155, 0)
-            MiddleFrame.Size = UDim2.new(0.999243617, 0, 0.55549103, 0)
-            MiddleFrame.Parent = MainFrame
-
-            local UIGridLayout = Instance.new('UIGridLayout')
-
-            UIGridLayout.SortOrder = Enum.SortOrder.LayoutOrder
-            UIGridLayout.CellPadding = UDim2.new(0.00999999978, 0, 0.00999999978, 0)
-            UIGridLayout.CellSize = UDim2.new(0.242, 0, 0.5, 0)
-            UIGridLayout.FillDirectionMaxCells = 0
-            UIGridLayout.Parent = MiddleFrame
-
-            local TextButton = Instance.new('TextButton')
-
-            TextButton.AnchorPoint = Vector2.new(0.5, 0.5)
-            TextButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-            TextButton.BackgroundTransparency = 1
-            TextButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
-            TextButton.BorderSizePixel = 0
-            TextButton.Position = UDim2.new(0.33, 0, 0.018, 0)
-            TextButton.Size = UDim2.new(0.1, 0, 0.1, 0)
-            TextButton.Font = Enum.Font.FredokaOne
-            TextButton.Text = '\u{1f648}'
-            TextButton.TextColor3 = Color3.fromRGB(0, 0, 0)
-            TextButton.TextScaled = true
-            TextButton.TextSize = 14
-            TextButton.TextWrapped = true
-            TextButton.TextXAlignment = Enum.TextXAlignment.Left
-            TextButton.Parent = StatsGui
-
-            local TIME_SAVED
-
-            otherGuis.TimeLabel.MouseEnter:Connect(function()
-                TIME_SAVED = otherGuis.TimeLabel.Text
-                otherGuis.TimeLabel.Text = string.format('\u{1f916} %s', tostring(localPlayer.Name))
-            end)
-            otherGuis.TimeLabel.MouseLeave:Connect(function()
-                otherGuis.TimeLabel.Text = TIME_SAVED
-            end)
-
-            local isVisible = true
-
-            TextButton.Activated:Connect(function()
-                isVisible = not isVisible
-                MainFrame.Visible = isVisible
-            end)
-        end
-        function StatsGuiClass.SetTimeLabelText(startTime)
-            local currentTime = DateTime.now().UnixTimestamp
-            local timeElapsed = currentTime - startTime
-
-            otherGuis.TimeLabel.Text = string.format('\u{23f1}\u{fe0f} %s', tostring(Utils.FormatTime(timeElapsed)))
-        end
-        function StatsGuiClass.CreateButton(buttonSettings)
-            local button = setButtonUiSettings(buttonSettings)
-
-            button.Activated:Connect(function()
-                buttonSettings.Callback()
-
-                button.Text = '\u{2705}'
-
-                task.wait(1)
-
-                button.Text = buttonSettings.Text
-            end)
-        end
-        function StatsGuiClass.UpdateTextForTotal(self)
-            if self.TextLabel.Name == 'TotalPotions' then
-                local formatted = Utils.FormatNumber(Utils.FoodItemCount('pet_age_potion'))
-
-                self.TextLabel.Text = string.format('\u{1f9ea} %s', tostring(formatted))
-            elseif self.TextLabel.Name == 'TotalTinyPotions' then
-                local formatted = Utils.FormatNumber(Utils.FoodItemCount('tiny_pet_age_potion'))
-
-                self.TextLabel.Text = string.format('\u{2697}\u{fe0f} %s', tostring(formatted))
-            elseif self.TextLabel.Name == 'TotalBucks' then
-                local formatted = Utils.FormatNumber(Utils.BucksAmount())
-
-                self.TextLabel.Text = string.format('\u{1f4b0} %s', tostring(formatted))
-            elseif self.TextLabel.Name == 'TotalEventCurrency' then
-                local formatted = Utils.FormatNumber(Utils.EventCurrencyAmount())
-
-                self.TextLabel.Text = string.format('\u{1f9e1} %s', tostring(formatted))
-            elseif self.TextLabel.Name == 'TotalShiverBaits' then
-                local formatted = Utils.FormatNumber(Utils.FoodItemCount('ice_dimension_2025_shiver_cone_bait'))
-
-                self.TextLabel.Text = string.format('\u{1f43a} %s', tostring(formatted))
-            elseif self.TextLabel.Name == 'TotalSubzeroBaits' then
-                local formatted = Utils.FormatNumber(Utils.FoodItemCount('ice_dimension_2025_subzero_popsicle_bait'))
-
-                self.TextLabel.Text = string.format('\u{1f982} %s', tostring(formatted))
-            end
-        end
-        function StatsGuiClass.UpdateTextForTemp(self, amount)
-            if self.TextLabel.Name == 'TempPotions' and amount then
-                self.TextLabel.Text = string.format('\u{1f9ea} %s', tostring(Utils.FormatNumber(amount)))
-            elseif self.TextLabel.Name == 'TempTinyPotions' and amount then
-                self.TextLabel.Text = string.format('\u{2697}\u{fe0f} %s', tostring(Utils.FormatNumber(amount)))
-            elseif self.TextLabel.Name == 'TempBucks' and amount then
-                self.TextLabel.Text = string.format('\u{1f4b0} %s', tostring(Utils.FormatNumber(amount)))
-            elseif self.TextLabel.Name == 'TempEventCurrency' and amount then
-                self.TextLabel.Text = string.format('\u{1f9e1} %s', tostring(Utils.FormatNumber(amount)))
-            end
-        end
-
-        return StatsGuiClass
-    end
-    function __DARKLUA_BUNDLE_MODULES.n()
-        local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
-        local Players = cloneref(game:GetService('Players'))
-        local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
-        local ClientData = Bypass('ClientData')
-        local InventoryDB = Bypass('InventoryDB')
-        local StatsGuiClass = __DARKLUA_BUNDLE_MODULES.load('m')
-        local ClipboardHandler = {}
-        local localPlayer = Players.LocalPlayer
-        local megaPets = {}
-        local neonPets = {}
-        local normalPets = {}
-        local petsTable = {}
-        local petAccessoriesTable = {}
-        local strollersTable = {}
-        local foodTable = {}
-        local transportTable = {}
-        local toysTable = {}
-        local giftsTable = {}
-        local allInventory = ''
-        local clearTables = function()
-            table.clear(megaPets)
-            table.clear(neonPets)
-            table.clear(normalPets)
-            table.clear(petsTable)
-            table.clear(petAccessoriesTable)
-            table.clear(strollersTable)
-            table.clear(foodTable)
-            table.clear(transportTable)
-            table.clear(toysTable)
-            table.clear(giftsTable)
-        end
-        local getInventoryInfo = function(tab, tablePassOn)
-            for _, v in pairs(ClientData.get_data()[localPlayer.Name].inventory[tab])do
-                if v.id == 'practice_dog' then
-                    continue
-                end
-
-                tablePassOn[v.id] = (tablePassOn[v.id] or 0) + 1
-            end
-        end
-        local getTable = function(inventoryPassOn, tablePassOn, namePassOn)
-            for i, v in tablePassOn do
-                for _, v2 in InventoryDB[inventoryPassOn]do
-                    if i == tostring(v2.id) then
-                        allInventory = allInventory .. '[' .. namePassOn .. '] ' .. v2.name .. ' x' .. v .. '\n'
-                    end
-                end
-            end
-        end
-        local getAgeupPotionInfo = function()
-            local count = 0
-
-            for _, v in pairs(ClientData.get_data()[localPlayer.Name].inventory.food)do
-                if v.id == 'pet_age_potion' then
-                    count = count + 1
-                end
-            end
-
-            return count
-        end
-        local addComma = function(amount)
-            local formatted = amount
-            local k
-
-            while true do
-                formatted, k = string.gsub(formatted, '^(-?%d+)(%d%d%d)', '%1,%2')
-
-                if k == 0 then
-                    break
-                end
-            end
-
-            return formatted
-        end
-        local getBucksInfo = function()
-            local potions = getAgeupPotionInfo()
-            local potionAmount = potions * 0.04
-            local bucks = ClientData.get_data()[localPlayer.Name].money or 0
-
-            allInventory = allInventory .. string.format('%s Age-up Potions + %s Bucks | Adopt me\n', tostring(potions), tostring(addComma(bucks)))
-
-            local formatNumber = string.format('%.2f', potionAmount)
-
-            allInventory = allInventory .. string.format('sell for $%s  %s\n\n', tostring(tostring(formatNumber)), tostring(localPlayer.Name))
-        end
-        local CopyAllInventory = function()
-            getInventoryInfo('pets', petsTable)
-            getInventoryInfo('pet_accessories', petAccessoriesTable)
-            getInventoryInfo('strollers', strollersTable)
-            getInventoryInfo('food', foodTable)
-            getInventoryInfo('transport', transportTable)
-            getInventoryInfo('toys', toysTable)
-            getInventoryInfo('gifts', giftsTable)
-            getBucksInfo()
-            getTable('pets', petsTable, 'PET')
-            getTable('pet_accessories', petAccessoriesTable, 'PET_ACCESSORIE')
-            getTable('strollers', strollersTable, 'STROLLER')
-            getTable('food', foodTable, 'FOOD')
-            getTable('transport', transportTable, 'TRANSPORT')
-            getTable('toys', toysTable, 'TOY')
-            getTable('gifts', giftsTable, 'GIFT')
-            setclipboard(allInventory)
-
-            allInventory = ''
-
-            clearTables()
-        end
-        local CopyAllIdsFromDatabase = function()
-            local data = ''
-            local lines = 
-[[
-
-============================================================
-]]
-
-            for catagoryName, catagoryTable in InventoryDB do
-                data = data .. lines
-                data = data .. string.format('\n                    %s                    \n', tostring(string.upper(catagoryName)))
-                data = data .. lines .. '\n'
-
-                for id, _ in catagoryTable do
-                    data = data .. string.format('%s\n', tostring(id))
-                end
-            end
-
-            setclipboard(data)
-
-            data = ''
-        end
-
-        function ClipboardHandler.Init() end
-        function ClipboardHandler.Start()
-            StatsGuiClass.CreateButton({
-                Name = 'copy all inventory display names',
-                Text = '\u{1f4cb}',
-                Position = UDim2.new(0.68, 0, 0.95, 0),
-                Callback = function()
-                    CopyAllInventory()
-                end,
-            })
-            StatsGuiClass.CreateButton({
-                Name = 'copy all inventory ids',
-                Text = '\u{1f4c3}',
-                Position = UDim2.new(0.78, 0, 0.95, 0),
-                Callback = function()
-                    CopyAllIdsFromDatabase()
-                end,
-            })
-        end
-
-        return ClipboardHandler
-    end
-    function __DARKLUA_BUNDLE_MODULES.o()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -4607,7 +4265,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.p()
+    function __DARKLUA_BUNDLE_MODULES.n()
         local Players = cloneref(game:GetService('Players'))
         local self = {}
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
@@ -4719,7 +4377,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.q()
+    function __DARKLUA_BUNDLE_MODULES.o()
         local Players = cloneref(game:GetService('Players'))
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local Trade = __DARKLUA_BUNDLE_MODULES.load('f')
@@ -5090,7 +4748,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.r()
+    function __DARKLUA_BUNDLE_MODULES.p()
         local Workspace = (cloneref(game:GetService('Workspace')))
         local Terrain = (Workspace:WaitForChild('Terrain'))
         local Lighting = (cloneref(game:GetService('Lighting')))
@@ -5191,10 +4849,224 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.s()
+    function __DARKLUA_BUNDLE_MODULES.q()
+        local Players = cloneref(game:GetService('Players'))
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
+        local StatsGuiClass = {}
+
+        StatsGuiClass.__index = StatsGuiClass
+
+        local localPlayer = Players.LocalPlayer
+        local otherGuis = {}
+        local DEFAULT_COLOR = Color3.fromRGB(0, 0, 0)
+        local setButtonUiSettings = function(buttonSettings)
+            local button = Instance.new('TextButton')
+
+            button.Name = buttonSettings.Name
+            button.AnchorPoint = Vector2.new(0.5, 0.5)
+            button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            button.BackgroundTransparency = 1
+            button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            button.BorderSizePixel = 0
+            button.Position = buttonSettings.Position
+            button.Size = UDim2.new(0.2, 0, 0.2, 0)
+            button.Font = Enum.Font.FredokaOne
+            button.Text = buttonSettings.Text
+            button.TextColor3 = Color3.fromRGB(0, 0, 0)
+            button.TextScaled = true
+            button.TextSize = 14
+            button.TextWrapped = true
+            button.TextXAlignment = Enum.TextXAlignment.Left
+            button.Parent = localPlayer:WaitForChild('PlayerGui'):WaitForChild('StatsGui')
+
+            return button
+        end
+
+        function StatsGuiClass.new(name)
+            local self = setmetatable({}, StatsGuiClass)
+
+            self.TextLabel = Instance.new('TextLabel')
+            self.UICorner = Instance.new('UICorner')
+            self.TextLabel.Name = name
+            self.TextLabel.BackgroundColor3 = DEFAULT_COLOR
+            self.TextLabel.BackgroundTransparency = 0.25
+            self.TextLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            self.TextLabel.BorderSizePixel = 0
+            self.TextLabel.Size = UDim2.new(0.330000013, 0, 0.486617982, 0)
+            self.TextLabel.Font = Enum.Font.FredokaOne
+            self.TextLabel.RichText = false
+            self.TextLabel.Text = ''
+            self.TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+            self.TextLabel.TextScaled = true
+            self.TextLabel.TextSize = 14
+            self.TextLabel.TextStrokeTransparency = 0
+            self.TextLabel.TextWrapped = true
+            self.StatsGui = localPlayer:WaitForChild('PlayerGui'):WaitForChild('StatsGui')
+            self.TextLabel.Parent = self.StatsGui:WaitForChild('MainFrame'):WaitForChild('MiddleFrame')
+            self.UICorner.CornerRadius = UDim.new(0, 16)
+            self.UICorner.Parent = self.TextLabel
+            self.Debounce = false
+
+            return self
+        end
+        function StatsGuiClass.Init()
+            local StatsGui = Instance.new('ScreenGui')
+
+            StatsGui.Name = 'StatsGui'
+            StatsGui.DisplayOrder = 0
+            StatsGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+            StatsGui.Parent = localPlayer:WaitForChild('PlayerGui')
+
+            local MainFrame = Instance.new('Frame')
+
+            MainFrame.Name = 'MainFrame'
+            MainFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            MainFrame.BackgroundTransparency = 1
+            MainFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            MainFrame.BorderSizePixel = 0
+            MainFrame.Position = UDim2.new(0.276041657, 0, 0.0577475652, 0)
+            MainFrame.Size = UDim2.new(0.674468458, 0, 0.795313776, 0)
+            MainFrame.Parent = StatsGui
+            otherGuis.TimeLabel = Instance.new('TextLabel')
+            otherGuis.TimeLabel.Name = 'TimeLabel'
+            otherGuis.TimeLabel.BackgroundColor3 = DEFAULT_COLOR
+            otherGuis.TimeLabel.BackgroundTransparency = 0.25
+            otherGuis.TimeLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            otherGuis.TimeLabel.BorderSizePixel = 0
+            otherGuis.TimeLabel.Size = UDim2.new(1, 0, 0.200000018, 0)
+            otherGuis.TimeLabel.Font = Enum.Font.FredokaOne
+            otherGuis.TimeLabel.RichText = false
+            otherGuis.TimeLabel.Text = '\u{23f1}\u{fe0f} time'
+            otherGuis.TimeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+            otherGuis.TimeLabel.TextScaled = true
+            otherGuis.TimeLabel.TextSize = 14
+            otherGuis.TimeLabel.TextStrokeTransparency = 0
+            otherGuis.TimeLabel.TextWrapped = true
+            otherGuis.TimeLabel.Parent = MainFrame
+
+            local UICorner = Instance.new('UICorner')
+
+            UICorner.CornerRadius = UDim.new(0, 16)
+            UICorner.Parent = otherGuis.TimeLabel
+
+            local MiddleFrame = Instance.new('Frame')
+
+            MiddleFrame.Name = 'MiddleFrame'
+            MiddleFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            MiddleFrame.BackgroundTransparency = 1
+            MiddleFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            MiddleFrame.BorderSizePixel = 0
+            MiddleFrame.Position = UDim2.new(0, 0, 0.219711155, 0)
+            MiddleFrame.Size = UDim2.new(0.999243617, 0, 0.55549103, 0)
+            MiddleFrame.Parent = MainFrame
+
+            local UIGridLayout = Instance.new('UIGridLayout')
+
+            UIGridLayout.SortOrder = Enum.SortOrder.LayoutOrder
+            UIGridLayout.CellPadding = UDim2.new(0.00999999978, 0, 0.00999999978, 0)
+            UIGridLayout.CellSize = UDim2.new(0.242, 0, 0.5, 0)
+            UIGridLayout.FillDirectionMaxCells = 0
+            UIGridLayout.Parent = MiddleFrame
+
+            local TextButton = Instance.new('TextButton')
+
+            TextButton.AnchorPoint = Vector2.new(0.5, 0.5)
+            TextButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            TextButton.BackgroundTransparency = 1
+            TextButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            TextButton.BorderSizePixel = 0
+            TextButton.Position = UDim2.new(0.33, 0, 0.018, 0)
+            TextButton.Size = UDim2.new(0.1, 0, 0.1, 0)
+            TextButton.Font = Enum.Font.FredokaOne
+            TextButton.Text = '\u{1f648}'
+            TextButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+            TextButton.TextScaled = true
+            TextButton.TextSize = 14
+            TextButton.TextWrapped = true
+            TextButton.TextXAlignment = Enum.TextXAlignment.Left
+            TextButton.Parent = StatsGui
+
+            local TIME_SAVED
+
+            otherGuis.TimeLabel.MouseEnter:Connect(function()
+                TIME_SAVED = otherGuis.TimeLabel.Text
+                otherGuis.TimeLabel.Text = string.format('\u{1f916} %s', tostring(localPlayer.Name))
+            end)
+            otherGuis.TimeLabel.MouseLeave:Connect(function()
+                otherGuis.TimeLabel.Text = TIME_SAVED
+            end)
+
+            local isVisible = true
+
+            TextButton.Activated:Connect(function()
+                isVisible = not isVisible
+                MainFrame.Visible = isVisible
+            end)
+        end
+        function StatsGuiClass.SetTimeLabelText(startTime)
+            local currentTime = DateTime.now().UnixTimestamp
+            local timeElapsed = currentTime - startTime
+
+            otherGuis.TimeLabel.Text = string.format('\u{23f1}\u{fe0f} %s', tostring(Utils.FormatTime(timeElapsed)))
+        end
+        function StatsGuiClass.CreateButton(buttonSettings)
+            local button = setButtonUiSettings(buttonSettings)
+
+            button.Activated:Connect(function()
+                buttonSettings.Callback()
+
+                button.Text = '\u{2705}'
+
+                task.wait(1)
+
+                button.Text = buttonSettings.Text
+            end)
+        end
+        function StatsGuiClass.UpdateTextForTotal(self)
+            if self.TextLabel.Name == 'TotalPotions' then
+                local formatted = Utils.FormatNumber(Utils.FoodItemCount('pet_age_potion'))
+
+                self.TextLabel.Text = string.format('\u{1f9ea} %s', tostring(formatted))
+            elseif self.TextLabel.Name == 'TotalTinyPotions' then
+                local formatted = Utils.FormatNumber(Utils.FoodItemCount('tiny_pet_age_potion'))
+
+                self.TextLabel.Text = string.format('\u{2697}\u{fe0f} %s', tostring(formatted))
+            elseif self.TextLabel.Name == 'TotalBucks' then
+                local formatted = Utils.FormatNumber(Utils.BucksAmount())
+
+                self.TextLabel.Text = string.format('\u{1f4b0} %s', tostring(formatted))
+            elseif self.TextLabel.Name == 'TotalEventCurrency' then
+                local formatted = Utils.FormatNumber(Utils.EventCurrencyAmount())
+
+                self.TextLabel.Text = string.format('\u{1f9e1} %s', tostring(formatted))
+            elseif self.TextLabel.Name == 'TotalShiverBaits' then
+                local formatted = Utils.FormatNumber(Utils.FoodItemCount('ice_dimension_2025_shiver_cone_bait'))
+
+                self.TextLabel.Text = string.format('\u{1f43a} %s', tostring(formatted))
+            elseif self.TextLabel.Name == 'TotalSubzeroBaits' then
+                local formatted = Utils.FormatNumber(Utils.FoodItemCount('ice_dimension_2025_subzero_popsicle_bait'))
+
+                self.TextLabel.Text = string.format('\u{1f982} %s', tostring(formatted))
+            end
+        end
+        function StatsGuiClass.UpdateTextForTemp(self, amount)
+            if self.TextLabel.Name == 'TempPotions' and amount then
+                self.TextLabel.Text = string.format('\u{1f9ea} %s', tostring(Utils.FormatNumber(amount)))
+            elseif self.TextLabel.Name == 'TempTinyPotions' and amount then
+                self.TextLabel.Text = string.format('\u{2697}\u{fe0f} %s', tostring(Utils.FormatNumber(amount)))
+            elseif self.TextLabel.Name == 'TempBucks' and amount then
+                self.TextLabel.Text = string.format('\u{1f4b0} %s', tostring(Utils.FormatNumber(amount)))
+            elseif self.TextLabel.Name == 'TempEventCurrency' and amount then
+                self.TextLabel.Text = string.format('\u{1f9e1} %s', tostring(Utils.FormatNumber(amount)))
+            end
+        end
+
+        return StatsGuiClass
+    end
+    function __DARKLUA_BUNDLE_MODULES.r()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
-        local StatsGuiClass = __DARKLUA_BUNDLE_MODULES.load('m')
+        local StatsGuiClass = __DARKLUA_BUNDLE_MODULES.load('q')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local self = {}
         local localPlayer = Players.LocalPlayer
@@ -5299,7 +5171,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.t()
+    function __DARKLUA_BUNDLE_MODULES.s()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -5468,7 +5340,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.u()
+    function __DARKLUA_BUNDLE_MODULES.t()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -5502,7 +5374,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.v()
+    function __DARKLUA_BUNDLE_MODULES.u()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -5554,7 +5426,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.w()
+    function __DARKLUA_BUNDLE_MODULES.v()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local HttpService = cloneref(game:GetService('HttpService'))
@@ -5761,7 +5633,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.x()
+    function __DARKLUA_BUNDLE_MODULES.w()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Workspace = cloneref(game:GetService('Workspace'))
         local Players = cloneref(game:GetService('Players'))
@@ -6400,7 +6272,7 @@ do
 
         return Ailment
     end
-    function __DARKLUA_BUNDLE_MODULES.y()
+    function __DARKLUA_BUNDLE_MODULES.x()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -6597,18 +6469,18 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.z()
+    function __DARKLUA_BUNDLE_MODULES.y()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
         local CollisionsClient = Bypass('CollisionsClient')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local Ailment = __DARKLUA_BUNDLE_MODULES.load('x')
+        local Ailment = __DARKLUA_BUNDLE_MODULES.load('w')
         local Furniture = __DARKLUA_BUNDLE_MODULES.load('c')
         local Teleport = __DARKLUA_BUNDLE_MODULES.load('g')
         local GetInventory = __DARKLUA_BUNDLE_MODULES.load('j')
-        local FarmingPet = __DARKLUA_BUNDLE_MODULES.load('y')
+        local FarmingPet = __DARKLUA_BUNDLE_MODULES.load('x')
         local Fusion = __DARKLUA_BUNDLE_MODULES.load('i')
         local self = {}
         local UpdateTextEvent = (ReplicatedStorage:WaitForChild('UpdateTextEvent'))
@@ -6944,7 +6816,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.A()
+    function __DARKLUA_BUNDLE_MODULES.z()
         local InterfaceBuild = '9NBD'
         local Release = 'Build 1.67'
         local RayfieldFolder = 'Rayfield'
@@ -10854,17 +10726,150 @@ Check the Developer Console for more information.]],
 
         return RayfieldLibrary
     end
+    function __DARKLUA_BUNDLE_MODULES.A()
+        local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
+        local Players = cloneref(game:GetService('Players'))
+        local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
+        local ClientData = Bypass('ClientData')
+        local InventoryDB = Bypass('InventoryDB')
+        local Clipboard = {}
+        local localPlayer = Players.LocalPlayer
+        local getInventoryInfo = function(tab, tablePassOn)
+            for _, v in pairs(ClientData.get_data()[localPlayer.Name].inventory[tab])do
+                if v.id == 'practice_dog' then
+                    continue
+                end
+
+                tablePassOn[v.id] = (tablePassOn[v.id] or 0) + 1
+            end
+        end
+        local getTable = function(nameId, tablePassOn)
+            local text = ''
+
+            for i, v in tablePassOn do
+                for _, v2 in InventoryDB[nameId]do
+                    if i == tostring(v2.id) then
+                        text = text .. '[' .. string.upper(nameId) .. '] ' .. v2.name .. ' x' .. v .. '\n'
+                    end
+                end
+            end
+
+            return text
+        end
+        local getAgeupPotionInfo = function()
+            local count = 0
+
+            for _, v in pairs(ClientData.get_data()[localPlayer.Name].inventory.food)do
+                if v.id == 'pet_age_potion' then
+                    count = count + 1
+                end
+            end
+
+            return count
+        end
+        local addComma = function(amount)
+            local formatted = amount
+            local k
+
+            while true do
+                formatted, k = string.gsub(formatted, '^(-?%d+)(%d%d%d)', '%1,%2')
+
+                if k == 0 then
+                    break
+                end
+            end
+
+            return formatted
+        end
+        local getBucksInfo = function()
+            local text = ''
+            local potions = getAgeupPotionInfo()
+            local potionAmount = potions * 0.03
+            local bucks = ClientData.get_data()[localPlayer.Name].money or 0
+
+            text = text .. string.format('%s Age-up Potions + %s Bucks | Adopt me\n', tostring(potions), tostring(addComma(bucks)))
+
+            local formatNumber = string.format('%.2f', potionAmount)
+
+            text = text .. string.format('sell for $%s  %s\n\n', tostring(tostring(formatNumber)), tostring(localPlayer.Name))
+
+            return text
+        end
+
+        function Clipboard.GetAllInventoryData()
+            local inventoryData = ''
+            local inventoryTables = {
+                petsTable = {},
+                petAccessoriesTable = {},
+                strollersTable = {},
+                foodTable = {},
+                transportTable = {},
+                toysTable = {},
+                giftsTable = {},
+            }
+
+            getInventoryInfo('pets', inventoryTables.petsTable)
+            getInventoryInfo('pet_accessories', inventoryTables.petAccessoriesTable)
+            getInventoryInfo('strollers', inventoryTables.strollersTable)
+            getInventoryInfo('food', inventoryTables.foodTable)
+            getInventoryInfo('transport', inventoryTables.transportTable)
+            getInventoryInfo('toys', inventoryTables.toysTable)
+            getInventoryInfo('gifts', inventoryTables.giftsTable)
+
+            inventoryData = inventoryData .. getBucksInfo()
+            inventoryData = inventoryData .. getTable('pets', inventoryTables.petsTable)
+            inventoryData = inventoryData .. getTable('pet_accessories', inventoryTables.petAccessoriesTable)
+            inventoryData = inventoryData .. getTable('strollers', inventoryTables.strollersTable)
+            inventoryData = inventoryData .. getTable('food', inventoryTables.foodTable)
+            inventoryData = inventoryData .. getTable('transport', inventoryTables.transportTable)
+            inventoryData = inventoryData .. getTable('toys', inventoryTables.toysTable)
+            inventoryData = inventoryData .. getTable('gifts', inventoryTables.giftsTable)
+
+            return inventoryData
+        end
+        function Clipboard.GetIdsFromDatabase(nameId)
+            local data = ''
+            local lines = 
+[[
+
+---------------------------------------------------------------
+]]
+
+            for catagoryName, catagoryTable in InventoryDB do
+                if catagoryName ~= nameId then
+                    continue
+                end
+
+                data = data .. lines
+                data = data .. string.format('\n                    %s                    \n', tostring(string.upper(catagoryName)))
+                data = data .. lines .. '\n'
+
+                for id, _ in catagoryTable do
+                    data = data .. string.format('%s\n', tostring(id))
+                end
+            end
+
+            return data
+        end
+
+        return Clipboard
+    end
     function __DARKLUA_BUNDLE_MODULES.B()
         local Players = cloneref(game:GetService('Players'))
-        local Rayfield = __DARKLUA_BUNDLE_MODULES.load('A')
+        local Rayfield = __DARKLUA_BUNDLE_MODULES.load('z')
         local GetInventory = __DARKLUA_BUNDLE_MODULES.load('j')
+        local Clipboard = __DARKLUA_BUNDLE_MODULES.load('A')
         local Fusion = __DARKLUA_BUNDLE_MODULES.load('i')
         local Trade = __DARKLUA_BUNDLE_MODULES.load('f')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
+        local BulkPotion = __DARKLUA_BUNDLE_MODULES.load('k')
         local self = {}
         local localPlayer = Players.LocalPlayer
+        local cooldown = false
         local selectedPlayer
         local selectedPet
+        local selectedAgeablePet
+        local selectedAgeableNumber
         local selectedGift
         local selectedToy
         local selectedFood
@@ -10938,19 +10943,74 @@ Check the Developer Console for more information.]],
                     },
                 },
             })
-            local FarmTab = Window:CreateTab('Misc', 4483362458)
+            local MiscTab = Window:CreateTab('Misc', 4483362458)
 
-            FarmTab:CreateSection('1 Click = ALL Neon/Mega')
-            FarmTab:CreateButton({
+            MiscTab:CreateSection('1 Click = ALL Neon/Mega')
+            MiscTab:CreateButton({
                 Name = 'Make Neons',
                 Callback = function()
                     Fusion.MakeMega(false)
                 end,
             })
-            FarmTab:CreateButton({
+            MiscTab:CreateButton({
                 Name = 'Make Megas',
                 Callback = function()
                     Fusion.MakeMega(true)
+                end,
+            })
+            MiscTab:CreateDivider()
+            MiscTab:CreateButton({
+                Name = 'Get player inventory data',
+                Callback = function()
+                    setclipboard(Clipboard.GetAllInventoryData())
+                end,
+            })
+            MiscTab:CreateButton({
+                Name = "Get pets database id's",
+                Callback = function()
+                    setclipboard(Clipboard.GetIdsFromDatabase('pets'))
+                end,
+            })
+            MiscTab:CreateButton({
+                Name = "Get gifts database id's",
+                Callback = function()
+                    setclipboard(Clipboard.GetIdsFromDatabase('gifts'))
+                end,
+            })
+            MiscTab:CreateButton({
+                Name = "Get pet_accessories (pet wear and wings) database id's",
+                Callback = function()
+                    setclipboard(Clipboard.GetIdsFromDatabase('pet_accessories'))
+                end,
+            })
+            MiscTab:CreateButton({
+                Name = "Get toys database id's",
+                Callback = function()
+                    setclipboard(Clipboard.GetIdsFromDatabase('toys'))
+                end,
+            })
+            MiscTab:CreateButton({
+                Name = "Get transport database id's",
+                Callback = function()
+                    setclipboard(Clipboard.GetIdsFromDatabase('transport'))
+                end,
+            })
+            MiscTab:CreateButton({
+                Name = "Get food database id's",
+                Callback = function()
+                    setclipboard(Clipboard.GetIdsFromDatabase('food'))
+                end,
+            })
+            MiscTab:CreateButton({
+                Name = "Get strollers database id's",
+                Callback = function()
+                    setclipboard(Clipboard.GetIdsFromDatabase('strollers'))
+                end,
+            })
+            MiscTab:CreateButton({
+                Name = "Get stickers database id's",
+                Callback = function()
+                    setclipboard(Clipboard.GetIdsFromDatabase('stickers'))
                 end,
             })
 
@@ -11498,6 +11558,63 @@ Check the Developer Console for more information.]],
                     end
                 end,
             })
+
+            local ageUpPotionTab = Window:CreateTab('Age Up Potion', 4483362458)
+            local petToAge = ageUpPotionTab:CreateDropdown({
+                Name = 'Select pet to age',
+                Options = {
+                    '',
+                },
+                CurrentOption = {
+                    '',
+                },
+                MultipleOptions = false,
+                Flag = 'Dropdown1',
+                Callback = function(Options)
+                    selectedAgeablePet = Options[1]
+                end,
+            })
+
+            ageUpPotionTab:CreateSlider({
+                Name = 'How many to age up',
+                Range = {1, 100},
+                Increment = 1,
+                Suffix = 'Mega Pets',
+                CurrentValue = 100,
+                Flag = 'Slider1',
+                Callback = function(Value)
+                    selectedAgeableNumber = Value
+                end,
+            })
+            ageUpPotionTab:CreateButton({
+                Name = 'Refresh pet list',
+                Callback = function()
+                    petToAge:Refresh(GetInventory.GetAgeablePets())
+                end,
+            })
+            ageUpPotionTab:CreateDivider()
+            ageUpPotionTab:CreateButton({
+                Name = 'START aging pet',
+                Callback = function()
+                    if cooldown then
+                        return
+                    end
+
+                    cooldown = true
+
+                    localPlayer:SetAttribute('StopFarmingTemp', true)
+                    BulkPotion.StartAgingPets({
+                        {
+                            NameId = selectedAgeablePet,
+                            MaxAmount = selectedAgeableNumber,
+                        },
+                    })
+                    task.wait(1)
+                    localPlayer:SetAttribute('StopFarmingTemp', false)
+
+                    cooldown = false
+                end,
+            })
         end
 
         function self.Init() end
@@ -11613,37 +11730,34 @@ local files = {
         PrepareAccountHandler = __DARKLUA_BUNDLE_MODULES.load('l'),
     },
     {
-        ClipboardHandler = __DARKLUA_BUNDLE_MODULES.load('n'),
+        DailyRewardHandler = __DARKLUA_BUNDLE_MODULES.load('m'),
     },
     {
-        DailyRewardHandler = __DARKLUA_BUNDLE_MODULES.load('o'),
+        FTUEStarterPackAppHandler = __DARKLUA_BUNDLE_MODULES.load('n'),
     },
     {
-        FTUEStarterPackAppHandler = __DARKLUA_BUNDLE_MODULES.load('p'),
+        GameGuiHandler = __DARKLUA_BUNDLE_MODULES.load('o'),
     },
     {
-        GameGuiHandler = __DARKLUA_BUNDLE_MODULES.load('q'),
+        PotatoModeHandler = __DARKLUA_BUNDLE_MODULES.load('p'),
     },
     {
-        PotatoModeHandler = __DARKLUA_BUNDLE_MODULES.load('r'),
+        StatsGuiHandler = __DARKLUA_BUNDLE_MODULES.load('r'),
     },
     {
-        StatsGuiHandler = __DARKLUA_BUNDLE_MODULES.load('s'),
+        TaskBoardHandler = __DARKLUA_BUNDLE_MODULES.load('s'),
     },
     {
-        TaskBoardHandler = __DARKLUA_BUNDLE_MODULES.load('t'),
+        TradeLicenseHandler = __DARKLUA_BUNDLE_MODULES.load('t'),
     },
     {
-        TradeLicenseHandler = __DARKLUA_BUNDLE_MODULES.load('u'),
+        TutorialHandler = __DARKLUA_BUNDLE_MODULES.load('u'),
     },
     {
-        TutorialHandler = __DARKLUA_BUNDLE_MODULES.load('v'),
+        WebhookHandler = __DARKLUA_BUNDLE_MODULES.load('v'),
     },
     {
-        WebhookHandler = __DARKLUA_BUNDLE_MODULES.load('w'),
-    },
-    {
-        AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.load('z'),
+        AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.load('y'),
     },
     {
         RayfieldHandler = __DARKLUA_BUNDLE_MODULES.load('B'),
