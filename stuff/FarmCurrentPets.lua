@@ -45,6 +45,7 @@ getgenv().SETTINGS = {
 	},
 
 	TRADE_LIST = {
+		"butterfly_2025_moonbeam_butterfly",
 		"butterfly_2025_prismatic_butterfly",
 		"butterfly_2025_snapdragon_flower",
 		"moon_2025_royal_egg",
