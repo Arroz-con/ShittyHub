@@ -669,6 +669,10 @@ do
                 'spring_2025_minigame_scorching_kaijunior',
                 'spring_2025_minigame_toxic_kaijunior',
                 'spring_2025_minigame_spotted_kaijunior',
+                'beach_2024_mahi_spinning_rod_temporary',
+                'sandwich-default',
+                'squeaky_bone_default',
+                'trade_license',
             },
             Allowlist = {
                 'ice_dimension_2025_frostbite_bear',
@@ -11017,9 +11021,8 @@ Check the Developer Console for more information.]],
             local TradeTab = Window:CreateTab('Auto Trade', 4483362458)
 
             TradeTab:CreateSection('only enable Auto Accept trade on alt getting the items')
-
-            getgenv().AutoTradeToggle = TradeTab:CreateToggle({
-                Name = 'Auto Accept Trade',
+            TradeTab:CreateToggle({
+                Name = 'Auto accept trade windows',
                 CurrentValue = false,
                 Flag = 'Toggle1',
                 Callback = function(Value)
@@ -11388,14 +11391,14 @@ Check the Developer Console for more information.]],
                 MultipleOptions = false,
                 Flag = 'Dropdown1',
                 Callback = function(Option)
-                    selectedPet = Option[1] or 'Nothing'
+                    selectedPet = Option[1] or ''
                 end,
             })
 
             TradeTab:CreateButton({
-                Name = 'Refesh Pet list',
+                Name = 'Refresh Pet list',
                 Callback = function()
-                    petsDropdown:Set(GetInventory.TabId('pets'))
+                    petsDropdown:Refresh(GetInventory.TabId('pets'))
                 end,
             })
 
@@ -11439,9 +11442,9 @@ Check the Developer Console for more information.]],
             })
 
             TradeTab:CreateButton({
-                Name = 'Refesh Gift list',
+                Name = 'Refresh Gift list',
                 Callback = function()
-                    giftsDropdown:Set(GetInventory.TabId('gifts'))
+                    giftsDropdown:Refresh(GetInventory.TabId('gifts'))
                 end,
             })
 
@@ -11485,9 +11488,9 @@ Check the Developer Console for more information.]],
             })
 
             TradeTab:CreateButton({
-                Name = 'Refesh Toy list',
+                Name = 'Refresh Toy list',
                 Callback = function()
-                    toysDropdown:Set(GetInventory.TabId('toys'))
+                    toysDropdown:Refresh(GetInventory.TabId('toys'))
                 end,
             })
 
@@ -11531,9 +11534,9 @@ Check the Developer Console for more information.]],
             })
 
             TradeTab:CreateButton({
-                Name = 'Refesh Food list',
+                Name = 'Refresh Food list',
                 Callback = function()
-                    foodDropdown:Set(GetInventory.TabId('food'))
+                    foodDropdown:Refresh(GetInventory.TabId('food'))
                 end,
             })
 
