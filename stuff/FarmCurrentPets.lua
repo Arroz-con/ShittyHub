@@ -6,9 +6,9 @@
 --     "halloween_2024_chick_box"
 -- }
 
-getgenv().AGE_PETS_BEFORE_FARMING = {
-	{NameId = "butterfly_2025_seafoam_butterfly", MaxAmount = 99},
-}
+-- getgenv().AGE_PETS_BEFORE_FARMING = {
+-- 	{NameId = "butterfly_2025_seafoam_butterfly", MaxAmount = 99},
+-- }
 
 
 getgenv().SETTINGS = {
@@ -47,6 +47,7 @@ getgenv().SETTINGS = {
 	TRADE_LIST = {
 		"butterfly_2025_moonbeam_butterfly",
 		"butterfly_2025_prismatic_butterfly",
+		"butterfly_2025_seafoam_butterfly",
 		"butterfly_2025_snapdragon_flower",
 		"moon_2025_royal_egg",
 		"lures_2023_blazing_lion",
