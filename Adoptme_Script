@@ -604,42 +604,36 @@ do
         local ClientData = Bypass('ClientData')
         local RouterClient = Bypass('RouterClient')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local self = {
-            basiccrib = nil,
-            stylishshower = nil,
-            modernshower = nil,
-            piano = nil,
-            lures_2023_normal_lure = nil,
-            ailments_refresh_2024_litter_box = nil,
-        }
+        local self = {}
         local localPlayer = Players.LocalPlayer
-        local findFurnitures = function()
-            if self['basiccrib'] then
-                return self
-            end
+        local furnitures = {
+            basiccrib = 'nil',
+            stylishshower = 'nil',
+            modernshower = 'nil',
+            piano = 'nil',
+            lures_2023_normal_lure = 'nil',
+            ailments_refresh_2024_litter_box = 'nil',
+        }
 
+        function self.GetFurnituresKey()
             Utils.PrintDebug('getting furniture ids')
 
             for key, value in ClientData.get_data()[localPlayer.Name].house_interior.furniture do
                 if value.id == 'basiccrib' then
-                    self['basiccrib'] = key
+                    furnitures['basiccrib'] = key
                 elseif value.id == 'stylishshower' or value.id == 'modernshower' then
-                    self['stylishshower'] = key
-                    self['modernshower'] = key
+                    furnitures['stylishshower'] = key
+                    furnitures['modernshower'] = key
                 elseif value.id == 'piano' then
-                    self['piano'] = key
+                    furnitures['piano'] = key
                 elseif value.id == 'lures_2023_normal_lure' then
-                    self['lures_2023_normal_lure'] = key
+                    furnitures['lures_2023_normal_lure'] = key
                 elseif value.id == 'ailments_refresh_2024_litter_box' then
-                    self['ailments_refresh_2024_litter_box'] = key
+                    furnitures['ailments_refresh_2024_litter_box'] = key
                 end
             end
 
-            return self
-        end
-
-        function self.GetFurnituresKey()
-            return findFurnitures()
+            return furnitures
         end
         function self.BuyFurniture(furnitureId)
             local args = {
@@ -653,7 +647,7 @@ do
                 },
             }
 
-            Utils.PrintDebug(RouterClient.get('HousingAPI/BuyFurnitures'):InvokeServer(unpack(args)))
+            RouterClient.get('HousingAPI/BuyFurnitures'):InvokeServer(unpack(args))
         end
 
         return self
@@ -3989,6 +3983,23 @@ do
 
             return false
         end
+        local loopFurniture = function(dict)
+            local updateWithNewKey = false
+
+            for key, value in dict do
+                if dict[key] == 'nil' then
+                    updateWithNewKey = true
+
+                    print(string.format('\u{1f4b8} No key: %s value: %s , so trying to buy it \u{1f4b8}', tostring(key), tostring(value)))
+                    Furniture.BuyFurniture(key)
+                    task.wait(1)
+                end
+            end
+
+            if updateWithNewKey then
+                Furniture.GetFurnituresKey()
+            end
+        end
 
         function self.Init()
             DialogApp.Dialog.ThemeColorDialog:GetPropertyChangedSignal('Visible'):Connect(pickColorTutorial)
@@ -4057,33 +4068,21 @@ do
                 ['dont_send_back_home'] = true,
             })
 
-            local FurnitureKeys = Furniture.GetFurnituresKey()
+            local furnitureKeys = Furniture.GetFurnituresKey()
 
-            for key, value in FurnitureKeys do
-                if typeof(value) == 'function' then
-                    continue
-                end
-                if value then
-                    continue
-                end
-
-                Utils.PrintDebug(string.format('\u{1f4b8} No key: %s value: %s , so trying to buy it \u{1f4b8}', tostring(key), tostring(value)))
-                Furniture.BuyFurniture(key)
-                task.wait(1)
-            end
-
-            Utils.PrintDebug(string.format('Bed: %s \u{1f6cf}\u{fe0f}', tostring(FurnitureKeys.basiccrib)))
-            Utils.PrintDebug(string.format('Shower: %s \u{1f6c1}', tostring(FurnitureKeys.stylishshower)))
-            Utils.PrintDebug(string.format('Piano: %s \u{1f3b9}', tostring(FurnitureKeys.piano)))
-            Utils.PrintDebug(string.format('Normal Lure: %s \u{1f4e6}', tostring(FurnitureKeys.lures_2023_normal_lure)))
-            Utils.PrintDebug(string.format('LitterBox: %s \u{1f6bd}', tostring(FurnitureKeys.ailments_refresh_2024_litter_box)))
+            loopFurniture(furnitureKeys)
+            Utils.PrintDebug(string.format('Bed: %s \u{1f6cf}\u{fe0f}', tostring(furnitureKeys.basiccrib)))
+            Utils.PrintDebug(string.format('Shower: %s \u{1f6c1}', tostring(furnitureKeys.stylishshower)))
+            Utils.PrintDebug(string.format('Piano: %s \u{1f3b9}', tostring(furnitureKeys.piano)))
+            Utils.PrintDebug(string.format('Normal Lure: %s \u{1f4e6}', tostring(furnitureKeys.lures_2023_normal_lure)))
+            Utils.PrintDebug(string.format('LitterBox: %s \u{1f6bd}', tostring(furnitureKeys.ailments_refresh_2024_litter_box)))
 
             local baitUnique = Utils.FindBait()
 
             Utils.PrintDebug(string.format('baitUnique: %s \u{1f36a}', tostring(baitUnique)))
-            Utils.PlaceBaitOrPickUp(FurnitureKeys.lures_2023_normal_lure, baitUnique)
+            Utils.PlaceBaitOrPickUp(furnitureKeys.lures_2023_normal_lure, baitUnique)
             task.wait(1)
-            Utils.PlaceBaitOrPickUp(FurnitureKeys.lures_2023_normal_lure, baitUnique)
+            Utils.PlaceBaitOrPickUp(furnitureKeys.lures_2023_normal_lure, baitUnique)
             task.wait(1)
             Utils.UnEquipAllPets()
             Teleport.PlaceFloorAtFarmingHome()
@@ -6523,7 +6522,7 @@ do
 
                     return
                 elseif key == 'bored' then
-                    if not furniture.piano then
+                    if furniture.piano == 'nil' then
                         continue
                     end
 
@@ -6531,7 +6530,7 @@ do
 
                     return
                 elseif key == 'sleepy' then
-                    if not furniture.basiccrib then
+                    if furniture.basiccrib == 'nil' then
                         continue
                     end
 
@@ -6539,7 +6538,7 @@ do
 
                     return
                 elseif key == 'dirty' then
-                    if not furniture.stylishshower then
+                    if furniture.stylishshower == 'nil' then
                         continue
                     end
 
@@ -6639,7 +6638,7 @@ do
 
                     return true
                 elseif key == 'bored' then
-                    if not furniture.piano then
+                    if furniture.piano == 'nil' then
                         continue
                     end
 
@@ -6647,7 +6646,7 @@ do
 
                     return true
                 elseif key == 'sleepy' then
-                    if not furniture.basiccrib then
+                    if furniture.basiccrib == 'nil' then
                         continue
                     end
 
@@ -6655,7 +6654,7 @@ do
 
                     return true
                 elseif key == 'dirty' then
-                    if not furniture.stylishshower then
+                    if furniture.stylishshower == 'nil' then
                         continue
                     end
 
@@ -6667,7 +6666,7 @@ do
 
                     return true
                 elseif key == 'toilet' then
-                    if not furniture.ailments_refresh_2024_litter_box then
+                    if furniture.ailments_refresh_2024_litter_box == 'nil' then
                         continue
                     end
 
@@ -10788,7 +10787,7 @@ Check the Developer Console for more information.]],
         local getBucksInfo = function()
             local text = ''
             local potions = getAgeupPotionInfo()
-            local potionAmount = potions * 0.03
+            local potionAmount = potions * 0.04
             local bucks = ClientData.get_data()[localPlayer.Name].money or 0
 
             text = text .. string.format('%s Age-up Potions + %s Bucks | Adopt me\n', tostring(potions), tostring(addComma(bucks)))
@@ -11642,7 +11641,7 @@ Check the Developer Console for more information.]],
         local localPlayer = Players.LocalPlayer
         local timeDebouce = false
         local buyAndOpenSnapDragonFlower = function()
-            if Lighting.ClockTime ~= 13 then
+            if Lighting.ClockTime ~= 0 then
                 return
             end
             if timeDebouce then
