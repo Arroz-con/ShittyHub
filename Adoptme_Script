@@ -529,6 +529,9 @@ do
                 'starter_egg',
                 'dog',
                 'cat',
+                'cracked_egg',
+                'basic_egg_2022_ant',
+                'basic_egg_2022_mouse',
                 'spring_2025_minigame_spiked_kaijunior',
                 'spring_2025_minigame_scorching_kaijunior',
                 'spring_2025_minigame_toxic_kaijunior',
@@ -11431,8 +11434,7 @@ Check the Developer Console for more information.]],
             end)
         end
 
-        function self.Init() end
-        function self.Start()
+        function self.Init()
             task.spawn(function()
                 if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, localPlayer.Name) then
                     return
@@ -11486,37 +11488,29 @@ Check the Developer Console for more information.]],
                         task.wait(1)
                     until not NotificationFrame:FindFirstChild('Notification')
                 end)
-
-                local friendList = getLocalPlayerFriends()
-
-                Players.PlayerAdded:Connect(function(player)
-                    player.CharacterAdded:Connect(function()
-                        if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, player.Name) then
-                            return
-                        end
-                        if table.find(friendList, player.Name) then
-                            return
-                        end
-
-                        requestFriendshipWith(player)
-                    end)
-                end)
-
-                for _, player in Players:GetPlayers()do
-                    if player.Name == Players.LocalPlayer.Name then
-                        continue
-                    end
-                    if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, player.Name) then
-                        continue
-                    end
-                    if table.find(friendList, player.Name) then
-                        continue
-                    end
-
-                    requestFriendshipWith(player)
-                    task.wait(rng:NextNumber(1, 5))
-                end
             end)
+        end
+        function self.Start()
+            if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, localPlayer.Name) then
+                return
+            end
+
+            local friendList = getLocalPlayerFriends()
+
+            for _, player in Players:GetPlayers()do
+                if player.Name == localPlayer.Name then
+                    continue
+                end
+                if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, player.Name) then
+                    continue
+                end
+                if table.find(friendList, player.Name) then
+                    continue
+                end
+
+                requestFriendshipWith(player)
+                task.wait(rng:NextNumber(2, 6))
+            end
         end
 
         return self
