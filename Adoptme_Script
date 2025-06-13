@@ -468,136 +468,6 @@ do
         return Utils
     end
     function __DARKLUA_BUNDLE_MODULES.b()
-        local Players = cloneref(game:GetService('Players'))
-        local StarterGui = game:GetService('StarterGui')
-        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local self = {}
-        local localPlayer = Players.LocalPlayer
-        local rng = Random.new()
-        local getLocalPlayerFriends = function()
-            local iterPageItems = function(pages)
-                return coroutine.wrap(function()
-                    local pagenum = 1
-
-                    while true do
-                        for _, item in ipairs(pages:GetCurrentPage())do
-                            coroutine.yield(item, pagenum)
-                        end
-
-                        if pages.IsFinished then
-                            break
-                        end
-
-                        pages:AdvanceToNextPageAsync()
-
-                        pagenum = pagenum + 1
-
-                        task.wait(1)
-                    end
-                end)
-            end
-            local friendPages = Players:GetFriendsAsync(localPlayer.UserId)
-            local usernames = {}
-
-            for item, _pageNo in iterPageItems(friendPages)do
-                table.insert(usernames, item.Username)
-            end
-
-            return usernames
-        end
-        local requestFriendshipWith = function(player)
-            pcall(function()
-                StarterGui:SetCore('PromptSendFriendRequest', player)
-            end)
-        end
-
-        function self.Init() end
-        function self.Start()
-            task.spawn(function()
-                if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, localPlayer.Name) then
-                    return
-                end
-
-                local CoreGui = game:GetService('CoreGui')
-                local RobloxGui = (CoreGui:WaitForChild('RobloxGui'))
-                local PromptDialog = (RobloxGui:WaitForChild('PromptDialog'))
-                local NotificationFrame = RobloxGui:WaitForChild('NotificationFrame')
-
-                PromptDialog:GetPropertyChangedSignal('Visible'):Connect(function(
-                )
-                    if not PromptDialog.Visible then
-                        return
-                    end
-
-                    local containerFrame = (PromptDialog:WaitForChild('ContainerFrame', 15))
-
-                    if not containerFrame then
-                        return
-                    end
-
-                    local confirmButton = (containerFrame:WaitForChild('ConfirmButton', 15))
-
-                    if not confirmButton then
-                        return
-                    end
-
-                    repeat
-                        Utils.ClickGuiButton(confirmButton, 100)
-                        task.wait(1)
-                    until not PromptDialog.Visible
-                end)
-                NotificationFrame.ChildAdded:Connect(function(child)
-                    if child.Name ~= 'Notification' then
-                        return
-                    end
-
-                    local button1 = (child:WaitForChild('Button1', 15))
-
-                    if not button1 then
-                        return
-                    end
-
-                    repeat
-                        Utils.ClickGuiButton(button1)
-                        task.wait(1)
-                    until not NotificationFrame:FindFirstChild('Notification')
-                end)
-
-                local friendList = getLocalPlayerFriends()
-
-                Players.PlayerAdded:Connect(function(player)
-                    player.CharacterAdded:Connect(function()
-                        if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, player.Name) then
-                            return
-                        end
-                        if table.find(friendList, player.Name) then
-                            return
-                        end
-
-                        requestFriendshipWith(player)
-                    end)
-                end)
-
-                for _, player in Players:GetPlayers()do
-                    if player.Name == Players.LocalPlayer.Name then
-                        continue
-                    end
-                    if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, player.Name) then
-                        continue
-                    end
-                    if table.find(friendList, player.Name) then
-                        continue
-                    end
-
-                    requestFriendshipWith(player)
-                    task.wait(rng:NextNumber(1, 10))
-                end
-            end)
-        end
-
-        return self
-    end
-    function __DARKLUA_BUNDLE_MODULES.c()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -652,7 +522,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.d()
+    function __DARKLUA_BUNDLE_MODULES.c()
         return {
             Denylist = {
                 'practice_dog',
@@ -673,7 +543,7 @@ do
             },
         }
     end
-    function __DARKLUA_BUNDLE_MODULES.e()
+    function __DARKLUA_BUNDLE_MODULES.d()
         return {
             'soda_fountain_water',
             'coffee_paper_cup',
@@ -1891,15 +1761,15 @@ do
             'fossil_2024_long_neck_throw_toy',
         }
     end
-    function __DARKLUA_BUNDLE_MODULES.f()
+    function __DARKLUA_BUNDLE_MODULES.e()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
         local RouterClient = Bypass('RouterClient')
         local InventoryDB = Bypass('InventoryDB')
-        local AllowOrDenyList = __DARKLUA_BUNDLE_MODULES.load('d')
-        local TrashItemsList = __DARKLUA_BUNDLE_MODULES.load('e')
+        local AllowOrDenyList = __DARKLUA_BUNDLE_MODULES.load('c')
+        local TrashItemsList = __DARKLUA_BUNDLE_MODULES.load('d')
         local self = {}
         local localPlayer = Players.LocalPlayer
         local lowTierRarity = {
@@ -2588,7 +2458,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.g()
+    function __DARKLUA_BUNDLE_MODULES.f()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Workspace = cloneref(game:GetService('Workspace'))
@@ -2881,7 +2751,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.h()
+    function __DARKLUA_BUNDLE_MODULES.g()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -3064,7 +2934,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.i()
+    function __DARKLUA_BUNDLE_MODULES.h()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -3152,14 +3022,14 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.j()
+    function __DARKLUA_BUNDLE_MODULES.i()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = (Bypass('ClientData'))
         local RouterClient = Bypass('RouterClient')
         local InventoryDB = Bypass('InventoryDB')
-        local AllowOrDenyList = __DARKLUA_BUNDLE_MODULES.load('d')
+        local AllowOrDenyList = __DARKLUA_BUNDLE_MODULES.load('c')
         local self = {}
         local localPlayer = Players.LocalPlayer
         local eggList = {}
@@ -3569,16 +3439,16 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.k()
+    function __DARKLUA_BUNDLE_MODULES.j()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local PetPotionEffectsDB = (require(ReplicatedStorage:WaitForChild('ClientDB'):WaitForChild('PetPotionEffectsDB')))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
         local RouterClient = Bypass('RouterClient')
-        local Fusion = __DARKLUA_BUNDLE_MODULES.load('i')
+        local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('j')
+        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('i')
         local BulkPotion = {}
         local localPlayer = Players.LocalPlayer
 
@@ -3934,7 +3804,7 @@ do
 
         return BulkPotion
     end
-    function __DARKLUA_BUNDLE_MODULES.l()
+    function __DARKLUA_BUNDLE_MODULES.k()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local VirtualUser = cloneref(game:GetService('VirtualUser'))
         local Players = cloneref(game:GetService('Players'))
@@ -3942,12 +3812,12 @@ do
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local RouterClient = Bypass('RouterClient')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local Furniture = __DARKLUA_BUNDLE_MODULES.load('c')
-        local Trade = __DARKLUA_BUNDLE_MODULES.load('f')
-        local Teleport = __DARKLUA_BUNDLE_MODULES.load('g')
-        local BuyItem = __DARKLUA_BUNDLE_MODULES.load('h')
-        local BulkPotion = __DARKLUA_BUNDLE_MODULES.load('k')
-        local Fusion = __DARKLUA_BUNDLE_MODULES.load('i')
+        local Furniture = __DARKLUA_BUNDLE_MODULES.load('b')
+        local Trade = __DARKLUA_BUNDLE_MODULES.load('e')
+        local Teleport = __DARKLUA_BUNDLE_MODULES.load('f')
+        local BuyItem = __DARKLUA_BUNDLE_MODULES.load('g')
+        local BulkPotion = __DARKLUA_BUNDLE_MODULES.load('j')
+        local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
         local self = {}
         local localPlayer = Players.LocalPlayer
         local rng = Random.new()
@@ -4144,7 +4014,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.m()
+    function __DARKLUA_BUNDLE_MODULES.l()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -4268,11 +4138,11 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.n()
+    function __DARKLUA_BUNDLE_MODULES.m()
         local Players = cloneref(game:GetService('Players'))
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local Trade = __DARKLUA_BUNDLE_MODULES.load('f')
-        local Teleport = __DARKLUA_BUNDLE_MODULES.load('g')
+        local Trade = __DARKLUA_BUNDLE_MODULES.load('e')
+        local Teleport = __DARKLUA_BUNDLE_MODULES.load('f')
         local self = {}
         local localPlayer = Players.LocalPlayer
         local PlayerGui = localPlayer:WaitForChild('PlayerGui')
@@ -4639,7 +4509,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.o()
+    function __DARKLUA_BUNDLE_MODULES.n()
         local Workspace = (cloneref(game:GetService('Workspace')))
         local Terrain = (Workspace:WaitForChild('Terrain'))
         local Lighting = (cloneref(game:GetService('Lighting')))
@@ -4740,7 +4610,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.p()
+    function __DARKLUA_BUNDLE_MODULES.o()
         local Players = cloneref(game:GetService('Players'))
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local StatsGuiClass = {}
@@ -4954,10 +4824,10 @@ do
 
         return StatsGuiClass
     end
-    function __DARKLUA_BUNDLE_MODULES.q()
+    function __DARKLUA_BUNDLE_MODULES.p()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
-        local StatsGuiClass = __DARKLUA_BUNDLE_MODULES.load('p')
+        local StatsGuiClass = __DARKLUA_BUNDLE_MODULES.load('o')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local self = {}
         local localPlayer = Players.LocalPlayer
@@ -5062,7 +4932,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.r()
+    function __DARKLUA_BUNDLE_MODULES.q()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -5231,7 +5101,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.s()
+    function __DARKLUA_BUNDLE_MODULES.r()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -5265,7 +5135,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.t()
+    function __DARKLUA_BUNDLE_MODULES.s()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -5317,12 +5187,12 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.u()
+    function __DARKLUA_BUNDLE_MODULES.t()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local HttpService = cloneref(game:GetService('HttpService'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
-        local AllowOrDenyList = __DARKLUA_BUNDLE_MODULES.load('d')
+        local AllowOrDenyList = __DARKLUA_BUNDLE_MODULES.load('c')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local self = {}
         local localPlayer = Players.LocalPlayer
@@ -5524,7 +5394,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.v()
+    function __DARKLUA_BUNDLE_MODULES.u()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Workspace = cloneref(game:GetService('Workspace'))
         local Players = cloneref(game:GetService('Players'))
@@ -5532,8 +5402,8 @@ do
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = (Bypass('ClientData'))
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('j')
-        local Teleport = __DARKLUA_BUNDLE_MODULES.load('g')
+        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('i')
+        local Teleport = __DARKLUA_BUNDLE_MODULES.load('f')
         local localPlayer = Players.LocalPlayer
         local doctorId = nil
 
@@ -6163,15 +6033,15 @@ do
 
         return Ailment
     end
-    function __DARKLUA_BUNDLE_MODULES.w()
+    function __DARKLUA_BUNDLE_MODULES.v()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
         local RouterClient = Bypass('RouterClient')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('j')
-        local Fusion = __DARKLUA_BUNDLE_MODULES.load('i')
+        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('i')
+        local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
         local self = {}
         local localPlayer = Players.LocalPlayer
         local potionFarmPets = {
@@ -6360,19 +6230,19 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.x()
+    function __DARKLUA_BUNDLE_MODULES.w()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
         local CollisionsClient = Bypass('CollisionsClient')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local Ailment = __DARKLUA_BUNDLE_MODULES.load('v')
-        local Furniture = __DARKLUA_BUNDLE_MODULES.load('c')
-        local Teleport = __DARKLUA_BUNDLE_MODULES.load('g')
-        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('j')
-        local FarmingPet = __DARKLUA_BUNDLE_MODULES.load('w')
-        local Fusion = __DARKLUA_BUNDLE_MODULES.load('i')
+        local Ailment = __DARKLUA_BUNDLE_MODULES.load('u')
+        local Furniture = __DARKLUA_BUNDLE_MODULES.load('b')
+        local Teleport = __DARKLUA_BUNDLE_MODULES.load('f')
+        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('i')
+        local FarmingPet = __DARKLUA_BUNDLE_MODULES.load('v')
+        local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
         local self = {}
         local UpdateTextEvent = (ReplicatedStorage:WaitForChild('UpdateTextEvent'))
         local localPlayer = Players.LocalPlayer
@@ -6707,7 +6577,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.y()
+    function __DARKLUA_BUNDLE_MODULES.x()
         local InterfaceBuild = '9NBD'
         local Release = 'Build 1.67'
         local RayfieldFolder = 'Rayfield'
@@ -10617,7 +10487,7 @@ Check the Developer Console for more information.]],
 
         return RayfieldLibrary
     end
-    function __DARKLUA_BUNDLE_MODULES.z()
+    function __DARKLUA_BUNDLE_MODULES.y()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -10745,15 +10615,15 @@ Check the Developer Console for more information.]],
 
         return Clipboard
     end
-    function __DARKLUA_BUNDLE_MODULES.A()
+    function __DARKLUA_BUNDLE_MODULES.z()
         local Players = cloneref(game:GetService('Players'))
-        local Rayfield = __DARKLUA_BUNDLE_MODULES.load('y')
-        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('j')
-        local Clipboard = __DARKLUA_BUNDLE_MODULES.load('z')
-        local Fusion = __DARKLUA_BUNDLE_MODULES.load('i')
-        local Trade = __DARKLUA_BUNDLE_MODULES.load('f')
+        local Rayfield = __DARKLUA_BUNDLE_MODULES.load('x')
+        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('i')
+        local Clipboard = __DARKLUA_BUNDLE_MODULES.load('y')
+        local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
+        local Trade = __DARKLUA_BUNDLE_MODULES.load('e')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local BulkPotion = __DARKLUA_BUNDLE_MODULES.load('k')
+        local BulkPotion = __DARKLUA_BUNDLE_MODULES.load('j')
         local self = {}
         local localPlayer = Players.LocalPlayer
         local cooldown = false
@@ -11517,6 +11387,140 @@ Check the Developer Console for more information.]],
 
         return self
     end
+    function __DARKLUA_BUNDLE_MODULES.A()
+        local Players = cloneref(game:GetService('Players'))
+        local StarterGui = game:GetService('StarterGui')
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
+        local self = {}
+        local localPlayer = Players.LocalPlayer
+        local rng = Random.new()
+        local getLocalPlayerFriends = function()
+            local iterPageItems = function(pages)
+                return coroutine.wrap(function()
+                    local pagenum = 1
+
+                    while true do
+                        for _, item in ipairs(pages:GetCurrentPage())do
+                            coroutine.yield(item, pagenum)
+                        end
+
+                        if pages.IsFinished then
+                            break
+                        end
+
+                        pages:AdvanceToNextPageAsync()
+
+                        pagenum = pagenum + 1
+
+                        task.wait(1)
+                    end
+                end)
+            end
+            local friendPages = Players:GetFriendsAsync(localPlayer.UserId)
+            local usernames = {}
+
+            for item, _pageNo in iterPageItems(friendPages)do
+                table.insert(usernames, item.Username)
+            end
+
+            return usernames
+        end
+        local requestFriendshipWith = function(player)
+            pcall(function()
+                StarterGui:SetCore('PromptSendFriendRequest', player)
+            end)
+        end
+
+        function self.Init() end
+        function self.Start()
+            task.spawn(function()
+                if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, localPlayer.Name) then
+                    return
+                end
+
+                local CoreGui = game:GetService('CoreGui')
+                local RobloxGui = (CoreGui:WaitForChild('RobloxGui'))
+                local PromptDialog = (RobloxGui:WaitForChild('PromptDialog'))
+                local NotificationFrame = RobloxGui:WaitForChild('NotificationFrame')
+
+                PromptDialog:GetPropertyChangedSignal('Visible'):Connect(function(
+                )
+                    if not PromptDialog.Visible then
+                        return
+                    end
+
+                    local containerFrame = (PromptDialog:WaitForChild('ContainerFrame', 15))
+
+                    if not containerFrame then
+                        return
+                    end
+
+                    local confirmButton = (containerFrame:WaitForChild('ConfirmButton', 15))
+
+                    if not confirmButton then
+                        return
+                    end
+
+                    task.wait(1)
+
+                    repeat
+                        Utils.ClickGuiButton(confirmButton, 100)
+                        task.wait(1)
+                    until not PromptDialog.Visible
+                end)
+                NotificationFrame.ChildAdded:Connect(function(child)
+                    if child.Name ~= 'Notification' then
+                        return
+                    end
+
+                    local button1 = (child:WaitForChild('Button1', 15))
+
+                    if not button1 then
+                        return
+                    end
+
+                    task.wait(1)
+
+                    repeat
+                        Utils.ClickGuiButton(button1)
+                        task.wait(1)
+                    until not NotificationFrame:FindFirstChild('Notification')
+                end)
+
+                local friendList = getLocalPlayerFriends()
+
+                Players.PlayerAdded:Connect(function(player)
+                    player.CharacterAdded:Connect(function()
+                        if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, player.Name) then
+                            return
+                        end
+                        if table.find(friendList, player.Name) then
+                            return
+                        end
+
+                        requestFriendshipWith(player)
+                    end)
+                end)
+
+                for _, player in Players:GetPlayers()do
+                    if player.Name == Players.LocalPlayer.Name then
+                        continue
+                    end
+                    if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, player.Name) then
+                        continue
+                    end
+                    if table.find(friendList, player.Name) then
+                        continue
+                    end
+
+                    requestFriendshipWith(player)
+                    task.wait(rng:NextNumber(1, 5))
+                end
+            end)
+        end
+
+        return self
+    end
     function __DARKLUA_BUNDLE_MODULES.B()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
@@ -11524,7 +11528,7 @@ Check the Developer Console for more information.]],
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
         local RouterClient = Bypass('RouterClient')
-        local BuyItem = __DARKLUA_BUNDLE_MODULES.load('h')
+        local BuyItem = __DARKLUA_BUNDLE_MODULES.load('g')
         local self = {}
         local localPlayer = Players.LocalPlayer
         local timeDebouce = false
@@ -11614,40 +11618,40 @@ Utils = __DARKLUA_BUNDLE_MODULES.load('a')
 
 local files = {
     {
-        FriendsHandler = __DARKLUA_BUNDLE_MODULES.load('b'),
+        PrepareAccountHandler = __DARKLUA_BUNDLE_MODULES.load('k'),
     },
     {
-        PrepareAccountHandler = __DARKLUA_BUNDLE_MODULES.load('l'),
+        DailyRewardHandler = __DARKLUA_BUNDLE_MODULES.load('l'),
     },
     {
-        DailyRewardHandler = __DARKLUA_BUNDLE_MODULES.load('m'),
+        GameGuiHandler = __DARKLUA_BUNDLE_MODULES.load('m'),
     },
     {
-        GameGuiHandler = __DARKLUA_BUNDLE_MODULES.load('n'),
+        PotatoModeHandler = __DARKLUA_BUNDLE_MODULES.load('n'),
     },
     {
-        PotatoModeHandler = __DARKLUA_BUNDLE_MODULES.load('o'),
+        StatsGuiHandler = __DARKLUA_BUNDLE_MODULES.load('p'),
     },
     {
-        StatsGuiHandler = __DARKLUA_BUNDLE_MODULES.load('q'),
+        TaskBoardHandler = __DARKLUA_BUNDLE_MODULES.load('q'),
     },
     {
-        TaskBoardHandler = __DARKLUA_BUNDLE_MODULES.load('r'),
+        TradeLicenseHandler = __DARKLUA_BUNDLE_MODULES.load('r'),
     },
     {
-        TradeLicenseHandler = __DARKLUA_BUNDLE_MODULES.load('s'),
+        TutorialHandler = __DARKLUA_BUNDLE_MODULES.load('s'),
     },
     {
-        TutorialHandler = __DARKLUA_BUNDLE_MODULES.load('t'),
+        WebhookHandler = __DARKLUA_BUNDLE_MODULES.load('t'),
     },
     {
-        WebhookHandler = __DARKLUA_BUNDLE_MODULES.load('u'),
+        AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.load('w'),
     },
     {
-        AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.load('x'),
+        RayfieldHandler = __DARKLUA_BUNDLE_MODULES.load('z'),
     },
     {
-        RayfieldHandler = __DARKLUA_BUNDLE_MODULES.load('A'),
+        FriendsHandler = __DARKLUA_BUNDLE_MODULES.load('A'),
     },
     {
         ButterflySanctuary2025 = __DARKLUA_BUNDLE_MODULES.load('B'),
