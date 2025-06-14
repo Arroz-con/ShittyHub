@@ -11392,131 +11392,6 @@ Check the Developer Console for more information.]],
         return self
     end
     function __DARKLUA_BUNDLE_MODULES.A()
-        local Players = cloneref(game:GetService('Players'))
-        local StarterGui = game:GetService('StarterGui')
-        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local self = {}
-        local localPlayer = Players.LocalPlayer
-        local rng = Random.new()
-        local getLocalPlayerFriends = function()
-            local iterPageItems = function(pages)
-                return coroutine.wrap(function()
-                    local pagenum = 1
-
-                    while true do
-                        for _, item in ipairs(pages:GetCurrentPage())do
-                            coroutine.yield(item, pagenum)
-                        end
-
-                        if pages.IsFinished then
-                            break
-                        end
-
-                        pages:AdvanceToNextPageAsync()
-
-                        pagenum = pagenum + 1
-
-                        task.wait(1)
-                    end
-                end)
-            end
-            local friendPages = Players:GetFriendsAsync(localPlayer.UserId)
-            local usernames = {}
-
-            for item, _pageNo in iterPageItems(friendPages)do
-                table.insert(usernames, item.Username)
-            end
-
-            return usernames
-        end
-        local requestFriendshipWith = function(player)
-            pcall(function()
-                StarterGui:SetCore('PromptSendFriendRequest', player)
-            end)
-        end
-
-        function self.Init()
-            task.spawn(function()
-                if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, localPlayer.Name) then
-                    return
-                end
-
-                local CoreGui = game:GetService('CoreGui')
-                local RobloxGui = (CoreGui:WaitForChild('RobloxGui'))
-                local PromptDialog = (RobloxGui:WaitForChild('PromptDialog'))
-                local NotificationFrame = RobloxGui:WaitForChild('NotificationFrame')
-
-                PromptDialog:GetPropertyChangedSignal('Visible'):Connect(function(
-                )
-                    if not PromptDialog.Visible then
-                        return
-                    end
-
-                    local containerFrame = (PromptDialog:WaitForChild('ContainerFrame', 15))
-
-                    if not containerFrame then
-                        return
-                    end
-
-                    local confirmButton = (containerFrame:WaitForChild('ConfirmButton', 15))
-
-                    if not confirmButton then
-                        return
-                    end
-
-                    task.wait(1)
-
-                    repeat
-                        Utils.ClickGuiButton(confirmButton, 100)
-                        task.wait(1)
-                    until not PromptDialog.Visible
-                end)
-                NotificationFrame.ChildAdded:Connect(function(child)
-                    if child.Name ~= 'Notification' then
-                        return
-                    end
-
-                    local button1 = (child:WaitForChild('Button1', 15))
-
-                    if not button1 then
-                        return
-                    end
-
-                    task.wait(1)
-
-                    repeat
-                        Utils.ClickGuiButton(button1)
-                        task.wait(1)
-                    until not NotificationFrame:FindFirstChild('Notification')
-                end)
-            end)
-        end
-        function self.Start()
-            if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, localPlayer.Name) then
-                return
-            end
-
-            local friendList = getLocalPlayerFriends()
-
-            for _, player in Players:GetPlayers()do
-                if player.Name == localPlayer.Name then
-                    continue
-                end
-                if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, player.Name) then
-                    continue
-                end
-                if table.find(friendList, player.Name) then
-                    continue
-                end
-
-                requestFriendshipWith(player)
-                task.wait(rng:NextNumber(2, 6))
-            end
-        end
-
-        return self
-    end
-    function __DARKLUA_BUNDLE_MODULES.B()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Lighting = cloneref(game:GetService('Lighting'))
@@ -11646,10 +11521,7 @@ local files = {
         RayfieldHandler = __DARKLUA_BUNDLE_MODULES.load('z'),
     },
     {
-        FriendsHandler = __DARKLUA_BUNDLE_MODULES.load('A'),
-    },
-    {
-        ButterflySanctuary2025 = __DARKLUA_BUNDLE_MODULES.load('B'),
+        ButterflySanctuary2025 = __DARKLUA_BUNDLE_MODULES.load('A'),
     },
 }
 
