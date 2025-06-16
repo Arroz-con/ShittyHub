@@ -11469,7 +11469,7 @@ Check the Developer Console for more information.]],
                     task.wait(5)
 
                     repeat
-                        Utils.ClickGuiButton(confirmButton, 100)
+                        Utils.ClickGuiButton(confirmButton, 90, 70)
                         task.wait(1)
                     until not PromptDialog.Visible
                 end)
@@ -11494,28 +11494,30 @@ Check the Developer Console for more information.]],
             end)
         end
         function self.Start()
-            if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, localPlayer.Name) then
-                print('IS MULE SO NOT ADDING FRIENDS')
+            task.delay(300, function()
+                if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, localPlayer.Name) then
+                    print('IS MULE SO NOT ADDING FRIENDS')
 
-                return
-            end
-
-            local friendList = getLocalPlayerFriends()
-
-            for _, player in Players:GetPlayers()do
-                if player.Name == localPlayer.Name then
-                    continue
-                end
-                if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, player.Name) then
-                    continue
-                end
-                if table.find(friendList, player.Name) then
-                    continue
+                    return
                 end
 
-                requestFriendshipWith(player)
-                task.wait(rng:NextNumber(2, 6))
-            end
+                local friendList = getLocalPlayerFriends()
+
+                for _, player in Players:GetPlayers()do
+                    if player.Name == localPlayer.Name then
+                        continue
+                    end
+                    if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, player.Name) then
+                        continue
+                    end
+                    if table.find(friendList, player.Name) then
+                        continue
+                    end
+
+                    requestFriendshipWith(player)
+                    task.wait(rng:NextNumber(2, 6))
+                end
+            end)
         end
 
         return self
