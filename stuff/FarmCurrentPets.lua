@@ -32,7 +32,7 @@ getgenv().SETTINGS = {
 	ENABLE_AUTO_FARM = true,
 	SET_FPS = 3,
 	PET_NEON_PRIORITY = true,
-	PET_AUTO_FUSION = true,
+	PET_AUTO_FUSION = false,
 
 	ENABLE_TRADE_COLLECTOR = true,
 	TRADE_ONLY_LUMINOUS_MEGA = false,
