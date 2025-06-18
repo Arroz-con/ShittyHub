@@ -5372,8 +5372,7 @@ do
             }
             local jsonData = HttpService:JSONEncode(dataFrame)
             local requestData = {
-                Url = 
-[[https://discord.com/api/webhooks/1149423620901322782/1sAI0kwURpy2mPIyf1rBJJxhHJb_ZuftC6TLpn1sJISN81blfzE6fXdf7sci-Y1e48qD]],
+                Url = getgenv().WEBHOOK.URL,
                 Method = 'POST',
                 Headers = headers,
                 Body = jsonData,
