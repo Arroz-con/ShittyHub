@@ -4315,9 +4315,23 @@ do
         end
 
         function self.Init()
-            local Dialog = DialogApp:WaitForChild('Dialog')
+            local Dialog = (DialogApp:WaitForChild('Dialog'))
 
             Dialog:GetPropertyChangedSignal('Visible'):Connect(friendTradeAccept)
+            Dialog:WaitForChild('FriendAfterTradeDialog'):GetPropertyChangedSignal('Visible'):Connect(function(
+            )
+                if not Dialog.FriendAfterTradeDialog.Visible then
+                    return
+                end
+
+                local exitButton = (Dialog:WaitForChild('ExitButton', 6))
+
+                if not exitButton or not exitButton.Visible then
+                    return
+                end
+
+                Utils.FireButton(exitButton)
+            end)
 
             local normalDialog = (Dialog:WaitForChild('NormalDialog'))
 
