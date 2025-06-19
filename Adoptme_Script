@@ -3941,6 +3941,11 @@ do
                 ['dont_send_back_home'] = true,
             })
 
+            if not localPlayer.Character then
+                Utils.PrintDebug('NO CHARACTER SO WAITING')
+                localPlayer.CharacterAdded:Wait()
+            end
+
             local furnitureKeys = Furniture.GetFurnituresKey()
 
             print('Waiting 60 secs')
@@ -6494,6 +6499,8 @@ do
         end
         local startAutoFarm = function()
             task.spawn(function()
+                print('STARTED AUTOFARM')
+
                 while getgenv().SETTINGS.ENABLE_AUTO_FARM do
                     if game.JobId ~= jobId then
                         getgenv().SETTINGS.ENABLE_AUTO_FARM = false
