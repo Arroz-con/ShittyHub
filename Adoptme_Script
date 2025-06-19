@@ -3912,8 +3912,6 @@ do
         end
         function self.Start()
             setfpscap(getgenv().SETTINGS.SET_FPS)
-            print('WAITNG 60 SECS ON START UP')
-            task.wait(60)
             StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Captures, false)
 
             if DialogApp.Dialog.ThemeColorDialog.Visible then
@@ -3942,11 +3940,11 @@ do
             RouterClient.get('TeamAPI/ChooseTeam'):InvokeServer('Babies', {
                 ['dont_send_back_home'] = true,
             })
-            print('Waiting 60 secs')
-            task.wait(60)
 
             local furnitureKeys = Furniture.GetFurnituresKey()
 
+            print('Waiting 60 secs')
+            task.wait(60)
             loopFurniture(furnitureKeys)
             Utils.PrintDebug(string.format('Bed: %s \u{1f6cf}\u{fe0f}', tostring(furnitureKeys.basiccrib)))
             Utils.PrintDebug(string.format('Shower: %s \u{1f6c1}', tostring(furnitureKeys.stylishshower)))
