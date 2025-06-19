@@ -6071,7 +6071,7 @@ do
         }
         local petEggs = GetInventory.GetPetEggs()
         local isfocusFarmPets = function()
-            local equippedPet = ClientData.get('pet_char_wrappers')[1]
+            local equippedPet = ClientData.get('pet_char_wrappers') and ClientData.get('pet_char_wrappers')[1]
 
             if not equippedPet then
                 return false
@@ -6496,7 +6496,8 @@ do
                     if game.JobId ~= jobId then
                         getgenv().SETTINGS.ENABLE_AUTO_FARM = false
 
-                        Utils.PrintDebug('not same jobid')
+                        print(' \u{26d4} not same jobid so exiting \u{26d4}')
+                        task.wait(500)
                         game:Shutdown()
 
                         return
