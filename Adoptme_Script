@@ -3911,6 +3911,9 @@ do
             end
         end
         function self.Start()
+            setfpscap(getgenv().SETTINGS.SET_FPS)
+            print('WAITNG 60 SECS ON START UP')
+            task.wait(60)
             StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Captures, false)
 
             if DialogApp.Dialog.ThemeColorDialog.Visible then
