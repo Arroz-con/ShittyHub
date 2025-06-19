@@ -3937,9 +3937,12 @@ do
 
             RouterClient.get('HousingAPI/SetDoorLocked'):InvokeServer(true)
             Utils.PlaceFLoorUnderPlayer()
+            print('Waiting 120 secs')
+            task.wait(120)
             RouterClient.get('TeamAPI/ChooseTeam'):InvokeServer('Babies', {
                 ['dont_send_back_home'] = true,
             })
+            print('turned to baby')
 
             if not localPlayer.Character then
                 Utils.PrintDebug('NO CHARACTER SO WAITING')
@@ -3948,8 +3951,6 @@ do
 
             local furnitureKeys = Furniture.GetFurnituresKey()
 
-            print('Waiting 60 secs')
-            task.wait(60)
             loopFurniture(furnitureKeys)
             Utils.PrintDebug(string.format('Bed: %s \u{1f6cf}\u{fe0f}', tostring(furnitureKeys.basiccrib)))
             Utils.PrintDebug(string.format('Shower: %s \u{1f6c1}', tostring(furnitureKeys.stylishshower)))
