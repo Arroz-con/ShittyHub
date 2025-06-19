@@ -3937,8 +3937,6 @@ do
 
             RouterClient.get('HousingAPI/SetDoorLocked'):InvokeServer(true)
             Utils.PlaceFLoorUnderPlayer()
-            print('Waiting 120 secs')
-            task.wait(120)
             RouterClient.get('TeamAPI/ChooseTeam'):InvokeServer('Babies', {
                 ['dont_send_back_home'] = true,
             })
@@ -6500,8 +6498,6 @@ do
         end
         local startAutoFarm = function()
             task.spawn(function()
-                print('STARTED AUTOFARM')
-
                 while getgenv().SETTINGS.ENABLE_AUTO_FARM do
                     if game.JobId ~= jobId then
                         getgenv().SETTINGS.ENABLE_AUTO_FARM = false
@@ -6600,8 +6596,6 @@ do
             Utils.PrintDebug('teleported to farming place')
             Utils.PrintDebug('Started Farming')
             localPlayer:SetAttribute('hasStartedFarming', true)
-            print('waiting 60 secs')
-            task.wait(60)
             startAutoFarm()
         end
 
