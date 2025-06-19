@@ -11557,6 +11557,7 @@ for index, _table in ipairs(files)do
         if files[index][moduleName].Init then
             Utils.PrintDebug(string.format('INITIALIZING: %s', tostring(moduleName)))
             files[index][moduleName].Init()
+            task.wait(2)
         end
     end
 end
@@ -11568,6 +11569,7 @@ for index, _table in ipairs(files)do
         if files[index][moduleName].Start then
             Utils.PrintDebug(string.format('STARTING: %s', tostring(moduleName)))
             files[index][moduleName].Start()
+            task.wait(2)
         end
     end
 end
