@@ -23,7 +23,7 @@ do
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
         local RouterClient = Bypass('RouterClient')
-        local debugMode = false
+        local debugMode = true
         local localPlayer = Players.LocalPlayer
 
         function Utils.PlaceFLoorUnderPlayer()
@@ -3911,7 +3911,6 @@ do
             end
         end
         function self.Start()
-            setfpscap(getgenv().SETTINGS.SET_FPS)
             StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Captures, false)
 
             if DialogApp.Dialog.ThemeColorDialog.Visible then
@@ -3940,6 +3939,8 @@ do
             RouterClient.get('TeamAPI/ChooseTeam'):InvokeServer('Babies', {
                 ['dont_send_back_home'] = true,
             })
+            print('Waiting 60 secs')
+            task.wait(60)
 
             local furnitureKeys = Furniture.GetFurnituresKey()
 
