@@ -4322,7 +4322,9 @@ do
                     return
                 end
 
-                local exitButton = (Dialog:WaitForChild('ExitButton', 6))
+                local exitButton = (Dialog:WaitForChild('ExitButton', 60))
+
+                task.wait(1)
 
                 if not exitButton or not exitButton.Visible then
                     return
