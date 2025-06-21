@@ -23,7 +23,7 @@ do
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
         local RouterClient = Bypass('RouterClient')
-        local debugMode = false
+        local debugMode = getgenv().SETTINGS.DEBUG_MODE or false
         local localPlayer = Players.LocalPlayer
 
         function Utils.PlaceFLoorUnderPlayer()
@@ -10511,6 +10511,57 @@ Check the Developer Console for more information.]],
         local InventoryDB = Bypass('InventoryDB')
         local Clipboard = {}
         local localPlayer = Players.LocalPlayer
+        local getPetInfoMega = function(title)
+            local megaPets = {}
+            local textPetList = ''
+
+            for _, v in ClientData.get_data()[localPlayer.Name].inventory.pets do
+                for _, v2 in InventoryDB.pets do
+                    if v.id == v2.id and v.properties.mega_neon then
+                        megaPets[title .. v2.name] = (megaPets[title .. v2.name] or 0) + 1
+                    end
+                end
+            end
+            for i, v in megaPets do
+                textPetList = string.format('%s%s x%s\n', tostring(textPetList), tostring(i), tostring(v))
+            end
+
+            return textPetList
+        end
+        local getPetInfoNeon = function(title)
+            local neonPets = {}
+            local textPetList = ''
+
+            for _, v in ClientData.get_data()[localPlayer.Name].inventory.pets do
+                for _, v2 in InventoryDB.pets do
+                    if v.id == v2.id and v.properties.neon then
+                        neonPets[title .. v2.name] = (neonPets[title .. v2.name] or 0) + 1
+                    end
+                end
+            end
+            for i, v in neonPets do
+                textPetList = string.format('%s%s x%s\n', tostring(textPetList), tostring(i), tostring(v))
+            end
+
+            return textPetList
+        end
+        local getPetInfoNormal = function(title)
+            local normalPets = {}
+            local textPetList = ''
+
+            for _, v in pairs(ClientData.get_data()[localPlayer.Name].inventory.pets)do
+                for _, v2 in InventoryDB.pets do
+                    if v.id == v2.id and not v.properties.neon and not v.properties.mega_neon then
+                        normalPets[title .. v2.name] = (normalPets[title .. v2.name] or 0) + 1
+                    end
+                end
+            end
+            for i, v in normalPets do
+                textPetList = string.format('%s%s x%s\n', tostring(textPetList), tostring(i), tostring(v))
+            end
+
+            return textPetList
+        end
         local getInventoryInfo = function(tab, tablePassOn)
             for _, v in pairs(ClientData.get_data()[localPlayer.Name].inventory[tab])do
                 if v.id == 'practice_dog' then
@@ -10603,6 +10654,15 @@ Check the Developer Console for more information.]],
             inventoryData = inventoryData .. getTable('gifts', inventoryTables.giftsTable)
 
             return inventoryData
+        end
+        function Clipboard.CopyDetailedPetInfo()
+            local petDetailedList = ''
+
+            petDetailedList = petDetailedList .. getPetInfoMega('[MEGA NEON] ')
+            petDetailedList = petDetailedList .. getPetInfoNeon('[NEON] ')
+            petDetailedList = petDetailedList .. getPetInfoNormal('[Normal] ')
+
+            return petDetailedList
         end
         function Clipboard.GetIdsFromDatabase(nameId)
             local data = ''
@@ -10742,6 +10802,13 @@ Check the Developer Console for more information.]],
                     setclipboard(Clipboard.GetAllInventoryData())
                 end,
             })
+            MiscTab:CreateButton({
+                Name = 'Get player Detailed inventory data',
+                Callback = function()
+                    setclipboard(Clipboard.CopyDetailedPetInfo())
+                end,
+            })
+            MiscTab:CreateDivider()
             MiscTab:CreateButton({
                 Name = "Get pets database id's",
                 Callback = function()
