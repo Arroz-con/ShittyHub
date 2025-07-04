@@ -4189,6 +4189,8 @@ do
 
             if TextLabel.Text:match('Be careful when trading') then
                 Utils.FindButton('Okay')
+            elseif TextLabel.Text:match('Treasure Defense is starting') then
+                Utils.FindButton('Yes')
             elseif TextLabel.Text:match('This trade seems unbalanced') then
                 Utils.FindButton('Next')
             elseif TextLabel.Text:match('Social Stones!') then
@@ -4461,7 +4463,7 @@ do
                     MinigameInGameApp.Body.Middle:WaitForChild('Container')
                     MinigameInGameApp.Body.Middle.Container:WaitForChild('TitleLabel')
 
-                    if MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match('SAKURA SWOOP') then
+                    if MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match('TREASURE DEFENSE') then
                         if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME then
                         end
                     elseif MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match('TEAR UP TOYKYO') then
@@ -11566,7 +11568,7 @@ for index, _table in ipairs(files)do
         if files[index][moduleName].Init then
             Utils.PrintDebug(string.format('INITIALIZING: %s', tostring(moduleName)))
             files[index][moduleName].Init()
-            task.wait(2)
+            task.wait(1)
         end
     end
 end
@@ -11578,7 +11580,7 @@ for index, _table in ipairs(files)do
         if files[index][moduleName].Start then
             Utils.PrintDebug(string.format('STARTING: %s', tostring(moduleName)))
             files[index][moduleName].Start()
-            task.wait(2)
+            task.wait(1)
         end
     end
 end
