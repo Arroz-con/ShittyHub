@@ -4140,7 +4140,86 @@ do
         return self
     end
     function __DARKLUA_BUNDLE_MODULES.m()
+        local Workspace = (game:GetService('Workspace'))
+        local VirtualInputManager = game:GetService('VirtualInputManager')
+        local Players = game:GetService('Players')
+        local Summerfest2025 = {}
+        local localPlayer = Players.LocalPlayer
+        local currentCamera = Workspace.CurrentCamera
+        local viewportSize = currentCamera.ViewportSize
+
+        function Summerfest2025.HitEnemy()
+            VirtualInputManager:SendMouseButtonEvent(viewportSize.X / 2, viewportSize.Y / 2, 0, true, game, 1)
+            task.wait(0.1)
+            VirtualInputManager:SendMouseButtonEvent(viewportSize.X / 2, viewportSize.Y / 2, 0, false, game, 1)
+        end
+        function Summerfest2025.FindMinigameFolder()
+            for _, child in ipairs(Workspace.StaticMap:GetChildren())do
+                if not child:IsA('Folder') then
+                    continue
+                end
+
+                local folder = string.match(child.Name, 'coconut_bonk::[%w%-]+_minigame_state$')
+
+                if folder then
+                    return child
+                end
+            end
+
+            return nil
+        end
+        function Summerfest2025.GetStairPart()
+            local model = Workspace.Interiors:FindFirstChildWhichIsA('Model')
+
+            if not model then
+                return
+            end
+
+            local visualFolder = model:FindFirstChild('Visual')
+
+            if not visualFolder then
+                return
+            end
+
+            local stairModel = (visualFolder:FindFirstChild('Steps'))
+
+            if not stairModel then
+                return
+            end
+
+            return stairModel.Block
+        end
+        function Summerfest2025.TeleportTo(position)
+            local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
+
+            character:MoveTo(position)
+        end
+        function Summerfest2025.StartEvent()
+            local gameFolder = (Summerfest2025.FindMinigameFolder())
+
+            if not gameFolder then
+                return
+            end
+
+            local blockPart = Summerfest2025.GetStairPart()
+
+            if not blockPart then
+                return
+            end
+
+            Summerfest2025.TeleportTo(blockPart.Position)
+
+            while gameFolder and gameFolder.is_game_active.Value do
+                Summerfest2025.HitEnemy()
+                task.wait(1.01)
+            end
+        end
+
+        return Summerfest2025
+    end
+    function __DARKLUA_BUNDLE_MODULES.n()
         local Players = cloneref(game:GetService('Players'))
+        local SummerFest2025 = __DARKLUA_BUNDLE_MODULES.load('m')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local Trade = __DARKLUA_BUNDLE_MODULES.load('e')
         local Teleport = __DARKLUA_BUNDLE_MODULES.load('f')
@@ -4465,6 +4544,8 @@ do
 
                     if MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match('TREASURE DEFENSE') then
                         if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME then
+                            task.wait(2)
+                            SummerFest2025.StartEvent()
                         end
                     elseif MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match('TEAR UP TOYKYO') then
                         if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME then
@@ -4531,7 +4612,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.n()
+    function __DARKLUA_BUNDLE_MODULES.o()
         local Workspace = (cloneref(game:GetService('Workspace')))
         local Terrain = (Workspace:WaitForChild('Terrain'))
         local Lighting = (cloneref(game:GetService('Lighting')))
@@ -4632,7 +4713,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.o()
+    function __DARKLUA_BUNDLE_MODULES.p()
         local Players = cloneref(game:GetService('Players'))
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local StatsGuiClass = {}
@@ -4846,10 +4927,10 @@ do
 
         return StatsGuiClass
     end
-    function __DARKLUA_BUNDLE_MODULES.p()
+    function __DARKLUA_BUNDLE_MODULES.q()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
-        local StatsGuiClass = __DARKLUA_BUNDLE_MODULES.load('o')
+        local StatsGuiClass = __DARKLUA_BUNDLE_MODULES.load('p')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local self = {}
         local localPlayer = Players.LocalPlayer
@@ -4954,7 +5035,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.q()
+    function __DARKLUA_BUNDLE_MODULES.r()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -5123,7 +5204,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.r()
+    function __DARKLUA_BUNDLE_MODULES.s()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -5157,7 +5238,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.s()
+    function __DARKLUA_BUNDLE_MODULES.t()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -5209,7 +5290,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.t()
+    function __DARKLUA_BUNDLE_MODULES.u()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local HttpService = cloneref(game:GetService('HttpService'))
@@ -5415,7 +5496,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.u()
+    function __DARKLUA_BUNDLE_MODULES.v()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Workspace = cloneref(game:GetService('Workspace'))
         local Players = cloneref(game:GetService('Players'))
@@ -6054,7 +6135,7 @@ do
 
         return Ailment
     end
-    function __DARKLUA_BUNDLE_MODULES.v()
+    function __DARKLUA_BUNDLE_MODULES.w()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -6251,18 +6332,18 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.w()
+    function __DARKLUA_BUNDLE_MODULES.x()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
         local CollisionsClient = Bypass('CollisionsClient')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local Ailment = __DARKLUA_BUNDLE_MODULES.load('u')
+        local Ailment = __DARKLUA_BUNDLE_MODULES.load('v')
         local Furniture = __DARKLUA_BUNDLE_MODULES.load('b')
         local Teleport = __DARKLUA_BUNDLE_MODULES.load('f')
         local GetInventory = __DARKLUA_BUNDLE_MODULES.load('i')
-        local FarmingPet = __DARKLUA_BUNDLE_MODULES.load('v')
+        local FarmingPet = __DARKLUA_BUNDLE_MODULES.load('w')
         local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
         local self = {}
         local UpdateTextEvent = (ReplicatedStorage:WaitForChild('UpdateTextEvent'))
@@ -6599,7 +6680,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.x()
+    function __DARKLUA_BUNDLE_MODULES.y()
         local InterfaceBuild = '9NBD'
         local Release = 'Build 1.67'
         local RayfieldFolder = 'Rayfield'
@@ -10509,7 +10590,7 @@ Check the Developer Console for more information.]],
 
         return RayfieldLibrary
     end
-    function __DARKLUA_BUNDLE_MODULES.y()
+    function __DARKLUA_BUNDLE_MODULES.z()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -10697,11 +10778,11 @@ Check the Developer Console for more information.]],
 
         return Clipboard
     end
-    function __DARKLUA_BUNDLE_MODULES.z()
+    function __DARKLUA_BUNDLE_MODULES.A()
         local Players = cloneref(game:GetService('Players'))
-        local Rayfield = __DARKLUA_BUNDLE_MODULES.load('x')
+        local Rayfield = __DARKLUA_BUNDLE_MODULES.load('y')
         local GetInventory = __DARKLUA_BUNDLE_MODULES.load('i')
-        local Clipboard = __DARKLUA_BUNDLE_MODULES.load('y')
+        local Clipboard = __DARKLUA_BUNDLE_MODULES.load('z')
         local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
         local Trade = __DARKLUA_BUNDLE_MODULES.load('e')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
@@ -11533,31 +11614,31 @@ local files = {
         DailyRewardHandler = __DARKLUA_BUNDLE_MODULES.load('l'),
     },
     {
-        GameGuiHandler = __DARKLUA_BUNDLE_MODULES.load('m'),
+        GameGuiHandler = __DARKLUA_BUNDLE_MODULES.load('n'),
     },
     {
-        PotatoModeHandler = __DARKLUA_BUNDLE_MODULES.load('n'),
+        PotatoModeHandler = __DARKLUA_BUNDLE_MODULES.load('o'),
     },
     {
-        StatsGuiHandler = __DARKLUA_BUNDLE_MODULES.load('p'),
+        StatsGuiHandler = __DARKLUA_BUNDLE_MODULES.load('q'),
     },
     {
-        TaskBoardHandler = __DARKLUA_BUNDLE_MODULES.load('q'),
+        TaskBoardHandler = __DARKLUA_BUNDLE_MODULES.load('r'),
     },
     {
-        TradeLicenseHandler = __DARKLUA_BUNDLE_MODULES.load('r'),
+        TradeLicenseHandler = __DARKLUA_BUNDLE_MODULES.load('s'),
     },
     {
-        TutorialHandler = __DARKLUA_BUNDLE_MODULES.load('s'),
+        TutorialHandler = __DARKLUA_BUNDLE_MODULES.load('t'),
     },
     {
-        WebhookHandler = __DARKLUA_BUNDLE_MODULES.load('t'),
+        WebhookHandler = __DARKLUA_BUNDLE_MODULES.load('u'),
     },
     {
-        AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.load('w'),
+        AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.load('x'),
     },
     {
-        RayfieldHandler = __DARKLUA_BUNDLE_MODULES.load('z'),
+        RayfieldHandler = __DARKLUA_BUNDLE_MODULES.load('A'),
     },
 }
 
