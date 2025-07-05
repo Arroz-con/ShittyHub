@@ -4633,6 +4633,9 @@ do
             StaticMap.coconut_bonk_minigame_state.is_game_active:GetPropertyChangedSignal('Value'):Connect(function(
             )
                 if StaticMap.coconut_bonk_minigame_state.is_game_active.Value then
+                    if getgenv().SETTINGS.ENABLE_AUTO_FARM == false then
+                        return
+                    end
                     if getgenv().SETTINGS.EVENT.DO_MINIGAME == false then
                         return
                     end
