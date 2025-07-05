@@ -2826,6 +2826,10 @@ do
             for _, v in InventoryDB do
                 for key, value in v do
                     if key == nameId then
+                        for i3, v3 in value do
+                            print(i3, v3)
+                        end
+
                         return value
                     end
                 end
@@ -3997,18 +4001,15 @@ do
             UpdateTextEvent:Fire()
 
             if getgenv().BUY_BEFORE_FARMING then
-                getgenv().isBuyingOrAging = true
-
+                localPlayer:SetAttribute('StopFarmingTemp', true)
                 BuyItem.StartBuyItems(getgenv().BUY_BEFORE_FARMING)
             end
             if getgenv().OPEN_ITEMS_BEFORE_FARMING then
-                getgenv().isBuyingOrAging = true
-
+                localPlayer:SetAttribute('StopFarmingTemp', true)
                 BuyItem.OpenItems(getgenv().OPEN_ITEMS_BEFORE_FARMING)
             end
             if getgenv().AGE_PETS_BEFORE_FARMING then
-                getgenv().isBuyingOrAging = true
-
+                localPlayer:SetAttribute('StopFarmingTemp', true)
                 BulkPotion.StartAgingPets(getgenv().AGE_PETS_BEFORE_FARMING)
                 Utils.PrintDebug('DONE aging pets')
             end
@@ -4026,7 +4027,7 @@ do
                 Trade.TradeCollector(getgenv().SETTINGS.TRADE_COLLECTOR_NAME)
             end
 
-            getgenv().isBuyingOrAging = false
+            localPlayer:SetAttribute('StopFarmingTemp', false)
         end
 
         return self
@@ -4156,9 +4157,12 @@ do
         return self
     end
     function __DARKLUA_BUNDLE_MODULES.m()
+        local ReplicatedStorage = (game:GetService('ReplicatedStorage'))
         local Workspace = (game:GetService('Workspace'))
         local VirtualInputManager = game:GetService('VirtualInputManager')
         local Players = game:GetService('Players')
+        local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
+        local CoconutBonkMinigameClient = (require(ReplicatedStorage.SharedModules.ContentPacks.Summerfest2025.Minigames.CoconutBonkMinigameClient))
         local Summerfest2025 = {}
         local localPlayer = Players.LocalPlayer
         local currentCamera = Workspace.CurrentCamera
@@ -4205,6 +4209,15 @@ do
 
             return stairModel.Block
         end
+        function Summerfest2025.EquipSword()
+            local coconutBonkId = CoconutBonkMinigameClient.instanced_minigame.minigame_id
+
+            if not coconutBonkId then
+                return
+            end
+
+            Bypass('RouterClient').get('MinigameAPI/MessageServer'):FireServer(coconutBonkId, 'pickup_sword')
+        end
         function Summerfest2025.TeleportTo(part)
             local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
             local distance = character.PrimaryPart and (character.PrimaryPart.Position - part.Position).Magnitude
@@ -4225,6 +4238,8 @@ do
             if not blockPart then
                 return
             end
+
+            Summerfest2025.EquipSword()
 
             while gameFolder and gameFolder.is_game_active.Value do
                 Summerfest2025.TeleportTo(blockPart)
@@ -4618,6 +4633,10 @@ do
             StaticMap.coconut_bonk_minigame_state.is_game_active:GetPropertyChangedSignal('Value'):Connect(function(
             )
                 if StaticMap.coconut_bonk_minigame_state.is_game_active.Value then
+                    if getgenv().SETTINGS.EVENT.DO_MINIGAME == false or localPlayer:GetAttribute('StopFarmingTemp') == true then
+                        return
+                    end
+
                     localPlayer:SetAttribute('StopFarmingTemp', true)
                     Bypass('RouterClient').get('MinigameAPI/AttemptJoin'):FireServer('coconut_bonk', true)
                 end
@@ -6277,7 +6296,7 @@ do
         end
 
         function FarmingPet.SwitchOutFullyGrown(whichPet)
-            if getgenv().isBuyingOrAging then
+            if localPlayer:GetAttribute('StopFarmingTemp') == true then
                 return
             end
             if not ClientData.get('pet_char_wrappers')[whichPet] then
@@ -6674,12 +6693,12 @@ do
                         getgenv().SETTINGS.ENABLE_AUTO_FARM = false
 
                         print(' \u{26d4} not same jobid so exiting \u{26d4}')
-                        task.wait(500)
+                        task.wait(60)
                         game:Shutdown()
 
                         return
                     end
-                    if localPlayer:GetAttribute('StopFarmingTemp') then
+                    if localPlayer:GetAttribute('StopFarmingTemp') == true then
                         local count = 0
 
                         repeat
