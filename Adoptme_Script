@@ -180,7 +180,7 @@ do
             return ClientData.get_data()[localPlayer.Name].money or 0
         end
         function Utils.EventCurrencyAmount()
-            return ClientData.get_data()[localPlayer.Name].social_stones_2025 or 0
+            return ClientData.get_data()[localPlayer.Name].cranky_coins_2025 or 0
         end
         function Utils.FoodItemCount(nameId)
             local count = 0
@@ -4205,10 +4205,13 @@ do
 
             return stairModel.Block
         end
-        function Summerfest2025.TeleportTo(position)
+        function Summerfest2025.TeleportTo(part)
             local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
+            local distance = character.PrimaryPart and (character.PrimaryPart.Position - part.Position).Magnitude
 
-            character:MoveTo(position)
+            if distance >= 5 then
+                character:MoveTo(part.Position)
+            end
         end
         function Summerfest2025.StartEvent()
             local gameFolder = (Summerfest2025.FindMinigameFolder())
@@ -4223,9 +4226,8 @@ do
                 return
             end
 
-            Summerfest2025.TeleportTo(blockPart.Position)
-
             while gameFolder and gameFolder.is_game_active.Value do
+                Summerfest2025.TeleportTo(blockPart)
                 Summerfest2025.HitEnemy()
                 task.wait(1.01)
             end
@@ -4244,6 +4246,7 @@ do
         local self = {}
         local localPlayer = Players.LocalPlayer
         local PlayerGui = localPlayer:WaitForChild('PlayerGui')
+        local StaticMap = (workspace:WaitForChild('StaticMap'))
         local DialogApp = (PlayerGui:WaitForChild('DialogApp'))
         local MinigameRewardsApp = (PlayerGui:WaitForChild('MinigameRewardsApp'))
         local MinigameInGameApp = (PlayerGui:WaitForChild('MinigameInGameApp'))
@@ -4612,9 +4615,9 @@ do
                     end
                 end
             end)
-            workspace.StaticMap.coconut_bonk_minigame_state.is_game_active:GetPropertyChangedSignal('Value'):Connect(function(
+            StaticMap.coconut_bonk_minigame_state.is_game_active:GetPropertyChangedSignal('Value'):Connect(function(
             )
-                if workspace.StaticMap.coconut_bonk_minigame_state.is_game_active.Value then
+                if StaticMap.coconut_bonk_minigame_state.is_game_active.Value then
                     localPlayer:SetAttribute('StopFarmingTemp', true)
                     Bypass('RouterClient').get('MinigameAPI/AttemptJoin'):FireServer('coconut_bonk', true)
                 end
@@ -4923,7 +4926,7 @@ do
             elseif self.TextLabel.Name == 'TotalEventCurrency' then
                 local formatted = Utils.FormatNumber(Utils.EventCurrencyAmount())
 
-                self.TextLabel.Text = string.format('\u{1f9e1} %s', tostring(formatted))
+                self.TextLabel.Text = string.format('\u{1f3f4}\u{200d}\u{2620}\u{fe0f} %s', tostring(formatted))
             elseif self.TextLabel.Name == 'TotalShiverBaits' then
                 local formatted = Utils.FormatNumber(Utils.FoodItemCount('ice_dimension_2025_shiver_cone_bait'))
 
@@ -4942,7 +4945,7 @@ do
             elseif self.TextLabel.Name == 'TempBucks' and amount then
                 self.TextLabel.Text = string.format('\u{1f4b0} %s', tostring(Utils.FormatNumber(amount)))
             elseif self.TextLabel.Name == 'TempEventCurrency' and amount then
-                self.TextLabel.Text = string.format('\u{1f9e1} %s', tostring(Utils.FormatNumber(amount)))
+                self.TextLabel.Text = string.format('\u{1f3f4}\u{200d}\u{2620}\u{fe0f} %s', tostring(Utils.FormatNumber(amount)))
             end
         end
 
@@ -5703,6 +5706,8 @@ do
         end
         local getUpFromSitting = function()
             ReplicatedStorage.API['AdoptAPI/ExitSeatStates']:FireServer()
+            task.wait()
+            ReplicatedStorage.API['AdoptAPI/ExitSeatStates']:FireServer()
             task.wait(1)
             Utils.PrintDebug('Exited from seat')
         end
@@ -6115,7 +6120,9 @@ do
                 localPlayer.Character,
             }
 
-            ReplicatedStorage.API:FindFirstChild('HousingAPI/ActivateInteriorFurniture'):InvokeServer(unpack(args))
+            task.spawn(function()
+                ReplicatedStorage.API:FindFirstChild('HousingAPI/ActivateInteriorFurniture'):InvokeServer(unpack(args))
+            end)
             waitForTaskToFinish('buccaneer_band', petUnique)
             getUpFromSitting()
         end
@@ -6673,10 +6680,17 @@ do
                         return
                     end
                     if localPlayer:GetAttribute('StopFarmingTemp') then
+                        local count = 0
+
                         repeat
                             Utils.PrintDebug('Stopping because its buying or aging or in minigame')
+
+                            count = count + 20
+
                             task.wait(20)
-                        until not localPlayer:GetAttribute('StopFarmingTemp')
+                        until not localPlayer:GetAttribute('StopFarmingTemp') or count > 300
+
+                        localPlayer:SetAttribute('StopFarmingTemp', false)
                     end
 
                     Utils.RemoveHandHeldItem()
