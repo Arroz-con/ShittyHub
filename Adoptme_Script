@@ -2654,6 +2654,22 @@ do
 
             localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
         end
+        function self.Bonfire()
+            self.DeleteWater()
+            ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('MainMap', localPlayer, ClientData.get_data()[localPlayer.Name].LiveOpsMapType)
+            task.wait(1)
+
+            local npc = workspace.HouseInteriors.furniture:FindFirstChild('summerfest_2025_bonfire_npc', true)
+
+            if not npc then
+                return
+            end
+
+            local location = npc.PrimaryPart.Position + Vector3.new(math.random(1, 15), 5, math.random(1, 15))
+
+            localPlayer.Character:MoveTo(location)
+            localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+        end
         function self.PlayGround(vec)
             localPlayer.Character:WaitForChild('HumanoidRootPart').Anchored = true
 
@@ -4218,7 +4234,9 @@ do
         return Summerfest2025
     end
     function __DARKLUA_BUNDLE_MODULES.n()
+        local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
+        local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local SummerFest2025 = __DARKLUA_BUNDLE_MODULES.load('m')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local Trade = __DARKLUA_BUNDLE_MODULES.load('e')
@@ -4231,7 +4249,6 @@ do
         local MinigameInGameApp = (PlayerGui:WaitForChild('MinigameInGameApp'))
         local BattlePassApp = (PlayerGui:WaitForChild('BattlePassApp'))
         local TradeApp = (PlayerGui:WaitForChild('TradeApp'))
-        local rng = Random.new()
         local certificateConn
         local starterPackAppConn
         local getNormalDialogTextLabel = function()
@@ -4268,8 +4285,6 @@ do
 
             if TextLabel.Text:match('Be careful when trading') then
                 Utils.FindButton('Okay')
-            elseif TextLabel.Text:match('Treasure Defense is starting') then
-                Utils.FindButton('Yes')
             elseif TextLabel.Text:match('This trade seems unbalanced') then
                 Utils.FindButton('Next')
             elseif TextLabel.Text:match('Social Stones!') then
@@ -4347,9 +4362,7 @@ do
             local hasStartedFarming = localPlayer:GetAttribute('hasStartedFarming')
 
             if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME and hasStartedFarming then
-                localPlayer:SetAttribute('IsInMinigame', true)
-                task.wait(rng:NextNumber(1, 15))
-                Utils.FindButton('Yes')
+                Utils.FindButton('No')
             else
                 Utils.FindButton('No')
             end
@@ -4492,7 +4505,7 @@ do
                 DialogApp.Dialog.NormalDialog.Info:WaitForChild('TextLabel')
                 DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal('Text'):Connect(function(
                 )
-                    if DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Sakura Swoop') then
+                    if DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Treasure Defense is starting') then
                         onTextChangedMiniGame()
                     elseif DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Tear Up Toykyo') then
                         onTextChangedMiniGame()
@@ -4521,7 +4534,7 @@ do
                     NormalDialogChild.Info:WaitForChild('TextLabel')
                     NormalDialogChild.Info.TextLabel:GetPropertyChangedSignal('Text'):Connect(function(
                     )
-                        if NormalDialogChild.Info.TextLabel.Text:match('Sakura Swoop') then
+                        if NormalDialogChild.Info.TextLabel.Text:match('Treasure Defense is starting') then
                             onTextChangedMiniGame()
                         elseif NormalDialogChild.Info.TextLabel.Text:match('Tear Up Toykyo') then
                             onTextChangedMiniGame()
@@ -4544,6 +4557,7 @@ do
 
                     if MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match('TREASURE DEFENSE') then
                         if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME then
+                            localPlayer:SetAttribute('StopFarmingTemp', true)
                             task.wait(2)
                             SummerFest2025.StartEvent()
                         end
@@ -4570,7 +4584,7 @@ do
 
                         task.wait()
                         removeGameOverButton('MinigameRewardsApp')
-                        localPlayer:SetAttribute('IsInMinigame', false)
+                        localPlayer:SetAttribute('StopFarmingTemp', false)
                         Teleport.FarmingHome()
                     end
                 end
@@ -4596,6 +4610,13 @@ do
                         if ButtonFrame:FindFirstChild('ClaimButton') then
                         end
                     end
+                end
+            end)
+            workspace.StaticMap.coconut_bonk_minigame_state.is_game_active:GetPropertyChangedSignal('Value'):Connect(function(
+            )
+                if workspace.StaticMap.coconut_bonk_minigame_state.is_game_active.Value then
+                    localPlayer:SetAttribute('StopFarmingTemp', true)
+                    Bypass('RouterClient').get('MinigameAPI/AttemptJoin'):FireServer('coconut_bonk', true)
                 end
             end)
         end
@@ -5561,6 +5582,15 @@ do
             end
         end
 
+        local getKeyFrom = function(itemId)
+            for key, value in ClientData.get_data()[localPlayer.Name].house_interior.furniture do
+                if value.id == itemId then
+                    return key
+                end
+            end
+
+            return nil
+        end
         local useToolOnBaby = function(uniqueId)
             ReplicatedStorage.API['ToolAPI/ServerUseTool']:FireServer(uniqueId, 'END')
         end
@@ -6055,6 +6085,40 @@ do
             Utils.PrintDebug('\u{2753} Picking mystery task \u{2753}')
             pickMysteryTask(mysteryId, petUnique)
         end
+        function Ailment.BonfireAilment(petUnique)
+            Utils.PrintDebug(string.format('\u{1f3d6}\u{fe0f} Doing bonfire on %s \u{1f3d6}\u{fe0f}', tostring(Ailment.whichPet)))
+            Teleport.Bonfire()
+            task.wait(2)
+            Utils.ReEquipPet(Ailment.whichPet)
+            waitForTaskToFinish('summerfest_bonfire', petUnique)
+        end
+        function Ailment.BuccaneerBandAilment(petUnique)
+            ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('MainMap', localPlayer, ClientData.get_data()[localPlayer.Name].LiveOpsMapType)
+            task.wait(2)
+
+            local key = getKeyFrom('summerfest_2025_buccaneer_band')
+
+            if not key then
+                Utils.PrintDebug('didnt find key for band')
+
+                return
+            end
+
+            Utils.PrintDebug('Doing Band task')
+
+            local args = {
+                key,
+                'Guitar',
+                {
+                    ['cframe'] = CFrame.new(-607, 35, -1641, -0, -0, -1, 0, 1, -0, 1, -0, -0),
+                },
+                localPlayer.Character,
+            }
+
+            ReplicatedStorage.API:FindFirstChild('HousingAPI/ActivateInteriorFurniture'):InvokeServer(unpack(args))
+            waitForTaskToFinish('buccaneer_band', petUnique)
+            getUpFromSitting()
+        end
         function Ailment.BabyHungryAilment()
             Utils.PrintDebug('\u{1f476}\u{1f374} Doing baby hungry task \u{1f476}\u{1f374}')
 
@@ -6144,7 +6208,7 @@ do
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local GetInventory = __DARKLUA_BUNDLE_MODULES.load('i')
         local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
-        local self = {}
+        local FarmingPet = {}
         local localPlayer = Players.LocalPlayer
         local potionFarmPets = {
             'dog',
@@ -6173,7 +6237,15 @@ do
             return result
         end
         local isProHandler = function()
-            return ClientData.get_data()[localPlayer.Name].subscription_equip_2x_pets.active
+            local subscription = ClientData.get_data()[localPlayer.Name].subscription_equip_2x_pets
+
+            if not subscription then
+                localPlayer:SetAttribute('isProHandler', false)
+
+                return
+            end
+
+            localPlayer:SetAttribute('isProHandler', subscription.active)
         end
         local getEgg = function()
             for _, v in ClientData.get_data()[localPlayer.Name].inventory.pets do
@@ -6197,14 +6269,14 @@ do
             return false
         end
 
-        function self.SwitchOutFullyGrown(whichPet)
+        function FarmingPet.SwitchOutFullyGrown(whichPet)
             if getgenv().isBuyingOrAging then
                 return
             end
             if not ClientData.get('pet_char_wrappers')[whichPet] then
                 if not Utils.ReEquipPet(whichPet) then
                     Utils.PrintDebug('switchOutFullyGrown: GETTING NEW PETS')
-                    self.GetPetToFarm(whichPet)
+                    FarmingPet.GetPetToFarm(whichPet)
 
                     return
                 end
@@ -6220,19 +6292,22 @@ do
                     Fusion.MakeMega(true)
                 end
 
-                self.GetPetToFarm(whichPet)
+                FarmingPet.GetPetToFarm(whichPet)
 
                 return
             end
         end
-        function self.GetPetToFarm(whichPet)
+        function FarmingPet.GetPetToFarm(whichPet)
             if getgenv().SETTINGS.FOCUS_FARM_AGE_POTION then
                 if whichPet == 1 and isfocusFarmPets() then
                     Utils.PrintDebug(string.format('Has focusFarmpets equipped, %s', tostring(whichPet)))
 
                     return
                 end
-                if whichPet == 2 and isProHandler() and getgenv().petCurrentlyFarming2 then
+
+                isProHandler()
+
+                if whichPet == 2 and localPlayer:GetAttribute('isProHandler') == true and getgenv().petCurrentlyFarming2 then
                     return
                 end
 
@@ -6313,7 +6388,7 @@ do
 
             return
         end
-        function self.CheckIfEgg(whichPet)
+        function FarmingPet.CheckIfEgg(whichPet)
             if not ClientData.get('pet_char_wrappers') then
                 return
             end
@@ -6325,12 +6400,12 @@ do
             end
 
             Utils.PrintDebug(string.format('NOT A EGG SO GETTING NEW EGG %s', tostring(whichPet)))
-            self.GetPetToFarm(whichPet)
+            FarmingPet.GetPetToFarm(whichPet)
 
             return
         end
 
-        return self
+        return FarmingPet
     end
     function __DARKLUA_BUNDLE_MODULES.x()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
@@ -6368,7 +6443,7 @@ do
             end
         end
         local completeBabyAilments = function()
-            if localPlayer:GetAttribute('IsInMinigame') then
+            if localPlayer:GetAttribute('StopFarmingTemp') == true then
                 return
             end
 
@@ -6409,10 +6484,10 @@ do
             end
         end
         local completePetAilments = function(whichPet)
-            if localPlayer:GetAttribute('IsInMinigame') then
+            if localPlayer:GetAttribute('StopFarmingTemp') == true then
                 return false
             end
-            if not localPlayer:GetAttribute('IsProHandler') and whichPet == 2 then
+            if localPlayer:GetAttribute('IsProHandler') == false and whichPet == 2 then
                 return false
             end
 
@@ -6558,6 +6633,16 @@ do
                     Teleport.FarmingHome()
 
                     return true
+                elseif key == 'buccaneer_band' then
+                    Ailment.BuccaneerBandAilment(petUnique)
+                    Teleport.FarmingHome()
+
+                    return true
+                elseif key == 'summerfest_bonfire' then
+                    Ailment.BonfireAilment(petUnique)
+                    Teleport.FarmingHome()
+
+                    return true
                 end
             end
             for key, _ in ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique]do
@@ -6589,7 +6674,7 @@ do
                     end
                     if localPlayer:GetAttribute('StopFarmingTemp') then
                         repeat
-                            Utils.PrintDebug('Stopping because its buying or aging')
+                            Utils.PrintDebug('Stopping because its buying or aging or in minigame')
                             task.wait(20)
                         until not localPlayer:GetAttribute('StopFarmingTemp')
                     end
@@ -6610,11 +6695,7 @@ do
                     end
                     if not completePetAilments(1) then
                         task.wait()
-
-                        if not completePetAilments(2) then
-                            task.wait()
-                            completeBabyAilments()
-                        end
+                        completeBabyAilments()
                     end
 
                     task.wait(1)
@@ -6639,7 +6720,7 @@ do
                     tryFeedAgePotion()
                     UpdateTextEvent:Fire()
 
-                    local waitTime = rng:NextNumber(5, 10)
+                    local waitTime = rng:NextNumber(1, 5)
 
                     baitboxCount = baitboxCount + waitTime
 
@@ -6665,7 +6746,7 @@ do
             FarmingPet.GetPetToFarm(1)
             task.wait(2)
 
-            if localPlayer:GetAttribute('isProHandler') then
+            if localPlayer:GetAttribute('isProHandler') == true then
                 FarmingPet.GetPetToFarm(2)
             end
 
