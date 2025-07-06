@@ -4192,7 +4192,7 @@ do
         function Summerfest2025.IsSwordEquipped()
             local isSword = Utils.GetCharacter():FindFirstChild('Sword')
 
-            Utils.PrintDebug(string.format('IsSwordEquipped: %s', tostring(isSword)))
+            print(string.format('IsSwordEquipped: %s', tostring(isSword)))
 
             return isSword
         end
@@ -4204,6 +4204,8 @@ do
             end
 
             Bypass('RouterClient').get('MinigameAPI/MessageServer'):FireServer(coconutBonkId, 'pickup_droppable', 1)
+            task.wait()
+            Bypass('RouterClient').get('MinigameAPI/MessageServer'):FireServer(coconutBonkId, 'pickup_sword')
         end
         function Summerfest2025.TeleportTo(part)
             local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
