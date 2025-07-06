@@ -292,7 +292,7 @@ do
             end)
 
             if not success then
-                print('Failed to Unequip pet:', errorMessage)
+                Utils.PrintDebug('Failed to Unequip pet:', errorMessage)
 
                 return false
             end
@@ -318,7 +318,7 @@ do
             end)
 
             if not success then
-                print('Failed to equip pet:', errorMessage)
+                Utils.PrintDebug('Failed to equip pet:', errorMessage)
 
                 return false
             end
@@ -368,7 +368,7 @@ do
             until hasPetChar or EquipTimeout >= 20
 
             if EquipTimeout >= 20 then
-                print('\u{26a0}\u{fe0f} Waited too long for Equipping pet \u{26a0}\u{fe0f}')
+                Utils.PrintDebug('\u{26a0}\u{fe0f} Waited too long for Equipping pet \u{26a0}\u{fe0f}')
 
                 return false
             end
@@ -414,55 +414,8 @@ do
 
             return true
         end
-        function Utils.SecureService(service)
-            local _game = (cloneref and {
-                (cloneref(game)),
-            } or {game})[1]
-            local success, result = pcall(function()
-                return (cloneref and {
-                    (cloneref(_game:GetService(service))),
-                } or {
-                    (_game:GetService(service)),
-                })[1]
-            end)
-
-            return (success and {result} or {nil})[1]
-        end
-
-        Utils.SecureService = (newcclosure and {
-            (newcclosure(Utils.SecureService)),
-        } or {
-            (Utils.SecureService),
-        })[1]
-
-        function Utils.GetPlayer()
-            local success, result = pcall(function()
-                return (Utils.SecureService('Players'))
-            end)
-
-            return (success and {
-                ((result).LocalPlayer),
-            } or {nil})[1]
-        end
-        function Utils.GetCharacter(player)
-            local success, result = pcall(function()
-                return (player and {
-                    (player.Character),
-                } or {nil})[1]
-            end)
-
-            return (success and {result} or {nil})[1]
-        end
-        function Utils.GetHumanoid(player)
-            local success, result = pcall(function()
-                local character = Utils.GetCharacter(player)
-
-                return (character and {
-                    (character:FindFirstChildOfClass('Humanoid')),
-                } or {nil})[1]
-            end)
-
-            return (success and {result} or {nil})[1]
+        function Utils.GetCharacter()
+            return localPlayer.Character or localPlayer.CharacterAdded:Wait()
         end
 
         return Utils
@@ -1773,6 +1726,7 @@ do
         local InventoryDB = Bypass('InventoryDB')
         local AllowOrDenyList = __DARKLUA_BUNDLE_MODULES.load('c')
         local TrashItemsList = __DARKLUA_BUNDLE_MODULES.load('d')
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local self = {}
         local localPlayer = Players.LocalPlayer
         local lowTierRarity = {
@@ -1806,7 +1760,7 @@ do
                 timeOut = timeOut - 1
 
                 if timeOut <= 0 then
-                    return false, print('\u{26a0}\u{fe0f} waiting for trade timedout \u{26a0}\u{fe0f}')
+                    return false, Utils.PrintDebug('\u{26a0}\u{fe0f} waiting for trade timedout \u{26a0}\u{fe0f}')
                 end
             end
 
@@ -1947,7 +1901,7 @@ do
         end
         function self.SendTradeRequest(playerTable)
             if typeof(playerTable) ~= 'table' then
-                return false, print('playerTable is not a table')
+                return false, Utils.PrintDebug('playerTable is not a table')
             end
 
             while true do
@@ -2255,7 +2209,7 @@ do
         end
         function self.CheckInventory()
             if not isMulesInGame(getgenv().SETTINGS.TRADE_COLLECTOR_NAME) then
-                print('Collecters no longer ingame')
+                Utils.PrintDebug('Collecters no longer ingame')
 
                 return false
             end
@@ -2289,24 +2243,24 @@ do
             local isInventoryFull = false
 
             if typeof(namePassOn) ~= 'table' then
-                return print(string.format('\u{1f6ab} %s is not a table', tostring(namePassOn)))
+                return Utils.PrintDebug(string.format('\u{1f6ab} %s is not a table', tostring(namePassOn)))
             end
             if typeof(getgenv().SETTINGS.TRADE_LIST) ~= 'table' then
-                return print('TRADE_LIST is not a table')
+                return Utils.PrintDebug('TRADE_LIST is not a table')
             end
             if table.find(namePassOn, localPlayer.Name) then
-                return print('\u{1f6ab} MULE CANNOT TRADE ITSELF OR OTHER MULES')
+                return Utils.PrintDebug('\u{1f6ab} MULE CANNOT TRADE ITSELF OR OTHER MULES')
             end
 
             while getgenv().SETTINGS.ENABLE_TRADE_COLLECTOR do
                 if not isMulesInGame(getgenv().SETTINGS.TRADE_COLLECTOR_NAME) then
-                    return print('\u{26a0}\u{fe0f} MULE NOT INGAME \u{26a0}\u{fe0f}')
+                    return Utils.PrintDebug('\u{26a0}\u{fe0f} MULE NOT INGAME \u{26a0}\u{fe0f}')
                 end
                 if not self.CheckInventory() then
-                    return print('\u{1f6ab} NO ITEMS TO TRADE')
+                    return Utils.PrintDebug('\u{1f6ab} NO ITEMS TO TRADE')
                 end
                 if not self.SendTradeRequest(namePassOn) then
-                    return print('\u{26a0}\u{fe0f} NO MULES TO TRADE \u{26a0}\u{fe0f}')
+                    return Utils.PrintDebug('\u{26a0}\u{fe0f} NO MULES TO TRADE \u{26a0}\u{fe0f}')
                 end
                 if not waitForActiveTrade() then
                     task.wait(1)
@@ -2380,7 +2334,7 @@ do
                 local hasPets = self.AcceptNegotiationAndConfirm()
 
                 if not hasPets then
-                    print('\u{1f389} DONE TRADING ITEMS \u{1f389}')
+                    Utils.PrintDebug('\u{1f389} DONE TRADING ITEMS \u{1f389}')
 
                     return
                 end
@@ -2394,18 +2348,18 @@ do
             local isInventoryFull = false
 
             if table.find(namePassOn, localPlayer.Name) then
-                return print('\u{1f6ab} MULE CANNOT TRADE ITSELF')
+                return Utils.PrintDebug('\u{1f6ab} MULE CANNOT TRADE ITSELF')
             end
 
             while getgenv().SETTINGS.ENABLE_TRASH_COLLECTOR do
                 if not isMulesInGame(namePassOn) then
-                    return print('\u{26a0}\u{fe0f} MULE NOT INGAME \u{26a0}\u{fe0f}')
+                    return Utils.PrintDebug('\u{26a0}\u{fe0f} MULE NOT INGAME \u{26a0}\u{fe0f}')
                 end
                 if not hasTrashItems() then
-                    return print('\u{1f6ab} NO ITEMS TO TRADE')
+                    return Utils.PrintDebug('\u{1f6ab} NO ITEMS TO TRADE')
                 end
                 if not self.SendTradeRequest(namePassOn) then
-                    return print('\u{26a0}\u{fe0f} NO MULES TO TRADE \u{26a0}\u{fe0f}')
+                    return Utils.PrintDebug('\u{26a0}\u{fe0f} NO MULES TO TRADE \u{26a0}\u{fe0f}')
                 end
                 if not waitForActiveTrade() then
                     task.wait(1)
@@ -2448,7 +2402,7 @@ do
                 local hasPets = self.AcceptNegotiationAndConfirm()
 
                 if not hasPets then
-                    print('\u{1f389} DONE TRADING ITEMS \u{1f389}')
+                    Utils.PrintDebug('\u{1f389} DONE TRADING ITEMS \u{1f389}')
 
                     return
                 end
@@ -2795,7 +2749,7 @@ do
             local currency = ClientData.get_data()[localPlayer.Name][valuesTable.currency_id] or ClientData.get_data()[localPlayer.Name]['money']
 
             if not currency then
-                return 0, print('NO CURRENCY ON PLAYER')
+                return 0, Utils.PrintDebug('NO CURRENCY ON PLAYER')
             end
 
             currency = currency - currencyLimit
@@ -2820,16 +2774,41 @@ do
 
             return count
         end
+        local getHowManyCanPurchase = function(valuesTable, maxAmount)
+            local currency = ClientData.get_data()[localPlayer.Name][valuesTable.currency_id] or ClientData.get_data()[localPlayer.Name]['money']
+
+            if not currency then
+                return 0, Utils.PrintDebug('NO CURRENCY ON PLAYER')
+            end
+
+            local count = 0
+
+            while true do
+                local moneyLeft = currency - valuesTable.cost
+
+                if moneyLeft <= 0 then
+                    break
+                end
+                if count >= maxAmount or count >= 99 then
+                    break
+                end
+
+                currency = moneyLeft
+                count = count + 1
+
+                task.wait()
+            end
+
+            Utils.PrintDebug(string.format('getHowManyCanPurchase: %s', tostring(count)))
+
+            return count
+        end
         local getItemInfoFromDatabase = function(nameId)
-            assert(typeof(nameId) == 'string', 'is not a string')
+            assert(typeof(nameId) == 'string', 'getItemInfoFromDatabase: is not a string')
 
             for _, v in InventoryDB do
                 for key, value in v do
                     if key == nameId then
-                        for i3, v3 in value do
-                            print(i3, v3)
-                        end
-
                         return value
                     end
                 end
@@ -2837,7 +2816,7 @@ do
 
             return nil
         end
-        local getAmountToBuy = function(nameId, maxAmount)
+        local getAmountNeeded = function(nameId, maxAmount)
             local itemValues = getItemInfoFromDatabase(nameId)
 
             if not itemValues then
@@ -2846,8 +2825,8 @@ do
 
             local count = 0
 
-            for _, pet in ClientData.get_data()[localPlayer.Name].inventory[itemValues.category]do
-                if nameId == pet.id then
+            for _, item in ClientData.get_data()[localPlayer.Name].inventory[itemValues.category]do
+                if nameId == item.id then
                     count = count + 1
                 end
             end
@@ -2893,15 +2872,15 @@ do
                         break
                     end
 
-                    local amount = getAmountToBuy(value.NameId, value.MaxAmount)
+                    local amountNeeded = getAmountNeeded(value.NameId, value.MaxAmount)
 
-                    if amount == 0 then
+                    if amountNeeded == 0 then
                         Utils.PrintDebug(string.format('has max amount of: %s skipping', tostring(value.NameId)))
 
                         break
                     end
 
-                    local amountPurchase = getAmountToPurchase(itemValues, amount)
+                    local amountPurchase = getHowManyCanPurchase(itemValues, amountNeeded)
 
                     if amountPurchase == 0 then
                         Utils.PrintDebug(string.format('amount to purchase is: %s', tostring(amountPurchase)))
@@ -3883,7 +3862,7 @@ do
                 if dict[key] == 'nil' then
                     updateWithNewKey = true
 
-                    print(string.format('\u{1f4b8} No key: %s value: %s , so trying to buy it \u{1f4b8}', tostring(key), tostring(value)))
+                    Utils.PrintDebug(string.format('\u{1f4b8} No key: %s value: %s , so trying to buy it \u{1f4b8}', tostring(key), tostring(value)))
                     Furniture.BuyFurniture(key)
                     task.wait(1)
                 end
@@ -3960,7 +3939,7 @@ do
             RouterClient.get('TeamAPI/ChooseTeam'):InvokeServer('Babies', {
                 ['dont_send_back_home'] = true,
             })
-            print('turned to baby')
+            Utils.PrintDebug('turned to baby')
 
             if not localPlayer.Character then
                 Utils.PrintDebug('NO CHARACTER SO WAITING')
@@ -4163,6 +4142,7 @@ do
         local Players = game:GetService('Players')
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local CoconutBonkMinigameClient = (require(ReplicatedStorage.SharedModules.ContentPacks.Summerfest2025.Minigames.CoconutBonkMinigameClient))
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local Summerfest2025 = {}
         local localPlayer = Players.LocalPlayer
         local currentCamera = Workspace.CurrentCamera
@@ -4209,6 +4189,13 @@ do
 
             return stairModel.Block
         end
+        function Summerfest2025.IsSwordEquipped()
+            local isSword = Utils.GetCharacter():FindFirstChild('Sword')
+
+            Utils.PrintDebug(string.format('IsSwordEquipped: %s', tostring(isSword)))
+
+            return isSword
+        end
         function Summerfest2025.EquipSword()
             local coconutBonkId = CoconutBonkMinigameClient.instanced_minigame.minigame_id
 
@@ -4239,7 +4226,10 @@ do
                 return
             end
 
-            Summerfest2025.EquipSword()
+            repeat
+                Summerfest2025.EquipSword()
+                task.wait(1)
+            until Summerfest2025.IsSwordEquipped()
 
             while gameFolder and gameFolder.is_game_active.Value do
                 Summerfest2025.TeleportTo(blockPart)
@@ -6698,7 +6688,7 @@ do
                     if game.JobId ~= jobId then
                         getgenv().SETTINGS.ENABLE_AUTO_FARM = false
 
-                        print(' \u{26d4} not same jobid so exiting \u{26d4}')
+                        Utils.PrintDebug(' \u{26d4} not same jobid so exiting \u{26d4}')
                         task.wait(60)
                         game:Shutdown()
 
@@ -11678,6 +11668,13 @@ Check the Developer Console for more information.]],
         return self
     end
 end
+
+getgenv().BUY_BEFORE_FARMING = {
+    {
+        NameId = 'summerfest_2025_hammerhead_shark',
+        MaxAmount = 2,
+    },
+}
 
 if not game:IsLoaded() then
     game.Loaded:Wait()
