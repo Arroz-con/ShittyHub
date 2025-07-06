@@ -11671,13 +11671,6 @@ Check the Developer Console for more information.]],
     end
 end
 
-getgenv().BUY_BEFORE_FARMING = {
-    {
-        NameId = 'summerfest_2025_hammerhead_shark',
-        MaxAmount = 2,
-    },
-}
-
 if not game:IsLoaded() then
     game.Loaded:Wait()
 end
