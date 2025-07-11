@@ -4147,8 +4147,11 @@ do
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local CoconutBonkMinigameClient = (require(ReplicatedStorage.SharedModules.ContentPacks.Summerfest2025.Minigames.CoconutBonkMinigameClient))
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
+        local ClientData = Bypass('ClientData')
+        local RouterClient = Bypass('RouterClient')
         local Summerfest2025 = {}
         local localPlayer = Players.LocalPlayer
+        local playerData = ClientData.get_data()[localPlayer.Name]
         local currentCamera = Workspace.CurrentCamera
         local viewportSize = currentCamera.ViewportSize
 
@@ -4207,9 +4210,9 @@ do
                 return
             end
 
-            Bypass('RouterClient').get('MinigameAPI/MessageServer'):FireServer(coconutBonkId, 'pickup_droppable', 1)
+            RouterClient.get('MinigameAPI/MessageServer'):FireServer(coconutBonkId, 'pickup_droppable', 1)
             task.wait()
-            Bypass('RouterClient').get('MinigameAPI/MessageServer'):FireServer(coconutBonkId, 'pickup_sword')
+            RouterClient.get('MinigameAPI/MessageServer'):FireServer(coconutBonkId, 'pickup_sword')
         end
         function Summerfest2025.TeleportTo(part)
             local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
@@ -4242,6 +4245,51 @@ do
                 Summerfest2025.HitEnemy()
                 task.wait(1.01)
             end
+        end
+        function Summerfest2025.BuyKeys()
+            local keyAmount = playerData.tide_chest_manager.keys_bought
+
+            if keyAmount >= 5 then
+                return
+            end
+
+            for index = keyAmount, 5 do
+                pcall(function()
+                    return RouterClient.get('SummerfestEventAPI/RequestBuyTreasureKey'):InvokeServer()
+                end)
+                task.wait(1)
+            end
+
+            Utils.PrintDebug('Bought Keys')
+        end
+        function Summerfest2025.GetCannonRewards()
+            if not playerData.crows_nest_cannons_manager.can_claim_daily_reward then
+                return
+            end
+
+            for index = 1, 7 do
+                RouterClient.get('SummerfestEventAPI/CrowsNestHit'):FireServer({
+                    cannon_key = tostring(index),
+                })
+                task.wait(1)
+            end
+
+            Utils.PrintDebug('Got Cannon rewards')
+        end
+        function Summerfest2025.OpenChests()
+            local chestOpenedAmount = #playerData.tide_chest_manager.chests_opened
+
+            if chestOpenedAmount >= 6 then
+                return
+            end
+
+            for i = 1, 6 do
+                pcall(function()
+                    return RouterClient.get('SummerfestEventAPI/RequestOpenTideChest'):InvokeServer(i)
+                end)
+            end
+
+            Utils.PrintDebug('Opened all chest')
         end
 
         return Summerfest2025
@@ -4633,6 +4681,9 @@ do
                         return
                     end
                     if getgenv().SETTINGS.EVENT.DO_MINIGAME == false then
+                        return
+                    end
+                    if localPlayer:GetAttribute('hasStartedFarming') == false then
                         return
                     end
                     if localPlayer:GetAttribute('StopFarmingTemp') == true then
@@ -6448,6 +6499,7 @@ do
         local GetInventory = __DARKLUA_BUNDLE_MODULES.load('i')
         local FarmingPet = __DARKLUA_BUNDLE_MODULES.load('w')
         local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
+        local Summerfest2025 = __DARKLUA_BUNDLE_MODULES.load('m')
         local self = {}
         local UpdateTextEvent = (ReplicatedStorage:WaitForChild('UpdateTextEvent'))
         local localPlayer = Players.LocalPlayer
@@ -6750,6 +6802,11 @@ do
                         Utils.PlaceBaitOrPickUp(furniture.lures_2023_normal_lure, baitUnique)
 
                         baitboxCount = 0
+
+                        Teleport.BeachParty()
+                        Summerfest2025.BuyKeys()
+                        Summerfest2025.GetCannonRewards()
+                        Summerfest2025.OpenChests()
                     end
 
                     tryFeedAgePotion()
@@ -6787,6 +6844,10 @@ do
 
             setupFloor()
             CollisionsClient.set_collidable(false)
+            Teleport.BeachParty()
+            Summerfest2025.BuyKeys()
+            Summerfest2025.GetCannonRewards()
+            Summerfest2025.OpenChests()
             Teleport.FarmingHome()
             Utils.PrintDebug('teleported to farming place')
             Utils.PrintDebug('Started Farming')
