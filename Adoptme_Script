@@ -4031,14 +4031,14 @@ do
                 end
             end
 
-            RouterClient.get('HousingAPI/ActivateInteriorFurniture'):InvokeServer(key, 'UseBlock', {
+            print('REMOTE TURN SHRIMP: ' .. RouterClient.get('HousingAPI/ActivateInteriorFurniture'):InvokeServer(key, 'UseBlock', {
                 r_1 = shrimpId,
                 r_3 = jewelIds[1],
                 r_2 = jewelIds[2],
                 r_4 = jewelIds[3],
                 r_5 = jewelIds[4],
                 r_6 = jewelIds[5],
-            }, character)
+            }, character))
 
             return true
         end
