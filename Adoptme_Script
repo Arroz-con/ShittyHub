@@ -3819,6 +3819,7 @@ do
         local CoconutBonkMinigameClient = (require(ReplicatedStorage.SharedModules.ContentPacks.Summerfest2025.Minigames.CoconutBonkMinigameClient))
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local BuyItem = __DARKLUA_BUNDLE_MODULES.load('g')
+        local Teleport = __DARKLUA_BUNDLE_MODULES.load('f')
         local ClientData = Bypass('ClientData')
         local RouterClient = Bypass('RouterClient')
         local SummerFest2025 = {}
@@ -3932,7 +3933,7 @@ do
                 task.wait(1)
             end
 
-            Utils.PrintDebug('Bought Keys')
+            print('Bought Keys')
         end
         function SummerFest2025.GetCannonRewards()
             if not playerData.crows_nest_cannons_manager.can_claim_daily_reward then
@@ -3946,7 +3947,7 @@ do
                 task.wait(1)
             end
 
-            Utils.PrintDebug('Got Cannon rewards')
+            print('Got Cannon rewards')
         end
         function SummerFest2025.OpenChests()
             local chestOpenedAmount = #playerData.tide_chest_manager.chests_opened
@@ -3961,12 +3962,9 @@ do
                 end)
             end
 
-            Utils.PrintDebug('Opened all chest')
+            print('Opened all chest')
         end
         function SummerFest2025.GetShrimpNpcKey()
-            RouterClient.get('LocationAPI/SetLocation'):FireServer('MainMap', localPlayer, playerData.LiveOpsMapType)
-            task.wait(5)
-
             for key, value in playerData.house_interior.furniture do
                 if value.id == 'summer_2025_shrimp_trader' then
                     return key
@@ -4000,15 +3998,18 @@ do
             local jewelIds = SummerFest2025.GetPricelessJewles()
 
             if not jewelIds or #jewelIds <= 4 then
-                Utils.PrintDebug('TurnInShrimpToPriceless: Doesnt have 5 priceless jewels')
+                print('TurnInShrimpToPriceless: Doesnt have 5 priceless jewels')
 
                 return false
             end
 
+            Teleport.Bonfire()
+            task.wait(30)
+
             local key = SummerFest2025.GetShrimpNpcKey()
 
             if not key then
-                Utils.PrintDebug('TurnInShrimpToPriceless: Wasnt able to get shrimp npc key')
+                print('TurnInShrimpToPriceless: Wasnt able to get shrimp npc key')
 
                 return false
             end
@@ -4025,7 +4026,7 @@ do
                 shrimpId = SummerFest2025.GetShrimpUniqueId()
 
                 if not shrimpId then
-                    Utils.PrintDebug(
+                    print(
 [[TurnInShrimpToPriceless: doesnt have normal shrimp and wasnt able to buy]])
 
                     return false
