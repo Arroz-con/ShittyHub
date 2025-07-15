@@ -3963,10 +3963,13 @@ do
 
             print('Opened all chest')
         end
-        function SummerFest2025.GetShrimpNpcKey()
-            for key, value in playerData.house_interior.furniture do
-                if value.id == 'summer_2025_shrimp_trader' then
-                    return key
+        function SummerFest2025.GetShrimpNpcModel()
+            for _, v in Workspace.HouseInteriors:WaitForChild('furniture'):GetDescendants()do
+                if not v:IsA('Model') then
+                    continue
+                end
+                if v.Name == 'summer_2025_priceless_shrimp' then
+                    return v
                 end
             end
 
@@ -4003,23 +4006,27 @@ do
             end
 
             Teleport.Bonfire()
-            task.wait(30)
+            task.wait(10)
 
-            local key = SummerFest2025.GetShrimpNpcKey()
+            local npcModel = SummerFest2025.GetShrimpNpcModel()
 
-            if not key then
-                print('TurnInShrimpToPriceless: Wasnt able to get shrimp npc key')
+            if not (npcModel and npcModel.PrimaryPart) then
+                print('TurnInShrimpToPriceless: Wasnt able to get shrimp npc')
 
                 return false
             end
 
+            Utils.GetCharacter():MoveTo(npcModel.PrimaryPart.Position)
+            task.wait(3)
+
+            local key = npcModel:GetAttribute('furniture_unique')
             local shrimpId = SummerFest2025.GetShrimpUniqueId()
 
             if not shrimpId then
                 RouterClient.get('ShopAPI/BuyItem'):InvokeServer('pets', 'summer_2025_emperor_shrimp', {
                     ['buy_count'] = 1,
                 })
-                task.wait(3)
+                task.wait(1)
 
                 shrimpId = SummerFest2025.GetShrimpUniqueId()
 
