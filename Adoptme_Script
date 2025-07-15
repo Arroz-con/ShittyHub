@@ -3816,7 +3816,7 @@ do
         local VirtualInputManager = game:GetService('VirtualInputManager')
         local Players = game:GetService('Players')
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
-        local CoconutBonkMinigameClient = (require(ReplicatedStorage.SharedModules.ContentPacks.SummerFest2025.Minigames.CoconutBonkMinigameClient))
+        local CoconutBonkMinigameClient = (require(ReplicatedStorage.SharedModules.ContentPacks.Summerfest2025.Minigames.CoconutBonkMinigameClient))
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local BuyItem = __DARKLUA_BUNDLE_MODULES.load('g')
         local ClientData = Bypass('ClientData')
@@ -4032,21 +4032,14 @@ do
                 end
             end
 
-            local args = {
-                key,
-                'UseBlock',
-                {
-                    r_1 = shrimpId,
-                    r_3 = jewelIds[1],
-                    r_2 = jewelIds[2],
-                    r_4 = jewelIds[3],
-                    r_5 = jewelIds[4],
-                    r_6 = jewelIds[5],
-                },
-                character,
-            }
-
-            RouterClient.get('HousingAPI/ActivateInteriorFurniture'):InvokeServer(unpack(args))
+            RouterClient.get('HousingAPI/ActivateInteriorFurniture'):InvokeServer(key, 'UseBlock', {
+                r_1 = shrimpId,
+                r_3 = jewelIds[1],
+                r_2 = jewelIds[2],
+                r_4 = jewelIds[3],
+                r_5 = jewelIds[4],
+                r_6 = jewelIds[5],
+            }, character)
 
             return true
         end
