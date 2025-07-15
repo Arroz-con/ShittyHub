@@ -3818,7 +3818,6 @@ do
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local CoconutBonkMinigameClient = (require(ReplicatedStorage.SharedModules.ContentPacks.Summerfest2025.Minigames.CoconutBonkMinigameClient))
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local BuyItem = __DARKLUA_BUNDLE_MODULES.load('g')
         local Teleport = __DARKLUA_BUNDLE_MODULES.load('f')
         local ClientData = Bypass('ClientData')
         local RouterClient = Bypass('RouterClient')
@@ -4017,11 +4016,10 @@ do
             local shrimpId = SummerFest2025.GetShrimpUniqueId()
 
             if not shrimpId then
-                BuyItem.StartBuyItems({
-                    NameId = 'summer_2025_emperor_shrimp',
-                    MaxAmount = 1,
+                RouterClient.get('ShopAPI/BuyItem'):InvokeServer('pets', 'summer_2025_emperor_shrimp', {
+                    ['buy_count'] = 1,
                 })
-                task.wait(1)
+                task.wait(3)
 
                 shrimpId = SummerFest2025.GetShrimpUniqueId()
 
