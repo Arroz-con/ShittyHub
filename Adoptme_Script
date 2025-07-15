@@ -3989,14 +3989,13 @@ do
 
             for _, v in ClientData.get_data()[localPlayer.Name].inventory['toys']do
                 if v.id == 'summerfest_2025_priceless_jewel' then
-                    table.insert(jewelIds, v.id)
+                    table.insert(jewelIds, v.unique)
                 end
             end
 
             return jewelIds
         end
         function SummerFest2025.TurnInShrimpToPriceless()
-            local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
             local jewelIds = SummerFest2025.GetPricelessJewles()
 
             if not jewelIds or #jewelIds <= 4 then
@@ -4017,7 +4016,6 @@ do
             end
 
             Utils.GetCharacter():MoveTo(npcModel.PrimaryPart.Position)
-            task.wait(3)
 
             local key = npcModel:GetAttribute('furniture_unique')
             local shrimpId = SummerFest2025.GetShrimpUniqueId()
@@ -4049,7 +4047,7 @@ do
                     r_5 = jewelIds[4],
                     r_6 = jewelIds[5],
                 },
-                character,
+                localPlayer.Character,
             }
 
             print('FIRING REMOTE')
