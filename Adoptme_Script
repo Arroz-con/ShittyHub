@@ -2595,25 +2595,24 @@ do
             localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
         end
         function self.CampSite()
-            self.DeleteWater()
             ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('MainMap', localPlayer, ClientData.get_data()[localPlayer.Name].LiveOpsMapType)
             task.wait(1)
 
             localPlayer.Character.PrimaryPart.CFrame = Workspace.CampingLocation.CFrame + Vector3.new(rng:NextInteger(1, 30), 5, rng:NextInteger(1, 30))
 
             localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+            self.DeleteWater()
         end
         function self.BeachParty()
-            self.DeleteWater()
             ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('MainMap', localPlayer, ClientData.get_data()[localPlayer.Name].LiveOpsMapType)
             task.wait(1)
 
             localPlayer.Character.PrimaryPart.CFrame = Workspace.BeachPartyLocation.CFrame + Vector3.new(math.random(1, 30), 5, math.random(1, 30))
 
             localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+            self.DeleteWater()
         end
         function self.Bonfire()
-            self.DeleteWater()
             ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('MainMap', localPlayer, ClientData.get_data()[localPlayer.Name].LiveOpsMapType)
             task.wait(1)
 
@@ -2627,6 +2626,7 @@ do
 
             localPlayer.Character:MoveTo(location)
             localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+            self.DeleteWater()
         end
         function self.PlayGround(vec)
             localPlayer.Character:WaitForChild('HumanoidRootPart').Anchored = true
@@ -2724,6 +2724,7 @@ do
             localPlayer.Character:WaitForChild('HumanoidRootPart').Anchored = false
 
             localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+            self.DeleteWater()
         end
 
         return self
@@ -3813,7 +3814,6 @@ do
     function __DARKLUA_BUNDLE_MODULES.k()
         local ReplicatedStorage = (game:GetService('ReplicatedStorage'))
         local Workspace = (game:GetService('Workspace'))
-        local VirtualInputManager = game:GetService('VirtualInputManager')
         local Players = game:GetService('Players')
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local CoconutBonkMinigameClient = (require(ReplicatedStorage.SharedModules.ContentPacks.Summerfest2025.Minigames.CoconutBonkMinigameClient))
@@ -3824,13 +3824,23 @@ do
         local SummerFest2025 = {}
         local localPlayer = Players.LocalPlayer
         local playerData = ClientData.get_data()[localPlayer.Name]
-        local currentCamera = Workspace.CurrentCamera
-        local viewportSize = currentCamera.ViewportSize
+        local minigameHotbarApp = localPlayer:WaitForChild('PlayerGui'):WaitForChild('MinigameHotbarApp')
+        local hotbarFrame = minigameHotbarApp:WaitForChild('Hotbar')
 
         function SummerFest2025.HitEnemy()
-            VirtualInputManager:SendMouseButtonEvent(viewportSize.X / 2, viewportSize.Y / 2, 0, true, game, 1)
-            task.wait(0.1)
-            VirtualInputManager:SendMouseButtonEvent(viewportSize.X / 2, viewportSize.Y / 2, 0, false, game, 1)
+            local swordFrame = (hotbarFrame:FindFirstChild('SwordButton'))
+
+            if not swordFrame then
+                return
+            end
+
+            local button = (swordFrame:FindFirstChild('Button'))
+
+            if not button then
+                return
+            end
+
+            Utils.FireButton(button)
         end
         function SummerFest2025.FindMinigameFolder()
             for _, child in ipairs(Workspace.StaticMap:GetChildren())do
@@ -4808,34 +4818,7 @@ do
         local Terrain = (Workspace:WaitForChild('Terrain'))
         local Lighting = (cloneref(game:GetService('Lighting')))
         local self = {}
-        local TURN_ON = false
-        local lowSpecSetFFlags = function()
-            if setfflag then
-                setfflag('FIntRenderShadowIntensity', '0')
-                setfflag('DFFlagDisableDPIScale', 'false')
-                setfflag('DFFlagDebugRenderForceTechnologyVoxel', 'true')
-                setfflag('FIntFRMMinGrassDistance', '0')
-                setfflag('FIntFRMMaxGrassDistance', '0')
-                setfflag('FIntRenderGrassDetailStrands', '0')
-                setfflag('FIntRenderGrassHeightScaler', '0')
-                setfflag('FStringPartTexturePackTablePre2022', '')
-                setfflag('FStringPartTexturePackTable2022', '')
-                setfflag('FStringTerrainMaterialTablePre2022', '')
-                setfflag('FStringTerrainMaterialTable2022', '')
-                setfflag('FFlagDisablePostFx', 'true')
-                setfflag('FIntDebugForceMSAASamples', '0')
-                setfflag('DFFlagTextureQualityOverrideEnabled', 'true')
-                setfflag('DFIntTextureQualityOverride', '0')
-                setfflag('DFIntCSGLevelOfDetailSwitchingDistance', '0')
-                setfflag('DFIntCSGLevelOfDetailSwitchingDistanceL12', '0')
-                setfflag('DFIntCSGLevelOfDetailSwitchingDistanceL23', '0')
-                setfflag('DFIntCSGLevelOfDetailSwitchingDistanceL34', '0')
-                setfflag('DFIntDebugFRMQualityLevelOverride', '1')
-                setfflag('DFIntTextureCompositorActiveJobs', '0')
-                setfflag('FFlagDebugSkyGray', 'true')
-                setfflag('FFlagRenderCheckThreading', 'true')
-            end
-        end
+        local TURN_ON = true
         local lowSpecTerrain = function()
             Terrain.WaterReflectance = 0
             Terrain.WaterTransparency = 1
@@ -4861,8 +4844,6 @@ do
                 v.Transparency = 1
             elseif v:IsA('Decal') or v:IsA('Texture') then
                 v.Transparency = 1
-            elseif v:IsA('ParticleEmitter') or v:IsA('Trail') then
-                v.Lifetime = NumberRange.new(0, 0.1)
             elseif v:IsA('Explosion') then
                 v.BlastPressure = 1
                 v.BlastRadius = 1
@@ -4888,10 +4869,10 @@ do
                 return
             end
 
-            lowSpecSetFFlags()
             lowSpecTerrain()
             lowSpecLighting()
             Lighting:ClearAllChildren()
+            Terrain:Clear()
 
             for _, v in pairs(Workspace:GetDescendants())do
                 lowSpecTextures(v)
@@ -4913,7 +4894,7 @@ do
 
         local localPlayer = Players.LocalPlayer
         local otherGuis = {}
-        local DEFAULT_COLOR = Color3.fromRGB(0, 0, 0)
+        local DEFAULT_COLOR = Color3.fromRGB(0, 204, 255)
         local setButtonUiSettings = function(buttonSettings)
             local button = Instance.new('TextButton')
 
@@ -4968,9 +4949,21 @@ do
             local StatsGui = Instance.new('ScreenGui')
 
             StatsGui.Name = 'StatsGui'
-            StatsGui.DisplayOrder = 0
+            StatsGui.DisplayOrder = 100
             StatsGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+            StatsGui.ResetOnSpawn = false
+            StatsGui.IgnoreGuiInset = true
             StatsGui.Parent = localPlayer:WaitForChild('PlayerGui')
+
+            local blackFrame = Instance.new('Frame')
+
+            blackFrame.Name = 'BlackFrame'
+            blackFrame.Size = UDim2.new(1, 0, 1, 0)
+            blackFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+            blackFrame.BackgroundTransparency = 0
+            blackFrame.LayoutOrder = 0
+            blackFrame.Visible = true
+            blackFrame.Parent = StatsGui
 
             local MainFrame = Instance.new('Frame')
 
@@ -4980,7 +4973,8 @@ do
             MainFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
             MainFrame.BorderSizePixel = 0
             MainFrame.Position = UDim2.new(0.276041657, 0, 0.0577475652, 0)
-            MainFrame.Size = UDim2.new(0.674468458, 0, 0.795313776, 0)
+            MainFrame.Size = UDim2.new(0.6, 0, 0.75, 0)
+            MainFrame.LayoutOrder = 1
             MainFrame.Parent = StatsGui
             otherGuis.TimeLabel = Instance.new('TextLabel')
             otherGuis.TimeLabel.Name = 'TimeLabel'
@@ -5039,6 +5033,7 @@ do
             TextButton.TextSize = 14
             TextButton.TextWrapped = true
             TextButton.TextXAlignment = Enum.TextXAlignment.Left
+            TextButton.LayoutOrder = 100
             TextButton.Parent = StatsGui
 
             local TIME_SAVED
@@ -5056,6 +5051,7 @@ do
             TextButton.Activated:Connect(function()
                 isVisible = not isVisible
                 MainFrame.Visible = isVisible
+                blackFrame.Visible = isVisible
             end)
         end
         function StatsGuiClass.SetTimeLabelText(startTime)
