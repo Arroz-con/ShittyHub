@@ -421,6 +421,9 @@ do
         function Utils.GetCharacter()
             return localPlayer.Character or localPlayer.CharacterAdded:Wait()
         end
+        function Utils.GetHumanoidRootPart()
+            return (Utils.GetCharacter():WaitForChild('HumanoidRootPart'))
+        end
 
         return Utils
     end
@@ -2527,9 +2530,9 @@ do
 
             part.Position = Workspace.StaticMap.Beach.BeachPartyAilmentTarget.Position + Vector3.new(0, 
 -10, 0)
-            part.Size = Vector3.new(200, 2, 200)
+            part.Size = Vector3.new(1000, 2, 1000)
             part.Anchored = true
-            part.Transparency = 1
+            part.Transparency = 0
             part.Name = 'BeachPartyLocation'
             part.Parent = Workspace
         end
@@ -3824,24 +3827,55 @@ do
         local SummerFest2025 = {}
         local localPlayer = Players.LocalPlayer
         local playerData = ClientData.get_data()[localPlayer.Name]
-        local minigameHotbarApp = localPlayer:WaitForChild('PlayerGui'):WaitForChild('MinigameHotbarApp')
-        local hotbarFrame = minigameHotbarApp:WaitForChild('Hotbar')
-
-        function SummerFest2025.HitEnemy()
-            local swordFrame = (hotbarFrame:FindFirstChild('SwordButton'))
-
-            if not swordFrame then
-                return
-            end
-
-            local button = (swordFrame:FindFirstChild('Button'))
-
-            if not button then
-                return
-            end
-
-            Utils.FireButton(button)
+        local fireRemoteKillEnemies = function(minigameId, pirateIds)
+            RouterClient.get('MinigameAPI/MessageServer'):FireServer(minigameId, 'pirate_sword_strike', pirateIds)
         end
+        local getMinigameId = function(gameFolder)
+            return string.gsub(gameFolder.Name, '_minigame_state', '')
+        end
+        local getPlayerSpawnPart = function()
+            local model = Workspace.Interiors:FindFirstChildWhichIsA('Model')
+
+            if not model then
+                return
+            end
+
+            local Game = model:WaitForChild('Game', 6)
+
+            if not Game then
+                return
+            end
+
+            local playerSpawns = (Game:WaitForChild('PlayerSpawns', 6))
+
+            if not playerSpawns then
+                return
+            end
+
+            return playerSpawns['1']
+        end
+        local getCannonBallPilePart = function()
+            local model = Workspace.Interiors:FindFirstChildWhichIsA('Model')
+
+            if not model then
+                return
+            end
+
+            local piles = model:WaitForChild('Piles', 6)
+
+            if not piles then
+                return
+            end
+
+            local interactionPart = (piles:FindFirstChild('InteractionPart', true))
+
+            if not interactionPart then
+                return
+            end
+
+            return interactionPart
+        end
+
         function SummerFest2025.FindMinigameFolder()
             for _, child in ipairs(Workspace.StaticMap:GetChildren())do
                 if not child:IsA('Folder') then
@@ -3857,75 +3891,56 @@ do
 
             return nil
         end
-        function SummerFest2025.GetStairPart()
-            local model = Workspace.Interiors:FindFirstChildWhichIsA('Model')
-
-            if not model then
-                return
-            end
-
-            local visualFolder = model:FindFirstChild('Visual')
-
-            if not visualFolder then
-                return
-            end
-
-            local stairModel = (visualFolder:FindFirstChild('Steps'))
-
-            if not stairModel then
-                return
-            end
-
-            return stairModel.Block
-        end
-        function SummerFest2025.IsSwordEquipped()
-            local isSword = Utils.GetCharacter():FindFirstChild('Sword')
-
-            print(string.format('IsSwordEquipped: %s', tostring(isSword)))
-
-            return isSword
-        end
-        function SummerFest2025.EquipSword()
-            local coconutBonkId = CoconutBonkMinigameClient.instanced_minigame.minigame_id
-
-            if not coconutBonkId then
-                return
-            end
-
-            RouterClient.get('MinigameAPI/MessageServer'):FireServer(coconutBonkId, 'pickup_droppable', 1)
-            task.wait()
-            RouterClient.get('MinigameAPI/MessageServer'):FireServer(coconutBonkId, 'pickup_sword')
-        end
         function SummerFest2025.TeleportTo(part)
             local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
             local distance = character.PrimaryPart and (character.PrimaryPart.Position - part.Position).Magnitude
 
-            if distance >= 5 then
+            if distance >= 10 then
                 character:MoveTo(part.Position)
             end
         end
-        function SummerFest2025.StartEvent()
+        function SummerFest2025.StartTreasureDefenseEvent()
+            local humanoidRootPart = Utils.GetHumanoidRootPart()
             local gameFolder = (SummerFest2025.FindMinigameFolder())
 
             if not gameFolder then
                 return
             end
 
-            local blockPart = SummerFest2025.GetStairPart()
+            local spawnPart = getPlayerSpawnPart()
 
-            if not blockPart then
+            if not spawnPart then
                 return
             end
 
-            repeat
-                SummerFest2025.EquipSword()
-                task.wait(1)
-            until SummerFest2025.IsSwordEquipped()
+            local minigameId = getMinigameId(gameFolder)
+            local shipsByIds = CoconutBonkMinigameClient.instanced_minigame.ships_by_uid
+            local pirateIds = {}
 
             while gameFolder and gameFolder.is_game_active.Value do
-                SummerFest2025.TeleportTo(blockPart)
-                SummerFest2025.HitEnemy()
-                task.wait(1.01)
+                for _, value in shipsByIds do
+                    for _, data in value.pirates do
+                        if data.pirate_data.health <= 0 then
+                            continue
+                        end
+
+                        local magnitude = (data.npc_controller.model.PrimaryPart.Position - humanoidRootPart.Position).Magnitude
+
+                        if magnitude >= 50 then
+                            continue
+                        end
+
+                        table.insert(pirateIds, data.pirate_data.pirate_uid)
+                    end
+                end
+
+                if #pirateIds >= 1 then
+                    fireRemoteKillEnemies(minigameId, pirateIds)
+                    table.clear(pirateIds)
+                end
+
+                task.wait(1)
+                SummerFest2025.TeleportTo(spawnPart)
             end
         end
         function SummerFest2025.BuyKeys()
@@ -3961,11 +3976,11 @@ do
         function SummerFest2025.OpenChests()
             local chestOpenedAmount = #playerData.tide_chest_manager.chests_opened
 
-            if chestOpenedAmount >= 6 then
+            if chestOpenedAmount >= 10 then
                 return
             end
 
-            for i = 1, 6 do
+            for i = 1, 10 do
                 pcall(function()
                     return RouterClient.get('SummerfestEventAPI/RequestOpenTideChest'):InvokeServer(i)
                 end)
@@ -4064,6 +4079,47 @@ do
             print(RouterClient.get('HousingAPI/ActivateInteriorFurniture'):InvokeServer(unpack(args)))
 
             return true
+        end
+
+        local findMinigameFolderForCannonCircle = function()
+            for _, child in ipairs(Workspace.StaticMap:GetChildren())do
+                if not child:IsA('Folder') then
+                    continue
+                end
+
+                local folder = string.match(child.Name, 'joetation::[%w%-]+_minigame_state$')
+
+                if folder then
+                    return child
+                end
+            end
+
+            return nil
+        end
+
+        function SummerFest2025.StartCannonCircleEvent()
+            local gameFolder = (findMinigameFolderForCannonCircle())
+
+            if not gameFolder then
+                return
+            end
+
+            local cannonballPart = getCannonBallPilePart()
+
+            if not cannonballPart then
+                return
+            end
+
+            print('Found cannonballPart \u{2714}')
+
+            local minigameId = getMinigameId(gameFolder)
+
+            while gameFolder and gameFolder.is_game_active.Value do
+                RouterClient.get('MinigameAPI/MessageServer'):FireServer(minigameId, 'pickup_holdable_from_pile', Utils.GetHumanoidRootPart().Position, workspace:GetServerTimeNow())
+                task.wait(0.25)
+                RouterClient.get('MinigameAPI/MessageServer'):FireServer(minigameId, 'use_cannon', math.random(1, 12), Utils.GetHumanoidRootPart().Position, workspace:GetServerTimeNow())
+                SummerFest2025.TeleportTo(cannonballPart)
+            end
         end
 
         return SummerFest2025
@@ -4674,7 +4730,7 @@ do
                 )
                     if DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Treasure Defense is starting') then
                         onTextChangedMiniGame()
-                    elseif DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Tear Up Toykyo') then
+                    elseif DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Cannon Circle is starting') then
                         onTextChangedMiniGame()
                     elseif DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('invitation') then
                         localPlayer:Kick()
@@ -4703,7 +4759,7 @@ do
                     )
                         if NormalDialogChild.Info.TextLabel.Text:match('Treasure Defense is starting') then
                             onTextChangedMiniGame()
-                        elseif NormalDialogChild.Info.TextLabel.Text:match('Tear Up Toykyo') then
+                        elseif NormalDialogChild.Info.TextLabel.Text:match('Cannon Circle is starting') then
                             onTextChangedMiniGame()
                         elseif NormalDialogChild.Info.TextLabel.Text:match('invitation') then
                             localPlayer:Kick()
@@ -4726,10 +4782,13 @@ do
                         if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME then
                             localPlayer:SetAttribute('StopFarmingTemp', true)
                             task.wait(2)
-                            SummerFest2025.StartEvent()
+                            SummerFest2025.StartTreasureDefenseEvent()
                         end
-                    elseif MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match('TEAR UP TOYKYO') then
+                    elseif MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match('CANNON CIRCLE') then
                         if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME then
+                            localPlayer:SetAttribute('StopFarmingTemp', true)
+                            task.wait(2)
+                            SummerFest2025.StartCannonCircleEvent()
                         end
                     end
                 end
@@ -4799,6 +4858,26 @@ do
                     Bypass('RouterClient').get('MinigameAPI/AttemptJoin'):FireServer('coconut_bonk', true)
                 end
             end)
+            StaticMap.joetation_minigame_state.is_game_active:GetPropertyChangedSignal('Value'):Connect(function(
+            )
+                if StaticMap.joetation_minigame_state.is_game_active.Value then
+                    if getgenv().SETTINGS.ENABLE_AUTO_FARM == false then
+                        return
+                    end
+                    if getgenv().SETTINGS.EVENT.DO_MINIGAME == false then
+                        return
+                    end
+                    if localPlayer:GetAttribute('hasStartedFarming') == false then
+                        return
+                    end
+                    if localPlayer:GetAttribute('StopFarmingTemp') == true then
+                        return
+                    end
+
+                    localPlayer:SetAttribute('StopFarmingTemp', true)
+                    Bypass('RouterClient').get('MinigameAPI/AttemptJoin'):FireServer('joetation', true)
+                end
+            end)
         end
         function self.Start()
             TradeApp.Frame.NegotiationFrame.Body.PartnerOffer.Accepted:GetPropertyChangedSignal('ImageTransparency'):Connect(function(
@@ -4818,7 +4897,7 @@ do
         local Terrain = (Workspace:WaitForChild('Terrain'))
         local Lighting = (cloneref(game:GetService('Lighting')))
         local self = {}
-        local TURN_ON = true
+        local TURN_ON = false
         local lowSpecTerrain = function()
             Terrain.WaterReflectance = 0
             Terrain.WaterTransparency = 1
