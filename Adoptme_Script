@@ -3815,316 +3815,6 @@ do
         return BulkPotion
     end
     function __DARKLUA_BUNDLE_MODULES.k()
-        local ReplicatedStorage = (game:GetService('ReplicatedStorage'))
-        local Workspace = (game:GetService('Workspace'))
-        local Players = game:GetService('Players')
-        local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
-        local CoconutBonkMinigameClient = (require(ReplicatedStorage.SharedModules.ContentPacks.Summerfest2025.Minigames.CoconutBonkMinigameClient))
-        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local Teleport = __DARKLUA_BUNDLE_MODULES.load('f')
-        local ClientData = Bypass('ClientData')
-        local RouterClient = Bypass('RouterClient')
-        local SummerFest2025 = {}
-        local localPlayer = Players.LocalPlayer
-        local playerData = ClientData.get_data()[localPlayer.Name]
-        local fireRemoteKillEnemies = function(minigameId, pirateIds)
-            RouterClient.get('MinigameAPI/MessageServer'):FireServer(minigameId, 'pirate_sword_strike', pirateIds)
-        end
-        local getMinigameId = function(gameFolder)
-            return string.gsub(gameFolder.Name, '_minigame_state', '')
-        end
-        local getPlayerSpawnPart = function()
-            local model = Workspace.Interiors:FindFirstChildWhichIsA('Model')
-
-            if not model then
-                return
-            end
-
-            local Game = model:WaitForChild('Game', 6)
-
-            if not Game then
-                return
-            end
-
-            local playerSpawns = (Game:WaitForChild('PlayerSpawns', 6))
-
-            if not playerSpawns then
-                return
-            end
-
-            return playerSpawns['1']
-        end
-        local getCannonBallPilePart = function()
-            local model = Workspace.Interiors:FindFirstChildWhichIsA('Model')
-
-            if not model then
-                return
-            end
-
-            local piles = model:WaitForChild('Piles', 6)
-
-            if not piles then
-                return
-            end
-
-            local interactionPart = (piles:FindFirstChild('InteractionPart', true))
-
-            if not interactionPart then
-                return
-            end
-
-            return interactionPart
-        end
-
-        function SummerFest2025.FindMinigameFolder()
-            for _, child in ipairs(Workspace.StaticMap:GetChildren())do
-                if not child:IsA('Folder') then
-                    continue
-                end
-
-                local folder = string.match(child.Name, 'coconut_bonk::[%w%-]+_minigame_state$')
-
-                if folder then
-                    return child
-                end
-            end
-
-            return nil
-        end
-        function SummerFest2025.TeleportTo(part)
-            local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
-            local distance = character.PrimaryPart and (character.PrimaryPart.Position - part.Position).Magnitude
-
-            if distance >= 10 then
-                character:MoveTo(part.Position)
-            end
-        end
-        function SummerFest2025.StartTreasureDefenseEvent()
-            local humanoidRootPart = Utils.GetHumanoidRootPart()
-            local gameFolder = (SummerFest2025.FindMinigameFolder())
-
-            if not gameFolder then
-                return
-            end
-
-            local spawnPart = getPlayerSpawnPart()
-
-            if not spawnPart then
-                return
-            end
-
-            local minigameId = getMinigameId(gameFolder)
-            local shipsByIds = CoconutBonkMinigameClient.instanced_minigame.ships_by_uid
-            local pirateIds = {}
-
-            while gameFolder and gameFolder.is_game_active.Value do
-                for _, value in shipsByIds do
-                    for _, data in value.pirates do
-                        if data.pirate_data.health <= 0 then
-                            continue
-                        end
-
-                        local magnitude = (data.npc_controller.model.PrimaryPart.Position - humanoidRootPart.Position).Magnitude
-
-                        if magnitude >= 50 then
-                            continue
-                        end
-
-                        table.insert(pirateIds, data.pirate_data.pirate_uid)
-                    end
-                end
-
-                if #pirateIds >= 1 then
-                    fireRemoteKillEnemies(minigameId, pirateIds)
-                    table.clear(pirateIds)
-                end
-
-                task.wait(1)
-                SummerFest2025.TeleportTo(spawnPart)
-            end
-        end
-        function SummerFest2025.BuyKeys()
-            local keyAmount = playerData.tide_chest_manager.keys_bought
-
-            if keyAmount >= 5 then
-                return
-            end
-
-            for index = keyAmount, 5 do
-                pcall(function()
-                    return RouterClient.get('SummerfestEventAPI/RequestBuyTreasureKey'):InvokeServer()
-                end)
-                task.wait(1)
-            end
-
-            print('Bought Keys')
-        end
-        function SummerFest2025.GetCannonRewards()
-            if not playerData.crows_nest_cannons_manager.can_claim_daily_reward then
-                return
-            end
-
-            for index = 1, 7 do
-                RouterClient.get('SummerfestEventAPI/CrowsNestHit'):FireServer({
-                    cannon_key = tostring(index),
-                })
-                task.wait(1)
-            end
-
-            print('Got Cannon rewards')
-        end
-        function SummerFest2025.OpenChests()
-            local chestOpenedAmount = #playerData.tide_chest_manager.chests_opened
-
-            if chestOpenedAmount >= 10 then
-                return
-            end
-
-            for i = 1, 10 do
-                pcall(function()
-                    return RouterClient.get('SummerfestEventAPI/RequestOpenTideChest'):InvokeServer(i)
-                end)
-            end
-
-            print('Opened all chest')
-        end
-        function SummerFest2025.GetShrimpNpcModel()
-            for _, v in Workspace.HouseInteriors:WaitForChild('furniture'):GetDescendants()do
-                if not v:IsA('Model') then
-                    continue
-                end
-                if v.Name == 'summer_2025_priceless_shrimp' then
-                    return v
-                end
-            end
-
-            return nil
-        end
-        function SummerFest2025.GetShrimpUniqueId()
-            for _, v in ClientData.get_data()[localPlayer.Name].inventory['pets']do
-                if v.id == 'summer_2025_emperor_shrimp' and not (v.properties.neon or v.properties.mega_neon) then
-                    return v.unique
-                end
-            end
-
-            return nil
-        end
-        function SummerFest2025.GetPricelessJewles()
-            local jewelIds = {}
-
-            for _, v in ClientData.get_data()[localPlayer.Name].inventory['toys']do
-                if v.id == 'summerfest_2025_priceless_jewel' then
-                    table.insert(jewelIds, v.unique)
-                end
-            end
-
-            return jewelIds
-        end
-        function SummerFest2025.TurnInShrimpToPriceless()
-            local jewelIds = SummerFest2025.GetPricelessJewles()
-
-            if not jewelIds or #jewelIds <= 4 then
-                print('TurnInShrimpToPriceless: Doesnt have 5 priceless jewels')
-
-                return false
-            end
-
-            Teleport.Bonfire()
-            task.wait(10)
-
-            local npcModel = SummerFest2025.GetShrimpNpcModel()
-
-            if not (npcModel and npcModel.PrimaryPart) then
-                print('TurnInShrimpToPriceless: Wasnt able to get shrimp npc')
-
-                return false
-            end
-
-            Utils.GetCharacter():MoveTo(npcModel.PrimaryPart.Position)
-
-            local key = npcModel:GetAttribute('furniture_unique')
-            local shrimpId = SummerFest2025.GetShrimpUniqueId()
-
-            if not shrimpId then
-                RouterClient.get('ShopAPI/BuyItem'):InvokeServer('pets', 'summer_2025_emperor_shrimp', {
-                    ['buy_count'] = 1,
-                })
-                task.wait(1)
-
-                shrimpId = SummerFest2025.GetShrimpUniqueId()
-
-                if not shrimpId then
-                    print(
-[[TurnInShrimpToPriceless: doesnt have normal shrimp and wasnt able to buy]])
-
-                    return false
-                end
-            end
-
-            local args = {
-                key,
-                'UseBlock',
-                {
-                    r_1 = shrimpId,
-                    r_3 = jewelIds[1],
-                    r_2 = jewelIds[2],
-                    r_4 = jewelIds[3],
-                    r_5 = jewelIds[4],
-                    r_6 = jewelIds[5],
-                },
-                localPlayer.Character,
-            }
-
-            print('FIRING REMOTE')
-            print(RouterClient.get('HousingAPI/ActivateInteriorFurniture'):InvokeServer(unpack(args)))
-
-            return true
-        end
-
-        local findMinigameFolderForCannonCircle = function()
-            for _, child in ipairs(Workspace.StaticMap:GetChildren())do
-                if not child:IsA('Folder') then
-                    continue
-                end
-
-                local folder = string.match(child.Name, 'joetation::[%w%-]+_minigame_state$')
-
-                if folder then
-                    return child
-                end
-            end
-
-            return nil
-        end
-
-        function SummerFest2025.StartCannonCircleEvent()
-            local gameFolder = (findMinigameFolderForCannonCircle())
-
-            if not gameFolder then
-                return
-            end
-
-            local cannonballPart = getCannonBallPilePart()
-
-            if not cannonballPart then
-                return
-            end
-
-            print('Found cannonballPart \u{2714}')
-
-            local minigameId = getMinigameId(gameFolder)
-
-            while gameFolder and gameFolder.is_game_active.Value do
-                RouterClient.get('MinigameAPI/MessageServer'):FireServer(minigameId, 'pickup_holdable_from_pile', Utils.GetHumanoidRootPart().Position, workspace:GetServerTimeNow())
-                task.wait(0.25)
-                RouterClient.get('MinigameAPI/MessageServer'):FireServer(minigameId, 'use_cannon', math.random(1, 12), Utils.GetHumanoidRootPart().Position, workspace:GetServerTimeNow())
-                SummerFest2025.TeleportTo(cannonballPart)
-            end
-        end
-
-        return SummerFest2025
-    end
-    function __DARKLUA_BUNDLE_MODULES.l()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local VirtualUser = cloneref(game:GetService('VirtualUser'))
         local Players = cloneref(game:GetService('Players'))
@@ -4138,7 +3828,6 @@ do
         local BuyItem = __DARKLUA_BUNDLE_MODULES.load('g')
         local BulkPotion = __DARKLUA_BUNDLE_MODULES.load('j')
         local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
-        local SummerFest2025 = __DARKLUA_BUNDLE_MODULES.load('k')
         local self = {}
         local localPlayer = Players.LocalPlayer
         local rng = Random.new()
@@ -4191,9 +3880,25 @@ do
                 Furniture.GetFurnituresKey()
             end
         end
+        local findHomeButtonAndClick = function()
+            local homeFrame = (DialogApp:FindFirstChild('Home', true))
+
+            if not homeFrame or not homeFrame.Visible then
+                return
+            end
+
+            local button = (homeFrame:WaitForChild('Button', 6))
+
+            if not button then
+                return
+            end
+
+            Utils.FireButton(button)
+        end
 
         function self.Init()
             DialogApp.Dialog.ThemeColorDialog:GetPropertyChangedSignal('Visible'):Connect(pickColorTutorial)
+            DialogApp.Dialog.SpawnChooserDialog:GetPropertyChangedSignal('Visible'):Connect(findHomeButtonAndClick)
             Players.PlayerAdded:Connect(function(player)
                 player.CharacterAdded:Connect(function(character)
                     if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, localPlayer.Name) then
@@ -4248,6 +3953,9 @@ do
                 Utils.FireButton(AbsPlay)
                 Utils.PrintDebug('NEWSAPP CLICKED')
             end
+
+            findHomeButtonAndClick()
+
             if not localPlayer.Character then
                 Utils.PrintDebug('NO CHARACTER SO WAITING')
                 localPlayer.CharacterAdded:Wait()
@@ -4297,7 +4005,6 @@ do
             local UpdateTextEvent = (ReplicatedStorage:WaitForChild('UpdateTextEvent'))
 
             UpdateTextEvent:Fire()
-            Utils.PrintDebug(string.format('Was able to buy \u{1f990}?: %s', tostring(SummerFest2025.TurnInShrimpToPriceless())))
 
             if getgenv().BUY_BEFORE_FARMING then
                 localPlayer:SetAttribute('StopFarmingTemp', true)
@@ -4327,11 +4034,12 @@ do
             end
 
             localPlayer:SetAttribute('StopFarmingTemp', false)
+            RouterClient.get('CodeRedemptionAPI/AttemptRedeemCode'):InvokeServer('40BILLION')
         end
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.m()
+    function __DARKLUA_BUNDLE_MODULES.l()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -4455,18 +4163,14 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.n()
-        local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
+    function __DARKLUA_BUNDLE_MODULES.m()
         local Players = cloneref(game:GetService('Players'))
-        local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
-        local SummerFest2025 = __DARKLUA_BUNDLE_MODULES.load('k')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local Trade = __DARKLUA_BUNDLE_MODULES.load('e')
         local Teleport = __DARKLUA_BUNDLE_MODULES.load('f')
         local self = {}
         local localPlayer = Players.LocalPlayer
         local PlayerGui = localPlayer:WaitForChild('PlayerGui')
-        local StaticMap = (workspace:WaitForChild('StaticMap'))
         local DialogApp = (PlayerGui:WaitForChild('DialogApp'))
         local MinigameRewardsApp = (PlayerGui:WaitForChild('MinigameRewardsApp'))
         local MinigameInGameApp = (PlayerGui:WaitForChild('MinigameInGameApp'))
@@ -4782,13 +4486,11 @@ do
                         if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME then
                             localPlayer:SetAttribute('StopFarmingTemp', true)
                             task.wait(2)
-                            SummerFest2025.StartTreasureDefenseEvent()
                         end
                     elseif MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match('CANNON CIRCLE') then
                         if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME then
                             localPlayer:SetAttribute('StopFarmingTemp', true)
                             task.wait(2)
-                            SummerFest2025.StartCannonCircleEvent()
                         end
                     end
                 end
@@ -4838,46 +4540,6 @@ do
                     end
                 end
             end)
-            StaticMap.coconut_bonk_minigame_state.is_game_active:GetPropertyChangedSignal('Value'):Connect(function(
-            )
-                if StaticMap.coconut_bonk_minigame_state.is_game_active.Value then
-                    if getgenv().SETTINGS.ENABLE_AUTO_FARM == false then
-                        return
-                    end
-                    if getgenv().SETTINGS.EVENT.DO_MINIGAME == false then
-                        return
-                    end
-                    if localPlayer:GetAttribute('hasStartedFarming') == false then
-                        return
-                    end
-                    if localPlayer:GetAttribute('StopFarmingTemp') == true then
-                        return
-                    end
-
-                    localPlayer:SetAttribute('StopFarmingTemp', true)
-                    Bypass('RouterClient').get('MinigameAPI/AttemptJoin'):FireServer('coconut_bonk', true)
-                end
-            end)
-            StaticMap.joetation_minigame_state.is_game_active:GetPropertyChangedSignal('Value'):Connect(function(
-            )
-                if StaticMap.joetation_minigame_state.is_game_active.Value then
-                    if getgenv().SETTINGS.ENABLE_AUTO_FARM == false then
-                        return
-                    end
-                    if getgenv().SETTINGS.EVENT.DO_MINIGAME == false then
-                        return
-                    end
-                    if localPlayer:GetAttribute('hasStartedFarming') == false then
-                        return
-                    end
-                    if localPlayer:GetAttribute('StopFarmingTemp') == true then
-                        return
-                    end
-
-                    localPlayer:SetAttribute('StopFarmingTemp', true)
-                    Bypass('RouterClient').get('MinigameAPI/AttemptJoin'):FireServer('joetation', true)
-                end
-            end)
         end
         function self.Start()
             TradeApp.Frame.NegotiationFrame.Body.PartnerOffer.Accepted:GetPropertyChangedSignal('ImageTransparency'):Connect(function(
@@ -4892,7 +4554,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.o()
+    function __DARKLUA_BUNDLE_MODULES.n()
         local Workspace = (cloneref(game:GetService('Workspace')))
         local Terrain = (Workspace:WaitForChild('Terrain'))
         local Lighting = (cloneref(game:GetService('Lighting')))
@@ -4964,7 +4626,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.p()
+    function __DARKLUA_BUNDLE_MODULES.o()
         local Players = cloneref(game:GetService('Players'))
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local StatsGuiClass = {}
@@ -5193,10 +4855,10 @@ do
 
         return StatsGuiClass
     end
-    function __DARKLUA_BUNDLE_MODULES.q()
+    function __DARKLUA_BUNDLE_MODULES.p()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
-        local StatsGuiClass = __DARKLUA_BUNDLE_MODULES.load('p')
+        local StatsGuiClass = __DARKLUA_BUNDLE_MODULES.load('o')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local self = {}
         local localPlayer = Players.LocalPlayer
@@ -5301,7 +4963,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.r()
+    function __DARKLUA_BUNDLE_MODULES.q()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -5470,7 +5132,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.s()
+    function __DARKLUA_BUNDLE_MODULES.r()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -5504,7 +5166,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.t()
+    function __DARKLUA_BUNDLE_MODULES.s()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -5556,7 +5218,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.u()
+    function __DARKLUA_BUNDLE_MODULES.t()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local HttpService = cloneref(game:GetService('HttpService'))
@@ -5762,7 +5424,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.v()
+    function __DARKLUA_BUNDLE_MODULES.u()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Workspace = cloneref(game:GetService('Workspace'))
         local Players = cloneref(game:GetService('Players'))
@@ -6448,7 +6110,7 @@ do
 
         return Ailment
     end
-    function __DARKLUA_BUNDLE_MODULES.w()
+    function __DARKLUA_BUNDLE_MODULES.v()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -6656,20 +6318,19 @@ do
 
         return FarmingPet
     end
-    function __DARKLUA_BUNDLE_MODULES.x()
+    function __DARKLUA_BUNDLE_MODULES.w()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
         local CollisionsClient = Bypass('CollisionsClient')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local Ailment = __DARKLUA_BUNDLE_MODULES.load('v')
+        local Ailment = __DARKLUA_BUNDLE_MODULES.load('u')
         local Furniture = __DARKLUA_BUNDLE_MODULES.load('b')
         local Teleport = __DARKLUA_BUNDLE_MODULES.load('f')
         local GetInventory = __DARKLUA_BUNDLE_MODULES.load('i')
-        local FarmingPet = __DARKLUA_BUNDLE_MODULES.load('w')
+        local FarmingPet = __DARKLUA_BUNDLE_MODULES.load('v')
         local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
-        local Summerfest2025 = __DARKLUA_BUNDLE_MODULES.load('k')
         local self = {}
         local UpdateTextEvent = (ReplicatedStorage:WaitForChild('UpdateTextEvent'))
         local localPlayer = Players.LocalPlayer
@@ -6972,10 +6633,6 @@ do
                         Utils.PlaceBaitOrPickUp(furniture.lures_2023_normal_lure, baitUnique)
 
                         baitboxCount = 0
-
-                        Summerfest2025.BuyKeys()
-                        Summerfest2025.GetCannonRewards()
-                        Summerfest2025.OpenChests()
                     end
 
                     tryFeedAgePotion()
@@ -7013,9 +6670,6 @@ do
 
             setupFloor()
             CollisionsClient.set_collidable(false)
-            Summerfest2025.BuyKeys()
-            Summerfest2025.GetCannonRewards()
-            Summerfest2025.OpenChests()
             Teleport.FarmingHome()
             Utils.PrintDebug('teleported to farming place')
             Utils.PrintDebug('Started Farming')
@@ -7025,7 +6679,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.y()
+    function __DARKLUA_BUNDLE_MODULES.x()
         local InterfaceBuild = '9NBD'
         local Release = 'Build 1.67'
         local RayfieldFolder = 'Rayfield'
@@ -10935,7 +10589,7 @@ Check the Developer Console for more information.]],
 
         return RayfieldLibrary
     end
-    function __DARKLUA_BUNDLE_MODULES.z()
+    function __DARKLUA_BUNDLE_MODULES.y()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -11123,11 +10777,11 @@ Check the Developer Console for more information.]],
 
         return Clipboard
     end
-    function __DARKLUA_BUNDLE_MODULES.A()
+    function __DARKLUA_BUNDLE_MODULES.z()
         local Players = cloneref(game:GetService('Players'))
-        local Rayfield = __DARKLUA_BUNDLE_MODULES.load('y')
+        local Rayfield = __DARKLUA_BUNDLE_MODULES.load('x')
         local GetInventory = __DARKLUA_BUNDLE_MODULES.load('i')
-        local Clipboard = __DARKLUA_BUNDLE_MODULES.load('z')
+        local Clipboard = __DARKLUA_BUNDLE_MODULES.load('y')
         local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
         local Trade = __DARKLUA_BUNDLE_MODULES.load('e')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
@@ -11958,37 +11612,37 @@ Utils = __DARKLUA_BUNDLE_MODULES.load('a')
 
 local files = {
     {
-        PrepareAccountHandler = __DARKLUA_BUNDLE_MODULES.load('l'),
+        PrepareAccountHandler = __DARKLUA_BUNDLE_MODULES.load('k'),
     },
     {
-        DailyRewardHandler = __DARKLUA_BUNDLE_MODULES.load('m'),
+        DailyRewardHandler = __DARKLUA_BUNDLE_MODULES.load('l'),
     },
     {
-        GameGuiHandler = __DARKLUA_BUNDLE_MODULES.load('n'),
+        GameGuiHandler = __DARKLUA_BUNDLE_MODULES.load('m'),
     },
     {
-        PotatoModeHandler = __DARKLUA_BUNDLE_MODULES.load('o'),
+        PotatoModeHandler = __DARKLUA_BUNDLE_MODULES.load('n'),
     },
     {
-        StatsGuiHandler = __DARKLUA_BUNDLE_MODULES.load('q'),
+        StatsGuiHandler = __DARKLUA_BUNDLE_MODULES.load('p'),
     },
     {
-        TaskBoardHandler = __DARKLUA_BUNDLE_MODULES.load('r'),
+        TaskBoardHandler = __DARKLUA_BUNDLE_MODULES.load('q'),
     },
     {
-        TradeLicenseHandler = __DARKLUA_BUNDLE_MODULES.load('s'),
+        TradeLicenseHandler = __DARKLUA_BUNDLE_MODULES.load('r'),
     },
     {
-        TutorialHandler = __DARKLUA_BUNDLE_MODULES.load('t'),
+        TutorialHandler = __DARKLUA_BUNDLE_MODULES.load('s'),
     },
     {
-        WebhookHandler = __DARKLUA_BUNDLE_MODULES.load('u'),
+        WebhookHandler = __DARKLUA_BUNDLE_MODULES.load('t'),
     },
     {
-        AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.load('x'),
+        AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.load('w'),
     },
     {
-        RayfieldHandler = __DARKLUA_BUNDLE_MODULES.load('A'),
+        RayfieldHandler = __DARKLUA_BUNDLE_MODULES.load('z'),
     },
 }
 
