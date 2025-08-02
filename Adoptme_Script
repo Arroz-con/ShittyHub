@@ -420,6 +420,9 @@ do
         function Utils.GetHumanoidRootPart()
             return (Utils.GetCharacter():WaitForChild('HumanoidRootPart'))
         end
+        function Utils.FireRedeemCode(code)
+            RouterClient.get('CodeRedemptionAPI/AttemptRedeemCode'):InvokeServer(code)
+        end
 
         return Utils
     end
@@ -3500,17 +3503,6 @@ do
 
             return count
         end
-        local agePotionCount = function(nameId)
-            local count = 0
-
-            for _, v in ClientData.get_data()[localPlayer.Name].inventory.food do
-                if v.id == nameId then
-                    count = count + 1
-                end
-            end
-
-            return count
-        end
         local getPotionUniques = function(nameId)
             local potions = {}
             local amountNeeded = PetPotionEffectsDB[nameId].multi_use_count(ClientData.get('pet_char_wrappers')[1], ClientData.get_data()[localPlayer.Name].inventory.pets[ClientData.get('pet_char_wrappers')[1].pet_unique])
@@ -3725,12 +3717,9 @@ do
             Utils.PrintDebug(createPotionObject(potionUniques))
             task.wait(2)
 
-            local mainFrame = (localPlayer:WaitForChild('PlayerGui'):WaitForChild('StatsGui'):WaitForChild('MainFrame'))
-            local TotalPotions = (mainFrame:WaitForChild('MiddleFrame'):WaitForChild('TotalPotions'))
-            local TotalTinyPotions = (mainFrame:WaitForChild('MiddleFrame'):WaitForChild('TotalTinyPotions'))
+            local UpdateTextEvent = (ReplicatedStorage:WaitForChild('UpdateTextEvent'))
 
-            TotalPotions.Text = string.format('\u{1f9ea} %s', tostring(agePotionCount('pet_age_potion')))
-            TotalTinyPotions.Text = string.format('\u{2697}\u{fe0f} %s', tostring(agePotionCount('tiny_pet_age_potion')))
+            UpdateTextEvent:Fire()
 
             return
         end
@@ -4030,7 +4019,7 @@ do
             end
 
             localPlayer:SetAttribute('StopFarmingTemp', false)
-            RouterClient.get('CodeRedemptionAPI/AttemptRedeemCode'):InvokeServer('40BILLION')
+            RouterClient.get('CodeRedemptionAPI/AttemptRedeemCode'):InvokeServer('VISITS')
         end
 
         return self
@@ -4212,6 +4201,14 @@ do
                 Utils.FindButton('Next')
             elseif TextLabel.Text:match('Social Stones!') then
                 Utils.FindButton('Okay')
+            elseif TextLabel.Text:match("Today's 2x Code is") then
+                Utils.FindButton('Awesome!')
+                pcall(function()
+                    local message = TextLabel.Text:split("Today's 2x Code is")
+                    local code = message[2]:split('- Use at the Safety Hub!')[1]:gsub('%s+', '')
+
+                    Utils.FireRedeemCode(code)
+                end)
             elseif TextLabel.Text:match('sent you a trade request') then
                 Utils.FindButton('Accept')
             elseif TextLabel.Text:match('Trade request from') then
@@ -4626,12 +4623,18 @@ do
     end
     function __DARKLUA_BUNDLE_MODULES.o()
         local Players = cloneref(game:GetService('Players'))
+        local CoreGui = (game:GetService('CoreGui'))
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local StatsGuiClass = {}
 
         StatsGuiClass.__index = StatsGuiClass
 
         local localPlayer = Players.LocalPlayer
+        local hud = (gethui and {
+            (gethui()),
+        } or {
+            (CoreGui.RobloxGui),
+        })[1]
         local otherGuis = {}
         local DEFAULT_COLOR = Color3.fromRGB(0, 204, 255)
         local setButtonUiSettings = function(buttonSettings)
@@ -4652,7 +4655,7 @@ do
             button.TextSize = 14
             button.TextWrapped = true
             button.TextXAlignment = Enum.TextXAlignment.Left
-            button.Parent = localPlayer:WaitForChild('PlayerGui'):WaitForChild('StatsGui')
+            button.Parent = hud:WaitForChild('StatsGui')
 
             return button
         end
@@ -4676,7 +4679,7 @@ do
             self.TextLabel.TextSize = 14
             self.TextLabel.TextStrokeTransparency = 0
             self.TextLabel.TextWrapped = true
-            self.StatsGui = localPlayer:WaitForChild('PlayerGui'):WaitForChild('StatsGui')
+            self.StatsGui = hud:WaitForChild('StatsGui')
             self.TextLabel.Parent = self.StatsGui:WaitForChild('MainFrame'):WaitForChild('MiddleFrame')
             self.UICorner.CornerRadius = UDim.new(0, 16)
             self.UICorner.Parent = self.TextLabel
@@ -4688,11 +4691,11 @@ do
             local StatsGui = Instance.new('ScreenGui')
 
             StatsGui.Name = 'StatsGui'
-            StatsGui.DisplayOrder = 100
+            StatsGui.DisplayOrder = 1000
             StatsGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
             StatsGui.ResetOnSpawn = false
             StatsGui.IgnoreGuiInset = true
-            StatsGui.Parent = localPlayer:WaitForChild('PlayerGui')
+            StatsGui.Parent = hud
 
             local blackFrame = Instance.new('Frame')
 
@@ -4711,7 +4714,8 @@ do
             MainFrame.BackgroundTransparency = 1
             MainFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
             MainFrame.BorderSizePixel = 0
-            MainFrame.Position = UDim2.new(0.276041657, 0, 0.0577475652, 0)
+            MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+            MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
             MainFrame.Size = UDim2.new(0.6, 0, 0.75, 0)
             MainFrame.LayoutOrder = 1
             MainFrame.Parent = StatsGui
@@ -4763,7 +4767,7 @@ do
             TextButton.BackgroundTransparency = 1
             TextButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
             TextButton.BorderSizePixel = 0
-            TextButton.Position = UDim2.new(0.33, 0, 0.018, 0)
+            TextButton.Position = UDim2.new(0.33, 0, 0.08, 0)
             TextButton.Size = UDim2.new(0.1, 0, 0.1, 0)
             TextButton.Font = Enum.Font.FredokaOne
             TextButton.Text = '\u{1f648}'
