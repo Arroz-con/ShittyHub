@@ -180,7 +180,7 @@ do
             return ClientData.get_data()[localPlayer.Name].money or 0
         end
         function Utils.EventCurrencyAmount()
-            return ClientData.get_data()[localPlayer.Name].cranky_coins_2025 or 0
+            return ClientData.get_data()[localPlayer.Name].golden_aztec_skulls_2025 or 0
         end
         function Utils.FoodItemCount(nameId)
             local count = 0
@@ -4832,7 +4832,7 @@ do
             elseif self.TextLabel.Name == 'TotalEventCurrency' then
                 local formatted = Utils.FormatNumber(Utils.EventCurrencyAmount())
 
-                self.TextLabel.Text = string.format('\u{1f3f4}\u{200d}\u{2620}\u{fe0f} %s', tostring(formatted))
+                self.TextLabel.Text = string.format('\u{1f480} %s', tostring(formatted))
             elseif self.TextLabel.Name == 'TotalShiverBaits' then
                 local formatted = Utils.FormatNumber(Utils.FoodItemCount('ice_dimension_2025_shiver_cone_bait'))
 
@@ -4851,7 +4851,7 @@ do
             elseif self.TextLabel.Name == 'TempBucks' and amount then
                 self.TextLabel.Text = string.format('\u{1f4b0} %s', tostring(Utils.FormatNumber(amount)))
             elseif self.TextLabel.Name == 'TempEventCurrency' and amount then
-                self.TextLabel.Text = string.format('\u{1f3f4}\u{200d}\u{2620}\u{fe0f} %s', tostring(Utils.FormatNumber(amount)))
+                self.TextLabel.Text = string.format('\u{1f480} %s', tostring(Utils.FormatNumber(amount)))
             end
         end
 
@@ -6321,6 +6321,96 @@ do
         return FarmingPet
     end
     function __DARKLUA_BUNDLE_MODULES.w()
+        local ReplicatedStorage = game:GetService('ReplicatedStorage')
+        local Workspace = (game:GetService('Workspace'))
+        local Players = game:GetService('Players')
+        local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
+        local ClientData = Bypass('ClientData')
+        local RouterClient = Bypass('RouterClient')
+        local AztecEvent = {}
+        local localPlayer = Players.LocalPlayer
+        local playerData = ClientData.get_data()[localPlayer.Name]
+        local filterGetId = function(gameFolder)
+            return string.gsub(gameFolder.Name, '_minigame_state', '')
+        end
+
+        function AztecEvent.FindMinigameFolder()
+            for _, child in ipairs(Workspace.StaticMap:GetChildren())do
+                if not child:IsA('Folder') then
+                    continue
+                end
+
+                local folder = string.match(child.Name, 'ruin_rush::[%w%-]+_minigame_state$')
+
+                if folder then
+                    return child
+                end
+            end
+
+            return nil
+        end
+        function AztecEvent.FireCollectSkull(minigameId)
+            for index, bool in playerData.ruin_rush_manager.golden_skulls_collected do
+                if bool == false then
+                    local args = {
+                        minigameId,
+                        'pickup_skull',
+                        index,
+                    }
+
+                    RouterClient.get('MinigameAPI/MessageServer'):FireServer(unpack(args))
+                    task.wait(1)
+                end
+            end
+        end
+        function AztecEvent.JoinMinigame()
+            RouterClient.get('MinigameAPI/LobbyCreate'):InvokeServer('ruin_rush')
+            task.wait(1)
+
+            local args = {
+                {startup_settings = {}},
+            }
+
+            RouterClient.get('MinigameAPI/LobbyStart'):FireServer(unpack(args))
+        end
+        function AztecEvent.isSkullCollected()
+            for _, v in playerData.ruin_rush_manager.golden_skulls_collected do
+                if v == false then
+                    return false
+                end
+            end
+
+            return true
+        end
+        function AztecEvent.StartEvent()
+            if AztecEvent.isSkullCollected() then
+                return
+            end
+
+            print('Starting Aztec Event...')
+            AztecEvent.JoinMinigame()
+            task.wait(5)
+
+            local minigameFolder = AztecEvent.FindMinigameFolder()
+
+            if not minigameFolder then
+                warn('Minigame folder not found!')
+
+                return
+            end
+
+            local minigameId = filterGetId(minigameFolder)
+
+            print(string.format('Minigame ID: %s', tostring(minigameId)))
+            AztecEvent.FireCollectSkull(minigameId)
+            task.wait(5)
+            game:Shutdown()
+            print('Aztec Event Finished successfully!')
+        end
+
+        return AztecEvent
+    end
+    function __DARKLUA_BUNDLE_MODULES.x()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -6333,6 +6423,7 @@ do
         local GetInventory = __DARKLUA_BUNDLE_MODULES.load('i')
         local FarmingPet = __DARKLUA_BUNDLE_MODULES.load('v')
         local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
+        local AztecEvent = __DARKLUA_BUNDLE_MODULES.load('w')
         local self = {}
         local UpdateTextEvent = (ReplicatedStorage:WaitForChild('UpdateTextEvent'))
         local localPlayer = Players.LocalPlayer
@@ -6635,6 +6726,8 @@ do
                         Utils.PlaceBaitOrPickUp(furniture.lures_2023_normal_lure, baitUnique)
 
                         baitboxCount = 0
+
+                        AztecEvent.StartEvent()
                     end
 
                     tryFeedAgePotion()
@@ -6672,6 +6765,7 @@ do
 
             setupFloor()
             CollisionsClient.set_collidable(false)
+            AztecEvent.StartEvent()
             Teleport.FarmingHome()
             Utils.PrintDebug('teleported to farming place')
             Utils.PrintDebug('Started Farming')
@@ -6681,7 +6775,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.x()
+    function __DARKLUA_BUNDLE_MODULES.y()
         local InterfaceBuild = '9NBD'
         local Release = 'Build 1.67'
         local RayfieldFolder = 'Rayfield'
@@ -10591,7 +10685,7 @@ Check the Developer Console for more information.]],
 
         return RayfieldLibrary
     end
-    function __DARKLUA_BUNDLE_MODULES.y()
+    function __DARKLUA_BUNDLE_MODULES.z()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -10779,11 +10873,11 @@ Check the Developer Console for more information.]],
 
         return Clipboard
     end
-    function __DARKLUA_BUNDLE_MODULES.z()
+    function __DARKLUA_BUNDLE_MODULES.A()
         local Players = cloneref(game:GetService('Players'))
-        local Rayfield = __DARKLUA_BUNDLE_MODULES.load('x')
+        local Rayfield = __DARKLUA_BUNDLE_MODULES.load('y')
         local GetInventory = __DARKLUA_BUNDLE_MODULES.load('i')
-        local Clipboard = __DARKLUA_BUNDLE_MODULES.load('y')
+        local Clipboard = __DARKLUA_BUNDLE_MODULES.load('z')
         local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
         local Trade = __DARKLUA_BUNDLE_MODULES.load('e')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
@@ -11641,10 +11735,10 @@ local files = {
         WebhookHandler = __DARKLUA_BUNDLE_MODULES.load('t'),
     },
     {
-        AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.load('w'),
+        AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.load('x'),
     },
     {
-        RayfieldHandler = __DARKLUA_BUNDLE_MODULES.load('z'),
+        RayfieldHandler = __DARKLUA_BUNDLE_MODULES.load('A'),
     },
 }
 
