@@ -6758,16 +6758,23 @@ do
 
                 return
             end
-
-            AztecEvent.BuyRoyalEgg()
-            task.wait(1)
-
             if getgenv().SETTINGS.PET_AUTO_FUSION then
                 Fusion.MakeMega(false)
                 Fusion.MakeMega(true)
                 task.wait(2)
             end
 
+            setupFloor()
+            CollisionsClient.set_collidable(false)
+            AztecEvent.StartEvent()
+            AztecEvent.BuyRoyalEgg()
+            task.wait(2)
+            Teleport.FarmingHome()
+            Utils.PrintDebug('teleported to farming place')
+            Utils.PrintDebug('Started Farming')
+            localPlayer:SetAttribute('hasStartedFarming', true)
+            Utils.UnEquipAllPets()
+            task.wait(2)
             FarmingPet.GetPetToFarm(1)
             task.wait(2)
 
@@ -6775,14 +6782,6 @@ do
                 FarmingPet.GetPetToFarm(2)
             end
 
-            setupFloor()
-            CollisionsClient.set_collidable(false)
-            task.wait(1)
-            AztecEvent.StartEvent()
-            Teleport.FarmingHome()
-            Utils.PrintDebug('teleported to farming place')
-            Utils.PrintDebug('Started Farming')
-            localPlayer:SetAttribute('hasStartedFarming', true)
             startAutoFarm()
         end
 
