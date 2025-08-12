@@ -6758,6 +6758,10 @@ do
 
                 return
             end
+
+            AztecEvent.BuyRoyalEgg()
+            task.wait(1)
+
             if getgenv().SETTINGS.PET_AUTO_FUSION then
                 Fusion.MakeMega(false)
                 Fusion.MakeMega(true)
@@ -6773,7 +6777,6 @@ do
 
             setupFloor()
             CollisionsClient.set_collidable(false)
-            AztecEvent.BuyRoyalEgg()
             task.wait(1)
             AztecEvent.StartEvent()
             Teleport.FarmingHome()
