@@ -2787,6 +2787,9 @@ do
             if not currency then
                 return 0, Utils.PrintDebug('NO CURRENCY ON PLAYER')
             end
+            if not valuesTable.cost then
+                return 0, Utils.PrintDebug('Pet doesnt have Cost to it?')
+            end
 
             local count = 0
 
@@ -6397,12 +6400,12 @@ do
 
             print('Starting Aztec Event...')
             AztecEvent.JoinMinigame()
-            task.wait(5)
+            task.wait(10)
 
             local minigameFolder = AztecEvent.FindMinigameFolder()
 
             if not minigameFolder then
-                warn('Minigame folder not found!')
+                print('Minigame folder not found!')
 
                 return
             end
