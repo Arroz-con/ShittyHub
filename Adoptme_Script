@@ -5489,7 +5489,7 @@ do
 
             if not hasFood then
                 ReplicatedStorage.API['ShopAPI/BuyItem']:InvokeServer('food', FoodPassOn, {})
-                task.wait(1)
+                task.wait(2)
                 FoodAilments(FoodPassOn)
             end
         end
@@ -5535,10 +5535,10 @@ do
 
             if not doctor then
                 repeat
-                    task.wait(1)
+                    task.wait(5)
 
                     doctor = Workspace.HouseInteriors.furniture:FindFirstChild('Doctor', true)
-                    stuckCount = stuckCount + 1
+                    stuckCount = stuckCount + 5
                     isStuck = stuckCount > 30 and true or false
                 until doctor or isStuck
             end
@@ -5563,16 +5563,16 @@ do
             local isStuck = false
 
             ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('Hospital')
-            task.wait(1)
+            task.wait(5)
 
             local doctor = Workspace.HouseInteriors.furniture:FindFirstChild('Doctor', true)
 
             if not doctor then
                 repeat
-                    task.wait(1)
+                    task.wait(5)
 
                     doctor = Workspace.HouseInteriors.furniture:FindFirstChild('Doctor', true)
-                    stuckCount = stuckCount + 1
+                    stuckCount = stuckCount + 5
                     isStuck = stuckCount > 30 and true or false
                 until doctor or isStuck
             end
@@ -5695,11 +5695,11 @@ do
 
             repeat
                 babyJump()
-                task.wait(0.2)
+                task.wait(1)
 
                 local taskActive = ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique] and ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique][ailment] and true or false
 
-                task.wait(0.1)
+                task.wait(1)
 
                 isStuck = (tick() - stuckCount) >= 120 and true or false
             until not taskActive or isStuck
@@ -6045,7 +6045,7 @@ do
 
                 stuckCount = stuckCount + 1
 
-                task.wait(1)
+                task.wait(2)
             until not ClientData.get_data()[localPlayer.Name].ailments_manager.baby_ailments['hungry'] or stuckCount >= 30
 
             if stuckCount >= 30 then
@@ -6064,7 +6064,7 @@ do
 
                 stuckCount = stuckCount + 1
 
-                task.wait(1)
+                task.wait(2)
             until not ClientData.get_data()[localPlayer.Name].ailments_manager.baby_ailments['thirsty'] or stuckCount >= 30
 
             if stuckCount >= 30 then
@@ -6324,104 +6324,6 @@ do
         return FarmingPet
     end
     function __DARKLUA_BUNDLE_MODULES.w()
-        local ReplicatedStorage = game:GetService('ReplicatedStorage')
-        local Workspace = (game:GetService('Workspace'))
-        local Players = game:GetService('Players')
-        local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
-        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local ClientData = Bypass('ClientData')
-        local RouterClient = Bypass('RouterClient')
-        local AztecEvent = {}
-        local localPlayer = Players.LocalPlayer
-        local playerData = ClientData.get_data()[localPlayer.Name]
-        local filterGetId = function(gameFolder)
-            return string.gsub(gameFolder.Name, '_minigame_state', '')
-        end
-
-        function AztecEvent.FindMinigameFolder()
-            for _, child in ipairs(Workspace.StaticMap:GetChildren())do
-                if not child:IsA('Folder') then
-                    continue
-                end
-
-                local folder = string.match(child.Name, 'ruin_rush::[%w%-]+_minigame_state$')
-
-                if folder then
-                    return child
-                end
-            end
-
-            return nil
-        end
-        function AztecEvent.FireCollectSkull(minigameId)
-            for index, bool in playerData.ruin_rush_manager.golden_skulls_collected do
-                if bool == false then
-                    local args = {
-                        minigameId,
-                        'pickup_skull',
-                        index,
-                    }
-
-                    RouterClient.get('MinigameAPI/MessageServer'):FireServer(unpack(args))
-                    task.wait(1)
-                end
-            end
-        end
-        function AztecEvent.JoinMinigame()
-            RouterClient.get('MinigameAPI/LobbyCreate'):InvokeServer('ruin_rush')
-            task.wait(1)
-
-            local args = {
-                {startup_settings = {}},
-            }
-
-            RouterClient.get('MinigameAPI/LobbyStart'):FireServer(unpack(args))
-        end
-        function AztecEvent.isSkullCollected()
-            for _, v in playerData.ruin_rush_manager.golden_skulls_collected do
-                if v == false then
-                    return false
-                end
-            end
-
-            return true
-        end
-        function AztecEvent.BuyRoyalEgg()
-            if Utils.EventCurrencyAmount() <= 14 then
-                return
-            end
-
-            RouterClient.get('ShopAPI/BuyItem'):InvokeServer('pets', 'aztec_egg_2025_royal_aztec_egg', {buy_count = 1})
-        end
-        function AztecEvent.StartEvent()
-            if AztecEvent.isSkullCollected() then
-                return
-            end
-
-            print('Starting Aztec Event...')
-            AztecEvent.JoinMinigame()
-            task.wait(10)
-
-            local minigameFolder = AztecEvent.FindMinigameFolder()
-
-            if not minigameFolder then
-                print('Minigame folder not found!')
-
-                return
-            end
-
-            local minigameId = filterGetId(minigameFolder)
-
-            print(string.format('Minigame ID: %s', tostring(minigameId)))
-            AztecEvent.FireCollectSkull(minigameId)
-            task.wait(5)
-            game:Shutdown()
-            print('Aztec Event Finished successfully!')
-        end
-
-        return AztecEvent
-    end
-    function __DARKLUA_BUNDLE_MODULES.x()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -6434,7 +6336,6 @@ do
         local GetInventory = __DARKLUA_BUNDLE_MODULES.load('i')
         local FarmingPet = __DARKLUA_BUNDLE_MODULES.load('v')
         local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
-        local AztecEvent = __DARKLUA_BUNDLE_MODULES.load('w')
         local self = {}
         local UpdateTextEvent = (ReplicatedStorage:WaitForChild('UpdateTextEvent'))
         local localPlayer = Players.LocalPlayer
@@ -6737,14 +6638,12 @@ do
                         Utils.PlaceBaitOrPickUp(furniture.lures_2023_normal_lure, baitUnique)
 
                         baitboxCount = 0
-
-                        AztecEvent.StartEvent()
                     end
 
                     tryFeedAgePotion()
                     UpdateTextEvent:Fire()
 
-                    local waitTime = rng:NextNumber(1, 10)
+                    local waitTime = rng:NextNumber(15, 20)
 
                     baitboxCount = baitboxCount + waitTime
 
@@ -6769,8 +6668,6 @@ do
 
             setupFloor()
             CollisionsClient.set_collidable(false)
-            AztecEvent.StartEvent()
-            AztecEvent.BuyRoyalEgg()
             task.wait(2)
             Teleport.FarmingHome()
             Utils.PrintDebug('teleported to farming place')
@@ -6790,7 +6687,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.y()
+    function __DARKLUA_BUNDLE_MODULES.x()
         local InterfaceBuild = '9NBD'
         local Release = 'Build 1.67'
         local RayfieldFolder = 'Rayfield'
@@ -8509,11 +8406,6 @@ This version of Rayfield is intended for interface build ]] .. InterfaceBuild ..
                 else
                     Passthrough = true
                 end
-            end
-            if Settings.KeySystem then
-                repeat
-                    task.wait()
-                until Passthrough
             end
 
             Notifications.Template.Visible = false
@@ -10700,7 +10592,7 @@ Check the Developer Console for more information.]],
 
         return RayfieldLibrary
     end
-    function __DARKLUA_BUNDLE_MODULES.z()
+    function __DARKLUA_BUNDLE_MODULES.y()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -10888,11 +10780,11 @@ Check the Developer Console for more information.]],
 
         return Clipboard
     end
-    function __DARKLUA_BUNDLE_MODULES.A()
+    function __DARKLUA_BUNDLE_MODULES.z()
         local Players = cloneref(game:GetService('Players'))
-        local Rayfield = __DARKLUA_BUNDLE_MODULES.load('y')
+        local Rayfield = __DARKLUA_BUNDLE_MODULES.load('x')
         local GetInventory = __DARKLUA_BUNDLE_MODULES.load('i')
-        local Clipboard = __DARKLUA_BUNDLE_MODULES.load('z')
+        local Clipboard = __DARKLUA_BUNDLE_MODULES.load('y')
         local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
         local Trade = __DARKLUA_BUNDLE_MODULES.load('e')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
@@ -11694,7 +11586,7 @@ local localPlayer = Players.LocalPlayer
 local NewsApp = (localPlayer:WaitForChild('PlayerGui'):WaitForChild('NewsApp'))
 
 repeat
-    task.wait(1)
+    task.wait(5)
 until NewsApp.Enabled or localPlayer.Character
 
 for i, v in debug.getupvalue(RouterClient.init, 7)do
@@ -11750,10 +11642,10 @@ local files = {
         WebhookHandler = __DARKLUA_BUNDLE_MODULES.load('t'),
     },
     {
-        AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.load('x'),
+        AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.load('w'),
     },
     {
-        RayfieldHandler = __DARKLUA_BUNDLE_MODULES.load('A'),
+        RayfieldHandler = __DARKLUA_BUNDLE_MODULES.load('z'),
     },
 }
 
