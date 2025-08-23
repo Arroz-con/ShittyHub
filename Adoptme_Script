@@ -11561,13 +11561,10 @@ Check the Developer Console for more information.]],
     end
 end
 
+setfpscap(getgenv().SETTINGS.SET_FPS or 2)
+
 if not game:IsLoaded() then
     game.Loaded:Wait()
-end
-if game.PlaceId == 138865549483295 then
-    game:Shutdown()
-
-    return
 end
 if game.PlaceId ~= 920587237 then
     return
