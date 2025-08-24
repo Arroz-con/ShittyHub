@@ -11570,6 +11570,8 @@ if game.PlaceId ~= 920587237 then
     return
 end
 
+setfpscap(getgenv().SETTINGS.SET_FPS or 2)
+
 local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
 local Players = cloneref(game:GetService('Players'))
 local UserGameSettings = UserSettings():GetService('UserGameSettings')
