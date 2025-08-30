@@ -3053,6 +3053,7 @@ do
         local RouterClient = Bypass('RouterClient')
         local InventoryDB = Bypass('InventoryDB')
         local AllowOrDenyList = __DARKLUA_BUNDLE_MODULES.load('c')
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local self = {}
         local localPlayer = Players.LocalPlayer
         local eggList = {}
@@ -3222,10 +3223,7 @@ do
             return false
         end
         function self.GetPetRarity()
-            if not ClientData.get('pet_char_wrappers') then
-                return nil
-            end
-            if not ClientData.get('pet_char_wrappers')[1] then
+            if not Utils.IsPetEquipped(1) then
                 return nil
             end
 
@@ -6166,11 +6164,8 @@ do
         }
         local petEggs = GetInventory.GetPetEggs()
         local farmEgg = function()
-            if not ClientData.get('pet_char_wrappers') then
-                return false
-            end
-            if not ClientData.get('pet_char_wrappers')[1] then
-                return false
+            if not Utils.IsPetEquipped(1) then
+                FarmingPet.GetPetToFarm(1)
             end
 
             local petName = tostring(ClientData.get('pet_char_wrappers')[1].char)
@@ -6492,8 +6487,14 @@ do
                 return
             end
             if count >= 20 then
-                print('max redeemed. need to reset homepass')
-                RouterClient.get('BattlePassAPI/AttemptBattlePassReset'):InvokeServer('house_pets_2025_pass_1')
+                if Utils.BucksAmount() >= 1500 then
+                    print('max redeemed. need to reset homepass')
+                    RouterClient.get('BattlePassAPI/AttemptBattlePassReset'):InvokeServer('house_pets_2025_pass_1')
+
+                    return
+                end
+
+                print('max redeemed. but has no money to reset')
 
                 return
             end
