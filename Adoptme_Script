@@ -2606,6 +2606,7 @@ do
             localPlayer.Character:WaitForChild('HumanoidRootPart').Anchored = false
 
             localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+            task.wait(2)
         end
         function self.CampSite()
             ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('MainMap', localPlayer, ClientData.get_data()[localPlayer.Name].LiveOpsMapType)
@@ -4985,194 +4986,6 @@ do
         local RouterClient = Bypass('RouterClient')
         local self = {}
         local localPlayer = Players.LocalPlayer
-        local PlayerGui = localPlayer:WaitForChild('PlayerGui')
-        local neonTable = {
-            ['neon_fusion'] = true,
-            ['mega_neon_fusion'] = true,
-        }
-        local claimTable = {
-            ['hatch_three_eggs'] = {3},
-            ['fully_age_three_pets'] = {3},
-            ['make_two_trades'] = {2},
-            ['equip_two_accessories'] = {2},
-            ['buy_three_furniture_items_with_friends_coop_budget'] = {3},
-            ['buy_five_furniture_items'] = {5},
-            ['buy_fifteen_furniture_items'] = {15},
-            ['play_as_a_baby_for_twenty_five_minutes'] = {1500},
-            ['play_for_thirty_minutes'] = {1800},
-            ['sunshine_2024_playtime'] = {2400},
-            ['bonus_week_2024_small_ailments'] = {5},
-            ['bonus_week_2024_small_hatch_egg'] = {1},
-            ['bonus_week_2024_small_age_potion_drank'] = {1},
-            ['bonus_week_2024_small_ailment_orange'] = {1},
-            ['bonus_week_2024_medium_ailment_hungry_sleepy_bored'] = {3},
-            ['bonus_week_2024_medium_ailment_catch_bored'] = {2},
-            ['bonus_week_2024_medium_ailment_toilet_dirty_sleepy'] = {3},
-            ['bonus_week_2024_medium_ailment_pizza_hungry'] = {2},
-            ['bonus_week_2024_medium_ailment_salon_dirty'] = {2},
-            ['bonus_week_2024_medium_ailment_school_ride'] = {2},
-            ['bonus_week_2024_medium_ailment_walk_beach'] = {2},
-            ['bonus_week_2024_medium_ailments'] = {15},
-            ['bonus_week_2024_large_ailments_common'] = {30},
-            ['bonus_week_2024_large_ailments_legendary'] = {30},
-            ['bonus_week_2024_large_ailments_ultra_rare'] = {30},
-            ['bonus_week_2024_large_ailments_uncommon'] = {30},
-            ['bonus_week_2024_large_ailments_rare'] = {30},
-            ['bonus_week_2024_large_ailments'] = {30},
-            ['house_pets_2025_small_ailment_blue'] = {2},
-            ['house_pets_2025_small_open_gift'] = {1},
-            ['house_pets_2025_potion_drank'] = {1},
-            ['house_pets_2025_small_hatch_egg'] = {1},
-            ['house_pets_2025_small_ailments'] = {5},
-            ['house_pets_2025_small_ailment_orange'] = {1},
-            ['house_pets_2025_medium_ailment_hungry_sleepy_bored'] = {3},
-            ['house_pets_2025_medium_ailments'] = {15},
-            ['house_pets_2025_medium_ailment_beach_camping_bored'] = {3},
-            ['house_pets_2025_medium_blue_ailments'] = {6},
-            ['house_pets_2025_medium_ailment_salon_shower'] = {2},
-            ['house_pets_2025_medium_hatch_egg'] = {3},
-            ['house_pets_2025_large_ailments'] = {30},
-            ['house_pets_2025_large_ailments_common'] = {30},
-            ['house_pets_2025_large_ailments_ultra_rare'] = {30},
-            ['house_pets_2025_large_ailments_uncommon'] = {30},
-            ['house_pets_2025_large_ailments_rare'] = {30},
-            ['house_pets_2025_large_ailments_legendary'] = {30},
-            ['house_pets_2025_buy_gumball_egg'] = {1},
-        }
-
-        function self.Init()
-            self.NewTaskBool = true
-            self.NewClaimBool = true
-            self.NeonTable = neonTable
-            self.ClaimTable = claimTable
-        end
-        function self.Start()
-            local ImageButton = PlayerGui:WaitForChild('QuestIconApp'):WaitForChild('ImageButton')
-            local IsNew = ImageButton:WaitForChild('EventContainer'):WaitForChild('IsNew')
-            local IsClaimable = ImageButton:WaitForChild('EventContainer'):WaitForChild('IsClaimable')
-
-            IsNew:GetPropertyChangedSignal('Position'):Connect(function()
-                if self.NewTaskBool then
-                    self.NewTaskBool = false
-
-                    RouterClient.get('QuestAPI/MarkQuestsViewed'):FireServer()
-                    self:NewTask()
-                end
-            end)
-            IsClaimable:GetPropertyChangedSignal('Position'):Connect(function()
-                if self.NewClaimBool then
-                    self.NewClaimBool = false
-
-                    self:NewClaim()
-                end
-            end)
-            self:NewClaim()
-            self:NewTask()
-        end
-        function self.QuestCount()
-            local Count = 0
-
-            for _, v in pairs(ClientData.get('quest_manager')['quests_cached'])do
-                if v['entry_name']:match('teleport') or v['entry_name']:match('navigate') or v['entry_name']:match('nav') or v['entry_name']:match('gosh_2022_sick') then
-                    Count = Count + 0
-                else
-                    Count = Count + 1
-                end
-            end
-
-            return Count
-        end
-
-        local reRollCount = function()
-            for _, v in pairs(ClientData.get('quest_manager')['daily_quest_data'])do
-                if v == 1 or v == 0 then
-                    return v
-                end
-            end
-
-            return 0
-        end
-
-        function self:NewTask()
-            self.NewTaskBool = false
-
-            for _, v in pairs(ClientData.get('quest_manager')['quests_cached'])do
-                if v['entry_name']:match('teleport') then
-                    task.wait()
-                elseif v['entry_name']:match('tutorial') then
-                    RouterClient.get('QuestAPI/ClaimQuest'):InvokeServer(v['unique_id'])
-                    task.wait()
-                elseif v['entry_name']:match('house_pets_2025_small_open_gift') then
-                    RouterClient.get('ShopAPI/BuyItem'):InvokeServer('gifts', 'smallgift', {})
-                    task.wait(1)
-
-                    for _, v in ClientData.get_data()[localPlayer.Name].inventory.gifts do
-                        if v['id'] == 'smallgift' then
-                            RouterClient.get('ShopAPI/OpenGift'):InvokeServer(v['unique'])
-
-                            break
-                        end
-                    end
-
-                    task.wait()
-                else
-                    if self.QuestCount() == 1 then
-                        if self.NeonTable[v['entry_name'] ] then
-                            RouterClient.get('QuestAPI/ClaimQuest'):InvokeServer(v['unique_id'])
-                            task.wait()
-                        elseif not self.NeonTable[v['entry_name'] ] and reRollCount() >= 1 then
-                            RouterClient.get('QuestAPI/RerollQuest'):FireServer(v['unique_id'])
-                            task.wait()
-                        end
-                    elseif self.QuestCount() > 1 then
-                        if self.NeonTable[v['entry_name'] ] then
-                            RouterClient.get('QuestAPI/ClaimQuest'):InvokeServer(v['unique_id'])
-                            task.wait()
-                        elseif not self.NeonTable[v['entry_name'] ] and reRollCount() >= 1 then
-                            RouterClient.get('QuestAPI/RerollQuest'):FireServer(v['unique_id'])
-                            task.wait()
-                        elseif not self.NeonTable[v['entry_name'] ] and reRollCount() <= 0 then
-                            RouterClient.get('QuestAPI/ClaimQuest'):InvokeServer(v['unique_id'])
-                            task.wait()
-                        end
-                    end
-                end
-            end
-
-            task.wait(1)
-
-            self.NewTaskBool = true
-        end
-        function self:NewClaim()
-            self.NewClaimBool = false
-
-            for _, v in pairs(ClientData.get('quest_manager')['quests_cached'])do
-                if self.ClaimTable[v['entry_name'] ] then
-                    if v['steps_completed'] == self.ClaimTable[v['entry_name'] ][1] then
-                        RouterClient.get('QuestAPI/ClaimQuest'):InvokeServer(v['unique_id'])
-                        task.wait()
-                    end
-                elseif not self.ClaimTable[v['entry_name'] ] and v['steps_completed'] == 1 then
-                    RouterClient.get('QuestAPI/ClaimQuest'):InvokeServer(v['unique_id'])
-                    task.wait()
-                end
-            end
-
-            task.wait(1)
-
-            self.NewClaimBool = true
-        end
-
-        return self
-    end
-    function __DARKLUA_BUNDLE_MODULES.r()
-        local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
-        local Players = cloneref(game:GetService('Players'))
-        local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
-        local ClientData = Bypass('ClientData')
-        local RouterClient = Bypass('RouterClient')
-        local self = {}
-        local localPlayer = Players.LocalPlayer
         local getTradeLicense = function()
             for _, v in ClientData.get_data()[localPlayer.Name].inventory.toys do
                 if v.id == 'trade_license' then
@@ -5199,7 +5012,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.s()
+    function __DARKLUA_BUNDLE_MODULES.r()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -5251,7 +5064,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.t()
+    function __DARKLUA_BUNDLE_MODULES.s()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local HttpService = cloneref(game:GetService('HttpService'))
@@ -5457,7 +5270,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.u()
+    function __DARKLUA_BUNDLE_MODULES.t()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Workspace = cloneref(game:GetService('Workspace'))
         local Players = cloneref(game:GetService('Players'))
@@ -6143,7 +5956,7 @@ do
 
         return Ailment
     end
-    function __DARKLUA_BUNDLE_MODULES.v()
+    function __DARKLUA_BUNDLE_MODULES.u()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -6152,6 +5965,7 @@ do
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local GetInventory = __DARKLUA_BUNDLE_MODULES.load('i')
         local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
+        local Teleport = __DARKLUA_BUNDLE_MODULES.load('f')
         local FarmingPet = {}
         local localPlayer = Players.LocalPlayer
         local potionFarmPets = {
@@ -6375,8 +6189,32 @@ do
         function FarmingPet.GetTaskBoardPet(whichPet)
             print('Getting Task Board Pet')
 
+            if not Utils.IsPetEquipped(whichPet) then
+                FarmingPet.GetPetToFarm(whichPet)
+            end
+
+            for _, v in ClientData.get('quest_manager')['quests_cached']do
+                if v['entry_name']:match('house_pets_2025_potion_drank') then
+                    for _, v in ClientData.get_data()[localPlayer.Name].inventory.food do
+                        if v['id'] == 'pet_grow_potion' then
+                            print('Found potion, using it')
+                            Utils.CreatePetObject(v['unique'])
+
+                            return true
+                        end
+                    end
+
+                    if Utils.BucksAmount() >= 10000 then
+                        print('Buying grow potion')
+                        RouterClient.get('ShopAPI/BuyItem'):InvokeServer('food', 'pet_grow_potion', {buy_count = 1})
+                        task.wait(1)
+                    end
+                end
+            end
             for _, v in ClientData.get('quest_manager')['quests_cached']do
                 if v['entry_name']:match('house_pets_2025_small_hatch_egg') or v['entry_name']:match('house_pets_2025_medium_hatch_egg') then
+                    print('Buying Farming Egg')
+
                     if farmEgg() then
                         return true
                     end
@@ -6384,7 +6222,11 @@ do
             end
             for _, v in ClientData.get('quest_manager')['quests_cached']do
                 if v['entry_name']:match('house_pets_2025_buy_gumball_egg') then
-                    RouterClient.get('ShopAPI/BuyItem'):InvokeServer('pets', 'aztec_egg_2025_aztec_egg', {})
+                    if Utils.BucksAmount() >= 10000 then
+                        print('Buying gumball egg')
+                        Teleport.Nursery()
+                        RouterClient.get('ShopAPI/BuyItem'):InvokeServer('pets', 'aztec_egg_2025_aztec_egg', {})
+                    end
                 end
             end
             for _, v in ClientData.get('quest_manager')['quests_cached']do
@@ -6393,9 +6235,6 @@ do
                         return true
                     end
                     if GetInventory.PetRarityAndAge('common', 6, whichPet) then
-                        return true
-                    end
-                    if farmEgg() then
                         return true
                     end
                 end
@@ -6408,9 +6247,6 @@ do
                     if GetInventory.PetRarityAndAge('uncommon', 6, whichPet) then
                         return true
                     end
-                    if farmEgg() then
-                        return true
-                    end
                 end
             end
             for _, v in ClientData.get('quest_manager')['quests_cached']do
@@ -6419,9 +6255,6 @@ do
                         return true
                     end
                     if GetInventory.PetRarityAndAge('rare', 6, whichPet) then
-                        return true
-                    end
-                    if farmEgg() then
                         return true
                     end
                 end
@@ -6434,9 +6267,6 @@ do
                     if GetInventory.PetRarityAndAge('ultra_rare', 6, whichPet) then
                         return true
                     end
-                    if farmEgg() then
-                        return true
-                    end
                 end
             end
             for _, v in ClientData.get('quest_manager')['quests_cached']do
@@ -6447,9 +6277,6 @@ do
                     if GetInventory.PetRarityAndAge('legendary', 6, whichPet) then
                         return true
                     end
-                    if farmEgg() then
-                        return true
-                    end
                 end
             end
 
@@ -6457,6 +6284,190 @@ do
         end
 
         return FarmingPet
+    end
+    function __DARKLUA_BUNDLE_MODULES.v()
+        local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
+        local Players = cloneref(game:GetService('Players'))
+        local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
+        local ClientData = Bypass('ClientData')
+        local RouterClient = Bypass('RouterClient')
+        local Taskboard = {}
+        local localPlayer = Players.LocalPlayer
+        local PlayerGui = localPlayer:WaitForChild('PlayerGui')
+        local neonTable = {
+            ['neon_fusion'] = true,
+            ['mega_neon_fusion'] = true,
+        }
+        local claimTable = {
+            ['hatch_three_eggs'] = {3},
+            ['fully_age_three_pets'] = {3},
+            ['make_two_trades'] = {2},
+            ['equip_two_accessories'] = {2},
+            ['buy_three_furniture_items_with_friends_coop_budget'] = {3},
+            ['buy_five_furniture_items'] = {5},
+            ['buy_fifteen_furniture_items'] = {15},
+            ['play_as_a_baby_for_twenty_five_minutes'] = {1500},
+            ['play_for_thirty_minutes'] = {1800},
+            ['sunshine_2024_playtime'] = {2400},
+            ['bonus_week_2024_small_ailments'] = {5},
+            ['bonus_week_2024_small_hatch_egg'] = {1},
+            ['bonus_week_2024_small_age_potion_drank'] = {1},
+            ['bonus_week_2024_small_ailment_orange'] = {1},
+            ['bonus_week_2024_medium_ailment_hungry_sleepy_bored'] = {3},
+            ['bonus_week_2024_medium_ailment_catch_bored'] = {2},
+            ['bonus_week_2024_medium_ailment_toilet_dirty_sleepy'] = {3},
+            ['bonus_week_2024_medium_ailment_pizza_hungry'] = {2},
+            ['bonus_week_2024_medium_ailment_salon_dirty'] = {2},
+            ['bonus_week_2024_medium_ailment_school_ride'] = {2},
+            ['bonus_week_2024_medium_ailment_walk_beach'] = {2},
+            ['bonus_week_2024_medium_ailments'] = {15},
+            ['bonus_week_2024_large_ailments_common'] = {30},
+            ['bonus_week_2024_large_ailments_legendary'] = {30},
+            ['bonus_week_2024_large_ailments_ultra_rare'] = {30},
+            ['bonus_week_2024_large_ailments_uncommon'] = {30},
+            ['bonus_week_2024_large_ailments_rare'] = {30},
+            ['bonus_week_2024_large_ailments'] = {30},
+            ['house_pets_2025_small_ailment_blue'] = {2},
+            ['house_pets_2025_small_open_gift'] = {1},
+            ['house_pets_2025_potion_drank'] = {1},
+            ['house_pets_2025_small_hatch_egg'] = {1},
+            ['house_pets_2025_small_ailments'] = {5},
+            ['house_pets_2025_small_ailment_orange'] = {1},
+            ['house_pets_2025_medium_ailment_hungry_sleepy_bored'] = {3},
+            ['house_pets_2025_medium_ailments'] = {15},
+            ['house_pets_2025_medium_ailment_beach_camping_bored'] = {3},
+            ['house_pets_2025_medium_blue_ailments'] = {6},
+            ['house_pets_2025_medium_ailment_salon_shower'] = {2},
+            ['house_pets_2025_medium_hatch_egg'] = {3},
+            ['house_pets_2025_large_ailments'] = {30},
+            ['house_pets_2025_large_ailments_common'] = {30},
+            ['house_pets_2025_large_ailments_ultra_rare'] = {30},
+            ['house_pets_2025_large_ailments_uncommon'] = {30},
+            ['house_pets_2025_large_ailments_rare'] = {30},
+            ['house_pets_2025_large_ailments_legendary'] = {30},
+            ['house_pets_2025_buy_gumball_egg'] = {1},
+        }
+
+        Taskboard.NewTaskBool = true
+        Taskboard.NewClaimBool = true
+        Taskboard.NeonTable = neonTable
+        Taskboard.ClaimTable = claimTable
+
+        function Taskboard.QuestCount()
+            local Count = 0
+
+            for _, v in pairs(ClientData.get('quest_manager')['quests_cached'])do
+                if v['entry_name']:match('teleport') or v['entry_name']:match('navigate') or v['entry_name']:match('nav') or v['entry_name']:match('gosh_2022_sick') then
+                    Count = Count + 0
+                else
+                    Count = Count + 1
+                end
+            end
+
+            return Count
+        end
+
+        local reRollCount = function()
+            for _, v in pairs(ClientData.get('quest_manager')['daily_quest_data'])do
+                if v == 1 or v == 0 then
+                    return v
+                end
+            end
+
+            return 0
+        end
+
+        function Taskboard:NewTask()
+            Taskboard.NewTaskBool = false
+
+            for _, v in pairs(ClientData.get('quest_manager')['quests_cached'])do
+                if v['entry_name']:match('teleport') then
+                    task.wait()
+                elseif v['entry_name']:match('tutorial') then
+                    RouterClient.get('QuestAPI/ClaimQuest'):InvokeServer(v['unique_id'])
+                    task.wait()
+                elseif v['entry_name']:match('house_pets_2025_small_open_gift') then
+                    RouterClient.get('ShopAPI/BuyItem'):InvokeServer('gifts', 'smallgift', {})
+                    task.wait(1)
+
+                    for _, v in ClientData.get_data()[localPlayer.Name].inventory.gifts do
+                        if v['id'] == 'smallgift' then
+                            RouterClient.get('ShopAPI/OpenGift'):InvokeServer(v['unique'])
+
+                            break
+                        end
+                    end
+
+                    task.wait()
+                else
+                    if Taskboard.QuestCount() == 1 then
+                        if Taskboard.NeonTable[v['entry_name'] ] then
+                            RouterClient.get('QuestAPI/ClaimQuest'):InvokeServer(v['unique_id'])
+                            task.wait()
+                        elseif not Taskboard.NeonTable[v['entry_name'] ] and reRollCount() >= 1 then
+                            RouterClient.get('QuestAPI/RerollQuest'):FireServer(v['unique_id'])
+                            task.wait()
+                        end
+                    elseif Taskboard.QuestCount() > 1 then
+                        if Taskboard.NeonTable[v['entry_name'] ] then
+                            RouterClient.get('QuestAPI/ClaimQuest'):InvokeServer(v['unique_id'])
+                            task.wait()
+                        elseif not Taskboard.NeonTable[v['entry_name'] ] and reRollCount() >= 1 then
+                            RouterClient.get('QuestAPI/RerollQuest'):FireServer(v['unique_id'])
+                            task.wait()
+                        elseif not Taskboard.NeonTable[v['entry_name'] ] and reRollCount() <= 0 then
+                            RouterClient.get('QuestAPI/ClaimQuest'):InvokeServer(v['unique_id'])
+                            task.wait()
+                        end
+                    end
+                end
+            end
+
+            task.wait(1)
+
+            Taskboard.NewTaskBool = true
+        end
+        function Taskboard:NewClaim()
+            Taskboard.NewClaimBool = false
+
+            for _, v in pairs(ClientData.get('quest_manager')['quests_cached'])do
+                if Taskboard.ClaimTable[v['entry_name'] ] then
+                    if v['steps_completed'] == Taskboard.ClaimTable[v['entry_name'] ][1] then
+                        RouterClient.get('QuestAPI/ClaimQuest'):InvokeServer(v['unique_id'])
+                        task.wait()
+                    end
+                elseif not Taskboard.ClaimTable[v['entry_name'] ] and v['steps_completed'] == 1 then
+                    RouterClient.get('QuestAPI/ClaimQuest'):InvokeServer(v['unique_id'])
+                    task.wait()
+                end
+            end
+
+            task.wait(1)
+
+            Taskboard.NewClaimBool = true
+        end
+
+        local ImageButton = PlayerGui:WaitForChild('QuestIconApp'):WaitForChild('ImageButton')
+        local IsNew = ImageButton:WaitForChild('EventContainer'):WaitForChild('IsNew')
+        local IsClaimable = ImageButton:WaitForChild('EventContainer'):WaitForChild('IsClaimable')
+
+        IsNew:GetPropertyChangedSignal('Position'):Connect(function()
+            if Taskboard.NewTaskBool then
+                Taskboard.NewTaskBool = false
+
+                RouterClient.get('QuestAPI/MarkQuestsViewed'):FireServer()
+                Taskboard:NewTask()
+            end
+        end)
+        IsClaimable:GetPropertyChangedSignal('Position'):Connect(function()
+            if Taskboard.NewClaimBool then
+                Taskboard.NewClaimBool = false
+
+                Taskboard:NewClaim()
+            end
+        end)
+
+        return Taskboard
     end
     function __DARKLUA_BUNDLE_MODULES.w()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
@@ -6466,12 +6477,13 @@ do
         local RouterClient = Bypass('RouterClient')
         local CollisionsClient = Bypass('CollisionsClient')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local Ailment = __DARKLUA_BUNDLE_MODULES.load('u')
+        local Ailment = __DARKLUA_BUNDLE_MODULES.load('t')
         local Furniture = __DARKLUA_BUNDLE_MODULES.load('b')
         local Teleport = __DARKLUA_BUNDLE_MODULES.load('f')
         local GetInventory = __DARKLUA_BUNDLE_MODULES.load('i')
-        local FarmingPet = __DARKLUA_BUNDLE_MODULES.load('v')
+        local FarmingPet = __DARKLUA_BUNDLE_MODULES.load('u')
         local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
+        local Taskboard = __DARKLUA_BUNDLE_MODULES.load('v')
         local self = {}
         local UpdateTextEvent = (ReplicatedStorage:WaitForChild('UpdateTextEvent'))
         local localPlayer = Players.LocalPlayer
@@ -6771,6 +6783,8 @@ do
                         end
                     end
                     if getgenv().SETTINGS.FOCUS_FARM_AGE_POTION then
+                        Taskboard:NewClaim()
+
                         if not FarmingPet.GetTaskBoardPet(1) then
                             FarmingPet.GetPetToFarm(1)
                         end
@@ -11791,16 +11805,13 @@ local files = {
         StatsGuiHandler = __DARKLUA_BUNDLE_MODULES.load('p'),
     },
     {
-        TaskBoardHandler = __DARKLUA_BUNDLE_MODULES.load('q'),
+        TradeLicenseHandler = __DARKLUA_BUNDLE_MODULES.load('q'),
     },
     {
-        TradeLicenseHandler = __DARKLUA_BUNDLE_MODULES.load('r'),
+        TutorialHandler = __DARKLUA_BUNDLE_MODULES.load('r'),
     },
     {
-        TutorialHandler = __DARKLUA_BUNDLE_MODULES.load('s'),
-    },
-    {
-        WebhookHandler = __DARKLUA_BUNDLE_MODULES.load('t'),
+        WebhookHandler = __DARKLUA_BUNDLE_MODULES.load('s'),
     },
     {
         AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.load('w'),
