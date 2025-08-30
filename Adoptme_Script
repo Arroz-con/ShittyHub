@@ -6804,7 +6804,7 @@ do
                     tryRedeemHomepass()
                     UpdateTextEvent:Fire()
 
-                    local waitTime = rng:NextNumber(15, 20)
+                    local waitTime = rng:NextNumber(5, 15)
 
                     baitboxCount = baitboxCount + waitTime
 
