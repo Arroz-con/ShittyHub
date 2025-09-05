@@ -3748,10 +3748,6 @@ do
             Utils.PrintDebug(createPotionObject(potionUniques))
             task.wait(2)
 
-            local UpdateTextEvent = (ReplicatedStorage:WaitForChild('UpdateTextEvent'))
-
-            UpdateTextEvent:Fire()
-
             return
         end
         function BulkPotion.AgeAllPetsOfSameName(petId, maxAmount)
@@ -4017,10 +4013,6 @@ do
             localPlayer.Idled:Connect(function()
                 VirtualUser:ClickButton2(Vector2.new())
             end)
-
-            local UpdateTextEvent = (ReplicatedStorage:WaitForChild('UpdateTextEvent'))
-
-            UpdateTextEvent:Fire()
 
             if getgenv().BUY_BEFORE_FARMING then
                 localPlayer:SetAttribute('StopFarmingTemp', true)
@@ -6141,7 +6133,6 @@ do
         local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
         local Taskboard = __DARKLUA_BUNDLE_MODULES.load('t')
         local self = {}
-        local UpdateTextEvent = (ReplicatedStorage:WaitForChild('UpdateTextEvent'))
         local localPlayer = Players.LocalPlayer
         local rng = Random.new(DateTime.now().UnixTimestamp)
         local jobId = game.JobId
@@ -6473,7 +6464,6 @@ do
 
                     tryFeedAgePotion()
                     tryRedeemHomepass()
-                    UpdateTextEvent:Fire()
 
                     local waitTime = rng:NextNumber(5, 15)
 
