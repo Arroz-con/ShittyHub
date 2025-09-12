@@ -4291,14 +4291,6 @@ do
                 Utils.FindButton('Next')
             elseif TextLabel.Text:match('Social Stones!') then
                 Utils.FindButton('Okay')
-            elseif TextLabel.Text:match("Today's 2x Code is") then
-                Utils.FindButton('Awesome!')
-                pcall(function()
-                    local message = TextLabel.Text:split("Today's 2x Code is")
-                    local code = message[2]:split('- Use at the Safety Hub!')[1]:gsub('%s+', '')
-
-                    Utils.FireRedeemCode(code)
-                end)
             elseif TextLabel.Text:match('sent you a trade request') then
                 Utils.FindButton('Accept')
             elseif TextLabel.Text:match('Trade request from') then
@@ -4339,8 +4331,8 @@ do
                 Utils.FindButton('Okay')
             elseif TextLabel.Text:match('Pay 1500 Bucks') then
                 Utils.FindButton('Yes')
-            elseif TextLabel.Text:match("You've completed the entire Homepass!") then
-                Utils.FindButton('Okay')
+            elseif TextLabel.Text:match('Pet Pen!') then
+                Utils.FindButton('Go to Pet Pen')
             elseif TextLabel.Text:match('The Homepass has been restarted') then
                 Utils.FindButton('Okay')
             end
@@ -4424,6 +4416,21 @@ do
                     end
                 end)
             end)
+        end
+        local tryClickPlaytimePayout = function()
+            if not PlaytimePayoutsApp.Enabled then
+                return
+            end
+
+            PlaytimePayoutsApp:WaitForChild('Frame')
+            PlaytimePayoutsApp.Frame:WaitForChild('Container')
+            PlaytimePayoutsApp.Frame.Container:WaitForChild('CashOutContainer')
+            PlaytimePayoutsApp.Frame.Container.CashOutContainer:WaitForChild('CashOutButton')
+
+            local button = (PlaytimePayoutsApp.Frame.Container.CashOutContainer.CashOutButton:WaitForChild('DepthButton'))
+
+            Utils.FireButton(button)
+            print('\u{1f911} Cashed out playtime rewards')
         end
 
         function self.Init()
@@ -4610,22 +4617,11 @@ do
             end)
             PlaytimePayoutsApp:GetPropertyChangedSignal('Enabled'):Connect(function(
             )
-                if not PlaytimePayoutsApp.Enabled then
-                    return
-                end
-
-                PlaytimePayoutsApp:WaitForChild('Frame')
-                PlaytimePayoutsApp.Frame:WaitForChild('Container')
-                PlaytimePayoutsApp.Frame.Container:WaitForChild('CashOutContainer')
-                PlaytimePayoutsApp.Frame.Container.CashOutContainer:WaitForChild('CashOutButton')
-
-                local button = (PlaytimePayoutsApp.Frame.Container.CashOutContainer.CashOutButton:WaitForChild('DepthButton'))
-
-                Utils.FireButton(button)
-                print('\u{1f911} Cashed out playtime rewards')
+                tryClickPlaytimePayout()
             end)
         end
         function self.Start()
+            tryClickPlaytimePayout()
             TradeApp.Frame.NegotiationFrame.Body.PartnerOffer.Accepted:GetPropertyChangedSignal('ImageTransparency'):Connect(function(
             )
                 Trade.AutoAcceptTrade()
