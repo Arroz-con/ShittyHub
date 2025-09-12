@@ -489,6 +489,9 @@ do
 
             RouterClient.get('HousingAPI/BuyFurnitures'):InvokeServer(unpack(args))
         end
+        function self.subscribeToHouse(playerName)
+            RouterClient.get('HousingAPI/SubscribeToHouse'):FireServer(playerName)
+        end
 
         return self
     end
@@ -3989,6 +3992,16 @@ do
                 localPlayer.CharacterAdded:Wait()
             end
 
+            local success, err = pcall(function()
+                return RouterClient.get('TeamAPI/Spawn'):InvokeServer()
+            end)
+
+            if not success then
+                Utils.PrintDebug(string.format('Error spawning to house: %s', tostring(err)))
+            end
+
+            task.wait(1)
+
             local furnitureKeys = Furniture.GetFurnituresKey()
 
             loopFurniture(furnitureKeys)
@@ -3997,6 +4010,12 @@ do
             Utils.PrintDebug(string.format('Piano: %s \u{1f3b9}', tostring(furnitureKeys.piano)))
             Utils.PrintDebug(string.format('Normal Lure: %s \u{1f4e6}', tostring(furnitureKeys.lures_2023_normal_lure)))
             Utils.PrintDebug(string.format('LitterBox: %s \u{1f6bd}', tostring(furnitureKeys.ailments_refresh_2024_litter_box)))
+
+            if furnitureKeys.basiccrib == 'nil' then
+                localPlayer:Kick("No bed found, can't farm without a bed")
+
+                return
+            end
 
             local baitUnique = Utils.FindBait()
 
@@ -4050,7 +4069,6 @@ do
             end
 
             localPlayer:SetAttribute('StopFarmingTemp', false)
-            RouterClient.get('CodeRedemptionAPI/AttemptRedeemCode'):InvokeServer('VISITS')
         end
 
         return self
@@ -4567,7 +4585,7 @@ do
         local Terrain = (Workspace:WaitForChild('Terrain'))
         local Lighting = (cloneref(game:GetService('Lighting')))
         local self = {}
-        local TURN_ON = true
+        local TURN_ON = getgenv().SETTINGS.POTATO_MODE or false
         local lowSpecTerrain = function()
             Terrain.WaterReflectance = 0
             Terrain.WaterTransparency = 1
