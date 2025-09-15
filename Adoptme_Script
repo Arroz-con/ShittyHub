@@ -629,7 +629,6 @@ do
             'easter_2024_dotted_eggy',
             'woodland_2022_red_fox',
             'woodland_2022_bullfrog',
-            'dog',
             'basic_egg_2022_robot',
             'regular_pet_egg',
             'moon_2025_hopbop',
@@ -2235,7 +2234,7 @@ do
 
                 return false
             end
-            if getgenv().SETTINGS.TRADE_ONLY_LUMINOUS_MEGA then
+            if getgenv().SETTINGS.TRADE_ONLY_NEON_LUMINOUS_AND_MEGA then
                 for _, v in ClientData.get_data()[localPlayer.Name].inventory do
                     for _, item in v do
                         if table.find(AllowOrDenyList.Denylist, item.id) then
@@ -2289,7 +2288,7 @@ do
 
                     continue
                 end
-                if getgenv().SETTINGS.TRADE_ONLY_LUMINOUS_MEGA then
+                if getgenv().SETTINGS.TRADE_ONLY_NEON_LUMINOUS_AND_MEGA then
                     for _, v in ClientData.get_data()[localPlayer.Name].inventory do
                         if isInventoryFull then
                             break
@@ -2444,7 +2443,7 @@ do
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
         local CollisionsClient = Bypass('CollisionsClient')
-        local self = {}
+        local Teleport = {}
         local localPlayer = Players.LocalPlayer
         local getconstants = getconstants or debug.getconstants
         local getgc = getgc or get_gc_objects or debug.getgc
@@ -2473,8 +2472,8 @@ do
             set_thread_identity(k)
         end
 
-        function self.Init() end
-        function self.PlaceFloorAtFarmingHome()
+        function Teleport.Init() end
+        function Teleport.PlaceFloorAtFarmingHome()
             if Workspace:FindFirstChild('FarmingHomeLocation') then
                 return
             end
@@ -2507,7 +2506,7 @@ do
             TextLabel.TextSize = 14
             TextLabel.TextWrapped = true
         end
-        function self.PlaceCameraPart()
+        function Teleport.PlaceCameraPart()
             if Workspace:FindFirstChild('CameraPartLocation') then
                 return
             end
@@ -2521,7 +2520,7 @@ do
             part.Name = 'CameraPartLocation'
             part.Parent = Workspace
         end
-        function self.PlaceFloorAtCampSite()
+        function Teleport.PlaceFloorAtCampSite()
             if Workspace:FindFirstChild('CampingLocation') then
                 return
             end
@@ -2536,7 +2535,7 @@ do
             part.Name = 'CampingLocation'
             part.Parent = Workspace
         end
-        function self.PlaceFloorAtBeachParty()
+        function Teleport.PlaceFloorAtBeachParty()
             if Workspace:FindFirstChild('BeachPartyLocation') then
                 return
             end
@@ -2551,7 +2550,7 @@ do
             part.Name = 'BeachPartyLocation'
             part.Parent = Workspace
         end
-        function self.placeFloorOnJoinZone()
+        function Teleport.placeFloorOnJoinZone()
             for _, v in Workspace:GetChildren()do
                 if v.Name == 'FloorPart2' then
                     return
@@ -2567,18 +2566,18 @@ do
             part.Name = 'FloorPart2'
             part.Parent = Workspace
         end
-        function self.DeleteWater()
+        function Teleport.DeleteWater()
             Workspace.Terrain:Clear()
         end
-        function self.FarmingHome()
+        function Teleport.FarmingHome()
             localPlayer.Character:WaitForChild('HumanoidRootPart').Anchored = true
             localPlayer.Character.HumanoidRootPart.CFrame = Workspace.FarmingHomeLocation.CFrame * CFrame.new(rng:NextInteger(1, 40), 10, rng:NextInteger(1, 40))
             localPlayer.Character:WaitForChild('HumanoidRootPart').Anchored = false
 
             localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
-            self.DeleteWater()
+            Teleport.DeleteWater()
         end
-        function self.MainMap()
+        function Teleport.MainMap()
             local isAlreadyOnMainMap = Workspace:FindFirstChild('Interiors'):FindFirstChild('center_map_plot', true)
 
             if isAlreadyOnMainMap then
@@ -2596,10 +2595,10 @@ do
             localPlayer.Character:WaitForChild('HumanoidRootPart').Anchored = false
 
             localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
-            self.DeleteWater()
+            Teleport.DeleteWater()
             task.wait(2)
         end
-        function self.Nursery()
+        function Teleport.Nursery()
             localPlayer.Character:WaitForChild('HumanoidRootPart').Anchored = true
 
             SetLocationFunc('Nursery', 'MainDoor', {})
@@ -2613,25 +2612,45 @@ do
             localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
             task.wait(2)
         end
-        function self.CampSite()
+        function Teleport.Recycler()
+            localPlayer.Character:WaitForChild('HumanoidRootPart').Anchored = true
+
+            SetLocationFunc('Nursery', 'MainDoor', {})
+            task.wait(1)
+            Workspace.Interiors:WaitForChild(tostring(Workspace.Interiors:FindFirstChildWhichIsA('Model')))
+
+            local recyclerModel = (workspace.Interiors.Nursery:WaitForChild('Recycler', 60))
+
+            if not recyclerModel then
+                return
+            end
+
+            localPlayer.Character:MoveTo(recyclerModel:GetPivot().Position)
+
+            localPlayer.Character:WaitForChild('HumanoidRootPart').Anchored = false
+
+            localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+            task.wait(2)
+        end
+        function Teleport.CampSite()
             ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('MainMap', localPlayer, ClientData.get_data()[localPlayer.Name].LiveOpsMapType)
             task.wait(1)
 
             localPlayer.Character.PrimaryPart.CFrame = Workspace.CampingLocation.CFrame + Vector3.new(rng:NextInteger(1, 30), 5, rng:NextInteger(1, 30))
 
             localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
-            self.DeleteWater()
+            Teleport.DeleteWater()
         end
-        function self.BeachParty()
+        function Teleport.BeachParty()
             ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('MainMap', localPlayer, ClientData.get_data()[localPlayer.Name].LiveOpsMapType)
             task.wait(1)
 
             localPlayer.Character.PrimaryPart.CFrame = Workspace.BeachPartyLocation.CFrame + Vector3.new(math.random(1, 30), 5, math.random(1, 30))
 
             localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
-            self.DeleteWater()
+            Teleport.DeleteWater()
         end
-        function self.Bonfire()
+        function Teleport.Bonfire()
             ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('MainMap', localPlayer, ClientData.get_data()[localPlayer.Name].LiveOpsMapType)
             task.wait(1)
 
@@ -2645,9 +2664,9 @@ do
 
             localPlayer.Character:MoveTo(location)
             localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
-            self.DeleteWater()
+            Teleport.DeleteWater()
         end
-        function self.PlayGround(vec)
+        function Teleport.PlayGround(vec)
             localPlayer.Character:WaitForChild('HumanoidRootPart').Anchored = true
 
             SetLocationFunc('MainMap', 'Neighborhood/MainDoor', {})
@@ -2658,9 +2677,9 @@ do
             localPlayer.Character:WaitForChild('HumanoidRootPart').Anchored = false
 
             localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
-            self.DeleteWater()
+            Teleport.DeleteWater()
         end
-        function self.DownloadMainMap()
+        function Teleport.DownloadMainMap()
             local interiors = Workspace:WaitForChild('Interiors', 30)
 
             if not interiors then
@@ -2682,11 +2701,11 @@ do
             localPlayer.Character:WaitForChild('HumanoidRootPart').Anchored = false
 
             localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
-            self.DeleteWater()
+            Teleport.DeleteWater()
 
             return true
         end
-        function self.MoonZone()
+        function Teleport.MoonZone()
             localPlayer.Character:WaitForChild('HumanoidRootPart').Anchored = true
 
             SetLocationFunc('MoonInterior', 'MainDoor', {})
@@ -2697,7 +2716,7 @@ do
 
             localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
         end
-        function self.SkyCastle()
+        function Teleport.SkyCastle()
             localPlayer.Character:WaitForChild('HumanoidRootPart').Anchored = true
 
             local isAlreadyOnSkyCastle = Workspace:WaitForChild('Interiors'):FindFirstChild('SkyCastle')
@@ -2725,7 +2744,7 @@ do
 
             localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
         end
-        function self.Neighborhood()
+        function Teleport.Neighborhood()
             localPlayer.Character:WaitForChild('HumanoidRootPart').Anchored = true
 
             SetLocationFunc('Neighborhood', 'MainDoor', {})
@@ -2743,10 +2762,10 @@ do
             localPlayer.Character:WaitForChild('HumanoidRootPart').Anchored = false
 
             localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
-            self.DeleteWater()
+            Teleport.DeleteWater()
         end
 
-        return self
+        return Teleport
     end
     function __DARKLUA_BUNDLE_MODULES.g()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
@@ -3060,7 +3079,8 @@ do
         local InventoryDB = Bypass('InventoryDB')
         local AllowOrDenyList = __DARKLUA_BUNDLE_MODULES.load('c')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local self = {}
+        local GetInventory = {}
+        local PetsToReleaseList = getgenv().SETTINGS.PETS_TO_AGE_IN_PEN or {}
         local localPlayer = Players.LocalPlayer
         local eggList = {}
         local equipWhichPet = function(whichPet, petUnique)
@@ -3085,9 +3105,53 @@ do
             return false
         end
 
-        function self.GetAgeablePets()
+        function GetInventory.GetPetUniquesForPetPen(
+            petIds,
+            CurrentIdlePets,
+            amount
+        )
+            local petUniques = {}
+
+            for _, v in ClientData.get_data()[localPlayer.Name].inventory.pets do
+                if not table.find(petIds, v.id) then
+                    continue
+                end
+                if table.find(CurrentIdlePets, v.unique) then
+                    continue
+                end
+                if v.properties.age == 6 then
+                    continue
+                end
+                if v.properties.mega_neon then
+                    continue
+                end
+
+                table.insert(petUniques, v.unique)
+
+                if #petUniques >= amount then
+                    break
+                end
+            end
+
+            return petUniques
+        end
+        function GetInventory.GetPetsToRelease()
+            local petUniques = {}
+
+            for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
+                if not table.find(PetsToReleaseList, pet.id) then
+                    continue
+                end
+                if pet.properties.mega_neon then
+                    petUniques[pet.unique] = true
+                end
+            end
+
+            return petUniques
+        end
+        function GetInventory.GetAgeablePets()
             local ageablePets = {}
-            local eggList = self.GetPetEggs()
+            local eggList = GetInventory.GetPetEggs()
 
             for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
                 if table.find(AllowOrDenyList.Denylist, pet.id) then
@@ -3110,10 +3174,10 @@ do
 
             return ageablePets
         end
-        function self.GetAll()
+        function GetInventory.GetAll()
             return ClientData.get_data()[localPlayer.Name].inventory
         end
-        function self.TabId(tabId)
+        function GetInventory.TabId(tabId)
             local inventoryTable = {}
 
             for _, v in ClientData.get_data()[localPlayer.Name].inventory[tabId]do
@@ -3131,7 +3195,7 @@ do
 
             return inventoryTable
         end
-        function self.IsFarmingSelectedPet(hasProHandler)
+        function GetInventory.IsFarmingSelectedPet(hasProHandler)
             if hasProHandler then
                 if not ClientData.get('pet_char_wrappers')[2] then
                     return
@@ -3152,7 +3216,7 @@ do
             RouterClient.get('ToolAPI/Equip'):InvokeServer(getgenv().petCurrentlyFarming1, {})
             task.wait(2)
         end
-        function self.GetPetFriendship(petTable, whichPet)
+        function GetInventory.GetPetFriendship(petTable, whichPet)
             local level = 0
             local petUnique = nil
 
@@ -3190,7 +3254,7 @@ do
 
             return true
         end
-        function self.GetHighestGrownPet(age, whichPet)
+        function GetInventory.GetHighestGrownPet(age, whichPet)
             local PetageCounter = age
             local isNeon = true
             local petFound = false
@@ -3228,7 +3292,7 @@ do
 
             return false
         end
-        function self.GetHighestGrownPetForIdle(age)
+        function GetInventory.GetHighestGrownPetForIdle(age)
             local PetageCounter = age
             local isNeon = true
             local petFound = false
@@ -3269,7 +3333,7 @@ do
 
             return petUniques
         end
-        function self.GetPetRarity()
+        function GetInventory.GetPetRarity()
             if not Utils.IsPetEquipped(1) then
                 return nil
             end
@@ -3284,7 +3348,7 @@ do
 
             return nil
         end
-        function self.PetRarityAndAge(rarity, age, whichPet)
+        function GetInventory.PetRarityAndAge(rarity, age, whichPet)
             local PetageCounter = age
             local isNeon = true
             local petFound = false
@@ -3324,7 +3388,7 @@ do
 
             return false
         end
-        function self.CheckForPetAndEquip(nameIds, whichPet)
+        function GetInventory.CheckForPetAndEquip(nameIds, whichPet)
             local level = 0
             local petUnique = nil
 
@@ -3390,7 +3454,7 @@ do
 
             return false
         end
-        function self.GetUniqueId(tabId, nameId)
+        function GetInventory.GetUniqueId(tabId, nameId)
             for _, v in ClientData.get_data()[localPlayer.Name].inventory[tabId]do
                 if v.id == nameId then
                     return v.unique
@@ -3399,7 +3463,7 @@ do
 
             return nil
         end
-        function self.IsPetInInventory(tabId, uniqueId)
+        function GetInventory.IsPetInInventory(tabId, uniqueId)
             for _, v in ClientData.get_data()[localPlayer.Name].inventory[tabId]do
                 if v.unique == uniqueId then
                     return true
@@ -3408,7 +3472,7 @@ do
 
             return false
         end
-        function self.PriorityEgg(whichPet)
+        function GetInventory.PriorityEgg(whichPet)
             for _, v in ipairs(getgenv().SETTINGS.HATCH_EGG_PRIORITY_NAMES)do
                 for _, v2 in ClientData.get_data()[localPlayer.Name].inventory.pets do
                     if table.find(AllowOrDenyList.Denylist, v2.id) then
@@ -3431,7 +3495,7 @@ do
 
             return false
         end
-        function self.GetPetEggs()
+        function GetInventory.GetPetEggs()
             if #eggList >= 1 then
                 return eggList
             end
@@ -3444,7 +3508,7 @@ do
 
             return eggList
         end
-        function self.GetNeonPet(whichPet)
+        function GetInventory.GetNeonPet(whichPet)
             local Petage = 5
             local isNeon = true
             local found_pet = false
@@ -3481,7 +3545,7 @@ do
 
             return false
         end
-        function self.PriorityPet(whichPet)
+        function GetInventory.PriorityPet(whichPet)
             local Petage = 5
             local isNeon = true
             local found_pet = false
@@ -3523,7 +3587,7 @@ do
             return false
         end
 
-        return self
+        return GetInventory
     end
     function __DARKLUA_BUNDLE_MODULES.j()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
@@ -4433,7 +4497,7 @@ do
 
             Utils.FireButton(button)
             task.wait(1)
-            print('\u{1f911} Cashed out playtime rewards')
+            Utils.PrintDebug('\u{1f911} Cashed out playtime rewards')
         end
 
         function self.Init()
@@ -4724,7 +4788,7 @@ do
             (CoreGui.RobloxGui),
         })[1]
 
-        print(string.format('hud: %s', tostring(hud)))
+        Utils.PrintDebug(string.format('hud: %s', tostring(hud)))
 
         local otherGuis = {}
         local DEFAULT_COLOR = Color3.fromRGB(0, 204, 255)
@@ -6048,6 +6112,7 @@ do
         local Teleport = __DARKLUA_BUNDLE_MODULES.load('f')
         local FarmingPet = {}
         local localPlayer = Players.LocalPlayer
+        local petToBuy = 'aztec_egg_2025_aztec_egg'
         local potionFarmPets = {
             'dog',
             'cat',
@@ -6111,7 +6176,7 @@ do
         end
         local getEgg = function()
             for _, v in ClientData.get_data()[localPlayer.Name].inventory.pets do
-                if v.id == getgenv().SETTINGS.PET_TO_BUY and v.id ~= 'practice_dog' and v.properties.age ~= 6 and not v.properties.mega_neon then
+                if v.id == petToBuy and v.id ~= 'practice_dog' and v.properties.age ~= 6 and not v.properties.mega_neon then
                     RouterClient.get('ToolAPI/Equip'):InvokeServer(v.unique, {
                         ['use_sound_delay'] = true,
                     })
@@ -6122,7 +6187,7 @@ do
                 end
             end
 
-            local BuyEgg = RouterClient.get('ShopAPI/BuyItem'):InvokeServer('pets', getgenv().SETTINGS.PET_TO_BUY, {})
+            local BuyEgg = RouterClient.get('ShopAPI/BuyItem'):InvokeServer('pets', petToBuy, {})
 
             if BuyEgg == 'too little money' then
                 return false
@@ -6224,10 +6289,8 @@ do
                     return
                 end
             end
-            if getgenv().SETTINGS.PET_NEON_PRIORITY then
-                if GetInventory.GetNeonPet(whichPet) then
-                    return
-                end
+            if GetInventory.GetNeonPet(whichPet) then
+                return
             end
             if GetInventory.PetRarityAndAge('legendary', 5, whichPet) then
                 return
@@ -6267,7 +6330,7 @@ do
             return
         end
         function FarmingPet.GetTaskBoardPet(whichPet)
-            print('Getting Task Board Pet')
+            Utils.PrintDebug('Getting Task Board Pet')
 
             if not Utils.IsPetEquipped(whichPet) then
                 FarmingPet.GetPetToFarm(whichPet)
@@ -6277,7 +6340,7 @@ do
                 if v['entry_name']:match('house_pets_2025_potion_drank') then
                     for _, v in ClientData.get_data()[localPlayer.Name].inventory.food do
                         if v['id'] == 'pet_grow_potion' then
-                            print('Found potion, using it')
+                            Utils.PrintDebug('Found potion, using it')
                             Utils.CreatePetObject(v['unique'])
 
                             return true
@@ -6285,7 +6348,7 @@ do
                     end
 
                     if Utils.BucksAmount() >= 10000 then
-                        print('Buying grow potion')
+                        Utils.PrintDebug('Buying grow potion')
                         RouterClient.get('ShopAPI/BuyItem'):InvokeServer('food', 'pet_grow_potion', {buy_count = 1})
                         task.wait(1)
                     end
@@ -6293,7 +6356,7 @@ do
             end
             for _, v in ClientData.get('quest_manager')['quests_cached']do
                 if v['entry_name']:match('house_pets_2025_small_hatch_egg') or v['entry_name']:match('house_pets_2025_medium_hatch_egg') then
-                    print('Buying Farming Egg')
+                    Utils.PrintDebug('Buying Farming Egg')
 
                     if farmEgg() then
                         return true
@@ -6303,7 +6366,7 @@ do
             for _, v in ClientData.get('quest_manager')['quests_cached']do
                 if v['entry_name']:match('house_pets_2025_buy_gumball_egg') then
                     if Utils.BucksAmount() >= 10000 then
-                        print('Buying gumball egg')
+                        Utils.PrintDebug('Buying gumball egg')
                         Teleport.Nursery()
                         RouterClient.get('ShopAPI/BuyItem'):InvokeServer('pets', 'aztec_egg_2025_aztec_egg', {})
                     end
@@ -6367,9 +6430,33 @@ do
     end
     function __DARKLUA_BUNDLE_MODULES.v()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
+        local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
+        local RouterClient = Bypass('RouterClient')
+        local PetRelease = {}
+
+        function PetRelease.Use(petUniques)
+            RouterClient.get('HousingAPI/ActivateInteriorFurniture'):InvokeServer('f-27', 'UseBlock', {
+                action = 'use',
+                uniques = petUniques,
+            }, Utils.GetCharacter())
+            Utils.PrintDebug('Added Pets To Release')
+        end
+        function PetRelease.Claim()
+            RouterClient.get('HousingAPI/ActivateInteriorFurniture'):InvokeServer('f-27', 'UseBlock', {
+                action = 'claim',
+            }, Utils.GetCharacter())
+            Utils.PrintDebug('Claimed Eggs from Release pets')
+        end
+
+        return PetRelease
+    end
+    function __DARKLUA_BUNDLE_MODULES.w()
+        local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
+        local RouterClient = Bypass('RouterClient')
         local CollisionsClient = Bypass('CollisionsClient')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local Ailment = __DARKLUA_BUNDLE_MODULES.load('t')
@@ -6378,6 +6465,7 @@ do
         local GetInventory = __DARKLUA_BUNDLE_MODULES.load('i')
         local FarmingPet = __DARKLUA_BUNDLE_MODULES.load('u')
         local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
+        local PetRelease = __DARKLUA_BUNDLE_MODULES.load('v')
         local self = {}
         local UpdateTextEvent = (ReplicatedStorage:WaitForChild('UpdateTextEvent'))
         local localPlayer = Players.LocalPlayer
@@ -6386,6 +6474,21 @@ do
         local furniture = Furniture.GetFurnituresKey()
         local baitboxCount = 0
         local strollerId = GetInventory.GetUniqueId('strollers', 'stroller-default')
+        local tryToReleasePets = function()
+            if getgenv().SETTINGS.ENABLE_RELEASE_PETS == false then
+                return
+            end
+
+            Teleport.Recycler()
+            PetRelease.Claim()
+            task.wait(1)
+
+            local petsToRelease = GetInventory.GetPetsToRelease()
+
+            if petsToRelease and next(petsToRelease) ~= nil then
+                PetRelease.Use(petsToRelease)
+            end
+        end
         local tryFeedAgePotion = function()
             if not getgenv().SETTINGS.FOCUS_FARM_AGE_POTION then
                 if ClientData.get('pet_char_wrappers')[1] and table.find(GetInventory.GetPetEggs(), ClientData.get('pet_char_wrappers')[1].pet_id) then
@@ -6680,6 +6783,8 @@ do
                         Utils.PlaceBaitOrPickUp(furniture.lures_2023_normal_lure, baitUnique)
 
                         baitboxCount = 0
+
+                        tryToReleasePets()
                     end
 
                     tryFeedAgePotion()
@@ -6695,7 +6800,9 @@ do
             end)
         end
 
-        function self.Init() end
+        function self.Init()
+            RouterClient.get('PayAPI/DisablePopups'):FireServer()
+        end
         function self.Start()
             if not getgenv().SETTINGS.ENABLE_AUTO_FARM then
                 Utils.PrintDebug('ENABLE_AUTO_FARM is false')
@@ -6708,6 +6815,7 @@ do
                 task.wait(2)
             end
 
+            tryToReleasePets()
             setupFloor()
             CollisionsClient.set_collidable(false)
             task.wait(2)
@@ -6729,40 +6837,54 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.w()
+    function __DARKLUA_BUNDLE_MODULES.x()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
+        local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local RouterClient = Bypass('RouterClient')
+        local ClientData = Bypass('ClientData')
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local PetOffline = {}
+        local localPlayer = Players.LocalPlayer
 
         function PetOffline.AddPet(petId)
             RouterClient.get('IdleProgressionAPI/AddPet'):FireServer(petId)
-            print('Added pet to offline farming: ' .. petId)
+            Utils.PrintDebug('Added pet to offline farming: ' .. petId)
         end
         function PetOffline.RemovePet(petId)
             RouterClient.get('IdleProgressionAPI/RemovePet'):FireServer(petId)
         end
         function PetOffline.ClaimAllXP()
             RouterClient.get('IdleProgressionAPI/CommitAllProgression'):FireServer()
-            print('Claimed all XP')
+            Utils.PrintDebug('Claimed all XP')
+        end
+        function PetOffline.GetAmountOfPetsInPen()
+            local count = 0
+
+            for _, _ in ClientData.get_data()[localPlayer.Name].idle_progression_manager.active_pets do
+                count = count + 1
+            end
+
+            return count
         end
 
         return PetOffline
     end
-    function __DARKLUA_BUNDLE_MODULES.x()
+    function __DARKLUA_BUNDLE_MODULES.y()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
         local RouterClient = (Bypass('RouterClient'))
-        local PetOffline = __DARKLUA_BUNDLE_MODULES.load('w')
+        local PetOffline = __DARKLUA_BUNDLE_MODULES.load('x')
         local GetInventory = __DARKLUA_BUNDLE_MODULES.load('i')
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local PetOfflineHandler = {}
         local localPlayer = Players.LocalPlayer
+        local petsInPenList = getgenv().SETTINGS.PETS_TO_AGE_IN_PEN
         local CurrentIdlePets = {}
-        local petProgrssedDebounce = false
         local updateCurrentIdlePets = function()
-            CurrentIdlePets = {}
+            table.clear(CurrentIdlePets)
 
             local idleManager = ClientData.get_data()[localPlayer.Name].idle_progression_manager
 
@@ -6783,27 +6905,28 @@ do
             updateCurrentIdlePets()
         end
         local addAllPetsToidleFarm = function()
-            if #CurrentIdlePets >= 4 then
+            local amount = PetOffline.GetAmountOfPetsInPen()
+            local amountMissing = 4 - amount
+
+            if amountMissing <= 0 then
                 return
             end
 
-            local petUniques = GetInventory.GetHighestGrownPetForIdle(5)
+            local petUniques = GetInventory.GetPetUniquesForPetPen(getgenv().SETTINGS.PETS_TO_AGE_IN_PEN, CurrentIdlePets, amountMissing)
 
-            print(string.format('how many pets ids ther is in table: %s', tostring(#petUniques)))
+            Utils.PrintDebug(string.format('how many pets ids ther is in table: %s', tostring(#petUniques)))
 
             for _, unique in ipairs(petUniques)do
-                if table.find(CurrentIdlePets, unique) then
-                    print(string.format('Pet %s is already in idle farm, skipping...', tostring(unique)))
-
-                    continue
-                end
-
                 PetOffline.AddPet(unique)
                 task.wait(1)
             end
         end
 
         function PetOfflineHandler.Init()
+            if getgenv().SETTINGS.ENABLE_AUTO_FARM == false then
+                return
+            end
+
             RouterClient.get('DataAPI/DataChanged').OnClientEvent:Connect(function(
                 _,
                 dataType,
@@ -6815,19 +6938,13 @@ do
                 if not data then
                     return
                 end
-                if petProgrssedDebounce then
-                    return
-                end
-
-                petProgrssedDebounce = true
-
                 if data.age_up_pending then
-                    print('Age up pending, claiming all XP...')
+                    Utils.PrintDebug('Age up pending, claiming all XP...')
                     PetOffline.ClaimAllXP()
                 end
 
                 for key, value in data.active_pets do
-                    if value.max_age then
+                    if value.max_age or not table.find(petsInPenList, value.item_info.kind) then
                         PetOffline.RemovePet(key)
                         task.wait(1)
                     end
@@ -6835,21 +6952,21 @@ do
 
                 updateCurrentIdlePets()
                 addAllPetsToidleFarm()
-
-                petProgrssedDebounce = false
             end)
         end
         function PetOfflineHandler.Start()
+            if getgenv().SETTINGS.ENABLE_AUTO_FARM == false then
+                return
+            end
+
             PetOffline.ClaimAllXP()
             task.wait(2)
             removeAllMaxedPets()
-            task.wait(2)
-            addAllPetsToidleFarm()
         end
 
         return PetOfflineHandler
     end
-    function __DARKLUA_BUNDLE_MODULES.y()
+    function __DARKLUA_BUNDLE_MODULES.z()
         local InterfaceBuild = '9NBD'
         local Release = 'Build 1.67'
         local RayfieldFolder = 'Rayfield'
@@ -10754,7 +10871,7 @@ Check the Developer Console for more information.]],
 
         return RayfieldLibrary
     end
-    function __DARKLUA_BUNDLE_MODULES.z()
+    function __DARKLUA_BUNDLE_MODULES.A()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -10942,11 +11059,11 @@ Check the Developer Console for more information.]],
 
         return Clipboard
     end
-    function __DARKLUA_BUNDLE_MODULES.A()
+    function __DARKLUA_BUNDLE_MODULES.B()
         local Players = cloneref(game:GetService('Players'))
-        local Rayfield = __DARKLUA_BUNDLE_MODULES.load('y')
+        local Rayfield = __DARKLUA_BUNDLE_MODULES.load('z')
         local GetInventory = __DARKLUA_BUNDLE_MODULES.load('i')
-        local Clipboard = __DARKLUA_BUNDLE_MODULES.load('z')
+        local Clipboard = __DARKLUA_BUNDLE_MODULES.load('A')
         local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
         local Trade = __DARKLUA_BUNDLE_MODULES.load('e')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
@@ -11802,13 +11919,13 @@ local files = {
         WebhookHandler = __DARKLUA_BUNDLE_MODULES.load('s'),
     },
     {
-        AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.load('v'),
+        AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.load('w'),
     },
     {
-        PetOfflineHandler = __DARKLUA_BUNDLE_MODULES.load('x'),
+        PetOfflineHandler = __DARKLUA_BUNDLE_MODULES.load('y'),
     },
     {
-        RayfieldHandler = __DARKLUA_BUNDLE_MODULES.load('A'),
+        RayfieldHandler = __DARKLUA_BUNDLE_MODULES.load('B'),
     },
 }
 
