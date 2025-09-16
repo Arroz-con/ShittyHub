@@ -191,7 +191,7 @@ do
             return ClientData.get_data()[localPlayer.Name].money or 0
         end
         function Utils.EventCurrencyAmount()
-            return ClientData.get_data()[localPlayer.Name].domestic_shards_2025 or 0
+            return ClientData.get_data()[localPlayer.Name].pet_recycler_manager.saved_points
         end
         function Utils.FoodItemCount(nameId)
             local count = 0
@@ -2625,7 +2625,9 @@ do
                 return
             end
 
-            localPlayer.Character:MoveTo(recyclerModel:GetPivot().Position)
+            local teleportPostion = recyclerModel:GetPivot().Position
+
+            localPlayer.Character:MoveTo(teleportPostion)
 
             localPlayer.Character:WaitForChild('HumanoidRootPart').Anchored = false
 
@@ -4791,7 +4793,7 @@ do
         Utils.PrintDebug(string.format('hud: %s', tostring(hud)))
 
         local otherGuis = {}
-        local DEFAULT_COLOR = Color3.fromRGB(0, 204, 255)
+        local DEFAULT_COLOR = Color3.fromRGB(71, 70, 70)
         local setButtonUiSettings = function(buttonSettings)
             local button = Instance.new('TextButton')
 
@@ -4859,7 +4861,7 @@ do
             blackFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
             blackFrame.BackgroundTransparency = 0
             blackFrame.LayoutOrder = 0
-            blackFrame.Visible = true
+            blackFrame.Visible = false
             blackFrame.Parent = StatsGui
 
             local MainFrame = Instance.new('Frame')
@@ -4949,7 +4951,6 @@ do
             TextButton.Activated:Connect(function()
                 isVisible = not isVisible
                 MainFrame.Visible = isVisible
-                blackFrame.Visible = isVisible
             end)
         end
         function StatsGuiClass.SetTimeLabelText(startTime)
@@ -4987,7 +4988,7 @@ do
             elseif self.TextLabel.Name == 'TotalEventCurrency' then
                 local formatted = Utils.FormatNumber(Utils.EventCurrencyAmount())
 
-                self.TextLabel.Text = string.format('\u{1f3e0} %s', tostring(formatted))
+                self.TextLabel.Text = string.format('\u{1f95a} %s', tostring(formatted))
             elseif self.TextLabel.Name == 'TotalShiverBaits' then
                 local formatted = Utils.FormatNumber(Utils.FoodItemCount('ice_dimension_2025_shiver_cone_bait'))
 
@@ -5006,7 +5007,7 @@ do
             elseif self.TextLabel.Name == 'TempBucks' and amount then
                 self.TextLabel.Text = string.format('\u{1f4b0} %s', tostring(Utils.FormatNumber(amount)))
             elseif self.TextLabel.Name == 'TempEventCurrency' and amount then
-                self.TextLabel.Text = string.format('\u{1f3e0} %s', tostring(Utils.FormatNumber(amount)))
+                self.TextLabel.Text = string.format('\u{1f95a} %s', tostring(Utils.FormatNumber(amount)))
             end
         end
 
@@ -6277,12 +6278,6 @@ do
                 if GetInventory.PriorityEgg(whichPet) then
                     return
                 end
-
-                local hasMoney = RouterClient.get('ShopAPI/BuyItem'):InvokeServer('pets', getgenv().SETTINGS.HATCH_EGG_PRIORITY_NAMES[1], {})
-
-                if hasMoney then
-                    return
-                end
             end
             if getgenv().SETTINGS.PET_ONLY_PRIORITY then
                 if GetInventory.PriorityPet(whichPet) then
@@ -6480,14 +6475,10 @@ do
             end
 
             Teleport.Recycler()
+            task.wait(5)
             PetRelease.Claim()
             task.wait(1)
-
-            local petsToRelease = GetInventory.GetPetsToRelease()
-
-            if petsToRelease and next(petsToRelease) ~= nil then
-                PetRelease.Use(petsToRelease)
-            end
+            PetRelease.Use(GetInventory.GetPetsToRelease())
         end
         local tryFeedAgePotion = function()
             if not getgenv().SETTINGS.FOCUS_FARM_AGE_POTION then
@@ -6775,7 +6766,7 @@ do
                             FarmingPet.SwitchOutFullyGrown(2)
                         end
                     end
-                    if baitboxCount > 600 then
+                    if baitboxCount > 480 then
                         local baitUnique = Utils.FindBait()
 
                         Utils.PlaceBaitOrPickUp(furniture.lures_2023_normal_lure, baitUnique)
@@ -6815,7 +6806,6 @@ do
                 task.wait(2)
             end
 
-            tryToReleasePets()
             setupFloor()
             CollisionsClient.set_collidable(false)
             task.wait(2)
@@ -6823,6 +6813,7 @@ do
             Utils.PrintDebug('teleported to farming place')
             Utils.PrintDebug('Started Farming')
             localPlayer:SetAttribute('hasStartedFarming', true)
+            tryToReleasePets()
             Utils.UnEquipAllPets()
             task.wait(2)
             FarmingPet.GetPetToFarm(1)
