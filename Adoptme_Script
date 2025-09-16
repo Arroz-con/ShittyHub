@@ -4109,7 +4109,12 @@ do
                 Utils.PrintDebug(string.format('Error spawning to house: %s', tostring(err)))
             end
 
-            task.wait(1)
+            task.wait(5)
+
+            if not localPlayer.Character then
+                Utils.PrintDebug('NO CHARACTER SO WAITING')
+                localPlayer.CharacterAdded:Wait()
+            end
 
             local furnitureKeys = Furniture.GetFurnituresKey()
 
@@ -6766,7 +6771,7 @@ do
                             FarmingPet.SwitchOutFullyGrown(2)
                         end
                     end
-                    if baitboxCount > 480 then
+                    if baitboxCount > 180 then
                         local baitUnique = Utils.FindBait()
 
                         Utils.PlaceBaitOrPickUp(furniture.lures_2023_normal_lure, baitUnique)
