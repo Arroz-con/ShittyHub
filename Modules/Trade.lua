@@ -12,6 +12,7 @@ local Players = game:GetService("Players")
 local Bypass = require(ReplicatedStorage:WaitForChild("Fsys")).load :: any
 local ClientData = Bypass("ClientData")
 local RouterClient = Bypass("RouterClient")
+-- local InventoryDB = Bypass("InventoryDB")
 
 -----------------------------
 -- VARIABLES --
@@ -47,13 +48,14 @@ local localPlayer = Players.LocalPlayer
 -- PRIVATE FUNCTIONS --
 -----------------------------
 
-local function waitForActiveTrade()
-    local timeOut = 60
-    
+local function waitForActiveTrade(timeout: number?): boolean
+    timeout = timeout or 60
+    if not timeout then return false end
+
     while not ClientData.get_data()[localPlayer.Name].in_active_trade do
         task.wait(1)
-        timeOut -= 1
-        if timeOut <= 0 then return false, print("⚠️ waiting for trade timedout ⚠️") end
+        timeout -= 1
+        if timeout <= 0 then return false, print("⚠️ waiting for trade timedout ⚠️") end
     end
     return true
 end
@@ -147,6 +149,38 @@ function Trade.NewbornToPostteenByPetId(petId: string, maxAmount: number)
 
     getPetByLevelOrder(petId, maxAmount, true)
     getPetByLevelOrder(petId, maxAmount, nil)
+end
+
+function Trade.MegaAndByPetId(petId: string, maxAmount: number)
+    if not waitForActiveTrade() then return end
+
+    if #ClientData.get_data()[localPlayer.Name].trade.sender_offer.items >= maxAmount then
+        return
+    end
+
+    local waitForAdded = 0
+    
+    for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
+        if table.find(AllowOrDenyList.Denylist, pet.id) then
+            continue
+        end
+        if pet.id == petId and pet.properties.mega_neon then
+            if not ClientData.get_data()[localPlayer.Name].in_active_trade then
+                return
+            end
+            RouterClient.get("TradeAPI/AddItemToOffer"):FireServer(pet.unique)
+            waitForAdded += 1
+            repeat
+                task.wait(0.1)
+            until #ClientData.get_data()[localPlayer.Name].trade.sender_offer.items >= waitForAdded
+                or not ClientData.get_data()[localPlayer.Name].in_active_trade
+            
+            if #ClientData.get_data()[localPlayer.Name].trade.sender_offer.items >= maxAmount then
+                return
+            end
+            task.wait(0.1)
+        end
+    end
 end
 
 function Trade.AutoAcceptTrade()
