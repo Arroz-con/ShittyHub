@@ -3137,6 +3137,49 @@ do
 
             return petUniques
         end
+        function GetInventory.GetPetsRarityAndAgeForPen(rarity, age, whichPet)
+            local PetageCounter = age
+            local isNeon = true
+            local petFound = false
+            local petUniques = {}
+
+            while not petFound do
+                for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
+                    for _, petDB in InventoryDB.pets do
+                        if table.find(AllowOrDenyList.Denylist, pet.id) then
+                            continue
+                        end
+                        if rarity == petDB.rarity and pet.id == petDB.id and pet.properties.age == PetageCounter and pet.properties.neon == isNeon then
+                            if pet.unique == getgenv().petCurrentlyFarming1 then
+                                continue
+                            end
+                            if pet.unique == getgenv().petCurrentlyFarming2 then
+                                continue
+                            end
+
+                            table.insert(petUniques, pet.unique)
+
+                            if #petUniques >= 4 then
+                                return petUniques
+                            end
+                        end
+                    end
+                end
+
+                PetageCounter = PetageCounter - 1
+
+                if PetageCounter <= 0 and isNeon then
+                    PetageCounter = age
+                    isNeon = nil
+                elseif PetageCounter <= 0 and isNeon == nil then
+                    return petUniques
+                end
+
+                task.wait()
+            end
+
+            return petUniques
+        end
         function GetInventory.GetPetsToRelease()
             local petUniques = {}
 
@@ -3144,7 +3187,7 @@ do
                 if not table.find(PetsToReleaseList, pet.id) then
                     continue
                 end
-                if pet.properties.mega_neon then
+                if pet.properties.neon or pet.properties.mega_neon then
                     petUniques[pet.unique] = true
                 end
             end
@@ -4773,6 +4816,347 @@ do
         return self
     end
     function __DARKLUA_BUNDLE_MODULES.o()
+        local Players = cloneref(game:GetService('Players'))
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
+        local StatsGuiClass = {}
+
+        StatsGuiClass.__index = StatsGuiClass
+
+        local localPlayer = Players.LocalPlayer
+        local hud = localPlayer:WaitForChild('PlayerGui')
+
+        Utils.PrintDebug(string.format('hud: %s', tostring(hud)))
+
+        local otherGuis = {}
+        local DEFAULT_COLOR = Color3.fromRGB(71, 70, 70)
+        local setButtonUiSettings = function(buttonSettings)
+            local button = Instance.new('TextButton')
+
+            button.Name = buttonSettings.Name
+            button.AnchorPoint = Vector2.new(0.5, 0.5)
+            button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            button.BackgroundTransparency = 1
+            button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            button.BorderSizePixel = 0
+            button.Position = buttonSettings.Position
+            button.Size = UDim2.new(0.2, 0, 0.2, 0)
+            button.Font = Enum.Font.FredokaOne
+            button.Text = buttonSettings.Text
+            button.TextColor3 = Color3.fromRGB(0, 0, 0)
+            button.TextScaled = true
+            button.TextSize = 14
+            button.TextWrapped = true
+            button.TextXAlignment = Enum.TextXAlignment.Left
+            button.Parent = hud:WaitForChild('StatsGui')
+
+            return button
+        end
+
+        function StatsGuiClass.new(name)
+            local self = setmetatable({}, StatsGuiClass)
+
+            self.TextLabel = Instance.new('TextLabel')
+            self.UICorner = Instance.new('UICorner')
+            self.TextLabel.Name = name
+            self.TextLabel.BackgroundColor3 = DEFAULT_COLOR
+            self.TextLabel.BackgroundTransparency = 0.25
+            self.TextLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            self.TextLabel.BorderSizePixel = 0
+            self.TextLabel.Size = UDim2.new(0.330000013, 0, 0.486617982, 0)
+            self.TextLabel.Font = Enum.Font.FredokaOne
+            self.TextLabel.RichText = false
+            self.TextLabel.Text = ''
+            self.TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+            self.TextLabel.TextScaled = true
+            self.TextLabel.TextSize = 14
+            self.TextLabel.TextStrokeTransparency = 0
+            self.TextLabel.TextWrapped = true
+            self.StatsGui = hud:WaitForChild('StatsGui')
+            self.TextLabel.Parent = self.StatsGui:WaitForChild('MainFrame'):WaitForChild('MiddleFrame')
+            self.UICorner.CornerRadius = UDim.new(0, 16)
+            self.UICorner.Parent = self.TextLabel
+            self.Debounce = false
+
+            return self
+        end
+        function StatsGuiClass.Init()
+            local StatsGui = Instance.new('ScreenGui')
+
+            StatsGui.Name = 'StatsGui'
+            StatsGui.DisplayOrder = 1000
+            StatsGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+            StatsGui.ResetOnSpawn = false
+            StatsGui.IgnoreGuiInset = true
+            StatsGui.Parent = hud
+
+            local blackFrame = Instance.new('Frame')
+
+            blackFrame.Name = 'BlackFrame'
+            blackFrame.Size = UDim2.new(1, 0, 1, 0)
+            blackFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+            blackFrame.BackgroundTransparency = 0
+            blackFrame.LayoutOrder = 0
+            blackFrame.Visible = false
+            blackFrame.Parent = StatsGui
+
+            local MainFrame = Instance.new('Frame')
+
+            MainFrame.Name = 'MainFrame'
+            MainFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            MainFrame.BackgroundTransparency = 1
+            MainFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            MainFrame.BorderSizePixel = 0
+            MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+            MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+            MainFrame.Size = UDim2.new(0.6, 0, 0.75, 0)
+            MainFrame.LayoutOrder = 1
+            MainFrame.Parent = StatsGui
+            otherGuis.TimeLabel = Instance.new('TextLabel')
+            otherGuis.TimeLabel.Name = 'TimeLabel'
+            otherGuis.TimeLabel.BackgroundColor3 = DEFAULT_COLOR
+            otherGuis.TimeLabel.BackgroundTransparency = 0.25
+            otherGuis.TimeLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            otherGuis.TimeLabel.BorderSizePixel = 0
+            otherGuis.TimeLabel.Size = UDim2.new(1, 0, 0.200000018, 0)
+            otherGuis.TimeLabel.Font = Enum.Font.FredokaOne
+            otherGuis.TimeLabel.RichText = false
+            otherGuis.TimeLabel.Text = '\u{23f1}\u{fe0f} time'
+            otherGuis.TimeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+            otherGuis.TimeLabel.TextScaled = true
+            otherGuis.TimeLabel.TextSize = 14
+            otherGuis.TimeLabel.TextStrokeTransparency = 0
+            otherGuis.TimeLabel.TextWrapped = true
+            otherGuis.TimeLabel.Parent = MainFrame
+
+            local UICorner = Instance.new('UICorner')
+
+            UICorner.CornerRadius = UDim.new(0, 16)
+            UICorner.Parent = otherGuis.TimeLabel
+
+            local MiddleFrame = Instance.new('Frame')
+
+            MiddleFrame.Name = 'MiddleFrame'
+            MiddleFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            MiddleFrame.BackgroundTransparency = 1
+            MiddleFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            MiddleFrame.BorderSizePixel = 0
+            MiddleFrame.Position = UDim2.new(0, 0, 0.219711155, 0)
+            MiddleFrame.Size = UDim2.new(0.999243617, 0, 0.55549103, 0)
+            MiddleFrame.Parent = MainFrame
+
+            local UIGridLayout = Instance.new('UIGridLayout')
+
+            UIGridLayout.SortOrder = Enum.SortOrder.LayoutOrder
+            UIGridLayout.CellPadding = UDim2.new(0.00999999978, 0, 0.00999999978, 0)
+            UIGridLayout.CellSize = UDim2.new(0.242, 0, 0.5, 0)
+            UIGridLayout.FillDirectionMaxCells = 0
+            UIGridLayout.Parent = MiddleFrame
+
+            local TextButton = Instance.new('TextButton')
+
+            TextButton.AnchorPoint = Vector2.new(0.5, 0.5)
+            TextButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            TextButton.BackgroundTransparency = 1
+            TextButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            TextButton.BorderSizePixel = 0
+            TextButton.Position = UDim2.new(0.33, 0, 0.08, 0)
+            TextButton.Size = UDim2.new(0.1, 0, 0.1, 0)
+            TextButton.Font = Enum.Font.FredokaOne
+            TextButton.Text = '\u{1f648}'
+            TextButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+            TextButton.TextScaled = true
+            TextButton.TextSize = 14
+            TextButton.TextWrapped = true
+            TextButton.TextXAlignment = Enum.TextXAlignment.Left
+            TextButton.LayoutOrder = 100
+            TextButton.Parent = StatsGui
+
+            local TIME_SAVED
+
+            otherGuis.TimeLabel.MouseEnter:Connect(function()
+                TIME_SAVED = otherGuis.TimeLabel.Text
+                otherGuis.TimeLabel.Text = string.format('\u{1f916} %s', tostring(localPlayer.Name))
+            end)
+            otherGuis.TimeLabel.MouseLeave:Connect(function()
+                otherGuis.TimeLabel.Text = TIME_SAVED
+            end)
+
+            local isVisible = true
+
+            TextButton.Activated:Connect(function()
+                isVisible = not isVisible
+                MainFrame.Visible = isVisible
+            end)
+        end
+        function StatsGuiClass.SetTimeLabelText(startTime)
+            local currentTime = DateTime.now().UnixTimestamp
+            local timeElapsed = currentTime - startTime
+
+            otherGuis.TimeLabel.Text = string.format('\u{23f1}\u{fe0f} %s', tostring(Utils.FormatTime(timeElapsed)))
+        end
+        function StatsGuiClass.CreateButton(buttonSettings)
+            local button = setButtonUiSettings(buttonSettings)
+
+            button.Activated:Connect(function()
+                buttonSettings.Callback()
+
+                button.Text = '\u{2705}'
+
+                task.wait(1)
+
+                button.Text = buttonSettings.Text
+            end)
+        end
+        function StatsGuiClass.UpdateTextForTotal(self)
+            if self.TextLabel.Name == 'TotalPotions' then
+                local formatted = Utils.FormatNumber(Utils.FoodItemCount('pet_age_potion'))
+
+                self.TextLabel.Text = string.format('\u{1f9ea} %s', tostring(formatted))
+            elseif self.TextLabel.Name == 'TotalTinyPotions' then
+                local formatted = Utils.FormatNumber(Utils.FoodItemCount('tiny_pet_age_potion'))
+
+                self.TextLabel.Text = string.format('\u{2697}\u{fe0f} %s', tostring(formatted))
+            elseif self.TextLabel.Name == 'TotalBucks' then
+                local formatted = Utils.FormatNumber(Utils.BucksAmount())
+
+                self.TextLabel.Text = string.format('\u{1f4b0} %s', tostring(formatted))
+            elseif self.TextLabel.Name == 'TotalEventCurrency' then
+                local formatted = Utils.FormatNumber(Utils.EventCurrencyAmount())
+
+                self.TextLabel.Text = string.format('\u{1f95a} %s', tostring(formatted))
+            elseif self.TextLabel.Name == 'TotalShiverBaits' then
+                local formatted = Utils.FormatNumber(Utils.FoodItemCount('ice_dimension_2025_shiver_cone_bait'))
+
+                self.TextLabel.Text = string.format('\u{1f43a} %s', tostring(formatted))
+            elseif self.TextLabel.Name == 'TotalSubzeroBaits' then
+                local formatted = Utils.FormatNumber(Utils.FoodItemCount('ice_dimension_2025_subzero_popsicle_bait'))
+
+                self.TextLabel.Text = string.format('\u{1f982} %s', tostring(formatted))
+            end
+        end
+        function StatsGuiClass.UpdateTextForTemp(self, amount)
+            if self.TextLabel.Name == 'TempPotions' and amount then
+                self.TextLabel.Text = string.format('\u{1f9ea} %s', tostring(Utils.FormatNumber(amount)))
+            elseif self.TextLabel.Name == 'TempTinyPotions' and amount then
+                self.TextLabel.Text = string.format('\u{2697}\u{fe0f} %s', tostring(Utils.FormatNumber(amount)))
+            elseif self.TextLabel.Name == 'TempBucks' and amount then
+                self.TextLabel.Text = string.format('\u{1f4b0} %s', tostring(Utils.FormatNumber(amount)))
+            elseif self.TextLabel.Name == 'TempEventCurrency' and amount then
+                self.TextLabel.Text = string.format('\u{1f95a} %s', tostring(Utils.FormatNumber(amount)))
+            end
+        end
+
+        return StatsGuiClass
+    end
+    function __DARKLUA_BUNDLE_MODULES.p()
+        local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
+        local Players = cloneref(game:GetService('Players'))
+        local StatsGuiClass = __DARKLUA_BUNDLE_MODULES.load('o')
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
+        local self = {}
+        local localPlayer = Players.LocalPlayer
+        local HintApp = (localPlayer:WaitForChild('PlayerGui'):WaitForChild('HintApp'))
+        local startTime = DateTime.now().UnixTimestamp
+        local startPotionAmount
+        local startTinyPotionAmount
+        local startEventCurrencyAmount
+        local potionsGained = 0
+        local tinyPotionsGained = 0
+        local bucksGained = 0
+        local eventCurrencyGained = 0
+        local UpdateTextEvent = Instance.new('BindableEvent')
+
+        UpdateTextEvent.Name = 'UpdateTextEvent'
+        UpdateTextEvent.Parent = ReplicatedStorage
+
+        StatsGuiClass.Init()
+
+        self.TempPotions = StatsGuiClass.new('TempPotions')
+        self.TempTinyPotions = StatsGuiClass.new('TempTinyPotions')
+        self.TempBucks = StatsGuiClass.new('TempBucks')
+        self.TempEventCurrency = StatsGuiClass.new('TempEventCurrency')
+        self.TotalPotions = StatsGuiClass.new('TotalPotions')
+        self.TotalTinyPotions = StatsGuiClass.new('TotalTinyPotions')
+        self.TotalBucks = StatsGuiClass.new('TotalBucks')
+        self.TotalEventCurrency = StatsGuiClass.new('TotalEventCurrency')
+        self.BlankSlot1 = StatsGuiClass.new('BlankSlot1')
+        self.BlankSlot2 = StatsGuiClass.new('BlankSlot2')
+        self.TotalShiverBaits = StatsGuiClass.new('TotalShiverBaits')
+        self.TotalSubzeroBaits = StatsGuiClass.new('TotalSubzeroBaits')
+
+        local updateAllStatsGui = function()
+            StatsGuiClass.SetTimeLabelText(startTime)
+
+            potionsGained = Utils.FoodItemCount('pet_age_potion') - startPotionAmount
+
+            if potionsGained < 0 then
+                potionsGained = 0
+            end
+
+            self.TempPotions:UpdateTextForTemp(potionsGained)
+
+            tinyPotionsGained = Utils.FoodItemCount('tiny_pet_age_potion') - startTinyPotionAmount
+
+            if tinyPotionsGained < 0 then
+                tinyPotionsGained = 0
+            end
+
+            self.TempTinyPotions:UpdateTextForTemp(tinyPotionsGained)
+
+            local currentEventCurrency = Utils.EventCurrencyAmount()
+
+            if currentEventCurrency >= startEventCurrencyAmount then
+                eventCurrencyGained = eventCurrencyGained + (currentEventCurrency - startEventCurrencyAmount)
+                startEventCurrencyAmount = currentEventCurrency
+            elseif currentEventCurrency < startEventCurrencyAmount then
+                startEventCurrencyAmount = currentEventCurrency
+            end
+
+            self.TempEventCurrency:UpdateTextForTemp(eventCurrencyGained)
+            self.TotalEventCurrency:UpdateTextForTotal()
+            self.TotalPotions:UpdateTextForTotal()
+            self.TotalTinyPotions:UpdateTextForTotal()
+            self.TotalBucks:UpdateTextForTotal()
+            self.TotalShiverBaits:UpdateTextForTotal()
+            self.TotalSubzeroBaits:UpdateTextForTotal()
+        end
+
+        function self.Init()
+            startPotionAmount = Utils.FoodItemCount('pet_age_potion')
+            startTinyPotionAmount = Utils.FoodItemCount('tiny_pet_age_potion')
+            startEventCurrencyAmount = Utils.EventCurrencyAmount()
+
+            UpdateTextEvent.Event:Connect(updateAllStatsGui)
+            HintApp.TextLabel:GetPropertyChangedSignal('Text'):Connect(function()
+                if HintApp.TextLabel.Text:match('Bucks') then
+                    local text = HintApp.TextLabel.Text
+
+                    if not text then
+                        return
+                    end
+                    if not text:split('+')[2] then
+                        return
+                    end
+
+                    local amount = tonumber(text:split('+')[2]:split(' ')[1])
+
+                    if not amount then
+                        return
+                    end
+
+                    bucksGained = bucksGained + amount
+
+                    self.TempBucks:UpdateTextForTemp(bucksGained)
+                end
+            end)
+        end
+        function self.Start()
+            UpdateTextEvent:Fire()
+        end
+
+        return self
+    end
+    function __DARKLUA_BUNDLE_MODULES.q()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -4806,7 +5190,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.p()
+    function __DARKLUA_BUNDLE_MODULES.r()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -4858,7 +5242,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.q()
+    function __DARKLUA_BUNDLE_MODULES.s()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local HttpService = cloneref(game:GetService('HttpService'))
@@ -5064,7 +5448,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.r()
+    function __DARKLUA_BUNDLE_MODULES.t()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Workspace = cloneref(game:GetService('Workspace'))
         local Players = cloneref(game:GetService('Players'))
@@ -5752,7 +6136,7 @@ do
 
         return Ailment
     end
-    function __DARKLUA_BUNDLE_MODULES.s()
+    function __DARKLUA_BUNDLE_MODULES.u()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -6074,7 +6458,7 @@ do
 
         return FarmingPet
     end
-    function __DARKLUA_BUNDLE_MODULES.t()
+    function __DARKLUA_BUNDLE_MODULES.v()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -6097,7 +6481,7 @@ do
 
         return PetRelease
     end
-    function __DARKLUA_BUNDLE_MODULES.u()
+    function __DARKLUA_BUNDLE_MODULES.w()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -6105,14 +6489,15 @@ do
         local RouterClient = Bypass('RouterClient')
         local CollisionsClient = Bypass('CollisionsClient')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local Ailment = __DARKLUA_BUNDLE_MODULES.load('r')
+        local Ailment = __DARKLUA_BUNDLE_MODULES.load('t')
         local Furniture = __DARKLUA_BUNDLE_MODULES.load('b')
         local Teleport = __DARKLUA_BUNDLE_MODULES.load('f')
         local GetInventory = __DARKLUA_BUNDLE_MODULES.load('i')
-        local FarmingPet = __DARKLUA_BUNDLE_MODULES.load('s')
+        local FarmingPet = __DARKLUA_BUNDLE_MODULES.load('u')
         local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
-        local PetRelease = __DARKLUA_BUNDLE_MODULES.load('t')
+        local PetRelease = __DARKLUA_BUNDLE_MODULES.load('v')
         local self = {}
+        local UpdateTextEvent = (ReplicatedStorage:WaitForChild('UpdateTextEvent'))
         local localPlayer = Players.LocalPlayer
         local rng = Random.new(DateTime.now().UnixTimestamp)
         local jobId = game.JobId
@@ -6429,6 +6814,7 @@ do
                     end
 
                     tryFeedAgePotion()
+                    UpdateTextEvent:Fire()
 
                     local waitTime = rng:NextNumber(5, 15)
 
@@ -6477,7 +6863,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.v()
+    function __DARKLUA_BUNDLE_MODULES.x()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -6501,7 +6887,7 @@ do
         function PetOffline.GetAmountOfPetsInPen()
             local count = 0
 
-            for _, _ in ClientData.get_data()[localPlayer.Name].idle_progression_manager.active_pets do
+            for _, v in ClientData.get_data()[localPlayer.Name].idle_progression_manager.active_pets do
                 count = count + 1
             end
 
@@ -6510,55 +6896,97 @@ do
 
         return PetOffline
     end
-    function __DARKLUA_BUNDLE_MODULES.w()
+    function __DARKLUA_BUNDLE_MODULES.y()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
         local RouterClient = (Bypass('RouterClient'))
-        local PetOffline = __DARKLUA_BUNDLE_MODULES.load('v')
+        local PetOffline = __DARKLUA_BUNDLE_MODULES.load('x')
         local GetInventory = __DARKLUA_BUNDLE_MODULES.load('i')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local PetOfflineHandler = {}
         local localPlayer = Players.LocalPlayer
-        local petsInPenList = getgenv().SETTINGS.PETS_TO_AGE_IN_PEN
         local CurrentIdlePets = {}
         local updateCurrentIdlePets = function()
             table.clear(CurrentIdlePets)
 
-            local idleManager = ClientData.get_data()[localPlayer.Name].idle_progression_manager
-
-            for key, value in idleManager.active_pets do
+            for key, value in ClientData.get_data()[localPlayer.Name].idle_progression_manager.active_pets do
                 table.insert(CurrentIdlePets, key)
             end
         end
-        local removeAllMaxedPets = function()
-            local idleManager = ClientData.get_data()[localPlayer.Name].idle_progression_manager
-
-            for key, value in idleManager.active_pets do
-                if value.max_age then
+        local removeAllPets = function()
+            for key, _ in ClientData.get_data()[localPlayer.Name].idle_progression_manager.active_pets do
+                while true do
                     PetOffline.RemovePet(key)
                     task.wait(1)
+
+                    if ClientData.get_data()[localPlayer.Name].idle_progression_manager.active_pets[key] == nil then
+                        break
+                    end
                 end
             end
-
-            updateCurrentIdlePets()
         end
-        local addAllPetsToidleFarm = function()
+        local addPet = function(petUniques)
+            for _, unique in ipairs(petUniques)do
+                if PetOffline.GetAmountOfPetsInPen() >= 4 then
+                    return
+                end
+
+                while true do
+                    PetOffline.AddPet(unique)
+                    task.wait(1)
+
+                    if ClientData.get_data()[localPlayer.Name].idle_progression_manager.active_pets[unique] then
+                        break
+                    end
+                end
+            end
+        end
+        local addRarityPetsToPen = function(rarityName)
             local amount = PetOffline.GetAmountOfPetsInPen()
             local amountMissing = 4 - amount
 
             if amountMissing <= 0 then
-                return
+                return true
             end
+
+            print(string.format('AMOUNT MISSING: %s, %s', tostring(amountMissing), tostring(rarityName)))
+
+            local petUniques = GetInventory.GetPetsRarityAndAgeForPen(rarityName, 5, 1)
+
+            if #petUniques >= 1 then
+                addPet(petUniques)
+            end
+
+            task.wait(1)
+
+            return false
+        end
+        local addAllPetsToidleFarm = function(amountMissing)
+            updateCurrentIdlePets()
 
             local petUniques = GetInventory.GetPetUniquesForPetPen(getgenv().SETTINGS.PETS_TO_AGE_IN_PEN, CurrentIdlePets, amountMissing)
 
             Utils.PrintDebug(string.format('how many pets ids ther is in table: %s', tostring(#petUniques)))
 
-            for _, unique in ipairs(petUniques)do
-                PetOffline.AddPet(unique)
-                task.wait(1)
+            if #petUniques >= 1 then
+                addPet(petUniques)
+            end
+            if addRarityPetsToPen('legendary') then
+                return
+            end
+            if addRarityPetsToPen('ultra_rare') then
+                return
+            end
+            if addRarityPetsToPen('rare') then
+                return
+            end
+            if addRarityPetsToPen('uncommon') then
+                return
+            end
+            if addRarityPetsToPen('common') then
+                return
             end
         end
 
@@ -6578,20 +7006,24 @@ do
                 if not data then
                     return
                 end
-                if data.age_up_pending then
-                    Utils.PrintDebug('Age up pending, claiming all XP...')
-                    PetOffline.ClaimAllXP()
+                if not data.age_up_pending then
+                    return
                 end
 
-                for key, value in data.active_pets do
-                    if value.max_age or not table.find(petsInPenList, value.item_info.kind) then
-                        PetOffline.RemovePet(key)
-                        task.wait(1)
-                    end
+                Utils.PrintDebug('Age up pending, claiming all XP...')
+                PetOffline.ClaimAllXP()
+                task.wait(2)
+                removeAllPets()
+
+                local amount = PetOffline.GetAmountOfPetsInPen()
+                local amountMissing = 4 - amount
+
+                if amountMissing <= 0 then
+                    return
                 end
 
-                updateCurrentIdlePets()
-                addAllPetsToidleFarm()
+                Utils.PrintDebug(string.format('amount missing: %s so getting more', tostring(amountMissing)))
+                addAllPetsToidleFarm(amountMissing)
             end)
         end
         function PetOfflineHandler.Start()
@@ -6601,7 +7033,8 @@ do
 
             PetOffline.ClaimAllXP()
             task.wait(2)
-            removeAllMaxedPets()
+            removeAllPets()
+            addAllPetsToidleFarm(4)
         end
 
         return PetOfflineHandler
@@ -6674,19 +7107,22 @@ local files = {
         PotatoModeHandler = __DARKLUA_BUNDLE_MODULES.load('n'),
     },
     {
-        TradeLicenseHandler = __DARKLUA_BUNDLE_MODULES.load('o'),
+        StatsGuiHandler = __DARKLUA_BUNDLE_MODULES.load('p'),
     },
     {
-        TutorialHandler = __DARKLUA_BUNDLE_MODULES.load('p'),
+        TradeLicenseHandler = __DARKLUA_BUNDLE_MODULES.load('q'),
     },
     {
-        WebhookHandler = __DARKLUA_BUNDLE_MODULES.load('q'),
+        TutorialHandler = __DARKLUA_BUNDLE_MODULES.load('r'),
     },
     {
-        AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.load('u'),
+        WebhookHandler = __DARKLUA_BUNDLE_MODULES.load('s'),
     },
     {
-        PetOfflineHandler = __DARKLUA_BUNDLE_MODULES.load('w'),
+        AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.load('w'),
+    },
+    {
+        PetOfflineHandler = __DARKLUA_BUNDLE_MODULES.load('y'),
     },
 }
 
