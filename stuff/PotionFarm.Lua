@@ -1,99 +1,80 @@
+---[[
+getgenv().BUY_BEFORE_FARMING = {
+    {NameId = "aztec_egg_2025_aztec_egg", MaxAmount = 50},
+}
+--]]
+
+--[[
+getgenv().OPEN_ITEMS_BEFORE_FARMING = {
+    "butterfly_2025_snapdragon_flower"
+}
+--]]
+
+--[[
+getgenv().AGE_PETS_BEFORE_FARMING = {
+    "st_patricks_2025_clover_cow",
+}
+--]]
+
+
 getgenv().SETTINGS = {
-	WEBHOOK = {
-		URL = "",
-		USER_ID = "",
-	},
+    ENABLE_AUTO_FARM = true,
+    SET_FPS = 2,
 
-	OCEAN_EVENT = {
-		EXCHANGE = true,
-		WISH = "ocean_2024_big_wish",
-	},
-	
-	PET_TO_BUY = "garden_2024_egg", -- add pet or egg to buy when bot has no pets/egg left to level
+    FOCUS_FARM_AGE_POTION = true,
 
-	FOCUS_FARM_AGE_POTION = true, -- if true, this will only farm 1 pet an keep aging to get aging potions
+    PETS_TO_AGE_IN_PEN = {
+        "pet_recycler_2025_basic_egg",
+        "aztec_egg_2025_tegu",
+        "aztec_egg_2025_jungle_frog",
+        "aztec_egg_2025_ahuizotl",
+        "aztec_egg_2025_xiucohtl",
+        "aztec_egg_2025_ehecatl"
+    },
+    
+    ENABLE_RELEASE_PETS = true, -- if true it will use the pets in PETS_TO_AGE_IN_PEN to RELEASE
 
-	ENABLE_AUTO_FARM = true,
-	SET_FPS = 1,
-	PET_NEON_PRIORITY = false,
-	PET_AUTO_FUSION = false,
+    PET_AUTO_FUSION = true,
+    DEBUG_MODE = false,
+    POTATO_MODE = true,
 
-	ENABLE_TRADE_COLLECTOR = true,
-	TRADE_ONLY_LUMINOUS_MEGA = true,
-	TRADE_COLLECTOR_NAME = "notdudemyblox", -- your account username (case sensitive) that will collect the pets.
-	TRADE_LIST = {
-		PET_WEAR_TABLE = {},
+    HATCH_EGG_PRIORITY = false,
+    HATCH_EGG_PRIORITY_NAMES = {
+        "aztec_egg_2025_aztec_egg", 
+    },
 
-		VEHICLES_TABLE = {},
+    PET_ONLY_PRIORITY = false,
+    PET_ONLY_PRIORITY_NAMES = {
+        "moon_2025_glormy_dolphin",
+    },
 
-		GIFTS_TABLE = {
-			"halloween_2023_scarecrow_box",
-			"halloween_2022_wolf_box",
-			"summerfest_2023_hermit_crab_box",
-			"winter_2021_walrus_box",
-			"winter_2022_pony_box",
-			"lny_2023_moon_bear_box",
-			"springfest_2023_duckling_box",
-			"lunar_2024_special_lunar_new_year_gift_box",
-			"easter_2024_eggy_box",
-		},
+    ENABLE_TRADE_COLLECTOR = true,
+    TRADE_ONLY_NEON_LUMINOUS_AND_MEGA = true,
+    TRADE_COLLECTOR_NAME = {
+        "Chesty15242",
+        "Chest19548",
+        "Chest28745",
+        "grabmanypets84",
+        "growaplant916",
+    },
 
-		TOYS_TABLE = {},
+    TRADE_LIST = {
+        "moon_2025_sunglider",
+        "summerfest_2024_corn_doggo",
+        "ice_dimension_2025_frostbite_bear",
+        -- "aztec_egg_2025_temple_friend",
+        "butterfly_2025_moonbeam_butterfly",
+        --"house_pets_2025_french_bulldog",
+        "summer_2025_priceless_shrimp",
+        "summerfest_2025_coconut_friend",
+        "house_pets_2025_siamese_cat",
+        "house_pets_2025_mini_schnauzer",
+        --"house_pets_2025_munchkin_cat",
+    },
 
-		FOOD_TABLE = {},
-
-		-- the pets in here will be traded no matter what age they are
-		PETS_TABLE = {
-			"lures_2023_blazing_lion",
-			"sunshine_2024_cheetah",
-			-- "golden_egg",
-			-- "diamond_egg",
-			-- "lures_2023_magma_moose",
-			-- "lures_2023_flaming_zebra",
-			-- "lures_2023_toasty_red_panda",
-			-- "lures_2023_ash_zebra",
-			-- "lures_2023_magma_snail",
-			-- "fire_dimension_2024_volcanic_rhino",
-			-- "fire_dimension_2024_flaming_fox",
-			-- "fire_dimension_2024_burning_bunny",
-			-- "fire_dimension_2024_wildfire_hawk",
-			-- "summerfest_2024_kid_goat",
-			-- "summerfest_2024_cow_calf",
-			-- "summerfest_2024_orange_betta_fish",
-			-- "summerfest_2024_pink_betta_fish",
-			-- "summerfest_2024_blue_betta_fish",
-			-- "summerfest_2024_show_pony",
-			-- "summerfest_2024_punk_pony",
-			-- "summerfest_2024_pretty_pony",
-			-- "summerfest_2024_majestic_pony",
-			-- "summerfest_2024_corn_doggo",
-			-- "summerfest_2024_bull"
-		},
-	},
-
-	HATCH_EGG_PRIORITY = false,
-	HATCH_EGG_PRIORITY_NAMES = { "garden_2024_egg" },
-
-	PET_ONLY_PRIORITY = true,
-	PET_ONLY_PRIORITY_NAMES = {
-		"dog",
-		"cat",
-	},
+    ENABLE_TRASH_COLLECTOR = false, -- it has its own list of trash pets
+    TRASH_COLLECTOR_NAMES = {"Levi_FUSI0N2003YT"},
 }
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Adoptme_Script"))()
 
---[[
-local function buyPet(petNameId: string, howManyToBuy: number)
-	for _ = 1, howManyToBuy do
-		local hasMoney = game.ReplicatedStorage.API["ShopAPI/BuyItem"]:InvokeServer("pets", petNameId, {})
-		if hasMoney == "too little money" then
-			return
-		end
-		task.wait(0.1)
-	end
-end
-
-buyPet("celestial_2024_glormy_hound", 2)
-buyPet("celestial_2024_glormy_leo", 2)
---]]
