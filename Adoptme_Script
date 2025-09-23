@@ -597,7 +597,6 @@ do
             'babyformula',
             'lolipop',
             'rain_2023_coconut_drink',
-            'broken_egg',
             'sofahog_2024_diner_lemonade',
             'winter_2023_hot_cocoa',
             'pizza_shop_pepperoni',
@@ -609,81 +608,6 @@ do
             'desert_2022_mud_ball',
             'mooncake',
             'pizza_shop_cheese',
-            'stingray',
-            'bandicoot',
-            'buffalo',
-            'cracked_egg',
-            'desert_2024_rattlesnake',
-            'urban_2023_cockroach',
-            'gorilla_fair_2023_gorilla',
-            'desert_2024_deathstalker_scorpion',
-            'tasmanian_tiger',
-            'desert_2024_thorny_devil',
-            'lny_2023_water_moon_bear',
-            'japan_2022_dugong',
-            'seasia_2023_binturong',
-            'garden_2024_garden_snake',
-            'sunshine_2024_peregrine_falcon',
-            'merhorse',
-            'danger_2023_mosquito',
-            'danger_2023_angler_fish',
-            'dingo',
-            'fall_2022_badger',
-            'moon_2025_moonpine',
-            'halloween_2022_basilisk',
-            'lunar_ox',
-            'shiba',
-            'japan_2022_trapdoor_snail',
-            'garden_2024_blue_jay',
-            'seasia_2023_yellow_lipped_sea_krait',
-            'urban_2023_black_kite',
-            'japan_2022_spider_crab',
-            'basic_egg_2022_swordfish',
-            'easter_2024_dotted_eggy',
-            'woodland_2022_red_fox',
-            'woodland_2022_bullfrog',
-            'basic_egg_2022_robot',
-            'regular_pet_egg',
-            'moon_2025_hopbop',
-            'winter_2023_arctic_hare',
-            'moon_2025_zeopod',
-            'snow_puma',
-            'basic_egg_2022_orangutan',
-            'puma',
-            'woodland_2022_salamander',
-            'narwhal',
-            'seasia_2023_banded_palm_civet',
-            'pterodactyl',
-            'fennec',
-            'danger_2023_piranha',
-            'cat',
-            'garden_2024_weevil',
-            'gru_2022_zodiac_egg',
-            'deinonychus',
-            'snow_cat',
-            'basic_egg_2022_camel',
-            'ox',
-            'sabertooth',
-            'seasia_2023_bali_starling',
-            'seasia_2023_komodo_dragon',
-            'woolly_mammoth',
-            'stegosaurus',
-            'ocean_2024_lionfish',
-            'urban_2023_pigeon',
-            'japan_2022_sado_mole',
-            'capuchin_2024_capuchin_monkey',
-            'beach_2024_mahi_mahi',
-            'lny_2023_moon_bear',
-            'urban_2023_fly',
-            'woodland_2022_red_cardinal',
-            'sunshine_2024_black_marlin',
-            'woodland_2022_woodpecker',
-            'desert_2024_oryx',
-            'danger_2023_borhyaena_gigantica',
-            'japan_2022_koi_carp',
-            'metal_ox',
-            'basic_egg_2022_parakeet',
-            'moon_2025_starmite',
             'rose',
             'halloween_2022_bat_lollipop_earrings',
             'pink_instant_camera',
@@ -1960,7 +1884,11 @@ do
                     end
                 end
 
-                task.wait(math.random(20, 30))
+                if waitForActiveTrade() then
+                    return true
+                end
+
+                task.wait()
             end
         end
         function self.SelectTabAndTrade(tab, selectedItem)
@@ -3200,7 +3128,7 @@ do
                 if not table.find(PetsToReleaseList, pet.id) then
                     continue
                 end
-                if pet.properties.neon or pet.properties.mega_neon then
+                if pet.properties.mega_neon then
                     petUniques[pet.unique] = true
                 end
             end
@@ -11470,13 +11398,8 @@ Check the Developer Console for more information.]],
         local localPlayer = Players.LocalPlayer
         local cooldown = false
         local selectedPlayer
-        local selectedPet
         local selectedAgeablePet
         local selectedAgeableNumber
-        local selectedGift
-        local selectedToy
-        local selectedFood
-        local PetToggle
         local TradeAllInventory
         local AllPetsToggle
         local LegendaryToggle
@@ -11487,9 +11410,6 @@ Check the Developer Console for more information.]],
         local TradeAllNeons
         local LowTierToggle
         local RarityToggle
-        local GiftToggle
-        local ToyToggle
-        local FoodToggle
         local petRaritys = {
             'common',
             'uncommon',
@@ -11986,187 +11906,71 @@ Check the Developer Console for more information.]],
 
             TradeTab:CreateSection('Send Custom Pet, sends ALL ages of selected pet')
 
-            local petsDropdown = TradeTab:CreateDropdown({
-                Name = 'Select a Pet',
-                Options = {
-                    '',
-                },
-                CurrentOption = {
-                    '',
-                },
-                MultipleOptions = false,
-                Flag = 'Dropdown1',
-                Callback = function(Option)
-                    selectedPet = Option[1] or ''
-                end,
-            })
+            local inventoryTabs = {
+                'pets',
+                'food',
+                'strollers',
+                'pet_accessories',
+                'gifts',
+                'transport',
+                'toys',
+                'stickers',
+            }
+            local dropdowns = {}
+            local selectedItems = {}
+            local toggles = {}
 
-            TradeTab:CreateButton({
-                Name = 'Refresh Pet list',
-                Callback = function()
-                    petsDropdown:Refresh(GetInventory.TabId('pets'))
-                end,
-            })
+            for _, tabName in ipairs(inventoryTabs)do
+                dropdowns[tabName] = TradeTab:CreateDropdown({
+                    Name = string.format('Select a %s', tostring(tabName)),
+                    Options = {
+                        '',
+                    },
+                    CurrentOption = {
+                        '',
+                    },
+                    MultipleOptions = false,
+                    Flag = 'Dropdown1',
+                    Callback = function(Option)
+                        selectedItems[tabName] = Option[1] or ''
+                    end,
+                })
 
-            PetToggle = TradeTab:CreateToggle({
-                Name = 'Auto Trade Selected Pet',
-                CurrentValue = false,
-                Flag = 'Toggle1',
-                Callback = function(Value)
-                    getgenv().auto_trade_custom = Value
+                TradeTab:CreateButton({
+                    Name = string.format('Refresh %s list', tostring(tabName)),
+                    Callback = function()
+                        dropdowns[tabName]:Refresh(GetInventory.TabId(tabName))
+                    end,
+                })
 
-                    while getgenv().auto_trade_custom do
-                        Trade.SendTradeRequest({selectedPlayer})
-                        Trade.SelectTabAndTrade('pets', selectedPet)
+                toggles[tabName] = TradeTab:CreateToggle({
+                    Name = string.format('Auto Trade Selected %s', tostring(tabName)),
+                    CurrentValue = false,
+                    Flag = 'Toggle1',
+                    Callback = function(Value)
+                        getgenv().auto_trade_custom = Value
 
-                        local hasPets = Trade.AcceptNegotiationAndConfirm()
+                        while getgenv().auto_trade_custom do
+                            Trade.SendTradeRequest({selectedPlayer})
+                            Trade.SelectTabAndTrade(tabName, selectedItems[tabName])
 
-                        if not hasPets then
-                            PetToggle:Set(false)
+                            local hasPets = Trade.AcceptNegotiationAndConfirm()
+
+                            if not hasPets then
+                                toggles[tabName]:Set(false)
+                                Rayfield:Notify({
+                                    Title = tostring(tabName:upper()),
+                                    Content = 'Finished trading',
+                                })
+                            end
+
+                            task.wait()
                         end
+                    end,
+                })
 
-                        task.wait()
-                    end
-                end,
-            })
-
-            TradeTab:CreateSection(' ')
-
-            local giftsDropdown = TradeTab:CreateDropdown({
-                Name = 'Select gift',
-                Options = {
-                    '',
-                },
-                CurrentOption = {
-                    '',
-                },
-                MultipleOptions = false,
-                Flag = 'Dropdown1',
-                Callback = function(Option)
-                    selectedGift = Option[1] or 'Nothing'
-                end,
-            })
-
-            TradeTab:CreateButton({
-                Name = 'Refresh Gift list',
-                Callback = function()
-                    giftsDropdown:Refresh(GetInventory.TabId('gifts'))
-                end,
-            })
-
-            GiftToggle = TradeTab:CreateToggle({
-                Name = 'Auto Trade Custom Gift',
-                CurrentValue = false,
-                Flag = 'Toggle1',
-                Callback = function(Value)
-                    getgenv().auto_trade_custom = Value
-
-                    while getgenv().auto_trade_custom do
-                        Trade.SendTradeRequest({selectedPlayer})
-                        Trade.SelectTabAndTrade('gifts', selectedGift)
-
-                        local hasPets = Trade.AcceptNegotiationAndConfirm()
-
-                        if not hasPets then
-                            GiftToggle:Set(false)
-                        end
-
-                        task.wait()
-                    end
-                end,
-            })
-
-            TradeTab:CreateSection(' ')
-
-            local toysDropdown = TradeTab:CreateDropdown({
-                Name = 'Select toys',
-                Options = {
-                    '',
-                },
-                CurrentOption = {
-                    '',
-                },
-                MultipleOptions = false,
-                Flag = 'Dropdown1',
-                Callback = function(Option)
-                    selectedToy = Option[1] or 'Nothing'
-                end,
-            })
-
-            TradeTab:CreateButton({
-                Name = 'Refresh Toy list',
-                Callback = function()
-                    toysDropdown:Refresh(GetInventory.TabId('toys'))
-                end,
-            })
-
-            ToyToggle = TradeTab:CreateToggle({
-                Name = 'Auto Trade Custom Toy',
-                CurrentValue = false,
-                Flag = 'Toggle1',
-                Callback = function(Value)
-                    getgenv().auto_trade_custom = Value
-
-                    while getgenv().auto_trade_custom do
-                        Trade.SendTradeRequest({selectedPlayer})
-                        Trade.SelectTabAndTrade('toys', selectedToy)
-
-                        local hasPets = Trade.AcceptNegotiationAndConfirm()
-
-                        if not hasPets then
-                            ToyToggle:Set(false)
-                        end
-
-                        task.wait()
-                    end
-                end,
-            })
-
-            TradeTab:CreateSection(' ')
-
-            local foodDropdown = TradeTab:CreateDropdown({
-                Name = 'Select food',
-                Options = {
-                    '',
-                },
-                CurrentOption = {
-                    '',
-                },
-                MultipleOptions = false,
-                Flag = 'Dropdown1',
-                Callback = function(Option)
-                    selectedFood = Option[1] or 'Nothing'
-                end,
-            })
-
-            TradeTab:CreateButton({
-                Name = 'Refresh Food list',
-                Callback = function()
-                    foodDropdown:Refresh(GetInventory.TabId('food'))
-                end,
-            })
-
-            FoodToggle = TradeTab:CreateToggle({
-                Name = 'Auto Trade Custom Food',
-                CurrentValue = false,
-                Flag = 'Toggle1',
-                Callback = function(Value)
-                    getgenv().auto_trade_custom = Value
-
-                    while getgenv().auto_trade_custom do
-                        Trade.SendTradeRequest({selectedPlayer})
-                        Trade.SelectTabAndTrade('food', selectedFood)
-
-                        local hasPets = Trade.AcceptNegotiationAndConfirm()
-
-                        if not hasPets then
-                            FoodToggle:Set(false)
-                        end
-
-                        task.wait()
-                    end
-                end,
-            })
+                TradeTab:CreateSection(' ')
+            end
 
             local ageUpPotionTab = Window:CreateTab('Age Up Potion', 4483362458)
             local petToAge = ageUpPotionTab:CreateDropdown({
@@ -12243,6 +12047,14 @@ setfpscap(getgenv().SETTINGS.SET_FPS or 2)
 if not game:IsLoaded() then
     game.Loaded:Wait()
 end
+if getgenv().loaded == true then
+    print('SCRIPT ALREADY LOADED')
+
+    return
+end
+
+getgenv().loaded = true
+
 if game.PlaceId ~= 920587237 then
     return
 end
