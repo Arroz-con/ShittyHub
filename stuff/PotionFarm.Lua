@@ -59,6 +59,8 @@ getgenv().SETTINGS = {
     },
 
     TRADE_LIST = {
+        "pet_recycler_2025_giant_panda",
+        "pet_recycler_2025_emberlight",
         "moon_2025_sunglider",
         "summerfest_2024_corn_doggo",
         "ice_dimension_2025_frostbite_bear",
