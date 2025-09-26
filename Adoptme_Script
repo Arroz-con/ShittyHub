@@ -5105,7 +5105,7 @@ do
         local getBucksInfo = function()
             local text = ''
             local potions = getAgeupPotionInfo()
-            local potionAmount = potions * 0.04
+            local potionAmount = potions * 0.01
             local bucks = ClientData.get_data()[localPlayer.Name].money or 0
 
             text = text .. string.format('%s Age-up Potions + %s Bucks | Adopt me\n', tostring(potions), tostring(addComma(bucks)))
@@ -5151,6 +5151,7 @@ do
         function Clipboard.CopyDetailedPetInfo()
             local petDetailedList = ''
 
+            petDetailedList = petDetailedList .. getBucksInfo()
             petDetailedList = petDetailedList .. getPetInfoMega('[MEGA NEON] ')
             petDetailedList = petDetailedList .. getPetInfoNeon('[NEON] ')
             petDetailedList = petDetailedList .. getPetInfoNormal('[Normal] ')
