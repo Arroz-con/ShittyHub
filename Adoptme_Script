@@ -3049,37 +3049,56 @@ do
         end
 
         function GetInventory.GetPetUniquesForPetPen(
-            petIds,
+            petIdList,
             CurrentIdlePets,
             amount
         )
+            local PetageCounter = 5
+            local isNeon = true
             local petUniques = {}
 
-            for _, v in ClientData.get_data()[localPlayer.Name].inventory.pets do
-                if not table.find(petIds, v.id) then
-                    continue
-                end
-                if table.find(CurrentIdlePets, v.unique) then
-                    continue
-                end
-                if v.properties.age == 6 then
-                    continue
-                end
-                if v.properties.mega_neon then
-                    continue
+            while true do
+                for _, petId in ipairs(petIdList)do
+                    for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
+                        if petId ~= pet.id then
+                            continue
+                        end
+                        if table.find(AllowOrDenyList.Denylist, pet.id) then
+                            continue
+                        end
+                        if pet.properties.age == PetageCounter and pet.properties.neon == isNeon then
+                            if pet.unique == getgenv().petCurrentlyFarming1 then
+                                continue
+                            end
+                            if pet.unique == getgenv().petCurrentlyFarming2 then
+                                continue
+                            end
+
+                            table.insert(petUniques, pet.unique)
+
+                            if #petUniques >= amount then
+                                return petUniques
+                            end
+                        end
+                    end
                 end
 
-                table.insert(petUniques, v.unique)
+                PetageCounter = PetageCounter - 1
 
-                if #petUniques >= amount then
-                    break
+                if PetageCounter <= 0 and isNeon then
+                    PetageCounter = 5
+                    isNeon = nil
+                elseif PetageCounter <= 0 and isNeon == nil then
+                    return petUniques
                 end
+
+                task.wait(1)
             end
 
             return petUniques
         end
-        function GetInventory.GetPetsRarityAndAgeForPen(rarity, age, whichPet)
-            local PetageCounter = age
+        function GetInventory.GetPetsRarityAndAgeForPen(rarity, whichPet)
+            local PetageCounter = 5
             local isNeon = true
             local petFound = false
             local petUniques = {}
@@ -3088,6 +3107,9 @@ do
                 for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
                     for _, petDB in InventoryDB.pets do
                         if table.find(AllowOrDenyList.Denylist, pet.id) then
+                            continue
+                        end
+                        if table.find(eggList, pet.id) then
                             continue
                         end
                         if rarity == petDB.rarity and pet.id == petDB.id and pet.properties.age == PetageCounter and pet.properties.neon == isNeon then
@@ -3110,13 +3132,13 @@ do
                 PetageCounter = PetageCounter - 1
 
                 if PetageCounter <= 0 and isNeon then
-                    PetageCounter = age
+                    PetageCounter = 5
                     isNeon = nil
                 elseif PetageCounter <= 0 and isNeon == nil then
                     return petUniques
                 end
 
-                task.wait()
+                task.wait(1)
             end
 
             return petUniques
@@ -7074,6 +7096,10 @@ do
             end
         end
         local addPet = function(petUniques)
+            if #petUniques <= 0 then
+                return
+            end
+
             for _, unique in ipairs(petUniques)do
                 if PetOffline.GetAmountOfPetsInPen() >= 4 then
                     return
@@ -7099,12 +7125,26 @@ do
 
             print(string.format('AMOUNT MISSING: %s, %s', tostring(amountMissing), tostring(rarityName)))
 
-            local petUniques = GetInventory.GetPetsRarityAndAgeForPen(rarityName, 5, 1)
+            local petUniques = GetInventory.GetPetsRarityAndAgeForPen(rarityName, 1)
 
-            if #petUniques >= 1 then
-                addPet(petUniques)
+            addPet(petUniques)
+            task.wait(1)
+
+            return false
+        end
+        local addPetEggsToPen = function()
+            local amount = PetOffline.GetAmountOfPetsInPen()
+            local amountMissing = 4 - amount
+
+            if amountMissing <= 0 then
+                return true
             end
 
+            print(string.format('AMOUNT MISSING: %s, eggs', tostring(amountMissing)))
+
+            local petUniques = GetInventory.GetPetUniquesForPetPen(GetInventory.GetPetEggs(), CurrentIdlePets, amountMissing)
+
+            addPet(petUniques)
             task.wait(1)
 
             return false
@@ -7115,10 +7155,8 @@ do
             local petUniques = GetInventory.GetPetUniquesForPetPen(getgenv().SETTINGS.PETS_TO_AGE_IN_PEN, CurrentIdlePets, amountMissing)
 
             Utils.PrintDebug(string.format('how many pets ids ther is in table: %s', tostring(#petUniques)))
+            addPet(petUniques)
 
-            if #petUniques >= 1 then
-                addPet(petUniques)
-            end
             if addRarityPetsToPen('legendary') then
                 return
             end
@@ -7134,6 +7172,9 @@ do
             if addRarityPetsToPen('common') then
                 return
             end
+            if addPetEggsToPen() then
+                return
+            end
         end
 
         function PetOfflineHandler.Init()
@@ -7142,10 +7183,13 @@ do
             end
 
             RouterClient.get('DataAPI/DataChanged').OnClientEvent:Connect(function(
-                _,
+                playerName,
                 dataType,
                 data
             )
+                if playerName ~= localPlayer.Name then
+                    return
+                end
                 if dataType ~= 'idle_progression_manager' then
                     return
                 end
@@ -12060,11 +12104,20 @@ end
 setfpscap(getgenv().SETTINGS.SET_FPS or 2)
 
 local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
+local GuiService = game:GetService('GuiService')
 local Players = cloneref(game:GetService('Players'))
 local UserGameSettings = UserSettings():GetService('UserGameSettings')
 
 UserGameSettings.GraphicsQualityLevel = 1
 UserGameSettings.MasterVolume = 0
+
+GuiService.Changed:Connect(function()
+    if GuiService:GetErrorCode().Value == 0 then
+        return
+    end
+
+    game:Shutdown()
+end)
 
 local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
 local RouterClient = (Bypass('RouterClient'))
