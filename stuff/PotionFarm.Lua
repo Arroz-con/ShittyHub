@@ -1,6 +1,6 @@
 ---[[
 getgenv().BUY_BEFORE_FARMING = {
-    {NameId = "aztec_egg_2025_aztec_egg", MaxAmount = 50},
+    {NameId = "aztec_egg_2025_aztec_egg", MaxAmount = 20},
 }
 --]]
 
