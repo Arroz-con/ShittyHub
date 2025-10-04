@@ -26,6 +26,17 @@ do
         local debugMode = getgenv().SETTINGS.DEBUG_MODE or false
         local localPlayer = Players.LocalPlayer
 
+        function Utils.TryRedeemGoodieBag()
+            Utils.PrintDebug(string.format('catTimer: %s', tostring(ClientData.get_data()[localPlayer.Name].halloween_2025_catbats_timer.timestamp)))
+            Utils.PrintDebug(string.format('timeNow: %s', tostring(DateTime.now().UnixTimestamp)))
+
+            local catbatTime = ClientData.get_data()[localPlayer.Name].halloween_2025_catbats_timer.timestamp
+
+            if DateTime.now().UnixTimestamp > catbatTime then
+                RouterClient.get('HalloweenEventAPI/ClaimTreatBag'):InvokeServer()
+                Utils.PrintDebug('\u{1f36c} Claimed cat Goodies Bag \u{1f36c}')
+            end
+        end
         function Utils.MoveToWithTimeout(humanoid, target, timeout)
             local reached = false
             local connection
@@ -213,7 +224,7 @@ do
             return ClientData.get_data()[localPlayer.Name].money or 0
         end
         function Utils.EventCurrencyAmount()
-            return ClientData.get_data()[localPlayer.Name].pet_recycler_manager.saved_points
+            return ClientData.get_data()[localPlayer.Name].candy_2025 or 0
         end
         function Utils.FoodItemCount(nameId)
             local count = 0
@@ -5070,7 +5081,7 @@ do
             elseif self.TextLabel.Name == 'TotalEventCurrency' then
                 local formatted = Utils.FormatNumber(Utils.EventCurrencyAmount())
 
-                self.TextLabel.Text = string.format('\u{2b50} %s', tostring(formatted))
+                self.TextLabel.Text = string.format('\u{1f36c} %s', tostring(formatted))
             elseif self.TextLabel.Name == 'CrystalEgg' then
                 local formatted = Utils.FormatNumber(Utils.PetItemCount('pet_recycler_2025_crystal_egg'))
 
@@ -5083,10 +5094,10 @@ do
                 local formatted = Utils.FormatNumber(Utils.PetItemCount('pet_recycler_2025_emberlight'))
 
                 self.TextLabel.Text = string.format('\u{1f525} %s', tostring(formatted))
-            elseif self.TextLabel.Name == 'TotalSubzeroBaits' then
-                local formatted = Utils.FormatNumber(Utils.FoodItemCount('ice_dimension_2025_subzero_popsicle_bait'))
+            elseif self.TextLabel.Name == 'YarnApple' then
+                local formatted = Utils.FormatNumber(Utils.FoodItemCount('halloween_2025_yarn_apple'))
 
-                self.TextLabel.Text = string.format('\u{1f982} %s', tostring(formatted))
+                self.TextLabel.Text = string.format('\u{1f34e} %s', tostring(formatted))
             end
         end
         function StatsGuiClass.UpdateTextForTemp(self, amount)
@@ -5097,7 +5108,7 @@ do
             elseif self.TextLabel.Name == 'TempBucks' and amount then
                 self.TextLabel.Text = string.format('\u{1f4b0} %s', tostring(Utils.FormatNumber(amount)))
             elseif self.TextLabel.Name == 'TempEventCurrency' and amount then
-                self.TextLabel.Text = string.format('\u{2b50} %s', tostring(Utils.FormatNumber(amount)))
+                self.TextLabel.Text = string.format('\u{1f36c} %s', tostring(Utils.FormatNumber(amount)))
             end
         end
 
@@ -5327,7 +5338,7 @@ do
         self.CrystalEgg = StatsGuiClass.new('CrystalEgg')
         self.GiantPanda = StatsGuiClass.new('GiantPanda')
         self.EmberLight = StatsGuiClass.new('EmberLight')
-        self.Blank1 = StatsGuiClass.new('Blank1')
+        self.YarnApple = StatsGuiClass.new('YarnApple')
 
         local updateAllStatsGui = function()
             StatsGuiClass.SetTimeLabelText(startTime)
@@ -5365,6 +5376,7 @@ do
             self.CrystalEgg:UpdateTextForTotal()
             self.GiantPanda:UpdateTextForTotal()
             self.EmberLight:UpdateTextForTotal()
+            self.YarnApple:UpdateTextForTotal()
         end
 
         function self.Init()
@@ -7099,10 +7111,10 @@ do
                         baitboxCount = 0
 
                         tryToReleasePets()
-                        RouterClient.get('HalloweenEventAPI/ClaimTreatBag'):InvokeServer()
                     end
 
                     tryFeedAgePotion()
+                    Utils.TryRedeemGoodieBag()
                     UpdateTextEvent:Fire()
 
                     local waitTime = rng:NextNumber(5, 15)
