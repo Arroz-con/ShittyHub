@@ -34,6 +34,9 @@ do
                 Utils.PrintDebug('\u{1f36c} Claimed cat Goodies Bag \u{1f36c}')
             end
         end
+        function Utils.GetCatbatTamingProgress()
+            return ClientData.get_data()[localPlayer.Name].kitty_bat_manager.catbat_taming_progress or 0
+        end
         function Utils.MoveToWithTimeout(humanoid, target, timeout)
             local reached = false
             local connection
@@ -5081,10 +5084,8 @@ do
                 local formatted = Utils.FormatNumber(Utils.PetItemCount('pet_recycler_2025_giant_panda'))
 
                 self.TextLabel.Text = string.format('\u{1f43c} %s', tostring(formatted))
-            elseif self.TextLabel.Name == 'EmberLight' then
-                local formatted = Utils.FormatNumber(Utils.PetItemCount('pet_recycler_2025_emberlight'))
-
-                self.TextLabel.Text = string.format('\u{1f525} %s', tostring(formatted))
+            elseif self.TextLabel.Name == 'Slot11' then
+                self.TextLabel.Text = string.format('\u{1f987} %s%%', tostring(Utils.GetCatbatTamingProgress()))
             elseif self.TextLabel.Name == 'YarnApple' then
                 local formatted = Utils.FormatNumber(Utils.FoodItemCount('halloween_2025_yarn_apple'))
 
@@ -5328,7 +5329,7 @@ do
         self.TotalEventCurrency = StatsGuiClass.new('TotalEventCurrency')
         self.CrystalEgg = StatsGuiClass.new('CrystalEgg')
         self.GiantPanda = StatsGuiClass.new('GiantPanda')
-        self.EmberLight = StatsGuiClass.new('EmberLight')
+        self.Slot11 = StatsGuiClass.new('Slot11')
         self.YarnApple = StatsGuiClass.new('YarnApple')
 
         local updateAllStatsGui = function()
@@ -5366,7 +5367,7 @@ do
             self.TotalBucks:UpdateTextForTotal()
             self.CrystalEgg:UpdateTextForTotal()
             self.GiantPanda:UpdateTextForTotal()
-            self.EmberLight:UpdateTextForTotal()
+            self.Slot11:UpdateTextForTotal()
             self.YarnApple:UpdateTextForTotal()
         end
 
@@ -7130,7 +7131,6 @@ do
                     end
 
                     tryFeedAgePotion()
-                    Utils.TryRedeemGoodieBag()
                     UpdateTextEvent:Fire()
 
                     local waitTime = rng:NextNumber(5, 15)
@@ -12333,6 +12333,7 @@ Check the Developer Console for more information.]],
                         feedYarnApple()
                     end
 
+                    Utils.TryRedeemGoodieBag()
                     task.wait(30)
                 end
             end)
