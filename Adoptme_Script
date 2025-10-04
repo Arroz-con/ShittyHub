@@ -27,9 +27,6 @@ do
         local localPlayer = Players.LocalPlayer
 
         function Utils.TryRedeemGoodieBag()
-            Utils.PrintDebug(string.format('catTimer: %s', tostring(ClientData.get_data()[localPlayer.Name].halloween_2025_catbats_timer.timestamp)))
-            Utils.PrintDebug(string.format('timeNow: %s', tostring(DateTime.now().UnixTimestamp)))
-
             local catbatTime = ClientData.get_data()[localPlayer.Name].halloween_2025_catbats_timer.timestamp
 
             if DateTime.now().UnixTimestamp > catbatTime then
@@ -367,15 +364,15 @@ do
 
             Utils.PrintDebug('UnEquipped all pets')
         end
-        function Utils.Equip(petUnique, EquipAsLast)
+        function Utils.Equip(unique, EquipAsLast)
             local success, errorMessage = pcall(function()
-                ReplicatedStorage.API['ToolAPI/Equip']:InvokeServer(petUnique, {
+                ReplicatedStorage.API['ToolAPI/Equip']:InvokeServer(unique, {
                     ['equip_as_last'] = EquipAsLast,
                 })
             end)
 
             if not success then
-                Utils.PrintDebug('Failed to equip pet:', errorMessage)
+                Utils.PrintDebug('Failed to equip:', errorMessage)
 
                 return false
             end
@@ -6328,14 +6325,37 @@ do
                 return
             end
 
-            local keys = Workspace.Interiors['MainMap!Fall'].Event.PipeOrgan.PianoStaircase.Keys
-            local newPosition = keys[1].PrimaryPart.Position + Vector3.new(5, 0, 0)
+            local event = Workspace.Interiors['MainMap!Fall']:WaitForChild('Event', 10)
+
+            if not event then
+                return
+            end
+
+            local pipeOrgan = event:WaitForChild('PipeOrgan', 10)
+
+            if not pipeOrgan then
+                return
+            end
+
+            local pianoStaircase = pipeOrgan:WaitForChild('PianoStaircase', 10)
+
+            if not pianoStaircase then
+                return
+            end
+
+            local keys = pianoStaircase:WaitForChild('Keys', 10)
+
+            if not keys then
+                return
+            end
+
+            local newPosition = keys:WaitForChild('1').PrimaryPart.Position + Vector3.new(5, 0, 0)
 
             localPlayer.Character:MoveTo(newPosition)
             task.wait(1)
 
             for i = 1, 29 do
-                local key = (keys and {
+                local key = (keys and keys[i] and {
                     (keys[i]),
                 } or {nil})[1]
 
@@ -7159,7 +7179,7 @@ do
                 FarmingPet.GetPetToFarm(2)
             end
 
-            RouterClient.get('HalloweenEventAPI/ClaimTreatBag'):InvokeServer()
+            Utils.TryRedeemGoodieBag()
             startAutoFarm()
         end
 
@@ -12221,11 +12241,37 @@ Check the Developer Console for more information.]],
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local RouterClient = Bypass('RouterClient')
+        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('i')
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local HauntletMinigameClient = (require(ReplicatedStorage.SharedModules.ContentPacks.Halloween2025.Minigames.HauntletMinigameClient))
         local Players = cloneref(game:GetService('Players'))
         local localPlayer = Players.LocalPlayer
         local PlayerGui = (localPlayer:WaitForChild('PlayerGui'))
         local HauntletInGameApp = (PlayerGui:WaitForChild('HauntletInGameApp'))
+        local isFedYarnApple = false
+        local feedYarnApple = function()
+            if isFedYarnApple then
+                return
+            end
+
+            local yarnAppleUnique = GetInventory.GetUniqueId('food', 'halloween_2025_yarn_apple')
+
+            if not yarnAppleUnique then
+                Utils.PrintDebug('No yarn apple found in inventory')
+
+                return
+            end
+
+            Utils.Equip(yarnAppleUnique, false)
+            task.wait(1)
+            RouterClient.get('HalloweenEventAPI/ProgressTaming'):InvokeServer(true)
+
+            isFedYarnApple = true
+
+            task.delay(240, function()
+                isFedYarnApple = false
+            end)
+        end
         local getMinigameId = function()
             return (HauntletMinigameClient.instanced_minigame and {
                 (HauntletMinigameClient.instanced_minigame.minigame_id),
@@ -12279,6 +12325,21 @@ Check the Developer Console for more information.]],
         end
         function HalloweenHandler2025.Start()
             print('HalloweenHandler2025 Started')
+            task.spawn(function()
+                while true do
+                    local dt = (DateTime.now():ToUniversalTime())
+
+                    if dt.Minute >= 17 and dt.Minute < 20 then
+                        print("\u{23f0} It's 17 minutes past the hour (UTC)!")
+                        feedYarnApple()
+                    elseif dt.Minute >= 47 and dt.Minute < 50 then
+                        print("\u{23f0} It's 47 minutes past the hour (UTC)!")
+                        feedYarnApple()
+                    end
+
+                    task.wait(30)
+                end
+            end)
         end
 
         return HalloweenHandler2025
