@@ -26,6 +26,28 @@ do
         local debugMode = getgenv().SETTINGS.DEBUG_MODE or false
         local localPlayer = Players.LocalPlayer
 
+        function Utils.MoveToWithTimeout(humanoid, target, timeout)
+            local reached = false
+            local connection
+
+            humanoid:MoveTo(target)
+
+            connection = humanoid.MoveToFinished:Connect(function(success)
+                reached = success
+            end)
+
+            local startTime = tick()
+
+            repeat
+                task.wait(0.1)
+            until reached or (tick() - startTime) >= timeout
+
+            if connection then
+                connection:Disconnect()
+            end
+
+            return reached
+        end
         function Utils.PlaceFLoorUnderPlayer()
             if Workspace:FindFirstChild('FloorUnderPlayer') then
                 return
@@ -6301,7 +6323,9 @@ do
             task.wait(1)
 
             for i = 1, 29 do
-                local key = keys[i]
+                local key = (keys and {
+                    (keys[i]),
+                } or {nil})[1]
 
                 if not (key and key.PrimaryPart) then
                     Utils.PrintDebug(string.format('No primary part for key index: %s', tostring(i)))
@@ -6309,8 +6333,7 @@ do
                     continue
                 end
 
-                localPlayer.Character.Humanoid:MoveTo(key.PrimaryPart.Position)
-                localPlayer.Character.Humanoid.MoveToFinished:Wait()
+                Utils.MoveToWithTimeout(localPlayer.Character.Humanoid, key.PrimaryPart.Position, 10)
             end
         end
         function Ailment.BabyHungryAilment()
