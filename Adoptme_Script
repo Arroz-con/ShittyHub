@@ -6358,7 +6358,7 @@ do
                 if not (key and key.PrimaryPart) then
                     Utils.PrintDebug(string.format('No primary part for key index: %s', tostring(i)))
 
-                    continue
+                    return
                 end
 
                 Utils.MoveToWithTimeout(localPlayer.Character.Humanoid, key.PrimaryPart.Position, 10)
