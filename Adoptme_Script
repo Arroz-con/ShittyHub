@@ -6301,7 +6301,15 @@ do
             task.wait(1)
 
             for i = 1, 29 do
-                localPlayer.Character.Humanoid:MoveTo(keys[i].PrimaryPart.Position)
+                local key = keys[i]
+
+                if not (key and key.PrimaryPart) then
+                    Utils.PrintDebug(string.format('No primary part for key index: %s', tostring(i)))
+
+                    continue
+                end
+
+                localPlayer.Character.Humanoid:MoveTo(key.PrimaryPart.Position)
                 localPlayer.Character.Humanoid.MoveToFinished:Wait()
             end
         end
