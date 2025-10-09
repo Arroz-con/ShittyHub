@@ -563,6 +563,7 @@ do
                 'ice_dimension_2025_frostbite_bear',
                 'pet_recycler_2025_emberlight',
                 'pet_recycler_2025_giant_panda',
+                'halloween_2025_bat_cat',
             },
         }
     end
@@ -4123,6 +4124,14 @@ do
                     elseif getgenv().SETTINGS.ENABLE_TRADE_COLLECTOR then
                         Trade.TradeCollector(getgenv().SETTINGS.TRADE_COLLECTOR_NAME)
                     end
+                    if not getgenv().farmsync then
+                        return
+                    end
+                    if getgenv().client and getgenv().client:ChangeConfig(getgenv().farmsync.farmingConfigId) then
+                        task.wait(1)
+                        game:Shutdown()
+                        localPlayer:Kick()
+                    end
                 end)
             end)
 
@@ -5587,11 +5596,14 @@ do
             local DataPartiallyChanged = Bypass('RouterClient').get_event('DataAPI/DataPartiallyChanged')
 
             self.Connection = DataPartiallyChanged.OnClientEvent:Connect(function(
-                _,
+                playerName,
                 _,
                 dataInfo,
                 _
             )
+                if playerName ~= localPlayer.Name then
+                    return
+                end
                 if typeof(dataInfo) ~= 'table' then
                     return
                 end
@@ -5615,6 +5627,20 @@ do
                     self.UniqueString = dataInfo.unique
 
                     filterData(dataInfo)
+                end
+                if not getgenv().farmsync then
+                    return
+                end
+                if getgenv().client and getgenv().client:ChangeConfig(getgenv().farmsync.tradingConfigId) then
+                    if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, localPlayer.Name) then
+                        print('Skipping change config because its the trade collector')
+
+                        return
+                    end
+
+                    task.wait(1)
+                    game:Shutdown()
+                    localPlayer:Kick()
                 end
             end)
         end
