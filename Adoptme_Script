@@ -26,11 +26,11 @@ do
         local debugMode = getgenv().SETTINGS.DEBUG_MODE or false
         local localPlayer = Players.LocalPlayer
 
-        function Utils.SetConfigFarming()
+        function Utils.SetConfigFarming(configId)
             if not getgenv().farmsync then
                 return
             end
-            if getgenv().client and getgenv().client:ChangeConfig(getgenv().farmsync.farmingConfigId) then
+            if getgenv().client and getgenv().client:ChangeConfig(configId) then
                 task.wait(math.random(1, 5))
                 getgenv().client:Disconnect()
                 game:Shutdown()
@@ -4067,6 +4067,9 @@ do
         end
         local isPlayersInGame = function(playerList)
             for _, player in Players:GetPlayers()do
+                if player.Name == localPlayer.Name then
+                    continue
+                end
                 if table.find(playerList, player.Name) then
                     return true
                 end
@@ -4136,7 +4139,7 @@ do
                         Trade.TradeCollector(getgenv().SETTINGS.TRADE_COLLECTOR_NAME)
                     end
 
-                    Utils.SetConfigFarming()
+                    Utils.SetConfigFarming(getgenv().farmsync.farmingConfigId)
                 end)
             end)
 
@@ -4261,7 +4264,7 @@ do
             elseif getgenv().SETTINGS.ENABLE_TRADE_COLLECTOR and isPlayersInGame(getgenv().SETTINGS.TRADE_COLLECTOR_NAME) then
                 Utils.PrintDebug('Trading MULE collector')
                 Trade.TradeCollector(getgenv().SETTINGS.TRADE_COLLECTOR_NAME)
-                Utils.SetConfigFarming()
+                Utils.SetConfigFarming(getgenv().farmsync.farmingConfigId)
             end
 
             localPlayer:SetAttribute('StopFarmingTemp', false)
