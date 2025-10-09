@@ -56,6 +56,7 @@ getgenv().SETTINGS = {
         "Chest28745",
         "grabmanypets84",
         "growaplant916",
+        "SoaveCorsa099",
     },
 
     TRADE_LIST = {
