@@ -26,6 +26,16 @@ do
         local debugMode = getgenv().SETTINGS.DEBUG_MODE or false
         local localPlayer = Players.LocalPlayer
 
+        function Utils.SetConfigFarming()
+            if not getgenv().farmsync then
+                return
+            end
+            if getgenv().client and getgenv().client:ChangeConfig(getgenv().farmsync.farmingConfigId) then
+                task.wait(1)
+                game:Shutdown()
+                localPlayer:Kick()
+            end
+        end
         function Utils.TryRedeemGoodieBag()
             local catbatTime = ClientData.get_data()[localPlayer.Name].kitty_bat_manager.last_treat_claimed_timestamp
 
@@ -4124,14 +4134,8 @@ do
                     elseif getgenv().SETTINGS.ENABLE_TRADE_COLLECTOR then
                         Trade.TradeCollector(getgenv().SETTINGS.TRADE_COLLECTOR_NAME)
                     end
-                    if not getgenv().farmsync then
-                        return
-                    end
-                    if getgenv().client and getgenv().client:ChangeConfig(getgenv().farmsync.farmingConfigId) then
-                        task.wait(1)
-                        game:Shutdown()
-                        localPlayer:Kick()
-                    end
+
+                    Utils.SetConfigFarming()
                 end)
             end)
 
@@ -4256,6 +4260,7 @@ do
             elseif getgenv().SETTINGS.ENABLE_TRADE_COLLECTOR and isPlayersInGame(getgenv().SETTINGS.TRADE_COLLECTOR_NAME) then
                 Utils.PrintDebug('Trading MULE collector')
                 Trade.TradeCollector(getgenv().SETTINGS.TRADE_COLLECTOR_NAME)
+                Utils.SetConfigFarming()
             end
 
             localPlayer:SetAttribute('StopFarmingTemp', false)
@@ -5619,15 +5624,17 @@ do
                 if not dataInfo.properties then
                     return
                 end
-                if table.find(AllowOrDenyList.Allowlist, dataInfo.id) then
-                    if self.UniqueString == dataInfo.unique then
-                        return
-                    end
-
-                    self.UniqueString = dataInfo.unique
-
-                    filterData(dataInfo)
+                if not table.find(AllowOrDenyList.Allowlist, dataInfo.id) then
+                    return
                 end
+                if self.UniqueString == dataInfo.unique then
+                    return
+                end
+
+                self.UniqueString = dataInfo.unique
+
+                filterData(dataInfo)
+
                 if not getgenv().farmsync then
                     return
                 end
