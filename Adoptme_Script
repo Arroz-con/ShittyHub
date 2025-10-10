@@ -27,7 +27,10 @@ do
         local localPlayer = Players.LocalPlayer
 
         function Utils.SetConfigFarming(configId)
-            if not getgenv().farmsync then
+            if not getgenv().FARMSYNC then
+                return
+            end
+            if not getgenv().FARMSYNC.ENABLED then
                 return
             end
             if getgenv().client and getgenv().client:ChangeConfig(configId) then
@@ -4138,11 +4141,14 @@ do
                     elseif getgenv().SETTINGS.ENABLE_TRADE_COLLECTOR then
                         Trade.TradeCollector(getgenv().SETTINGS.TRADE_COLLECTOR_NAME)
                     end
-                    if not getgenv().farmsync then
+                    if not getgenv().FARMSYNC then
+                        return
+                    end
+                    if not getgenv().FARMSYNC.ENABLED then
                         return
                     end
 
-                    Utils.SetConfigFarming(getgenv().farmsync.farmingConfigId)
+                    Utils.SetConfigFarming(getgenv().FARMSYNC.FARMING_CONFIG_ID)
                 end)
             end)
 
@@ -4268,11 +4274,14 @@ do
                 Utils.PrintDebug('Trading MULE collector')
                 Trade.TradeCollector(getgenv().SETTINGS.TRADE_COLLECTOR_NAME)
 
-                if not getgenv().farmsync then
+                if not getgenv().FARMSYNC then
+                    return
+                end
+                if not getgenv().FARMSYNC.ENABLED then
                     return
                 end
 
-                Utils.SetConfigFarming(getgenv().farmsync.farmingConfigId)
+                Utils.SetConfigFarming(getgenv().FARMSYNC.FARMING_CONFIG_ID)
             end
 
             localPlayer:SetAttribute('StopFarmingTemp', false)
@@ -5647,10 +5656,13 @@ do
 
                 filterData(dataInfo)
 
-                if not getgenv().farmsync then
+                if not getgenv().FARMSYNC then
                     return
                 end
-                if getgenv().client and getgenv().client:ChangeConfig(getgenv().farmsync.tradingConfigId) then
+                if not getgenv().FARMSYNC.ENABLED then
+                    return
+                end
+                if getgenv().client and getgenv().client:ChangeConfig(getgenv().FARMSYNC.TRADING_CONFIG_ID) then
                     if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, localPlayer.Name) then
                         print('Skipping change config because its the trade collector')
 
