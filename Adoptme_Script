@@ -4414,16 +4414,13 @@ do
         return self
     end
     function __DARKLUA_BUNDLE_MODULES.m()
-        local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
-        local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local Trade = __DARKLUA_BUNDLE_MODULES.load('e')
         local Teleport = __DARKLUA_BUNDLE_MODULES.load('f')
         local self = {}
         local localPlayer = Players.LocalPlayer
         local PlayerGui = localPlayer:WaitForChild('PlayerGui')
-        local StaticMap = (workspace:WaitForChild('StaticMap'))
         local DialogApp = (PlayerGui:WaitForChild('DialogApp'))
         local MinigameRewardsApp = (PlayerGui:WaitForChild('MinigameRewardsApp'))
         local MinigameInGameApp = (PlayerGui:WaitForChild('MinigameInGameApp'))
@@ -4512,6 +4509,10 @@ do
             elseif TextLabel.Text:match('Pet Pen!') then
                 Utils.FindButton('Go to Pet Pen')
             elseif TextLabel.Text:match('The Homepass has been restarted') then
+                Utils.FindButton('Okay')
+            elseif TextLabel.Text:match('Costume Party starts') then
+                Utils.FindButton('Okay')
+            elseif TextLabel.Text:match('Step away from') then
                 Utils.FindButton('Okay')
             end
         end
@@ -4711,7 +4712,7 @@ do
                 )
                     if DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('The Hauntlet is starting') then
                         onTextChangedMiniGame()
-                    elseif DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Cannon Circle is starting') then
+                    elseif DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Costume Party is starting') then
                         onTextChangedMiniGame()
                     elseif DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('invitation') then
                         localPlayer:Kick()
@@ -4792,23 +4793,6 @@ do
                         localPlayer:SetAttribute('StopFarmingTemp', false)
                         Teleport.FarmingHome()
                     end
-                end
-            end)
-            StaticMap.hauntlet_minigame_state.is_game_active:GetPropertyChangedSignal('Value'):Connect(function(
-            )
-                if StaticMap.hauntlet_minigame_state.is_game_active.Value then
-                    if getgenv().SETTINGS.ENABLE_AUTO_FARM == false then
-                        return
-                    end
-                    if localPlayer:GetAttribute('hasStartedFarming') == false then
-                        return
-                    end
-                    if localPlayer:GetAttribute('StopFarmingTemp') == true then
-                        return
-                    end
-
-                    localPlayer:SetAttribute('StopFarmingTemp', true)
-                    Bypass('RouterClient').get('MinigameAPI/AttemptJoin'):FireServer('hauntlet', true)
                 end
             end)
             PlaytimePayoutsApp:GetPropertyChangedSignal('Enabled'):Connect(function(
@@ -12309,12 +12293,61 @@ Check the Developer Console for more information.]],
         local RouterClient = Bypass('RouterClient')
         local GetInventory = __DARKLUA_BUNDLE_MODULES.load('i')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local HauntletMinigameClient = (require(ReplicatedStorage.SharedModules.ContentPacks.Halloween2025.Minigames.HauntletMinigameClient))
+        local contentPacks = (ReplicatedStorage:WaitForChild('SharedModules'):WaitForChild('ContentPacks'))
+        local HauntletMinigameClient = (require(contentPacks.Halloween2025.Minigames.HauntletMinigameClient))
+        local FashionFrenzyMinigameClient = (require(contentPacks.Halloween2025.Minigames.FashionFrenzyMinigameClient))
         local Players = cloneref(game:GetService('Players'))
         local localPlayer = Players.LocalPlayer
         local PlayerGui = (localPlayer:WaitForChild('PlayerGui'))
+        local StaticMap = (workspace:WaitForChild('StaticMap'))
         local HauntletInGameApp = (PlayerGui:WaitForChild('HauntletInGameApp'))
+        local FashionFrenzyInGameApp = (PlayerGui:WaitForChild('FashionFrenzyInGameApp'))
         local isFedYarnApple = false
+        local getMinigameId = function(module)
+            return (module.instanced_minigame and {
+                (module.instanced_minigame.minigame_id),
+            } or {nil})[1]
+        end
+        local placePet = function(minigame_id)
+            RouterClient.get('MinigameAPI/MessageServer'):FireServer(minigame_id, 'try_select_pet_for_player', getgenv().petCurrentlyFarming1)
+        end
+        local getPetAccessories = function(module)
+            return module.instanced_minigame.accessory_kinds
+        end
+        local addItemToPet = function(minigameId)
+            local accessories = getPetAccessories(FashionFrenzyMinigameClient)
+
+            if not accessories then
+                print('No accessories found for pet')
+
+                return
+            end
+
+            local itemAccessory = accessories[math.random(1, #accessories)]
+
+            RouterClient.get('MinigameAPI/MessageServer'):FireServer(minigameId, 'try_pick_up_accessory', itemAccessory)
+            task.wait(1)
+            RouterClient.get('MinigameAPI/MessageServer'):FireServer(minigameId, 'try_equip_accessory', itemAccessory)
+        end
+        local startFashionFrenzy = function()
+            local minigameId = getMinigameId(FashionFrenzyMinigameClient)
+
+            if not minigameId then
+                print('No minigame ID found, cannot start FashionFrenzy')
+
+                return
+            end
+
+            while true do
+                if not FashionFrenzyMinigameClient.instanced_minigame then
+                    return
+                end
+
+                placePet(minigameId)
+                addItemToPet(minigameId)
+                task.wait(10)
+            end
+        end
         local feedYarnApple = function()
             if isFedYarnApple then
                 return
@@ -12338,16 +12371,11 @@ Check the Developer Console for more information.]],
                 isFedYarnApple = false
             end)
         end
-        local getMinigameId = function()
-            return (HauntletMinigameClient.instanced_minigame and {
-                (HauntletMinigameClient.instanced_minigame.minigame_id),
-            } or {nil})[1]
-        end
         local pickDoor = function(hauntletId, stageLevel)
             RouterClient.get('MinigameAPI/MessageServer'):FireServer(hauntletId, 'player_selected_door', stageLevel, math.random(1, 3))
         end
         local startHauntlet = function()
-            local minigameId = getMinigameId()
+            local minigameId = getMinigameId(HauntletMinigameClient)
 
             if not minigameId then
                 print('No minigame ID found, cannot start Hauntlet')
@@ -12383,6 +12411,56 @@ Check the Developer Console for more information.]],
                         startHauntlet()
                         localPlayer:SetAttribute('StopFarmingTemp', false)
                     end
+                end
+            end)
+            FashionFrenzyInGameApp:GetPropertyChangedSignal('Enabled'):Connect(function(
+            )
+                if FashionFrenzyInGameApp.Enabled then
+                    FashionFrenzyInGameApp:WaitForChild('Body')
+                    FashionFrenzyInGameApp.Body:WaitForChild('Middle')
+                    FashionFrenzyInGameApp.Body.Middle:WaitForChild('Container')
+                    FashionFrenzyInGameApp.Body.Middle.Container:WaitForChild('TitleLabel')
+
+                    if localPlayer:GetAttribute('hasStartedFarming') == true then
+                        localPlayer:SetAttribute('StopFarmingTemp', true)
+                        task.wait(2)
+                        startFashionFrenzy()
+                        localPlayer:SetAttribute('StopFarmingTemp', false)
+                    end
+                end
+            end)
+            StaticMap.hauntlet_minigame_state.is_game_active:GetPropertyChangedSignal('Value'):Connect(function(
+            )
+                if StaticMap.hauntlet_minigame_state.is_game_active.Value then
+                    if getgenv().SETTINGS.ENABLE_AUTO_FARM == false then
+                        return
+                    end
+                    if localPlayer:GetAttribute('hasStartedFarming') == false then
+                        return
+                    end
+                    if localPlayer:GetAttribute('StopFarmingTemp') == true then
+                        return
+                    end
+
+                    localPlayer:SetAttribute('StopFarmingTemp', true)
+                    Bypass('RouterClient').get('MinigameAPI/AttemptJoin'):FireServer('hauntlet', true)
+                end
+            end)
+            StaticMap.costume_party_minigame_state.is_game_active:GetPropertyChangedSignal('Value'):Connect(function(
+            )
+                if StaticMap.costume_party_minigame_state.is_game_active.Value then
+                    if getgenv().SETTINGS.ENABLE_AUTO_FARM == false then
+                        return
+                    end
+                    if localPlayer:GetAttribute('hasStartedFarming') == false then
+                        return
+                    end
+                    if localPlayer:GetAttribute('StopFarmingTemp') == true then
+                        return
+                    end
+
+                    localPlayer:SetAttribute('StopFarmingTemp', true)
+                    Bypass('RouterClient').get('MinigameAPI/AttemptJoin'):FireServer('costume_party', true)
                 end
             end)
         end
