@@ -19,7 +19,7 @@ getgenv().AGE_PETS_BEFORE_FARMING = {
 
 getgenv().SETTINGS = {
     ENABLE_AUTO_FARM = true,
-    SET_FPS = 3,
+    SET_FPS = 2,
 
     FOCUS_FARM_AGE_POTION = true,
 
