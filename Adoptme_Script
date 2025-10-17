@@ -577,7 +577,6 @@ do
                 'ice_dimension_2025_frostbite_bear',
                 'pet_recycler_2025_emberlight',
                 'pet_recycler_2025_giant_panda',
-                'halloween_2025_bat_cat',
             },
         }
     end
@@ -3205,10 +3204,6 @@ do
 
             while true do
                 for _, petId in ipairs(petIdList)do
-                    if petId == 'pet_recycler_2025_crystal_egg' then
-                        continue
-                    end
-
                     for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
                         if petId ~= pet.id then
                             continue
@@ -4494,6 +4489,35 @@ do
         local PlaytimePayoutsApp = (PlayerGui:WaitForChild('PlaytimePayoutsApp'))
         local certificateConn
         local starterPackAppConn
+        local patterns = {
+            ['Be careful when trading'] = 'Okay',
+            ['This trade seems unbalanced'] = 'Next',
+            ['Social Stones!'] = 'Okay',
+            ['sent you a trade request'] = 'Accept',
+            ['Trade request from'] = 'Okay',
+            ['Any items lost'] = 'I understand',
+            ['4.5%% Legendary'] = 'Okay',
+            ['You have been awarded'] = 'Awesome!',
+            ['Thanks for subscribing!'] = 'Okay',
+            ["Let's start the day"] = 'Start',
+            ['Are you subscribed'] = 'Yes',
+            ['your inventory!'] = 'Awesome!',
+            ["You've chosen this"] = 'Yes',
+            ['You can change this option'] = 'Okay',
+            ['You have enough'] = 'Okay',
+            ['Thanks for'] = 'Okay',
+            ['Right now'] = 'Next',
+            ['You can customize it'] = 'Start',
+            ['Your subscription'] = 'Okay!',
+            ['You have been refunded'] = 'Awesome!',
+            ["You can't afford this"] = 'Okay',
+            ['mailbox'] = 'Okay',
+            ['Pay 1500 Bucks'] = 'Yes',
+            ['Pet Pen!'] = 'Go to Pet Pen',
+            ['The Homepass has been restarted'] = 'Okay',
+            ['Costume Party starts'] = 'Okay',
+            ['Step away from'] = 'Okay',
+        }
         local getNormalDialogTextLabel = function()
             local Dialog = (DialogApp and {
                 (DialogApp:FindFirstChild('Dialog')),
@@ -4524,62 +4548,12 @@ do
                 return
             end
 
-            Utils.PrintDebug(string.format('onTextChangedNormalDialog: %s', tostring(TextLabel.Text)))
+            for pattern, button in patterns do
+                if TextLabel.Text:match(pattern) then
+                    Utils.FindButton(button)
 
-            if TextLabel.Text:match('Be careful when trading') then
-                Utils.FindButton('Okay')
-            elseif TextLabel.Text:match('This trade seems unbalanced') then
-                Utils.FindButton('Next')
-            elseif TextLabel.Text:match('Social Stones!') then
-                Utils.FindButton('Okay')
-            elseif TextLabel.Text:match('sent you a trade request') then
-                Utils.FindButton('Accept')
-            elseif TextLabel.Text:match('Trade request from') then
-                Utils.FindButton('Okay')
-            elseif TextLabel.Text:match('Any items lost') then
-                Utils.FindButton('I understand')
-            elseif TextLabel.Text:match('4.5%% Legendary') then
-                Utils.FindButton('Okay')
-            elseif TextLabel.Text:match('You have been awarded') then
-                Utils.FindButton('Awesome!')
-            elseif TextLabel.Text:match('Thanks for subscribing!') then
-                Utils.FindButton('Okay')
-            elseif TextLabel.Text:match("Let's start the day") then
-                Utils.FindButton('Start')
-            elseif TextLabel.Text:match('Are you subscribed') then
-                Utils.FindButton('Yes')
-            elseif TextLabel.Text:match('your inventory!') then
-                Utils.FindButton('Awesome!')
-            elseif TextLabel.Text:match("You've chosen this") then
-                Utils.FindButton('Yes')
-            elseif TextLabel.Text:match('You can change this option') then
-                Utils.FindButton('Okay')
-            elseif TextLabel.Text:match('You have enough') then
-                Utils.FindButton('Okay')
-            elseif TextLabel.Text:match('Thanks for') then
-                Utils.FindButton('Okay')
-            elseif TextLabel.Text:match('Right now') then
-                Utils.FindButton('Next')
-            elseif TextLabel.Text:match('You can customize it') then
-                Utils.FindButton('Start')
-            elseif TextLabel.Text:match('Your subscription') then
-                Utils.FindButton('Okay!')
-            elseif TextLabel.Text:match('You have been refunded') then
-                Utils.FindButton('Awesome!')
-            elseif TextLabel.Text:match("You can't afford this") then
-                Utils.FindButton('Okay')
-            elseif TextLabel.Text:match('mailbox') then
-                Utils.FindButton('Okay')
-            elseif TextLabel.Text:match('Pay 1500 Bucks') then
-                Utils.FindButton('Yes')
-            elseif TextLabel.Text:match('Pet Pen!') then
-                Utils.FindButton('Go to Pet Pen')
-            elseif TextLabel.Text:match('The Homepass has been restarted') then
-                Utils.FindButton('Okay')
-            elseif TextLabel.Text:match('Costume Party starts') then
-                Utils.FindButton('Okay')
-            elseif TextLabel.Text:match('Step away from') then
-                Utils.FindButton('Okay')
+                    return
+                end
             end
         end
         local removeGameOverButton = function(screenGuiName)
@@ -4611,15 +4585,6 @@ do
 
                     return
                 end
-            end
-        end
-        local onTextChangedMiniGame = function()
-            local hasStartedFarming = localPlayer:GetAttribute('hasStartedFarming')
-
-            if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME and hasStartedFarming then
-                Utils.FindButton('No')
-            else
-                Utils.FindButton('No')
             end
         end
         local friendTradeAccept = function()
@@ -4777,9 +4742,11 @@ do
                 DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal('Text'):Connect(function(
                 )
                     if DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('The Hauntlet is starting') then
-                        onTextChangedMiniGame()
+                        Utils.FindButton('No')
                     elseif DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Costume Party is starting') then
-                        onTextChangedMiniGame()
+                        Utils.FindButton('No')
+                    elseif DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Sleep or Treat is starting') then
+                        Utils.FindButton('No')
                     elseif DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('invitation') then
                         localPlayer:Kick()
                         game:Shutdown()
@@ -4806,9 +4773,11 @@ do
                     NormalDialogChild.Info.TextLabel:GetPropertyChangedSignal('Text'):Connect(function(
                     )
                         if NormalDialogChild.Info.TextLabel.Text:match('The Hauntlet is starting') then
-                            onTextChangedMiniGame()
-                        elseif NormalDialogChild.Info.TextLabel.Text:match('Cannon Circle is starting') then
-                            onTextChangedMiniGame()
+                            Utils.FindButton('No')
+                        elseif NormalDialogChild.Info.TextLabel.Text:match('Costume Party is starting') then
+                            Utils.FindButton('No')
+                        elseif NormalDialogChild.Info.TextLabel.Text:match('Sleep or Treat is starting') then
+                            Utils.FindButton('No')
                         elseif NormalDialogChild.Info.TextLabel.Text:match('invitation') then
                             localPlayer:Kick()
                             game:Shutdown()
@@ -5819,6 +5788,7 @@ do
         local Ailment = {}
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = (Bypass('ClientData'))
+        local RouterClient = (Bypass('RouterClient'))
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local GetInventory = __DARKLUA_BUNDLE_MODULES.load('i')
         local Teleport = __DARKLUA_BUNDLE_MODULES.load('f')
@@ -5855,15 +5825,10 @@ do
                         return
                     end
 
-                    local args = {
-                        [1] = '__Enum_PetObjectCreatorType_2',
-                        [2] = {
-                            ['pet_unique'] = ClientData.get('pet_char_wrappers')[Ailment.whichPet].pet_unique,
-                            ['unique_id'] = v.unique,
-                        },
-                    }
-
-                    ReplicatedStorage.API['PetObjectAPI/CreatePetObject']:InvokeServer(unpack(args))
+                    ReplicatedStorage.API['PetObjectAPI/CreatePetObject']:InvokeServer('__Enum_PetObjectCreatorType_2', {
+                        ['pet_unique'] = ClientData.get('pet_char_wrappers')[Ailment.whichPet].pet_unique,
+                        ['unique_id'] = v.unique,
+                    })
                     consumeFood()
 
                     return
@@ -6318,6 +6283,23 @@ do
 
             ReplicatedStorage.API:FindFirstChild('AdoptAPI/EjectBaby'):FireServer(ClientData.get('pet_char_wrappers')[Ailment.whichPet]['char'])
         end
+        function Ailment.HalloweenWalkAilment(petUnique)
+            Utils.ReEquipPet(Ailment.whichPet)
+            Utils.PrintDebug(string.format('\u{1f9ae} Doing walking task on %s \u{1f9ae}', tostring(Ailment.whichPet)))
+
+            if not Utils.IsPetEquipped(Ailment.whichPet) then
+                return
+            end
+
+            ReplicatedStorage.API['AdoptAPI/HoldBaby']:FireServer(ClientData.get('pet_char_wrappers')[Ailment.whichPet]['char'])
+            waitForJumpingToFinish('wear_scare', petUnique)
+
+            if not Utils.IsPetEquipped(Ailment.whichPet) then
+                return
+            end
+
+            ReplicatedStorage.API:FindFirstChild('AdoptAPI/EjectBaby'):FireServer(ClientData.get('pet_char_wrappers')[Ailment.whichPet]['char'])
+        end
         function Ailment.RideAilment(strollerId, petUnique)
             if not strollerId then
                 Utils.PrintDebug(string.format('NO strollerId: %s', tostring(strollerId)))
@@ -6357,18 +6339,14 @@ do
                 return false
             end
 
-            local args = {
-                [1] = '__Enum_PetObjectCreatorType_1',
-                [2] = {
-                    ['reaction_name'] = 'ThrowToyReaction',
-                    ['unique_id'] = toyId,
-                },
-            }
             local count = 0
 
             repeat
                 Utils.PrintDebug('\u{1f9b4} Throwing toy \u{1f9b4}')
-                ReplicatedStorage.API:FindFirstChild('PetObjectAPI/CreatePetObject'):InvokeServer(unpack(args))
+                ReplicatedStorage.API:FindFirstChild('PetObjectAPI/CreatePetObject'):InvokeServer('__Enum_PetObjectCreatorType_1', {
+                    ['reaction_name'] = 'ThrowToyReaction',
+                    ['unique_id'] = toyId,
+                })
                 task.wait(10)
 
                 local taskActive = ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique] and ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique][ailment] and true or false
@@ -6411,18 +6389,10 @@ do
             end
 
             Utils.PrintDebug('Doing Band task')
-
-            local args = {
-                key,
-                'Guitar',
-                {
-                    ['cframe'] = CFrame.new(-607, 35, -1641, -0, -0, -1, 0, 1, -0, 1, -0, -0),
-                },
-                localPlayer.Character,
-            }
-
             task.spawn(function()
-                ReplicatedStorage.API:FindFirstChild('HousingAPI/ActivateInteriorFurniture'):InvokeServer(unpack(args))
+                ReplicatedStorage.API:FindFirstChild('HousingAPI/ActivateInteriorFurniture'):InvokeServer(key, 'Guitar', {
+                    ['cframe'] = CFrame.new(-607, 35, -1641, -0, -0, -1, 0, 1, -0, 1, -0, -0),
+                }, localPlayer.Character)
             end)
             waitForTaskToFinish('buccaneer_band', petUnique)
             getUpFromSitting()
@@ -6483,6 +6453,15 @@ do
                 end
 
                 Utils.MoveToWithTimeout(localPlayer.Character.Humanoid, key.PrimaryPart.Position, 10)
+            end
+        end
+        function Ailment.Popcorn()
+            Utils.PrintDebug('\u{1f37f} Doing popcorn task \u{1f37f}')
+
+            for i = 1, 6 do
+                RouterClient.get('HalloweenEventAPI/ClaimLilyPadCandy'):FireServer(i)
+                print(string.format('Claimed lilypad candy %s', tostring(i)))
+                task.wait(1)
             end
         end
         function Ailment.BabyHungryAilment()
@@ -7138,6 +7117,10 @@ do
                     end
 
                     return true
+                elseif key == 'wear_scare' then
+                    Ailment.HalloweenWalkAilment(petUnique)
+
+                    return true
                 end
             end
             for key, _ in ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique]do
@@ -7346,6 +7329,13 @@ do
         local PetOfflineHandler = {}
         local localPlayer = Players.LocalPlayer
         local CurrentIdlePets = {}
+        local eggsToHatch = GetInventory.GetPetEggs()
+        local eggIndex = table.find(eggsToHatch, 'pet_recycler_2025_crystal_egg')
+
+        if eggIndex then
+            table.remove(eggsToHatch, eggIndex)
+        end
+
         local updateCurrentIdlePets = function()
             table.clear(CurrentIdlePets)
 
@@ -12412,12 +12402,14 @@ Check the Developer Console for more information.]],
         local contentPacks = (ReplicatedStorage:WaitForChild('SharedModules'):WaitForChild('ContentPacks'))
         local HauntletMinigameClient = (require(contentPacks.Halloween2025.Minigames.HauntletMinigameClient))
         local FashionFrenzyMinigameClient = (require(contentPacks.Halloween2025.Minigames.FashionFrenzyMinigameClient))
+        local TreatDashClient = (require(contentPacks.Halloween2025.Minigames.TreatDashClient))
         local Players = cloneref(game:GetService('Players'))
         local localPlayer = Players.LocalPlayer
         local PlayerGui = (localPlayer:WaitForChild('PlayerGui'))
         local StaticMap = (workspace:WaitForChild('StaticMap'))
         local HauntletInGameApp = (PlayerGui:WaitForChild('HauntletInGameApp'))
         local FashionFrenzyInGameApp = (PlayerGui:WaitForChild('FashionFrenzyInGameApp'))
+        local MinigameInGameApp = (PlayerGui:WaitForChild('MinigameInGameApp'))
         local isFedYarnApple = false
         local getMinigameId = function(module)
             return (module.instanced_minigame and {
@@ -12487,8 +12479,74 @@ Check the Developer Console for more information.]],
                 isFedYarnApple = false
             end)
         end
-        local pickDoor = function(hauntletId, stageLevel)
-            RouterClient.get('MinigameAPI/MessageServer'):FireServer(hauntletId, 'player_selected_door', stageLevel, math.random(1, 3))
+        local pickDoor = function(hauntletId, stageLevel, whichDoor)
+            RouterClient.get('MinigameAPI/MessageServer'):FireServer(hauntletId, 'player_selected_door', stageLevel, whichDoor)
+        end
+        local getPlayerHealth = function()
+            return HauntletMinigameClient.instanced_minigame.player_health[localPlayer].current
+        end
+        local getInventoryCountFor = function(itemName)
+            return HauntletMinigameClient.instanced_minigame and HauntletMinigameClient.instanced_minigame.inventory[itemName] or 0
+        end
+        local useItemForHauntlet = function(hauntletId, itemName)
+            RouterClient.get('MinigameAPI/MessageServer'):FireServer(hauntletId, 'player_used_item', itemName)
+        end
+        local getRoomInstanceFor = function(round)
+            local rooms = HauntletMinigameClient.instanced_minigame and HauntletMinigameClient.instanced_minigame.interior and HauntletMinigameClient.instanced_minigame.interior:FindFirstChild('Rooms')
+
+            if not rooms then
+                print('DIDNT FIND ROOMS FOLDER')
+
+                return
+            end
+
+            return rooms:FindFirstChild(round)
+        end
+        local getExitDoorsFolder = function(round)
+            local room = getRoomInstanceFor(round)
+
+            if not room then
+                return
+            end
+
+            return room:FindFirstChild('ExitDoors')
+        end
+        local checkDoorPriority = function(
+            doorEntryName,
+            keyName,
+            exitDoors,
+            minigameId,
+            round
+        )
+            for _, v in exitDoors:GetChildren()do
+                if not (v and v:IsA('Model')) then
+                    print('v not found')
+
+                    return false
+                end
+
+                local entryName = v:GetAttribute('entry_name')
+                local doorNumber = tonumber(v.Name)
+
+                if typeof(doorNumber) ~= 'number' then
+                    print(string.format('NOT A NUMBER: %s', tostring(doorNumber)))
+
+                    continue
+                end
+                if entryName == doorEntryName then
+                    if not keyName or getInventoryCountFor(keyName) >= 1 then
+                        Utils.GetCharacter():MoveTo(v:GetPivot().Position - Vector3.new(
+-5, 0, 0))
+                        task.wait(1)
+                        pickDoor(minigameId, round, doorNumber)
+                        print(string.format('Picked Door from - round: %s door: %s name: %s', tostring(round), tostring(doorNumber), tostring(doorEntryName)))
+
+                        return true
+                    end
+                end
+            end
+
+            return false
         end
         local startHauntlet = function()
             local minigameId = getMinigameId(HauntletMinigameClient)
@@ -12500,13 +12558,119 @@ Check the Developer Console for more information.]],
             end
 
             while true do
-                if not HauntletMinigameClient.instanced_minigame then
+                local instancedMinigame = HauntletMinigameClient.instanced_minigame
+
+                if not instancedMinigame then
                     return
                 end
 
-                pickDoor(minigameId, HauntletMinigameClient.instanced_minigame.round)
+                local health = getPlayerHealth()
+
+                print(string.format('PLAYERS CURRENT HEALTH: %s', tostring(health)))
+
+                if health == 1 then
+                    local healItems = {
+                        'HeartPotion',
+                        'GoldenHeartPotion',
+                    }
+
+                    for _, item in ipairs(healItems)do
+                        if getInventoryCountFor(item) >= 1 then
+                            useItemForHauntlet(minigameId, item)
+                            task.wait(1)
+
+                            break
+                        end
+                    end
+                end
+                if getInventoryCountFor('MonsterRepellant') >= 1 then
+                    useItemForHauntlet(minigameId, 'MonsterRepellant')
+                    task.wait(1)
+                end
+
+                local doorChecks = {
+                    {
+                        type = 'Golden',
+                        key = 'GoldenKey',
+                    },
+                    {
+                        type = 'Locked',
+                        key = 'Key',
+                    },
+                    {
+                        type = 'Shadow',
+                    },
+                    {
+                        type = 'Rotten',
+                    },
+                    {
+                        type = 'Normal',
+                    },
+                    {
+                        type = 'Starter',
+                    },
+                }
+
+                for _, check in ipairs(doorChecks)do
+                    local round = instancedMinigame.round or 0
+
+                    if round == 0 then
+                        return
+                    end
+
+                    local exitDoors = getExitDoorsFolder(round)
+
+                    if not exitDoors then
+                        return
+                    end
+
+                    local result = checkDoorPriority(check.type, check.key, exitDoors, minigameId, round)
+
+                    if result then
+                        task.wait(2)
+
+                        break
+                    end
+                end
+
                 task.wait(2)
             end
+        end
+        local teleportToDeposit = function()
+            local depositPosition = TreatDashClient.instanced_minigame.deposit:GetPivot().Position
+
+            Utils.GetCharacter():MoveTo(depositPosition)
+        end
+        local kockOnDoors = function(minigameId)
+            for _, house in ipairs(TreatDashClient.instanced_minigame.houses)do
+                for _ = 1, 3 do
+                    if not TreatDashClient.instanced_minigame then
+                        return
+                    end
+                    if house.disabled then
+                        continue
+                    end
+
+                    RouterClient.get('MinigameAPI/MessageServer'):FireServer(minigameId, 'house_knock', house.plot_number)
+                    task.wait(1)
+                end
+            end
+        end
+        local startTrickDash = function()
+            local minigameId = getMinigameId(TreatDashClient)
+
+            if not minigameId then
+                print('No minigame ID found, cannot start trickDash')
+
+                return
+            end
+            if not TreatDashClient.instanced_minigame then
+                return
+            end
+
+            teleportToDeposit()
+            kockOnDoors(minigameId)
+            print(' TRICK OR TREAT FINISHED ')
         end
 
         function HalloweenHandler2025.Init()
@@ -12545,6 +12709,24 @@ Check the Developer Console for more information.]],
                     end
                 end
             end)
+            MinigameInGameApp:GetPropertyChangedSignal('Enabled'):Connect(function(
+            )
+                if MinigameInGameApp.Enabled then
+                    MinigameInGameApp:WaitForChild('Body')
+                    MinigameInGameApp.Body:WaitForChild('Middle')
+                    MinigameInGameApp.Body.Middle:WaitForChild('Container')
+                    MinigameInGameApp.Body.Middle.Container:WaitForChild('TitleLabel')
+
+                    if MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match('SLEEP OR TREAT') then
+                        if localPlayer:GetAttribute('hasStartedFarming') == true then
+                            localPlayer:SetAttribute('StopFarmingTemp', true)
+                            task.wait(2)
+                            startTrickDash()
+                            localPlayer:SetAttribute('StopFarmingTemp', false)
+                        end
+                    end
+                end
+            end)
             StaticMap.hauntlet_minigame_state.is_game_active:GetPropertyChangedSignal('Value'):Connect(function(
             )
                 if StaticMap.hauntlet_minigame_state.is_game_active.Value then
@@ -12577,6 +12759,23 @@ Check the Developer Console for more information.]],
 
                     localPlayer:SetAttribute('StopFarmingTemp', true)
                     Bypass('RouterClient').get('MinigameAPI/AttemptJoin'):FireServer('costume_party', true)
+                end
+            end)
+            StaticMap.sleep_or_treat_minigame_state.is_game_active:GetPropertyChangedSignal('Value'):Connect(function(
+            )
+                if StaticMap.sleep_or_treat_minigame_state.is_game_active.Value then
+                    if getgenv().SETTINGS.ENABLE_AUTO_FARM == false then
+                        return
+                    end
+                    if localPlayer:GetAttribute('hasStartedFarming') == false then
+                        return
+                    end
+                    if localPlayer:GetAttribute('StopFarmingTemp') == true then
+                        return
+                    end
+
+                    localPlayer:SetAttribute('StopFarmingTemp', true)
+                    Bypass('RouterClient').get('MinigameAPI/AttemptJoin'):FireServer('sleep_or_treat', true)
                 end
             end)
         end
@@ -12621,9 +12820,9 @@ end
 
 setfpscap(getgenv().SETTINGS.SET_FPS or 2)
 
-local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
+local ReplicatedStorage = game:GetService('ReplicatedStorage')
 local GuiService = game:GetService('GuiService')
-local Players = cloneref(game:GetService('Players'))
+local Players = game:GetService('Players')
 local UserGameSettings = UserSettings():GetService('UserGameSettings')
 
 UserGameSettings.GraphicsQualityLevel = 1
