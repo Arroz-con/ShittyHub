@@ -35,8 +35,8 @@ getgenv().SETTINGS = {
     ENABLE_RELEASE_PETS = true, -- if true it will use the pets in PETS_TO_AGE_IN_PEN to RELEASE
 
     PET_AUTO_FUSION = true,
-    DEBUG_MODE = false,
-    POTATO_MODE = true,
+    DEBUG_MODE = true,
+    POTATO_MODE = false,
 
     HATCH_EGG_PRIORITY = false,
     HATCH_EGG_PRIORITY_NAMES = {
