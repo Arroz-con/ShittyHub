@@ -12957,3 +12957,6 @@ for index, _table in ipairs(files)do
         end
     end
 end
+
+task.wait(3)
+localPlayer:SetAttribute('hasStartedFarming', true)
