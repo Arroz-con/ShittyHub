@@ -5351,13 +5351,13 @@ do
     function __DARKLUA_BUNDLE_MODULES.q()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
+        local startTime = DateTime.now().UnixTimestamp
         local StatsGuiClass = __DARKLUA_BUNDLE_MODULES.load('o')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local Clipboard = __DARKLUA_BUNDLE_MODULES.load('p')
         local self = {}
         local localPlayer = Players.LocalPlayer
         local HintApp = (localPlayer:WaitForChild('PlayerGui'):WaitForChild('HintApp'))
-        local startTime = DateTime.now().UnixTimestamp
         local startPotionAmount
         local startTinyPotionAmount
         local startEventCurrencyAmount
@@ -5386,8 +5386,6 @@ do
         self.YarnApple = StatsGuiClass.new('YarnApple')
 
         local updateAllStatsGui = function()
-            StatsGuiClass.SetTimeLabelText(startTime)
-
             potionsGained = Utils.FoodItemCount('pet_age_potion') - startPotionAmount
 
             if potionsGained < 0 then
@@ -5460,6 +5458,12 @@ do
                     bucksGained = bucksGained + amount
 
                     self.TempBucks:UpdateTextForTemp(bucksGained)
+                end
+            end)
+            task.spawn(function()
+                while true do
+                    StatsGuiClass.SetTimeLabelText(startTime)
+                    task.wait(1)
                 end
             end)
         end
