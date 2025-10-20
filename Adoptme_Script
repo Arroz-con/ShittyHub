@@ -12071,80 +12071,78 @@ Check the Developer Console for more information.]],
         local startAutoFarm = function()
             task.spawn(function()
                 while getgenv().SETTINGS.ENABLE_AUTO_FARM do
-                    pcall(function()
-                        if game.JobId ~= jobId then
-                            getgenv().SETTINGS.ENABLE_AUTO_FARM = false
+                    if game.JobId ~= jobId then
+                        getgenv().SETTINGS.ENABLE_AUTO_FARM = false
 
-                            Utils.PrintDebug(' \u{26d4} not same jobid so exiting \u{26d4}')
-                            task.wait(60)
-                            game:Shutdown()
+                        Utils.PrintDebug(' \u{26d4} not same jobid so exiting \u{26d4}')
+                        task.wait(60)
+                        game:Shutdown()
 
-                            return
-                        end
-                        if localPlayer:GetAttribute('StopFarmingTemp') == true then
-                            local count = 0
+                        return
+                    end
+                    if localPlayer:GetAttribute('StopFarmingTemp') == true then
+                        local count = 0
 
-                            repeat
-                                Utils.PrintDebug('Stopping because its buying or aging or in minigame')
+                        repeat
+                            Utils.PrintDebug('Stopping because its buying or aging or in minigame')
 
-                                count = count + 20
+                            count = count + 20
 
-                                task.wait(20)
-                            until not localPlayer:GetAttribute('StopFarmingTemp') or count > 150
+                            task.wait(20)
+                        until not localPlayer:GetAttribute('StopFarmingTemp') or count > 150
 
-                            localPlayer:SetAttribute('StopFarmingTemp', false)
-                        end
+                        localPlayer:SetAttribute('StopFarmingTemp', false)
+                    end
 
-                        Utils.RemoveHandHeldItem()
+                    Utils.RemoveHandHeldItem()
 
-                        if getgenv().SETTINGS.HATCH_EGG_PRIORITY then
-                            FarmingPet.CheckIfEgg(1)
-                            task.wait(1)
-
-                            if localPlayer:GetAttribute('isProHandler') then
-                                FarmingPet.CheckIfEgg(2)
-                                task.wait(1)
-                            end
-                        end
-                        if getgenv().SETTINGS.FOCUS_FARM_AGE_POTION then
-                            FarmingPet.GetPetToFarm(1)
-                        end
-                        if not completePetAilments(1) then
-                            task.wait()
-                            completeBabyAilments()
-                        end
-
+                    if getgenv().SETTINGS.HATCH_EGG_PRIORITY then
+                        FarmingPet.CheckIfEgg(1)
                         task.wait(1)
 
-                        if not getgenv().SETTINGS.FOCUS_FARM_AGE_POTION then
-                            FarmingPet.SwitchOutFullyGrown(1)
-
-                            if localPlayer:GetAttribute('isProHandler') then
-                                FarmingPet.SwitchOutFullyGrown(2)
-                            end
+                        if localPlayer:GetAttribute('isProHandler') then
+                            FarmingPet.CheckIfEgg(2)
+                            task.wait(1)
                         end
-                        if baitboxCount > 180 then
-                            local baitUnique = Utils.FindBait()
+                    end
+                    if getgenv().SETTINGS.FOCUS_FARM_AGE_POTION then
+                        FarmingPet.GetPetToFarm(1)
+                    end
+                    if not completePetAilments(1) then
+                        task.wait()
+                        completeBabyAilments()
+                    end
 
-                            Utils.PlaceBaitOrPickUp(furniture.lures_2023_normal_lure, baitUnique)
-                            task.wait(2)
-                            Utils.PlaceBaitOrPickUp(furniture.lures_2023_normal_lure, baitUnique)
+                    task.wait(1)
 
-                            baitboxCount = 0
+                    if not getgenv().SETTINGS.FOCUS_FARM_AGE_POTION then
+                        FarmingPet.SwitchOutFullyGrown(1)
 
-                            tryToReleasePets()
+                        if localPlayer:GetAttribute('isProHandler') then
+                            FarmingPet.SwitchOutFullyGrown(2)
                         end
+                    end
+                    if baitboxCount > 180 then
+                        local baitUnique = Utils.FindBait()
 
-                        tryFeedAgePotion()
-                        UpdateTextEvent:Fire()
+                        Utils.PlaceBaitOrPickUp(furniture.lures_2023_normal_lure, baitUnique)
+                        task.wait(2)
+                        Utils.PlaceBaitOrPickUp(furniture.lures_2023_normal_lure, baitUnique)
 
-                        local waitTime = rng:NextNumber(5, 15)
+                        baitboxCount = 0
 
-                        baitboxCount = baitboxCount + waitTime
+                        tryToReleasePets()
+                    end
 
-                        Utils.PrintDebug(string.format('waiting %s', tostring(waitTime)))
-                        task.wait(waitTime)
-                    end)
+                    tryFeedAgePotion()
+                    UpdateTextEvent:Fire()
+
+                    local waitTime = rng:NextNumber(5, 15)
+
+                    baitboxCount = baitboxCount + waitTime
+
+                    Utils.PrintDebug(string.format('waiting %s', tostring(waitTime)))
+                    task.wait(waitTime)
                 end
             end)
         end
@@ -12483,10 +12481,32 @@ Check the Developer Console for more information.]],
             RouterClient.get('MinigameAPI/MessageServer'):FireServer(hauntletId, 'player_selected_door', stageLevel, whichDoor)
         end
         local getPlayerHealth = function()
-            return HauntletMinigameClient.instanced_minigame.player_health[localPlayer].current
+            local instancedMinigame = HauntletMinigameClient.instanced_minigame
+
+            if not instancedMinigame then
+                return 0
+            end
+
+            local playersHealth = instancedMinigame.player_health
+
+            if not playersHealth then
+                return 0
+            end
+
+            return (playersHealth[localPlayer] and {
+                (playersHealth[localPlayer].current),
+            } or {0})[1]
         end
         local getInventoryCountFor = function(itemName)
-            return HauntletMinigameClient.instanced_minigame and HauntletMinigameClient.instanced_minigame.inventory[itemName] or 0
+            local instancedMinigame = HauntletMinigameClient.instanced_minigame
+
+            if not instancedMinigame then
+                return 0
+            end
+
+            return (instancedMinigame.inventory and {
+                (instancedMinigame.inventory[itemName]),
+            } or {0})[1]
         end
         local useItemForHauntlet = function(hauntletId, itemName)
             RouterClient.get('MinigameAPI/MessageServer'):FireServer(hauntletId, 'player_used_item', itemName)
@@ -12595,6 +12615,12 @@ Check the Developer Console for more information.]],
                         type = 'Rotten',
                     },
                 }
+
+                instancedMinigame = HauntletMinigameClient.instanced_minigame
+
+                if not instancedMinigame then
+                    return
+                end
 
                 for _, check in ipairs(doorChecks)do
                     local round = instancedMinigame.round or 0
