@@ -12168,7 +12168,6 @@ Check the Developer Console for more information.]],
             Teleport.FarmingHome()
             Utils.PrintDebug('teleported to farming place')
             Utils.PrintDebug('Started Farming')
-            localPlayer:SetAttribute('hasStartedFarming', true)
             tryToReleasePets()
             Utils.UnEquipAllPets()
             task.wait(2)
