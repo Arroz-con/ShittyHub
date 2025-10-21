@@ -12973,5 +12973,5 @@ local success, result = pcall(function()
 end)
 
 if not success then
-    game:GetService('Players').LocalPlayer:Kick(string.format('The Script Errored: %s', tostring(result)))
+    print(string.format('The Script Errored: %s', tostring(result)))
 end
