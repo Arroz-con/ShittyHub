@@ -12834,138 +12834,144 @@ Check the Developer Console for more information.]],
     end
 end
 
-setfpscap(getgenv().SETTINGS.SET_FPS or 2)
+local success, result = pcall(function()
+    setfpscap(getgenv().SETTINGS.SET_FPS or 2)
 
-if not game:IsLoaded() then
-    game.Loaded:Wait()
-end
-if getgenv().loaded == true then
-    print('SCRIPT ALREADY LOADED')
+    if not game:IsLoaded() then
+        game.Loaded:Wait()
+    end
+    if getgenv().loaded == true then
+        print('SCRIPT ALREADY LOADED')
 
-    return
-end
-
-getgenv().loaded = true
-
-if game.PlaceId ~= 920587237 then
-    return
-end
-
-setfpscap(getgenv().SETTINGS.SET_FPS or 2)
-
-local ReplicatedStorage = game:GetService('ReplicatedStorage')
-local GuiService = game:GetService('GuiService')
-local Players = game:GetService('Players')
-local UserGameSettings = UserSettings():GetService('UserGameSettings')
-
-UserGameSettings.GraphicsQualityLevel = 1
-UserGameSettings.MasterVolume = 0
-
-GuiService.Changed:Connect(function()
-    if GuiService:GetErrorCode().Value == 0 then
         return
     end
 
-    game:Shutdown()
+    getgenv().loaded = true
+
+    if game.PlaceId ~= 920587237 then
+        return
+    end
+
+    setfpscap(getgenv().SETTINGS.SET_FPS or 2)
+
+    local ReplicatedStorage = game:GetService('ReplicatedStorage')
+    local GuiService = game:GetService('GuiService')
+    local Players = game:GetService('Players')
+    local UserGameSettings = UserSettings():GetService('UserGameSettings')
+
+    UserGameSettings.GraphicsQualityLevel = 1
+    UserGameSettings.MasterVolume = 0
+
+    GuiService.Changed:Connect(function()
+        if GuiService:GetErrorCode().Value == 0 then
+            return
+        end
+
+        game:Shutdown()
+    end)
+
+    local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
+    local RouterClient = (Bypass('RouterClient'))
+    local localPlayer = Players.LocalPlayer
+    local NewsApp = (localPlayer:WaitForChild('PlayerGui'):WaitForChild('NewsApp'))
+
+    if not NewsApp.Enabled then
+        repeat
+            task.wait(5)
+        until NewsApp.Enabled or localPlayer.Character
+    end
+
+    for i, v in debug.getupvalue(RouterClient.init, 7)do
+        v.Name = i
+    end
+
+    getgenv().auto_accept_trade = false
+    getgenv().autoTrading = false
+    getgenv().auto_trade_all_pets = false
+    getgenv().auto_trade_fullgrown_neon_and_mega = false
+    getgenv().auto_trade_multi_choice = false
+    getgenv().auto_trade_custom = false
+    getgenv().auto_trade_semi_auto = false
+    getgenv().auto_trade_lowtier_pets = false
+    getgenv().auto_trade_rarity_pets = false
+    getgenv().auto_farm = false
+    getgenv().auto_make_neon = false
+    getgenv().auto_trade_Legendary = false
+    getgenv().auto_trade_custom_gifts = false
+    getgenv().auto_trade_all_neons = false
+    getgenv().auto_trade_eggs = false
+    getgenv().auto_trade_all_inventory = false
+    getgenv().feedAgeUpPotionToggle = false
+    getgenv().petCurrentlyFarming1 = nil
+    getgenv().petCurrentlyFarming2 = nil
+
+    local files = {
+        {
+            PrepareAccountHandler = __DARKLUA_BUNDLE_MODULES.load('k'),
+        },
+        {
+            DailyRewardHandler = __DARKLUA_BUNDLE_MODULES.load('l'),
+        },
+        {
+            GameGuiHandler = __DARKLUA_BUNDLE_MODULES.load('m'),
+        },
+        {
+            PotatoModeHandler = __DARKLUA_BUNDLE_MODULES.load('n'),
+        },
+        {
+            StatsGuiHandler = __DARKLUA_BUNDLE_MODULES.load('q'),
+        },
+        {
+            TradeLicenseHandler = __DARKLUA_BUNDLE_MODULES.load('r'),
+        },
+        {
+            TutorialHandler = __DARKLUA_BUNDLE_MODULES.load('s'),
+        },
+        {
+            WebhookHandler = __DARKLUA_BUNDLE_MODULES.load('t'),
+        },
+        {
+            RayfieldHandler = __DARKLUA_BUNDLE_MODULES.load('v'),
+        },
+        {
+            AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.load('z'),
+        },
+        {
+            PetOfflineHandler = __DARKLUA_BUNDLE_MODULES.load('B'),
+        },
+        {
+            HalloweenHandler2025 = __DARKLUA_BUNDLE_MODULES.load('C'),
+        },
+    }
+
+    print('----- INITIALIZING MODULES -----')
+
+    for index, _table in ipairs(files)do
+        for moduleName, _ in _table do
+            if files[index][moduleName].Init then
+                print(string.format('INITIALIZING: %s', tostring(moduleName)))
+                files[index][moduleName].Init()
+                task.wait(1)
+            end
+        end
+    end
+
+    print('----- STARTING MODULES -----')
+
+    for index, _table in ipairs(files)do
+        for moduleName, _ in _table do
+            if files[index][moduleName].Start then
+                print(string.format('STARTING: %s', tostring(moduleName)))
+                files[index][moduleName].Start()
+                task.wait(1)
+            end
+        end
+    end
+
+    task.wait(3)
+    localPlayer:SetAttribute('hasStartedFarming', true)
 end)
 
-local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
-local RouterClient = (Bypass('RouterClient'))
-local localPlayer = Players.LocalPlayer
-local NewsApp = (localPlayer:WaitForChild('PlayerGui'):WaitForChild('NewsApp'))
-
-if not NewsApp.Enabled then
-    repeat
-        task.wait(5)
-    until NewsApp.Enabled or localPlayer.Character
+if not success then
+    game:GetService('Players').LocalPlayer:Kick(string.format('The Script Errored: %s', tostring(result)))
 end
-
-for i, v in debug.getupvalue(RouterClient.init, 7)do
-    v.Name = i
-end
-
-getgenv().auto_accept_trade = false
-getgenv().autoTrading = false
-getgenv().auto_trade_all_pets = false
-getgenv().auto_trade_fullgrown_neon_and_mega = false
-getgenv().auto_trade_multi_choice = false
-getgenv().auto_trade_custom = false
-getgenv().auto_trade_semi_auto = false
-getgenv().auto_trade_lowtier_pets = false
-getgenv().auto_trade_rarity_pets = false
-getgenv().auto_farm = false
-getgenv().auto_make_neon = false
-getgenv().auto_trade_Legendary = false
-getgenv().auto_trade_custom_gifts = false
-getgenv().auto_trade_all_neons = false
-getgenv().auto_trade_eggs = false
-getgenv().auto_trade_all_inventory = false
-getgenv().feedAgeUpPotionToggle = false
-getgenv().petCurrentlyFarming1 = nil
-getgenv().petCurrentlyFarming2 = nil
-
-local files = {
-    {
-        PrepareAccountHandler = __DARKLUA_BUNDLE_MODULES.load('k'),
-    },
-    {
-        DailyRewardHandler = __DARKLUA_BUNDLE_MODULES.load('l'),
-    },
-    {
-        GameGuiHandler = __DARKLUA_BUNDLE_MODULES.load('m'),
-    },
-    {
-        PotatoModeHandler = __DARKLUA_BUNDLE_MODULES.load('n'),
-    },
-    {
-        StatsGuiHandler = __DARKLUA_BUNDLE_MODULES.load('q'),
-    },
-    {
-        TradeLicenseHandler = __DARKLUA_BUNDLE_MODULES.load('r'),
-    },
-    {
-        TutorialHandler = __DARKLUA_BUNDLE_MODULES.load('s'),
-    },
-    {
-        WebhookHandler = __DARKLUA_BUNDLE_MODULES.load('t'),
-    },
-    {
-        RayfieldHandler = __DARKLUA_BUNDLE_MODULES.load('v'),
-    },
-    {
-        AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.load('z'),
-    },
-    {
-        PetOfflineHandler = __DARKLUA_BUNDLE_MODULES.load('B'),
-    },
-    {
-        HalloweenHandler2025 = __DARKLUA_BUNDLE_MODULES.load('C'),
-    },
-}
-
-print('----- INITIALIZING MODULES -----')
-
-for index, _table in ipairs(files)do
-    for moduleName, _ in _table do
-        if files[index][moduleName].Init then
-            print(string.format('INITIALIZING: %s', tostring(moduleName)))
-            files[index][moduleName].Init()
-            task.wait(1)
-        end
-    end
-end
-
-print('----- STARTING MODULES -----')
-
-for index, _table in ipairs(files)do
-    for moduleName, _ in _table do
-        if files[index][moduleName].Start then
-            print(string.format('STARTING: %s', tostring(moduleName)))
-            files[index][moduleName].Start()
-            task.wait(1)
-        end
-    end
-end
-
-task.wait(3)
-localPlayer:SetAttribute('hasStartedFarming', true)
