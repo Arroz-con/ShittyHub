@@ -2740,8 +2740,25 @@ do
 
             SetLocationFunc('MainMap', 'Neighborhood/MainDoor', {})
 
-            local mainmapfall = Workspace.Interiors:WaitForChild(tostring(Workspace.Interiors:FindFirstChildWhichIsA('Model')))
-            local pianoStaircase = mainmapfall:WaitForChild('Event'):WaitForChild('PipeOrgan'):WaitForChild('PianoStaircase')
+            local mainmapfall = Workspace.Interiors:WaitForChild('MainMap!Fall', 30)
+
+            if not mainmapfall then
+                return false
+            end
+
+            local eventFolder = mainmapfall:WaitForChild('Event', 10)
+
+            if not eventFolder then
+                return false
+            end
+
+            local pipeOrgan = eventFolder:WaitForChild('PipeOrgan', 10)
+
+            if not pipeOrgan then
+                return false
+            end
+
+            local pianoStaircase = pipeOrgan:WaitForChild('PianoStaircase', 10)
 
             if not pianoStaircase then
                 return false
@@ -12105,9 +12122,11 @@ Check the Developer Console for more information.]],
                             count = count + 20
 
                             task.wait(20)
-                        until localPlayer:GetAttribute('StopFarmingTemp') == false or count >= 180
+                        until localPlayer:GetAttribute('StopFarmingTemp') == false or count >= 240
 
-                        localPlayer:SetAttribute('StopFarmingTemp', false)
+                        if count >= 240 then
+                            localPlayer:Kick('Player is stuck in minigame: 4 mins +')
+                        end
                     end
 
                     Utils.RemoveHandHeldItem()
@@ -12433,7 +12452,9 @@ Check the Developer Console for more information.]],
             RouterClient.get('MinigameAPI/MessageServer'):FireServer(minigame_id, 'try_select_pet_for_player', getgenv().petCurrentlyFarming1)
         end
         local getPetAccessories = function(module)
-            return module.instanced_minigame.accessory_kinds
+            return (module.instanced_minigame and {
+                (module.instanced_minigame.accessory_kinds),
+            } or {nil})[1]
         end
         local addItemToPet = function(minigameId)
             local accessories = getPetAccessories(FashionFrenzyMinigameClient)
@@ -12609,7 +12630,6 @@ Check the Developer Console for more information.]],
                     for _, item in ipairs(healItems)do
                         if getInventoryCountFor(item) >= 1 then
                             useItemForHauntlet(minigameId, item)
-                            task.wait(1)
 
                             break
                         end
