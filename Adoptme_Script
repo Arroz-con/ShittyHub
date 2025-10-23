@@ -11832,6 +11832,10 @@ Check the Developer Console for more information.]],
         local FarmingPet = __DARKLUA_BUNDLE_MODULES.load('x')
         local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
         local PetRelease = __DARKLUA_BUNDLE_MODULES.load('y')
+        local contentPacks = (ReplicatedStorage:WaitForChild('SharedModules'):WaitForChild('ContentPacks'))
+        local HauntletMinigameClient = (require(contentPacks.Halloween2025.Minigames.HauntletMinigameClient))
+        local FashionFrenzyMinigameClient = (require(contentPacks.Halloween2025.Minigames.FashionFrenzyMinigameClient))
+        local TreatDashClient = (require(contentPacks.Halloween2025.Minigames.TreatDashClient))
         local self = {}
         local UpdateTextEvent = (ReplicatedStorage:WaitForChild('UpdateTextEvent'))
         local localPlayer = Players.LocalPlayer
@@ -12114,19 +12118,16 @@ Check the Developer Console for more information.]],
                         return
                     end
                     if localPlayer:GetAttribute('StopFarmingTemp') == true then
-                        local count = 0
-
                         repeat
-                            Utils.PrintDebug('Stopping because its buying or aging or in minigame')
-
-                            count = count + 20
-
+                            Utils.PrintDebug('Stopping because its in minigame')
                             task.wait(20)
-                        until localPlayer:GetAttribute('StopFarmingTemp') == false or count >= 240
 
-                        if count >= 240 then
-                            localPlayer:Kick('Player is stuck in minigame: 4 mins +')
-                        end
+                            if not (HauntletMinigameClient.instanced_minigame and FashionFrenzyMinigameClient.instanced_minigame and TreatDashClient.instanced_minigame) then
+                                localPlayer:SetAttribute('StopFarmingTemp', false)
+                                print('no active minigames so setting StopFarmingTemp to false')
+                                task.wait(10)
+                            end
+                        until localPlayer:GetAttribute('StopFarmingTemp') == false
                     end
 
                     Utils.RemoveHandHeldItem()
