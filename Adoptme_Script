@@ -12122,7 +12122,7 @@ Check the Developer Console for more information.]],
                             Utils.PrintDebug('Stopping because its in minigame')
                             task.wait(30)
 
-                            if not (HauntletMinigameClient.instanced_minigame and FashionFrenzyMinigameClient.instanced_minigame and TreatDashClient.instanced_minigame) then
+                            if not (HauntletMinigameClient.instanced_minigame or FashionFrenzyMinigameClient.instanced_minigame or TreatDashClient.instanced_minigame) then
                                 localPlayer:SetAttribute('StopFarmingTemp', false)
                                 print('no active minigames so setting StopFarmingTemp to false')
                                 task.wait(10)
