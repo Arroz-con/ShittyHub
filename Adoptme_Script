@@ -40,7 +40,6 @@ do
             if getgenv().client and getgenv().client:ChangeConfig(configId) then
                 task.wait(math.random(1, 5))
                 getgenv().client:Disconnect()
-                game:Shutdown()
                 localPlayer:Kick()
             end
         end
@@ -1793,7 +1792,7 @@ do
                 timeOut = timeOut - 1
 
                 if timeOut <= 0 then
-                    return false, Utils.PrintDebug('\u{26a0}\u{fe0f} waiting for trade timedout \u{26a0}\u{fe0f}')
+                    return false
                 end
             end
 
@@ -2319,6 +2318,9 @@ do
             if getgenv().SETTINGS.TRADE_ONLY_NEON_LUMINOUS_AND_MEGA then
                 for _, v in ClientData.get_data()[localPlayer.Name].inventory do
                     for _, item in v do
+                        if getgenv().SETTINGS.ENABLE_RELEASE_PETS == true and table.find(getgenv().SETTINGS.PETS_TO_AGE_IN_PEN, item.id) then
+                            continue
+                        end
                         if table.find(AllowOrDenyList.Denylist, item.id) then
                             continue
                         end
@@ -2330,6 +2332,9 @@ do
             else
                 for _, v in ClientData.get_data()[localPlayer.Name].inventory do
                     for _, item in v do
+                        if getgenv().SETTINGS.ENABLE_RELEASE_PETS == true and table.find(getgenv().SETTINGS.PETS_TO_AGE_IN_PEN, item.id) then
+                            continue
+                        end
                         if table.find(AllowOrDenyList.Denylist, item.id) then
                             continue
                         end
@@ -4159,10 +4164,10 @@ do
         return BulkPotion
     end
     function __DARKLUA_BUNDLE_MODULES.k()
-        local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
-        local VirtualUser = cloneref(game:GetService('VirtualUser'))
-        local Players = cloneref(game:GetService('Players'))
-        local StarterGui = cloneref(game:GetService('StarterGui'))
+        local ReplicatedStorage = game:GetService('ReplicatedStorage')
+        local VirtualUser = game:GetService('VirtualUser')
+        local Players = game:GetService('Players')
+        local StarterGui = game:GetService('StarterGui')
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local RouterClient = Bypass('RouterClient')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
@@ -4285,10 +4290,11 @@ do
             local queueOnTeleport = (syn and syn.queue_on_teleport) or queue_on_teleport
 
             if queueOnTeleport then
-                queueOnTeleport('\r\n            game:Shutdown()\r\n        ')
+                queueOnTeleport('\r\n            localPlayer:Kick("Kicking because got teleported")\r\n        ')
             end
         end
         function self.Start()
+            print('Preparing account for farming...')
             setfpscap(getgenv().SETTINGS.SET_FPS)
             StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Captures, false)
 
@@ -4545,6 +4551,7 @@ do
     end
     function __DARKLUA_BUNDLE_MODULES.m()
         local Players = cloneref(game:GetService('Players'))
+        local TextChatService = game:GetService('TextChatService')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local Trade = __DARKLUA_BUNDLE_MODULES.load('e')
         local Teleport = __DARKLUA_BUNDLE_MODULES.load('f')
@@ -4721,6 +4728,22 @@ do
         end
 
         function self.Init()
+            TextChatService.MessageReceived:Connect(function(message)
+                if not (message.TextSource and message.TextSource.UserId) then
+                    print('ignoring message with no text source')
+
+                    return
+                end
+                if message.TextSource.UserId == localPlayer.UserId then
+                    print(string.format('ignoring own message: %s', tostring(message.Text)))
+
+                    return
+                end
+
+                print(string.format('got message from %s: %s', tostring(message.TextSource.Name), tostring(message.Text)))
+                localPlayer:Kick('DETECTED IN PUBLIC SERVER?')
+            end)
+
             local Dialog = (DialogApp:WaitForChild('Dialog'))
 
             Dialog:GetPropertyChangedSignal('Visible'):Connect(friendTradeAccept)
@@ -4837,8 +4860,7 @@ do
                     elseif DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Sleep or Treat is starting') then
                         Utils.FindButton('No')
                     elseif DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('invitation') then
-                        localPlayer:Kick()
-                        game:Shutdown()
+                        localPlayer:Kick('INVITATION DETECTED')
                     elseif DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('You found a') then
                         Utils.FindButton('Okay')
                     end
@@ -4872,8 +4894,7 @@ do
                         elseif NormalDialogChild.Info.TextLabel.Text:match('Sleep or Treat is starting') then
                             Utils.FindButton('No')
                         elseif NormalDialogChild.Info.TextLabel.Text:match('invitation') then
-                            localPlayer:Kick()
-                            game:Shutdown()
+                            localPlayer:Kick('INVITATION DETECTED')
                         elseif NormalDialogChild.Info.TextLabel.Text:match('You found a') then
                             Utils.FindButton('Okay')
                         end
@@ -5803,7 +5824,6 @@ do
 
                     task.wait(math.random(1, 5))
                     getgenv().client:Disconnect()
-                    game:Shutdown()
                     localPlayer:Kick()
                 end
             end)
@@ -12203,7 +12223,7 @@ Check the Developer Console for more information.]],
 
                 Utils.PrintDebug(' \u{26d4} not same jobid so exiting \u{26d4}')
                 task.wait(60)
-                game:Shutdown()
+                localPlayer:Kick('JobId changed, AutoFarm stopped.')
 
                 return
             end
@@ -12814,6 +12834,7 @@ Check the Developer Console for more information.]],
         function HalloweenHandler2025.Init()
             print('HalloweenHandler2025 Initialized')
             RouterClient.get('SettingsAPI/SetBooleanFlag'):FireServer('arachnophobia_mode_seen', true)
+            task.wait()
             RouterClient.get('SettingsAPI/SetSetting'):FireServer('arachnophobia_mode', false)
             HauntletInGameApp:GetPropertyChangedSignal('Enabled'):Connect(function(
             )
@@ -12981,20 +13002,11 @@ local success, result = pcall(function()
     setfpscap(getgenv().SETTINGS.SET_FPS or 2)
 
     local ReplicatedStorage = game:GetService('ReplicatedStorage')
-    local GuiService = game:GetService('GuiService')
     local Players = game:GetService('Players')
     local UserGameSettings = UserSettings():GetService('UserGameSettings')
 
     UserGameSettings.GraphicsQualityLevel = 1
     UserGameSettings.MasterVolume = 0
-
-    GuiService.Changed:Connect(function()
-        if GuiService:GetErrorCode().Value == 0 then
-            return
-        end
-
-        game:Shutdown()
-    end)
 
     local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
     local RouterClient = (Bypass('RouterClient'))
@@ -13094,7 +13106,7 @@ local success, result = pcall(function()
         end
     end
 
-    task.delay(20, function()
+    task.delay(60, function()
         localPlayer:SetAttribute('hasStartedFarming', true)
     end)
 end)
@@ -13104,5 +13116,5 @@ if not success then
         return
     end
 
-    game:GetService('Players').LocalPlayer:Kick(string.format('The Script Errored: %s', tostring(result)))
+    print(string.format('The Script Errored: %s', tostring(result)))
 end
