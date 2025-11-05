@@ -268,6 +268,18 @@ do
 
             return count
         end
+        function Utils.IsMuleInGame(playerMulesTable)
+            for _, player in Players:GetPlayers()do
+                if player.Name == localPlayer.Name then
+                    continue
+                end
+                if table.find(playerMulesTable, player.Name) then
+                    return true
+                end
+            end
+
+            return false
+        end
         function Utils.FormatNumber(num)
             if num >= 1e6 then
                 return string.format('%.2fM', num / 1e6)
@@ -283,19 +295,21 @@ do
             local seconds = currentTime % 60
 
             if minutes % 10 == 0 and not timeChecked and getgenv().SETTINGS.ENABLE_AUTO_FARM == true then
-                timeChecked = true
+                if not Utils.IsMuleInGame(getgenv().SETTINGS.TRADE_COLLECTOR_NAME) then
+                    timeChecked = true
 
-                print('10 mins has pasted checking if account is farming')
+                    print('10 mins has pasted checking if account is farming')
 
-                local timeElapsed = DateTime.now().UnixTimestamp - getgenv().lastTimeFarming
+                    local timeElapsed = DateTime.now().UnixTimestamp - getgenv().lastTimeFarming
 
-                if timeElapsed >= (540) then
-                    localPlayer:Kick('player is stuck?')
+                    if timeElapsed >= (540) then
+                        localPlayer:Kick('player is stuck?')
+                    end
+
+                    task.delay(60, function()
+                        timeChecked = false
+                    end)
                 end
-
-                task.delay(60, function()
-                    timeChecked = false
-                end)
             end
             if hours >= 24 then
                 localPlayer:Kick('has been online 24+')
@@ -11955,9 +11969,9 @@ Check the Developer Console for more information.]],
 
             local success, result = pcall(function()
                 Teleport.Recycler()
-                task.wait(5)
+                task.wait(rng:NextInteger(1, 10))
                 PetRelease.Claim()
-                task.wait(1)
+                task.wait(rng:NextInteger(1, 10))
                 PetRelease.Use(GetInventory.GetPetsToRelease())
             end)
 
