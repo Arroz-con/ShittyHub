@@ -12292,6 +12292,7 @@ Check the Developer Console for more information.]],
                     baitboxCount = 0
 
                     tryToReleasePets()
+                    Teleport.FarmingHome()
                 end
             end
 
