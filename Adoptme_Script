@@ -311,9 +311,6 @@ do
                     end)
                 end
             end
-            if hours >= 24 then
-                localPlayer:Kick('has been online 24+')
-            end
 
             return string.format('%02d:%02d:%02d', hours, minutes, seconds)
         end
