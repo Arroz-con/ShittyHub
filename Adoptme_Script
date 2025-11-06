@@ -12475,7 +12475,14 @@ Check the Developer Console for more information.]],
 
             print(string.format('AMOUNT MISSING: %s, eggs', tostring(amountMissing)))
 
-            local petUniques = GetInventory.GetPetUniquesForPetPen(GetInventory.GetPetEggs(), CurrentIdlePets, amountMissing)
+            local eggsList = GetInventory.GetPetEggs()
+            local eggIndex = table.find(eggsList, 'pet_recycler_2025_crystal_egg')
+
+            if eggIndex then
+                table.remove(eggsList, eggIndex)
+            end
+
+            local petUniques = GetInventory.GetPetUniquesForPetPen(eggsList, CurrentIdlePets, amountMissing)
 
             addPet(petUniques)
             task.wait(1)
