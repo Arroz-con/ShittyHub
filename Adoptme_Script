@@ -4750,6 +4750,9 @@ do
 
                     return
                 end
+                if message.Text:match('found') or message.Text:match('hatched') then
+                    return
+                end
 
                 print(string.format('got message from %s: %s', tostring(message.TextSource.Name), tostring(message.Text)))
                 localPlayer:Kick('DETECTED IN PUBLIC SERVER?')
