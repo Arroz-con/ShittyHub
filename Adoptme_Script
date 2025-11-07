@@ -4755,7 +4755,6 @@ do
                 end
 
                 print(string.format('got message from %s: %s', tostring(message.TextSource.Name), tostring(message.Text)))
-                localPlayer:Kick('DETECTED IN PUBLIC SERVER?')
             end)
 
             local Dialog = (DialogApp:WaitForChild('Dialog'))
