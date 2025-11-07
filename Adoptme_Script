@@ -295,7 +295,7 @@ do
             local seconds = currentTime % 60
 
             if minutes % 10 == 0 and not timeChecked and getgenv().SETTINGS.ENABLE_AUTO_FARM == true then
-                if not Utils.IsMuleInGame(getgenv().SETTINGS.TRADE_COLLECTOR_NAME) then
+                if not Utils.IsMuleInGame(getgenv().SETTINGS.TRADE_COLLECTOR_NAME) or localPlayer:GetAttribute('AgingPets') == false then
                     timeChecked = true
 
                     print('10 mins has pasted checking if account is farming')
@@ -4397,14 +4397,17 @@ do
 
             if getgenv().BUY_BEFORE_FARMING then
                 localPlayer:SetAttribute('StopFarmingTemp', true)
+                localPlayer:SetAttribute('AgingPets', true)
                 BuyItem.StartBuyItems(getgenv().BUY_BEFORE_FARMING)
             end
             if getgenv().OPEN_ITEMS_BEFORE_FARMING then
                 localPlayer:SetAttribute('StopFarmingTemp', true)
+                localPlayer:SetAttribute('AgingPets', true)
                 BuyItem.OpenItems(getgenv().OPEN_ITEMS_BEFORE_FARMING)
             end
             if getgenv().AGE_PETS_BEFORE_FARMING then
                 localPlayer:SetAttribute('StopFarmingTemp', true)
+                localPlayer:SetAttribute('AgingPets', true)
                 BulkPotion.StartAgingPets(getgenv().AGE_PETS_BEFORE_FARMING)
                 Utils.PrintDebug('DONE aging pets')
             end
@@ -4432,6 +4435,7 @@ do
             end
 
             localPlayer:SetAttribute('StopFarmingTemp', false)
+            localPlayer:SetAttribute('AgingPets', false)
         end
 
         return self
