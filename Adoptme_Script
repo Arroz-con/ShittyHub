@@ -4260,6 +4260,9 @@ do
         end
 
         function self.Init()
+            RouterClient.get('SettingsAPI/SetBooleanFlag'):FireServer('arachnophobia_mode_seen', true)
+            task.wait()
+            RouterClient.get('SettingsAPI/SetSetting'):FireServer('arachnophobia_mode', false)
             DialogApp.Dialog.ThemeColorDialog:GetPropertyChangedSignal('Visible'):Connect(pickColorTutorial)
             DialogApp.Dialog.SpawnChooserDialog:GetPropertyChangedSignal('Visible'):Connect(findHomeButtonAndClick)
             Players.PlayerAdded:Connect(function(player)
