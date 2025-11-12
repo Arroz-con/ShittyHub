@@ -295,7 +295,7 @@ do
             local seconds = currentTime % 60
 
             if minutes % 10 == 0 and not timeChecked and getgenv().SETTINGS.ENABLE_AUTO_FARM == true then
-                if not Utils.IsMuleInGame(getgenv().SETTINGS.TRADE_COLLECTOR_NAME) or localPlayer:GetAttribute('AgingPets') == false then
+                if not Utils.IsMuleInGame(getgenv().SETTINGS.TRADE_COLLECTOR_NAME) or localPlayer:GetAttribute('hasStartedFarming') == true then
                     timeChecked = true
 
                     print('10 mins has pasted checking if account is farming')
