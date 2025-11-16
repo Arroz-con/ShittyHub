@@ -12577,12 +12577,15 @@ Check the Developer Console for more information.]],
     end
 end
 
+task.wait(30)
+
+if not game:IsLoaded() then
+    game.Loaded:Wait()
+end
+
 local success, result = pcall(function()
     setfpscap(getgenv().SETTINGS.SET_FPS or 2)
 
-    if not game:IsLoaded() then
-        game.Loaded:Wait()
-    end
     if getgenv().loaded == true then
         print('SCRIPT ALREADY LOADED')
 
