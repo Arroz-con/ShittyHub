@@ -4757,7 +4757,7 @@ do
 
                     return
                 end
-                if message.Text:match('found') or message.Text:match('hatched') then
+                if message.Text:match('Server') then
                     return
                 end
 
@@ -12577,6 +12577,7 @@ Check the Developer Console for more information.]],
     end
 end
 
+setfpscap(2)
 task.wait(30)
 
 if not game:IsLoaded() then
