@@ -40,7 +40,7 @@ do
             if getgenv().client and getgenv().client:ChangeConfig(configId) then
                 task.wait(math.random(1, 5))
                 getgenv().client:Disconnect()
-                localPlayer:Kick()
+                game:Shutdown()
             end
         end
         function Utils.TryRedeemGoodieBag()
@@ -303,7 +303,7 @@ do
                     local timeElapsed = DateTime.now().UnixTimestamp - getgenv().lastTimeFarming
 
                     if timeElapsed >= (540) then
-                        localPlayer:Kick('player is stuck?')
+                        game:Shutdown()
                     end
 
                     task.delay(60, function()
@@ -4304,7 +4304,7 @@ do
             local queueOnTeleport = (syn and syn.queue_on_teleport) or queue_on_teleport
 
             if queueOnTeleport then
-                queueOnTeleport('\r\n            localPlayer:Kick("Kicking because got teleported")\r\n        ')
+                queueOnTeleport('\r\n            game:Shutdown()\r\n        ')
             end
         end
         function self.Start()
@@ -4373,7 +4373,7 @@ do
             Utils.PrintDebug(string.format('LitterBox: %s \u{1f6bd}', tostring(furnitureKeys.ailments_refresh_2024_litter_box)))
 
             if furnitureKeys.basiccrib == 'nil' then
-                localPlayer:Kick("No bed found, can't farm without a bed")
+                game:Shutdown()
 
                 return
             end
@@ -4762,6 +4762,7 @@ do
                 end
 
                 print(string.format('got message from %s: %s', tostring(message.TextSource.Name), tostring(message.Text)))
+                game:Shutdown()
             end)
 
             local Dialog = (DialogApp:WaitForChild('Dialog'))
@@ -4880,7 +4881,7 @@ do
                     elseif DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Sleep or Treat is starting') then
                         Utils.FindButton('No')
                     elseif DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('invitation') then
-                        localPlayer:Kick('INVITATION DETECTED')
+                        game:Shutdown()
                     elseif DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('You found a') then
                         Utils.FindButton('Okay')
                     end
@@ -4914,7 +4915,7 @@ do
                         elseif NormalDialogChild.Info.TextLabel.Text:match('Sleep or Treat is starting') then
                             Utils.FindButton('No')
                         elseif NormalDialogChild.Info.TextLabel.Text:match('invitation') then
-                            localPlayer:Kick('INVITATION DETECTED')
+                            game:Shutdown()
                         elseif NormalDialogChild.Info.TextLabel.Text:match('You found a') then
                             Utils.FindButton('Okay')
                         end
@@ -5284,7 +5285,7 @@ do
 
                     task.wait(math.random(1, 5))
                     getgenv().client:Disconnect()
-                    localPlayer:Kick()
+                    game:Shutdown()
                 end
             end)
         end
@@ -11867,7 +11868,7 @@ Check the Developer Console for more information.]],
 
                 Utils.PrintDebug(' \u{26d4} not same jobid so exiting \u{26d4}')
                 task.wait(60)
-                localPlayer:Kick('JobId changed, AutoFarm stopped.')
+                game:Shutdown()
 
                 return
             end
@@ -11889,7 +11890,7 @@ Check the Developer Console for more information.]],
                         task.wait(60)
                     until not Utils.IsMuleInGame(getgenv().SETTINGS.TRADE_COLLECTOR_NAME)
                 elseif count >= COUNT_MAX then
-                    localPlayer:Kick('Player is stuck in minigame: 5 mins +')
+                    game:Shutdown()
                 end
             end
 
