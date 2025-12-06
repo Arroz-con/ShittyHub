@@ -12010,6 +12010,8 @@ Check the Developer Console for more information.]],
             RouterClient.get('PayAPI/DisablePopups'):FireServer()
         end
         function self.Start()
+            RouterClient.get('HousingAPI/ClaimAllDeliveries'):FireServer()
+
             if not getgenv().SETTINGS.ENABLE_AUTO_FARM then
                 Utils.PrintDebug('ENABLE_AUTO_FARM is false')
 
@@ -12023,7 +12025,6 @@ Check the Developer Console for more information.]],
 
             setupFloor()
             CollisionsClient.set_collidable(false)
-            RouterClient.get('HousingAPI/ClaimAllDeliveries'):FireServer()
             task.wait(2)
             Teleport.FarmingHome()
             Utils.PrintDebug('teleported to farming place')
