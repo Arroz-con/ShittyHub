@@ -3311,11 +3311,7 @@ do
             return false
         end
 
-        function GetInventory.GetPetUniquesForPetPen(
-            petIdList,
-            CurrentIdlePets,
-            amount
-        )
+        function GetInventory.GetPetUniquesForPetPen(petIdList, amount)
             local PetageCounter = 5
             local isNeon = true
             local petUniques = {}
@@ -3360,7 +3356,7 @@ do
 
             return petUniques
         end
-        function GetInventory.GetPetsRarityAndAgeForPen(rarity, whichPet)
+        function GetInventory.GetPetsRarityAndAgeForPen(rarity)
             local PetageCounter = 5
             local isNeon = true
             local petFound = false
@@ -3422,13 +3418,13 @@ do
         end
         function GetInventory.GetAgeablePets()
             local ageablePets = {}
-            local eggList = GetInventory.GetPetEggs()
+            local eggList2 = GetInventory.GetPetEggs()
 
             for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
                 if table.find(AllowOrDenyList.Denylist, pet.id) then
                     continue
                 end
-                if table.find(eggList, pet.id) then
+                if table.find(eggList2, pet.id) then
                     continue
                 end
                 if pet.properties.age == 6 or (pet.properties.neon and pet.properties.age == 6) or pet.properties.mega_neon then
@@ -3771,7 +3767,7 @@ do
                 return eggList
             end
 
-            for i, v in InventoryDB.pets do
+            for _, v in InventoryDB.pets do
                 if v.is_egg then
                     table.insert(eggList, v.id)
                 end
@@ -4907,11 +4903,9 @@ do
 
                 DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal('Text'):Connect(function(
                 )
-                    if DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Bah Humbug is starting') then
-                        Utils.FindButton('No')
-                    elseif DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Costume Party is starting') then
-                        Utils.FindButton('No')
-                    elseif DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('Sleep or Treat is starting') then
+                    local text = DialogApp.Dialog.NormalDialog.Info.TextLabel.Text
+
+                    if text:match('Bah Humbug is starting') or text:match('Costume Party is starting') or text:match('Sleep or Treat is starting') then
                         Utils.FindButton('No')
                     elseif DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('invitation') then
                         game:Shutdown()
@@ -4941,11 +4935,9 @@ do
 
                     NormalDialogChild.Info.TextLabel:GetPropertyChangedSignal('Text'):Connect(function(
                     )
-                        if NormalDialogChild.Info.TextLabel.Text:match('Bah Humbug is starting') then
-                            Utils.FindButton('No')
-                        elseif NormalDialogChild.Info.TextLabel.Text:match('Costume Party is starting') then
-                            Utils.FindButton('No')
-                        elseif NormalDialogChild.Info.TextLabel.Text:match('Sleep or Treat is starting') then
+                        local text = NormalDialogChild.Info.TextLabel.Text
+
+                        if text:match('Bah Humbug is starting') or text:match('Costume Party is starting') or text:match('Sleep or Treat is starting') then
                             Utils.FindButton('No')
                         elseif NormalDialogChild.Info.TextLabel.Text:match('invitation') then
                             game:Shutdown()
@@ -4970,12 +4962,10 @@ do
                     if not MinigameInGameApp.Body.Middle.Container:WaitForChild('TitleLabel', 10) then
                         return
                     end
-                    if MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match('TREASURE DEFENSE') then
-                        if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME then
-                            localPlayer:SetAttribute('StopFarmingTemp', true)
-                            task.wait(2)
-                        end
-                    elseif MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match('CANNON CIRCLE') then
+
+                    local text = MinigameInGameApp.Body.Middle.Container.TitleLabel.Text
+
+                    if text:match('TREASURE DEFENSE') or text:match('CANNON CIRCLE') then
                         if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME then
                             localPlayer:SetAttribute('StopFarmingTemp', true)
                             task.wait(2)
@@ -5530,7 +5520,7 @@ do
 
         local loadSettings = function()
             local file = nil
-            local success, result = pcall(function()
+            local success, _ = pcall(function()
                 task.spawn(function()
                     if isfolder and isfolder(RayfieldFolder) then
                         if isfile and isfile(RayfieldFolder .. '/settings' .. ConfigurationExtension) then
@@ -5541,11 +5531,11 @@ do
                         file = '\t\t{"General":{"rayfieldOpen":{"Value":"K","Type":"bind","Name":"Rayfield Keybind","Element":{"HoldToInteract":false,"Ext":true,"Name":"Rayfield Keybind","Set":null,"CallOnChange":true,"Callback":null,"CurrentKeybind":"K"}}},"System":{"usageAnalytics":{"Value":false,"Type":"toggle","Name":"Anonymised Analytics","Element":{"Ext":true,"Name":"Anonymised Analytics","Set":null,"CurrentValue":false,"Callback":null}}}}\n\t'
                     end
                     if file then
-                        local success, decodedFile = pcall(function()
+                        local success2, decodedFile = pcall(function()
                             return HttpService:JSONDecode(file)
                         end)
 
-                        if success then
+                        if success2 then
                             file = decodedFile
                         else
                             file = {}
@@ -5558,7 +5548,7 @@ do
 
                         return
                     end
-                    if file ~= {} then
+                    if next(file) ~= nil then
                         for categoryName, settingCategory in pairs(settingsTable)do
                             if file[categoryName] then
                                 for settingName, setting in pairs(settingCategory)do
@@ -5648,8 +5638,6 @@ do
             end
 
             if cachedSettings and (#cachedSettings == 0 or (cachedSettings.System and cachedSettings.System.usageAnalytics and cachedSettings.System.usageAnalytics.Value)) then
-                sendReport('execution', 'Rayfield')
-            elseif not cachedSettings then
                 sendReport('execution', 'Rayfield')
             end
         end
@@ -7600,7 +7588,7 @@ This version of Rayfield is intended for interface build ]] .. InterfaceBuild ..
                             TweenService:Create(Button.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 0}):Play()
                         else
                             if not ButtonSettings.Ext then
-                                SaveConfiguration(ButtonSettings.Name .. '\n')
+                                SaveConfiguration()
                             end
 
                             TweenService:Create(Button, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {
@@ -7863,7 +7851,7 @@ This version of Rayfield is intended for interface build ]] .. InterfaceBuild ..
                         ColorPickerSettings.Color = Color3.fromRGB(r, g, b)
 
                         if not ColorPickerSettings.Ext then
-                            SaveConfiguration(ColorPickerSettings.Flag .. '\n' .. tostring(ColorPickerSettings.Color))
+                            SaveConfiguration()
                         end
                     end
 
@@ -9114,9 +9102,7 @@ This version of Rayfield is intended for interface build ]] .. InterfaceBuild ..
                                 elseif Current > Slider.Main.AbsolutePosition.X + Slider.Main.AbsoluteSize.X then
                                     Current = Slider.Main.AbsolutePosition.X + Slider.Main.AbsoluteSize.X
                                 end
-                                if Current <= Location and (Location - Start) < 0 then
-                                    Start = Location
-                                elseif Current >= Location and (Location - Start) > 0 then
+                                if Current <= Location and (Location - Start) < 0 or Current >= Location and (Location - Start) > 0 then
                                     Start = Location
                                 end
 
@@ -11121,10 +11107,8 @@ Check the Developer Console for more information.]],
             end
 
             remote:FireServer({carriage = seat})
-            setfpscap(1)
             waitForTaskToFinish('ride_the_train', petUnique)
             getUpFromSitting()
-            setfpscap(2)
         end
         function Ailment.SoloRideTheTrain()
             Utils.PrintDebug('\u{1f682} Riding the Train \u{1f682}')
@@ -11146,7 +11130,6 @@ Check the Developer Console for more information.]],
             end
 
             remote:FireServer({carriage = seat})
-            setfpscap(1)
 
             local count = 0
 
@@ -11157,7 +11140,6 @@ Check the Developer Console for more information.]],
             until not ClientData.get_data()[localPlayer.Name].winter_2025_train_gingerbread or count > 120
 
             getUpFromSitting()
-            setfpscap(2)
         end
         function Ailment.BuccaneerBandAilment(petUnique)
             ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('MainMap', localPlayer, ClientData.get_data()[localPlayer.Name].LiveOpsMapType)
@@ -11562,10 +11544,10 @@ Check the Developer Console for more information.]],
 
             for _, v in ClientData.get('quest_manager')['quests_cached']do
                 if v['entry_name']:match('house_pets_2025_potion_drank') then
-                    for _, v in ClientData.get_data()[localPlayer.Name].inventory.food do
-                        if v['id'] == 'pet_grow_potion' then
+                    for _, food in ClientData.get_data()[localPlayer.Name].inventory.food do
+                        if food['id'] == 'pet_grow_potion' then
                             Utils.PrintDebug('Found potion, using it')
-                            Utils.CreatePetObject(v['unique'])
+                            Utils.CreatePetObject(food['unique'])
 
                             return true
                         end
@@ -12127,7 +12109,7 @@ Check the Developer Console for more information.]],
         function PetOffline.GetAmountOfPetsInPen()
             local count = 0
 
-            for _, v in ClientData.get_data()[localPlayer.Name].idle_progression_manager.active_pets do
+            for _, _ in ClientData.get_data()[localPlayer.Name].idle_progression_manager.active_pets do
                 count = count + 1
             end
 
@@ -12148,13 +12130,6 @@ Check the Developer Console for more information.]],
         local PetOfflineHandler = {}
         local localPlayer = Players.LocalPlayer
         local CurrentIdlePets = {}
-        local eggsToHatch = GetInventory.GetPetEggs()
-        local eggIndex = table.find(eggsToHatch, 'pet_recycler_2025_crystal_egg')
-
-        if eggIndex then
-            table.remove(eggsToHatch, eggIndex)
-        end
-
         local updateCurrentIdlePets = function()
             table.clear(CurrentIdlePets)
 
@@ -12204,7 +12179,7 @@ Check the Developer Console for more information.]],
 
             print(string.format('AMOUNT MISSING: %s, %s', tostring(amountMissing), tostring(rarityName)))
 
-            local petUniques = GetInventory.GetPetsRarityAndAgeForPen(rarityName, 1)
+            local petUniques = GetInventory.GetPetsRarityAndAgeForPen(rarityName)
 
             addPet(petUniques)
             task.wait(1)
@@ -12228,7 +12203,7 @@ Check the Developer Console for more information.]],
                 table.remove(eggsList, eggIndex)
             end
 
-            local petUniques = GetInventory.GetPetUniquesForPetPen(eggsList, CurrentIdlePets, amountMissing)
+            local petUniques = GetInventory.GetPetUniquesForPetPen(eggsList, amountMissing)
 
             addPet(petUniques)
             task.wait(1)
@@ -12238,7 +12213,7 @@ Check the Developer Console for more information.]],
         local addAllPetsToidleFarm = function(amountMissing)
             updateCurrentIdlePets()
 
-            local petUniques = GetInventory.GetPetUniquesForPetPen(getgenv().SETTINGS.PETS_TO_AGE_IN_PEN, CurrentIdlePets, amountMissing)
+            local petUniques = GetInventory.GetPetUniquesForPetPen(getgenv().SETTINGS.PETS_TO_AGE_IN_PEN, amountMissing)
 
             Utils.PrintDebug(string.format('how many pets ids ther is in table: %s', tostring(#petUniques)))
             addPet(petUniques)
@@ -12536,6 +12511,9 @@ Check the Developer Console for more information.]],
 
                 self.TextLabel.Text = string.format('\u{1f525} %s', tostring(formatted))
             elseif self.TextLabel.Name == 'Slot12' then
+                local formatted = Utils.FormatNumber(Utils.FoodItemCount('halloween_2025_yarn_apple'))
+
+                self.TextLabel.Text = string.format('\u{1f34e} %s', tostring(formatted))
             end
         end
         function StatsGuiClass.UpdateTextForTemp(self, amount)
