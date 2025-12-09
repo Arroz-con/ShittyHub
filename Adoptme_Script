@@ -11121,7 +11121,10 @@ Check the Developer Console for more information.]],
             end
 
             remote:FireServer({carriage = seat})
+            setfpscap(1)
             waitForTaskToFinish('ride_the_train', petUnique)
+            getUpFromSitting()
+            setfpscap(2)
         end
         function Ailment.SoloRideTheTrain()
             Utils.PrintDebug('\u{1f682} Riding the Train \u{1f682}')
@@ -11143,6 +11146,7 @@ Check the Developer Console for more information.]],
             end
 
             remote:FireServer({carriage = seat})
+            setfpscap(1)
 
             local count = 0
 
@@ -11153,6 +11157,7 @@ Check the Developer Console for more information.]],
             until not ClientData.get_data()[localPlayer.Name].winter_2025_train_gingerbread or count > 120
 
             getUpFromSitting()
+            setfpscap(2)
         end
         function Ailment.BuccaneerBandAilment(petUnique)
             ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('MainMap', localPlayer, ClientData.get_data()[localPlayer.Name].LiveOpsMapType)
@@ -12896,7 +12901,9 @@ Check the Developer Console for more information.]],
             RouterClient.get('WinterEventAPI/UseExchangeKiosk'):InvokeServer()
         end
 
-        function Christmas2025Handler.Init() end
+        function Christmas2025Handler.Init()
+            print('Initializing Christmas2025Handler')
+        end
         function Christmas2025Handler.Start()
             task.spawn(function()
                 while true do
