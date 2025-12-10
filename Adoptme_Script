@@ -3310,48 +3310,56 @@ do
 
             return false
         end
-
-        function GetInventory.GetPetUniquesForPetPen(petIdList, amount)
-            local PetageCounter = 5
-            local isNeon = true
+        local petPenFilter = function(petId, isNeon)
             local petUniques = {}
 
-            while true do
-                for _, petId in ipairs(petIdList)do
-                    for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
-                        if petId ~= pet.id then
+            for petAge = 5, 1, -1 do
+                for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
+                    if petId ~= pet.id then
+                        continue
+                    end
+                    if table.find(AllowOrDenyList.Denylist, pet.id) then
+                        continue
+                    end
+                    if pet.properties.age == petAge and pet.properties.neon == isNeon then
+                        if pet.unique == getgenv().petCurrentlyFarming1 then
                             continue
                         end
-                        if table.find(AllowOrDenyList.Denylist, pet.id) then
+                        if pet.unique == getgenv().petCurrentlyFarming2 then
                             continue
                         end
-                        if pet.properties.age == PetageCounter and pet.properties.neon == isNeon then
-                            if pet.unique == getgenv().petCurrentlyFarming1 then
-                                continue
-                            end
-                            if pet.unique == getgenv().petCurrentlyFarming2 then
-                                continue
-                            end
 
-                            table.insert(petUniques, pet.unique)
+                        table.insert(petUniques, pet.unique)
+                    end
+                end
+            end
 
-                            if #petUniques >= amount then
-                                return petUniques
-                            end
-                        end
+            return petUniques
+        end
+
+        function GetInventory.GetPetUniquesForPetPen(petIdList, MaxAmount)
+            local petUniques = {}
+
+            for _, petId in ipairs(petIdList)do
+                local result1 = petPenFilter(petId, true)
+
+                for _, unique in ipairs(result1)do
+                    table.insert(petUniques, unique)
+
+                    if #petUniques >= MaxAmount then
+                        break
                     end
                 end
 
-                PetageCounter = PetageCounter - 1
+                local result2 = petPenFilter(petId, nil)
 
-                if PetageCounter <= 0 and isNeon then
-                    PetageCounter = 5
-                    isNeon = nil
-                elseif PetageCounter <= 0 and isNeon == nil then
-                    return petUniques
+                for _, unique in ipairs(result2)do
+                    table.insert(petUniques, unique)
+
+                    if #petUniques >= MaxAmount then
+                        break
+                    end
                 end
-
-                task.wait(1)
             end
 
             return petUniques
@@ -4333,7 +4341,7 @@ do
             local queueOnTeleport = (syn and syn.queue_on_teleport) or queue_on_teleport
 
             if queueOnTeleport then
-                queueOnTeleport('\r\n            game:Shutdown()\r\n        ')
+                queueOnTeleport('            game:Shutdown()\n        ')
             end
         end
         function self.Start()
@@ -7160,7 +7168,7 @@ This version of Rayfield is intended for interface build ]] .. InterfaceBuild ..
                     end
                 end
             end
-            if (Settings.KeySystem) then
+            if Settings.KeySystem then
                 if not Settings.KeySettings then
                     Passthrough = true
 
@@ -10492,6 +10500,7 @@ Check the Developer Console for more information.]],
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = (Bypass('ClientData'))
         local RouterClient = (Bypass('RouterClient'))
+        local WinterTrainNet = (require(ReplicatedStorage.SharedModules.ContentPacks.Winter2025.Game.Train.WinterTrainNet))
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local GetInventory = __DARKLUA_BUNDLE_MODULES.load('i')
         local Teleport = __DARKLUA_BUNDLE_MODULES.load('f')
@@ -11092,8 +11101,6 @@ Check the Developer Console for more information.]],
             task.wait(2)
             Utils.ReEquipPet(Ailment.whichPet)
 
-            local remote = ReplicatedStorage.adoptme_new_net[
-[[adoptme_legacy_shared.ContentPacks.Winter2025.Game.Train.WinterTrainNet:7]] ]
             local trainSeats = workspace:WaitForChild('WinterTrainSeats', 10)
 
             if not trainSeats then
@@ -11106,7 +11113,7 @@ Check the Developer Console for more information.]],
                 return
             end
 
-            remote:FireServer({carriage = seat})
+            WinterTrainNet.EnterCarriageSeat:fire_server({carriage = seat})
             waitForTaskToFinish('ride_the_train', petUnique)
             getUpFromSitting()
         end
@@ -11115,8 +11122,6 @@ Check the Developer Console for more information.]],
             Teleport.GingerbreadCollectionCircle()
             task.wait(2)
 
-            local remote = ReplicatedStorage.adoptme_new_net[
-[[adoptme_legacy_shared.ContentPacks.Winter2025.Game.Train.WinterTrainNet:7]] ]
             local trainSeats = workspace:WaitForChild('WinterTrainSeats', 10)
 
             if not trainSeats then
@@ -11129,7 +11134,7 @@ Check the Developer Console for more information.]],
                 return
             end
 
-            remote:FireServer({carriage = seat})
+            WinterTrainNet.EnterCarriageSeat:fire_server({carriage = seat})
 
             local count = 0
 
