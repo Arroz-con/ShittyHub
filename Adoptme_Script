@@ -12164,11 +12164,21 @@ Check the Developer Console for more information.]],
                     return
                 end
 
+                local count = 0
+
                 while true do
                     PetOffline.AddPet(unique)
                     task.wait(1)
 
                     if ClientData.get_data()[localPlayer.Name].idle_progression_manager.active_pets[unique] then
+                        break
+                    end
+
+                    count = count + 1
+
+                    if count >= 10 then
+                        Utils.PrintDebug('Failed to add pet to idle farming: ' .. unique)
+
                         break
                     end
                 end
