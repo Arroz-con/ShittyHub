@@ -4811,21 +4811,8 @@ do
                     return
                 end
 
-                local infoButton = Dialog.ItemPreviewDialog:WaitForChild('Info', 10)
-
-                if not infoButton then
-                    return
-                end
-
-                local textLabel = (infoButton:WaitForChild('TextLabel', 10))
-
-                if not textLabel then
-                    return
-                end
-                if textLabel.Text:match('A new pet has been delivered') then
-                    localPlayer:Kick('A new pet has been delivered')
-                    game:Shutdown()
-                end
+                task.wait(2)
+                game:Shutdown()
             end)
             Dialog:GetPropertyChangedSignal('Visible'):Connect(friendTradeAccept)
             Dialog:WaitForChild('FriendAfterTradeDialog'):GetPropertyChangedSignal('Visible'):Connect(function(
