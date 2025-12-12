@@ -4621,6 +4621,7 @@ do
         local certificateConn
         local starterPackAppConn
         local patterns = {
+            ["You haven't collected the Gingerbread"] = 'No',
             ['Be careful when trading'] = 'Okay',
             ['This trade seems unbalanced'] = 'Next',
             ['Social Stones!'] = 'Okay',
