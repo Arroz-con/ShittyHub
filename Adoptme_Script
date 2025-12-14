@@ -608,6 +608,7 @@ do
                 'ice_dimension_2025_frostbite_bear',
                 'penguins_2025_dango_penguins',
                 'pet_recycler_2025_giant_panda',
+                'winter_2025_snowball_pug',
             },
         }
     end
@@ -10771,6 +10772,7 @@ Check the Developer Console for more information.]],
 
                 if retryCount >= MAX_RETRIES then
                     game:Shutdown()
+                    localPlayer:Kick('GOT STUCK')
                 end
 
                 return false
