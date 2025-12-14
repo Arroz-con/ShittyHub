@@ -43,19 +43,8 @@ do
                 game:Shutdown()
             end
         end
-        function Utils.TryRedeemGoodieBag()
-            if localPlayer:GetAttribute('StopFarmingTemp') == true then
-                return
-            end
-
-            local catbatTime = ClientData.get_data()[localPlayer.Name].kitty_bat_manager.last_treat_claimed_timestamp
-
-            if DateTime.now().UnixTimestamp > catbatTime + (600) + 5 then
-                RouterClient.get('HalloweenEventAPI/ClaimTreatBag'):InvokeServer()
-            end
-        end
-        function Utils.GetCatbatTamingProgress()
-            return ClientData.get_data()[localPlayer.Name].kitty_bat_manager.catbat_taming_progress or 0
+        function Utils.GetPugTamingProgress()
+            return ClientData.get_data()[localPlayer.Name].snowball_pug_manager.snowballpug_taming_progress or 0
         end
         function Utils.MoveToWithTimeout(humanoid, target, timeout)
             local reached = false
@@ -12574,13 +12563,13 @@ Check the Developer Console for more information.]],
 
                 self.TextLabel.Text = string.format('\u{1f43c} %s', tostring(formatted))
             elseif self.TextLabel.Name == 'Slot11' then
-                local formatted = Utils.FormatNumber(Utils.PetItemCount('pet_recycler_2025_emberlight'))
+                local formatted = Utils.FormatNumber(Utils.PetItemCount('winter_2025_snowball_pug'))
 
-                self.TextLabel.Text = string.format('\u{1f525} %s', tostring(formatted))
+                self.TextLabel.Text = string.format('\u{1f436} %s', tostring(formatted))
             elseif self.TextLabel.Name == 'Slot12' then
-                local formatted = Utils.FormatNumber(Utils.FoodItemCount('halloween_2025_yarn_apple'))
+                local formatted = Utils.GetPugTamingProgress()
 
-                self.TextLabel.Text = string.format('\u{1f34e} %s', tostring(formatted))
+                self.TextLabel.Text = string.format('\u{1f9f6} %s%%', tostring(formatted))
             end
         end
         function StatsGuiClass.UpdateTextForTemp(self, amount)
@@ -12896,6 +12885,7 @@ Check the Developer Console for more information.]],
         local SleighballClient = (require(ContentPacks.Winter2025.Minigames.SleighballClient))
         local IceSkatingNet = (require(IceSkating:WaitForChild('IceSkatingNet')))
         local ginerbreadIds = __DARKLUA_BUNDLE_MODULES.load('C')
+        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('i')
         local RouterClient = Bypass('RouterClient')
         local ClientData = Bypass('ClientData')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
@@ -12925,6 +12915,13 @@ Check the Developer Console for more information.]],
             print('Reward ' .. dayNumber .. ' not claimed yet')
 
             return false
+        end
+        local tryRedeemAdventCalendar = function()
+            local dt = (DateTime.now():ToLocalTime())
+
+            if isRewardClaimed(dt.Day) == false then
+                RouterClient.get('WinterEventAPI/AdventCalendarTryTakeReward'):InvokeServer(dt.Day)
+            end
         end
         local tryCollectGingerbread = function()
             for _, v in ipairs(ginerbreadIds)do
@@ -12981,6 +12978,17 @@ Check the Developer Console for more information.]],
                 Utils.GetHumanoidRootPart().Anchored = false
             end
         end
+        local tryTamePug = function()
+            local yarnBait = GetInventory.GetUniqueId('food', 'winter_2025_yarn_beanie_bait')
+
+            if not yarnBait then
+                Utils.PrintDebug('No yarn bait found in inventory')
+
+                return
+            end
+
+            RouterClient.get('WinterEventAPI/ProgressTaming'):InvokeServer(true)
+        end
 
         function Christmas2025Handler.Init()
             print('Initializing Christmas2025Handler')
@@ -13028,18 +13036,8 @@ Check the Developer Console for more information.]],
             end)
         end
         function Christmas2025Handler.Start()
-            task.spawn(function()
-                while true do
-                    local dt = (DateTime.now():ToLocalTime())
-
-                    if isRewardClaimed(dt.Day) == false then
-                        RouterClient.get('WinterEventAPI/AdventCalendarTryTakeReward'):InvokeServer(dt.Day)
-                    end
-
-                    task.wait(18E2)
-                end
-            end)
             tryCollectGingerbread()
+            tryTamePug()
             RouterClient.get('WeatherAPI/WeatherUpdated').OnClientEvent:Connect(function(
                 dayOrNight
             )
@@ -13048,6 +13046,8 @@ Check the Developer Console for more information.]],
                 if dayOrNight == 'DAY' then
                     tryCollectGingerbread()
                     tryExchangeGingerbread()
+                    tryRedeemAdventCalendar()
+                    tryTamePug()
                 end
             end)
         end
