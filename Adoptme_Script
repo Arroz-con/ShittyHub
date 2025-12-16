@@ -11331,6 +11331,7 @@ Check the Developer Console for more information.]],
         local localPlayer = Players.LocalPlayer
         local petToBuy = 'aztec_egg_2025_aztec_egg'
         local potionFarmPets = {
+            '2d_kitty',
             'dog',
             'cat',
             'starter_egg',
@@ -11454,8 +11455,15 @@ Check the Developer Console for more information.]],
                 if whichPet == 2 and localPlayer:GetAttribute('isProHandler') == true and getgenv().petCurrentlyFarming2 then
                     return
                 end
+                if GetInventory.CheckForPetAndEquip({
+                    '2d_kitty',
+                }, whichPet) then
+                    print('FOUND FROSTBITE BEAR', whichPet)
 
-                Utils.PrintDebug(string.format('\u{1f414}\u{1f414} Getting pet to Farm age up potion, %s \u{1f414}\u{1f414}', tostring(whichPet)))
+                    return
+                end
+
+                Utils.PrintDebug(string.format('\u{1f414}\u{1f414} Getting pet to farm age up potion, %s \u{1f414}\u{1f414}', tostring(whichPet)))
 
                 if GetInventory.CheckForPetAndEquip({
                     'starter_egg',
@@ -11463,7 +11471,7 @@ Check the Developer Console for more information.]],
                     return
                 end
 
-                Utils.PrintDebug(string.format('\u{1f414}\u{1f414} No starter egg found, trying cdog or cat %s \u{1f414}\u{1f414}', tostring(whichPet)))
+                Utils.PrintDebug(string.format('\u{1f414}\u{1f414} No starter egg found, trying dog or cat %s \u{1f414}\u{1f414}', tostring(whichPet)))
 
                 if GetInventory.GetPetFriendship(potionFarmPets, whichPet) then
                     return
@@ -12930,8 +12938,6 @@ Check the Developer Console for more information.]],
         end
         local startSleighball = function()
             while SleighballClient.instanced_minigame do
-                print('inside minigame')
-
                 local teamColor = SleighballClient.instanced_minigame.team
                 local giftsById = SleighballClient.instanced_minigame.gifts_by_id
                 local gameFolder = SleighballClient.instanced_minigame.game_folder
