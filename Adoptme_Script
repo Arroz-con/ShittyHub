@@ -12903,7 +12903,6 @@ Check the Developer Console for more information.]],
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local localPlayer = Players.LocalPlayer
         local PlayerGui = (localPlayer:WaitForChild('PlayerGui'))
-        local StaticMap = (workspace:WaitForChild('StaticMap'))
         local MinigameInGameApp = (PlayerGui:WaitForChild('MinigameInGameApp'))
         local Christmas2025Handler = {}
         local isRewardClaimed = function(dayNumber)
@@ -13038,23 +13037,6 @@ Check the Developer Console for more information.]],
                             localPlayer:SetAttribute('StopFarmingTemp', false)
                         end
                     end
-                end
-            end)
-            StaticMap.sleighball_minigame_state.is_game_active:GetPropertyChangedSignal('Value'):Connect(function(
-            )
-                if StaticMap.sleighball_minigame_state.is_game_active.Value then
-                    if getgenv().SETTINGS.ENABLE_AUTO_FARM == false then
-                        return
-                    end
-                    if localPlayer:GetAttribute('hasStartedFarming') == false then
-                        return
-                    end
-                    if localPlayer:GetAttribute('StopFarmingTemp') == true then
-                        return
-                    end
-
-                    localPlayer:SetAttribute('StopFarmingTemp', true)
-                    Bypass('RouterClient').get('MinigameAPI/AttemptJoin'):FireServer('sleighball', true)
                 end
             end)
         end
