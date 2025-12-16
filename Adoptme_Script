@@ -11720,6 +11720,8 @@ Check the Developer Console for more information.]],
         local FarmingPet = __DARKLUA_BUNDLE_MODULES.load('v')
         local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
         local PetRelease = __DARKLUA_BUNDLE_MODULES.load('w')
+        local ContentPacks = (ReplicatedStorage:WaitForChild('SharedModules'):WaitForChild('ContentPacks'))
+        local SleighballClient = (require(ContentPacks.Winter2025.Minigames.SleighballClient))
         local modules = ReplicatedStorage:WaitForChild('new'):WaitForChild('modules')
         local DailiesNetService = (require(modules:WaitForChild('Dailies'):WaitForChild('DailiesNetService')))
         local self = {}
@@ -12010,6 +12012,12 @@ Check the Developer Console for more information.]],
                     count = count + 30
 
                     task.wait(30)
+
+                    if not SleighballClient.instanced_minigame then
+                        localPlayer:SetAttribute('StopFarmingTemp', false)
+                        print('no active minigames so setting StopFarmingTemp to false')
+                        task.wait(10)
+                    end
                 until localPlayer:GetAttribute('StopFarmingTemp') == false or count >= COUNT_MAX
 
                 if Utils.IsMuleInGame(getgenv().SETTINGS.TRADE_COLLECTOR_NAME) then
