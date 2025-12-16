@@ -11332,6 +11332,7 @@ Check the Developer Console for more information.]],
         local petToBuy = 'aztec_egg_2025_aztec_egg'
         local potionFarmPets = {
             '2d_kitty',
+            '2d_tuesdays_2025_2d_kitty',
             'dog',
             'cat',
             'starter_egg',
@@ -11457,6 +11458,27 @@ Check the Developer Console for more information.]],
                 end
                 if GetInventory.CheckForPetAndEquip({
                     '2d_kitty',
+                }, whichPet) then
+                    print('FOUND FROSTBITE BEAR', whichPet)
+
+                    return
+                end
+                if GetInventory.CheckForPetAndEquip({
+                    '2d_kitty',
+                }, whichPet) then
+                    print('FOUND FROSTBITE BEAR', whichPet)
+
+                    return
+                end
+                if GetInventory.CheckForPetAndEquip({
+                    '2d_kitty',
+                }, whichPet) then
+                    print('FOUND FROSTBITE BEAR', whichPet)
+
+                    return
+                end
+                if GetInventory.CheckForPetAndEquip({
+                    '2d_tuesdays_2025_2d_kitty',
                 }, whichPet) then
                     print('FOUND FROSTBITE BEAR', whichPet)
 
