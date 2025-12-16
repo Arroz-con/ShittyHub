@@ -4652,6 +4652,7 @@ do
             ['The Homepass has been restarted'] = 'Okay',
             ['Costume Party starts'] = 'Okay',
             ['Step away from'] = 'Okay',
+            ['spawn a vehicle'] = 'Okay',
         }
         local getNormalDialogTextLabel = function()
             local Dialog = (DialogApp and {
@@ -5167,50 +5168,6 @@ do
     function __DARKLUA_BUNDLE_MODULES.p()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
-        local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
-        local ClientData = Bypass('ClientData')
-        local RouterClient = Bypass('RouterClient')
-        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local LegacyTutorial = (require(ReplicatedStorage:WaitForChild('ClientModules'):WaitForChild('Game'):WaitForChild('Tutorial'):WaitForChild('LegacyTutorial')))
-        local self = {}
-        local localPlayer = Players.LocalPlayer
-        local completeNewStarterTutorial = function()
-            local success, errorMessage = pcall(function()
-                task.wait(10)
-                LegacyTutorial.cancel_tutorial()
-                task.wait(2)
-                RouterClient.get('LegacyTutorialAPI/MarkTutorialCompleted'):FireServer()
-            end)
-
-            Utils.PrintDebug('CompleteNewStarterTutorial:', success, errorMessage)
-        end
-        local doStarterTutorial = function()
-            Utils.FindButton('Next')
-            task.wait(2)
-            Utils.PrintDebug('doing tutorial')
-            completeNewStarterTutorial()
-            task.wait(1)
-            Utils.PrintDebug('doing trade license')
-            task.wait(1)
-            Utils.FindButton('Next')
-        end
-
-        function self.Init() end
-        function self.Start()
-            local tutorial3Completed = ClientData.get_data()[localPlayer.Name].boolean_flags.tutorial_v3_completed
-            local tutorialManagerComleted = ClientData.get_data()[localPlayer.Name].tutorial_manager.completed
-
-            if not tutorial3Completed and not tutorialManagerComleted then
-                Utils.PrintDebug('New alt detected. doing tutorial')
-                doStarterTutorial()
-            end
-        end
-
-        return self
-    end
-    function __DARKLUA_BUNDLE_MODULES.q()
-        local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
-        local Players = cloneref(game:GetService('Players'))
         local HttpService = cloneref(game:GetService('HttpService'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local AllowOrDenyList = __DARKLUA_BUNDLE_MODULES.load('c')
@@ -5434,7 +5391,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.r()
+    function __DARKLUA_BUNDLE_MODULES.q()
         if debugX then
             warn('Initialising Rayfield')
         end
@@ -9628,7 +9585,7 @@ Check the Developer Console for more information.]],
 
         return RayfieldLibrary
     end
-    function __DARKLUA_BUNDLE_MODULES.s()
+    function __DARKLUA_BUNDLE_MODULES.r()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -9817,11 +9774,11 @@ Check the Developer Console for more information.]],
 
         return Clipboard
     end
-    function __DARKLUA_BUNDLE_MODULES.t()
+    function __DARKLUA_BUNDLE_MODULES.s()
         local Players = cloneref(game:GetService('Players'))
-        local Rayfield = __DARKLUA_BUNDLE_MODULES.load('r')
+        local Rayfield = __DARKLUA_BUNDLE_MODULES.load('q')
         local GetInventory = __DARKLUA_BUNDLE_MODULES.load('i')
-        local Clipboard = __DARKLUA_BUNDLE_MODULES.load('s')
+        local Clipboard = __DARKLUA_BUNDLE_MODULES.load('r')
         local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
         local Trade = __DARKLUA_BUNDLE_MODULES.load('e')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
@@ -10520,7 +10477,7 @@ Check the Developer Console for more information.]],
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.u()
+    function __DARKLUA_BUNDLE_MODULES.t()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Workspace = cloneref(game:GetService('Workspace'))
         local Players = cloneref(game:GetService('Players'))
@@ -11360,7 +11317,7 @@ Check the Developer Console for more information.]],
 
         return Ailment
     end
-    function __DARKLUA_BUNDLE_MODULES.v()
+    function __DARKLUA_BUNDLE_MODULES.u()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -11682,7 +11639,7 @@ Check the Developer Console for more information.]],
 
         return FarmingPet
     end
-    function __DARKLUA_BUNDLE_MODULES.w()
+    function __DARKLUA_BUNDLE_MODULES.v()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -11705,7 +11662,7 @@ Check the Developer Console for more information.]],
 
         return PetRelease
     end
-    function __DARKLUA_BUNDLE_MODULES.x()
+    function __DARKLUA_BUNDLE_MODULES.w()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -11713,13 +11670,13 @@ Check the Developer Console for more information.]],
         local RouterClient = Bypass('RouterClient')
         local CollisionsClient = Bypass('CollisionsClient')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local Ailment = __DARKLUA_BUNDLE_MODULES.load('u')
+        local Ailment = __DARKLUA_BUNDLE_MODULES.load('t')
         local Furniture = __DARKLUA_BUNDLE_MODULES.load('b')
         local Teleport = __DARKLUA_BUNDLE_MODULES.load('f')
         local GetInventory = __DARKLUA_BUNDLE_MODULES.load('i')
-        local FarmingPet = __DARKLUA_BUNDLE_MODULES.load('v')
+        local FarmingPet = __DARKLUA_BUNDLE_MODULES.load('u')
         local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
-        local PetRelease = __DARKLUA_BUNDLE_MODULES.load('w')
+        local PetRelease = __DARKLUA_BUNDLE_MODULES.load('v')
         local ContentPacks = (ReplicatedStorage:WaitForChild('SharedModules'):WaitForChild('ContentPacks'))
         local SleighballClient = (require(ContentPacks.Winter2025.Minigames.SleighballClient))
         local modules = ReplicatedStorage:WaitForChild('new'):WaitForChild('modules')
@@ -12156,7 +12113,7 @@ Check the Developer Console for more information.]],
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.y()
+    function __DARKLUA_BUNDLE_MODULES.x()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -12189,13 +12146,13 @@ Check the Developer Console for more information.]],
 
         return PetOffline
     end
-    function __DARKLUA_BUNDLE_MODULES.z()
+    function __DARKLUA_BUNDLE_MODULES.y()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
         local RouterClient = (Bypass('RouterClient'))
-        local PetOffline = __DARKLUA_BUNDLE_MODULES.load('y')
+        local PetOffline = __DARKLUA_BUNDLE_MODULES.load('x')
         local GetInventory = __DARKLUA_BUNDLE_MODULES.load('i')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local PetOfflineHandler = {}
@@ -12371,7 +12328,7 @@ Check the Developer Console for more information.]],
 
         return PetOfflineHandler
     end
-    function __DARKLUA_BUNDLE_MODULES.A()
+    function __DARKLUA_BUNDLE_MODULES.z()
         local Players = cloneref(game:GetService('Players'))
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local StatsGuiClass = {}
@@ -12611,13 +12568,13 @@ Check the Developer Console for more information.]],
 
         return StatsGuiClass
     end
-    function __DARKLUA_BUNDLE_MODULES.B()
+    function __DARKLUA_BUNDLE_MODULES.A()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local startTime = DateTime.now().UnixTimestamp
-        local StatsGuiClass = __DARKLUA_BUNDLE_MODULES.load('A')
+        local StatsGuiClass = __DARKLUA_BUNDLE_MODULES.load('z')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local Clipboard = __DARKLUA_BUNDLE_MODULES.load('s')
+        local Clipboard = __DARKLUA_BUNDLE_MODULES.load('r')
         local self = {}
         local localPlayer = Players.LocalPlayer
         local HintApp = (localPlayer:WaitForChild('PlayerGui'):WaitForChild('HintApp'))
@@ -12737,7 +12694,7 @@ Check the Developer Console for more information.]],
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.C()
+    function __DARKLUA_BUNDLE_MODULES.B()
         return {
             '{29580925-384D-4CF6-810A-5B2FBEBE14EF}',
             '{AFFECD3D-9FCD-4822-BDF8-1B7F589620DD}',
@@ -12901,7 +12858,7 @@ Check the Developer Console for more information.]],
             '{E8AD7C9A-C60C-4DE2-A111-A3E8AD26B1D0}',
         }
     end
-    function __DARKLUA_BUNDLE_MODULES.D()
+    function __DARKLUA_BUNDLE_MODULES.C()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -12909,7 +12866,7 @@ Check the Developer Console for more information.]],
         local IceSkating = (ContentPacks:WaitForChild('Winter2025'):WaitForChild('Game'):WaitForChild('IceSkating'))
         local SleighballClient = (require(ContentPacks.Winter2025.Minigames.SleighballClient))
         local IceSkatingNet = (require(IceSkating:WaitForChild('IceSkatingNet')))
-        local ginerbreadIds = __DARKLUA_BUNDLE_MODULES.load('C')
+        local ginerbreadIds = __DARKLUA_BUNDLE_MODULES.load('B')
         local GetInventory = __DARKLUA_BUNDLE_MODULES.load('i')
         local RouterClient = Bypass('RouterClient')
         local ClientData = Bypass('ClientData')
@@ -13177,25 +13134,22 @@ local success, result = pcall(function()
             TradeLicenseHandler = __DARKLUA_BUNDLE_MODULES.load('o'),
         },
         {
-            TutorialHandler = __DARKLUA_BUNDLE_MODULES.load('p'),
+            WebhookHandler = __DARKLUA_BUNDLE_MODULES.load('p'),
         },
         {
-            WebhookHandler = __DARKLUA_BUNDLE_MODULES.load('q'),
+            RayfieldHandler = __DARKLUA_BUNDLE_MODULES.load('s'),
         },
         {
-            RayfieldHandler = __DARKLUA_BUNDLE_MODULES.load('t'),
+            AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.load('w'),
         },
         {
-            AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.load('x'),
+            PetOfflineHandler = __DARKLUA_BUNDLE_MODULES.load('y'),
         },
         {
-            PetOfflineHandler = __DARKLUA_BUNDLE_MODULES.load('z'),
+            StatsGuiHandler = __DARKLUA_BUNDLE_MODULES.load('A'),
         },
         {
-            StatsGuiHandler = __DARKLUA_BUNDLE_MODULES.load('B'),
-        },
-        {
-            Christmas2025Handler = __DARKLUA_BUNDLE_MODULES.load('D'),
+            Christmas2025Handler = __DARKLUA_BUNDLE_MODULES.load('C'),
         },
     }
 
