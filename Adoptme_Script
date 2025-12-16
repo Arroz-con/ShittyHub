@@ -12082,6 +12082,8 @@ Check the Developer Console for more information.]],
                     DailiesNetService.try_to_claim_daily_rewards('vanilla')
                     task.wait(1)
                     DailiesNetService.try_to_claim_tab_reward('vanilla')
+                    task.wait(1)
+                    DailiesNetService.try_to_claim_tab_reward('2d_tuesdays')
                 end
             end)
         end
