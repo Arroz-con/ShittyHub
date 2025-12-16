@@ -11332,7 +11332,6 @@ Check the Developer Console for more information.]],
         local petToBuy = 'aztec_egg_2025_aztec_egg'
         local potionFarmPets = {
             '2d_kitty',
-            '2d_tuesdays_2025_2d_kitty',
             'dog',
             'cat',
             'starter_egg',
@@ -11456,33 +11455,19 @@ Check the Developer Console for more information.]],
                 if whichPet == 2 and localPlayer:GetAttribute('isProHandler') == true and getgenv().petCurrentlyFarming2 then
                     return
                 end
-                if GetInventory.CheckForPetAndEquip({
-                    '2d_kitty',
-                }, whichPet) then
-                    print('FOUND FROSTBITE BEAR', whichPet)
 
-                    return
-                end
-                if GetInventory.CheckForPetAndEquip({
-                    '2d_kitty',
-                }, whichPet) then
-                    print('FOUND FROSTBITE BEAR', whichPet)
+                for _ = 1, 3 do
+                    print('trying to see if 2d kitty')
 
-                    return
-                end
-                if GetInventory.CheckForPetAndEquip({
-                    '2d_kitty',
-                }, whichPet) then
-                    print('FOUND FROSTBITE BEAR', whichPet)
+                    if GetInventory.CheckForPetAndEquip({
+                        '2d_kitty',
+                    }, whichPet) then
+                        print('FOUND 2d kitty', whichPet)
 
-                    return
-                end
-                if GetInventory.CheckForPetAndEquip({
-                    '2d_tuesdays_2025_2d_kitty',
-                }, whichPet) then
-                    print('FOUND FROSTBITE BEAR', whichPet)
+                        return
+                    end
 
-                    return
+                    task.wait(1)
                 end
 
                 Utils.PrintDebug(string.format('\u{1f414}\u{1f414} Getting pet to farm age up potion, %s \u{1f414}\u{1f414}', tostring(whichPet)))
@@ -12905,6 +12890,7 @@ Check the Developer Console for more information.]],
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local localPlayer = Players.LocalPlayer
         local PlayerGui = (localPlayer:WaitForChild('PlayerGui'))
+        local StaticMap = (workspace:WaitForChild('StaticMap'))
         local MinigameInGameApp = (PlayerGui:WaitForChild('MinigameInGameApp'))
         local Christmas2025Handler = {}
         local isRewardClaimed = function(dayNumber)
@@ -13039,6 +13025,23 @@ Check the Developer Console for more information.]],
                             localPlayer:SetAttribute('StopFarmingTemp', false)
                         end
                     end
+                end
+            end)
+            StaticMap.sleighball_minigame_state.is_game_active:GetPropertyChangedSignal('Value'):Connect(function(
+            )
+                if StaticMap.sleighball_minigame_state.is_game_active.Value then
+                    if getgenv().SETTINGS.ENABLE_AUTO_FARM == false then
+                        return
+                    end
+                    if localPlayer:GetAttribute('hasStartedFarming') == false then
+                        return
+                    end
+                    if localPlayer:GetAttribute('StopFarmingTemp') == true then
+                        return
+                    end
+
+                    localPlayer:SetAttribute('StopFarmingTemp', true)
+                    Bypass('RouterClient').get('MinigameAPI/AttemptJoin'):FireServer('sleighball', true)
                 end
             end)
         end
