@@ -12074,6 +12074,7 @@ Check the Developer Console for more information.]],
         end
         function self.Start()
             RouterClient.get('HousingAPI/ClaimAllDeliveries'):FireServer()
+            DailiesNetService.try_to_claim_tab_reward('2d_tuesdays')
 
             if not getgenv().SETTINGS.ENABLE_AUTO_FARM then
                 Utils.PrintDebug('ENABLE_AUTO_FARM is false')
