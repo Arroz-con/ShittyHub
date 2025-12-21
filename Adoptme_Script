@@ -40,6 +40,7 @@ do
             if getgenv().client and getgenv().client:ChangeConfig(configId) then
                 task.wait(math.random(1, 5))
                 getgenv().client:Disconnect()
+                localPlayer:Kick()
                 game:Shutdown()
             end
         end
@@ -481,6 +482,13 @@ do
 
             print(string.format('[Debug] %s', tostring(...)))
         end
+        function Utils.IsDayAndHour(day, utcHour)
+            local now = DateTime.now()
+            local weekday = now:FormatUniversalTime('dddd', 'en-us')
+            local hour = tonumber(now:FormatUniversalTime('H', 'en-us'))
+
+            return weekday == day and hour == utcHour
+        end
         function Utils.CenterText(text, width)
             local textLength = #text
 
@@ -499,10 +507,10 @@ do
             local stuckTimer = 0
 
             repeat
-                task.wait(1)
-
                 hasPetChar = ClientData.get('pet_char_wrappers') and ClientData.get('pet_char_wrappers')[1] and ClientData.get('pet_char_wrappers')[1].pet_unique and true or false
                 stuckTimer = stuckTimer + 1
+
+                task.wait(1)
             until hasPetChar or stuckTimer > 20
 
             if stuckTimer > 20 then
@@ -3293,6 +3301,8 @@ do
 
                 getgenv().petCurrentlyFarming1 = petUnique
 
+                Utils.WaitForPetToEquip()
+
                 return true
             elseif whichPet == 2 then
                 RouterClient.get('ToolAPI/Equip'):InvokeServer(petUnique, {
@@ -3300,6 +3310,8 @@ do
                 })
 
                 getgenv().petCurrentlyFarming2 = petUnique
+
+                Utils.WaitForPetToEquip()
 
                 return true
             end
@@ -4810,14 +4822,23 @@ do
 
             local Dialog = (DialogApp:WaitForChild('Dialog'))
 
+            Dialog:WaitForChild('ExitButton'):GetPropertyChangedSignal('Visible'):Connect(function(
+            )
+                if not Dialog.ExitButton.Visible then
+                    return
+                end
+
+                task.wait(5)
+                Utils.FireButton(Dialog.ExitButton)
+            end)
             Dialog:WaitForChild('ItemPreviewDialog'):GetPropertyChangedSignal('Visible'):Connect(function(
             )
                 if not Dialog.ItemPreviewDialog.Visible then
                     return
                 end
 
-                task.wait(2)
-                localPlayer:Kick('GOT STUCK')
+                task.wait(5)
+                localPlayer:Kick('GOT NEW PET. SO RESTART GAME')
                 game:Shutdown()
             end)
             Dialog:GetPropertyChangedSignal('Visible'):Connect(friendTradeAccept)
@@ -4878,6 +4899,7 @@ do
                         end
 
                         task.wait(2)
+                        localPlayer:Kick()
                         game:Shutdown()
                     end)
                 end
@@ -5032,6 +5054,8 @@ do
                         task.wait(2)
                         removeGameOverButton('MinigameRewardsApp')
                         RouterClient.get('TeamAPI/Spawn'):InvokeServer()
+                        Utils.GetCharacter()
+                        task.wait(6)
                         Teleport.FarmingHome()
 
                         Utils.GetHumanoidRootPart().Anchored = false
@@ -11365,21 +11389,24 @@ Check the Developer Console for more information.]],
             end
         end
         local isfocusFarmPets = function()
-            local equippedPet = ClientData.get('pet_char_wrappers') and ClientData.get('pet_char_wrappers')[1]
+            local pets = ClientData.get('pet_char_wrappers')
+            local equippedPet = pets and pets[1]
 
             if not equippedPet then
-                return false
+                if not Utils.Equip(getgenv().petCurrentlyFarming1, false) then
+                    return false
+                end
+                if not Utils.WaitForPetToEquip() then
+                    return false
+                end
             end
 
-            local petId = equippedPet.pet_id
+            pets = ClientData.get('pet_char_wrappers')
+            equippedPet = pets and pets[1]
 
-            if not petId then
-                return false
-            end
+            local petId = equippedPet and equippedPet.pet_id
 
-            local result = table.find(potionFarmPets, petId) and true or false
-
-            return result
+            return petId ~= nil and table.find(potionFarmPets, petId) ~= nil
         end
         local isProHandler = function()
             local subscription = ClientData.get_data()[localPlayer.Name].subscription_equip_2x_pets
@@ -11414,6 +11441,15 @@ Check the Developer Console for more information.]],
             return false
         end
 
+        function FarmingPet.SetFarmingTable(pets)
+            if typeof(pets) ~= 'table' then
+                print('the pets is not a table')
+
+                return
+            end
+
+            potionFarmPets = pets
+        end
         function FarmingPet.SwitchOutFullyGrown(whichPet)
             if localPlayer:GetAttribute('StopFarmingTemp') == true then
                 return
@@ -11456,20 +11492,17 @@ Check the Developer Console for more information.]],
                     return
                 end
 
-                for _ = 1, 3 do
-                    print('trying to see if 2d kitty')
+                print('trying to see if 2d kitty')
 
-                    if GetInventory.CheckForPetAndEquip({
-                        '2d_kitty',
-                    }, whichPet) then
-                        print('FOUND 2d kitty', whichPet)
+                if GetInventory.CheckForPetAndEquip({
+                    '2d_kitty',
+                }, whichPet) then
+                    print('FOUND 2d kitty', whichPet)
 
-                        return
-                    end
-
-                    task.wait(1)
+                    return
                 end
 
+                task.wait(1)
                 Utils.PrintDebug(string.format('\u{1f414}\u{1f414} Getting pet to farm age up potion, %s \u{1f414}\u{1f414}', tostring(whichPet)))
 
                 if GetInventory.CheckForPetAndEquip({
@@ -11478,23 +11511,29 @@ Check the Developer Console for more information.]],
                     return
                 end
 
+                task.wait(1)
                 Utils.PrintDebug(string.format('\u{1f414}\u{1f414} No starter egg found, trying dog or cat %s \u{1f414}\u{1f414}', tostring(whichPet)))
 
                 if GetInventory.GetPetFriendship(potionFarmPets, whichPet) then
                     return
                 end
 
+                task.wait(1)
                 Utils.PrintDebug(string.format('\u{1f414}\u{1f414} No friendship pet. checking if pet without friend exist %s \u{1f414}\u{1f414}', tostring(whichPet)))
 
                 if GetInventory.CheckForPetAndEquip(potionFarmPets, whichPet) then
                     return
                 end
+
+                task.wait(1)
+
                 if GetInventory.CheckForPetAndEquip({
                     'cracked_egg',
                 }, whichPet) then
                     return
                 end
 
+                task.wait(1)
                 Utils.PrintDebug(string.format('\u{1f414}\u{1f414} No cracked egg found, buying it %s \u{1f414}\u{1f414}', tostring(whichPet)))
 
                 local hasMoney = RouterClient.get('ShopAPI/BuyItem'):InvokeServer('pets', 'cracked_egg', {})
@@ -11694,6 +11733,7 @@ Check the Developer Console for more information.]],
         local PetRelease = __DARKLUA_BUNDLE_MODULES.load('v')
         local ContentPacks = (ReplicatedStorage:WaitForChild('SharedModules'):WaitForChild('ContentPacks'))
         local SleighballClient = (require(ContentPacks.Winter2025.Minigames.SleighballClient))
+        local StarCatchMinigameClient = (require(ContentPacks.Winter2025.Minigames.StarCatchMinigameClient))
         local modules = ReplicatedStorage:WaitForChild('new'):WaitForChild('modules')
         local DailiesNetService = (require(modules:WaitForChild('Dailies'):WaitForChild('DailiesNetService')))
         local self = {}
@@ -11985,7 +12025,7 @@ Check the Developer Console for more information.]],
 
                     task.wait(30)
 
-                    if not SleighballClient.instanced_minigame then
+                    if not (SleighballClient.instanced_minigame or StarCatchMinigameClient.instanced_minigame) then
                         localPlayer:SetAttribute('StopFarmingTemp', false)
                         print('no active minigames so setting StopFarmingTemp to false')
                         task.wait(10)
@@ -12008,11 +12048,6 @@ Check the Developer Console for more information.]],
             if getgenv().SETTINGS.HATCH_EGG_PRIORITY then
                 FarmingPet.CheckIfEgg(1)
                 task.wait(1)
-
-                if localPlayer:GetAttribute('isProHandler') then
-                    FarmingPet.CheckIfEgg(2)
-                    task.wait(1)
-                end
             end
             if getgenv().SETTINGS.FOCUS_FARM_AGE_POTION then
                 FarmingPet.GetPetToFarm(1)
@@ -12026,10 +12061,6 @@ Check the Developer Console for more information.]],
 
             if not getgenv().SETTINGS.FOCUS_FARM_AGE_POTION then
                 FarmingPet.SwitchOutFullyGrown(1)
-
-                if localPlayer:GetAttribute('isProHandler') then
-                    FarmingPet.SwitchOutFullyGrown(2)
-                end
             end
             if baitboxCount > 180 then
                 if localPlayer:GetAttribute('StopFarmingTemp') == false then
@@ -12048,7 +12079,7 @@ Check the Developer Console for more information.]],
 
             tryFeedAgePotion()
 
-            local waitTime = rng:NextNumber(1, 5)
+            local waitTime = rng:NextNumber(5, 10)
 
             baitboxCount = baitboxCount + waitTime
 
@@ -12070,6 +12101,26 @@ Check the Developer Console for more information.]],
                     task.wait(1)
                     DailiesNetService.try_to_claim_tab_reward('2d_tuesdays')
                 end
+                if Utils.IsDayAndHour('Tuesday', 21) then
+                    print('SWITCHED TO 2d_kitty BECAUSE ITS EVENT TIME')
+                    FarmingPet.SetFarmingTable({
+                        '2d_kitty',
+                    })
+
+                    return
+                end
+
+                local potionFarmPets = {
+                    '2d_kitty',
+                    'dog',
+                    'cat',
+                    'starter_egg',
+                    'cracked_egg',
+                    'basic_egg_2022_ant',
+                    'basic_egg_2022_mouse',
+                }
+
+                FarmingPet.SetFarmingTable(potionFarmPets)
             end)
         end
         function self.Start()
@@ -12098,11 +12149,6 @@ Check the Developer Console for more information.]],
             task.wait(2)
             FarmingPet.GetPetToFarm(1)
             task.wait(2)
-
-            if localPlayer:GetAttribute('isProHandler') == true then
-                FarmingPet.GetPetToFarm(2)
-            end
-
             task.defer(function()
                 local UpdateTextEvent = (ReplicatedStorage:WaitForChild('UpdateTextEvent'))
 
@@ -12883,6 +12929,7 @@ Check the Developer Console for more information.]],
         local ContentPacks = (ReplicatedStorage:WaitForChild('SharedModules'):WaitForChild('ContentPacks'))
         local IceSkating = (ContentPacks:WaitForChild('Winter2025'):WaitForChild('Game'):WaitForChild('IceSkating'))
         local SleighballClient = (require(ContentPacks.Winter2025.Minigames.SleighballClient))
+        local StarCatchMinigameClient = (require(ContentPacks.Winter2025.Minigames.StarCatchMinigameClient))
         local IceSkatingNet = (require(IceSkating:WaitForChild('IceSkatingNet')))
         local ginerbreadIds = __DARKLUA_BUNDLE_MODULES.load('B')
         local GetInventory = __DARKLUA_BUNDLE_MODULES.load('i')
@@ -13000,6 +13047,33 @@ Check the Developer Console for more information.]],
 
             RouterClient.get('WinterEventAPI/ProgressTaming'):InvokeServer(true)
         end
+        local startStarCatch = function()
+            local minigameId = StarCatchMinigameClient.instanced_minigame.minigame_id
+
+            while StarCatchMinigameClient.instanced_minigame do
+                if StarCatchMinigameClient.instanced_minigame.ingame_app_controller.right_value >= 40 then
+                    break
+                end
+
+                for _, v in StarCatchMinigameClient.instanced_minigame.stars do
+                    if not v.boppable then
+                        continue
+                    end
+
+                    local args = {
+                        minigameId,
+                        'bop_star',
+                        v.id,
+                        workspace:GetServerTimeNow(),
+                    }
+
+                    RouterClient.get('MinigameAPI/MessageServer'):FireServer(unpack(args))
+                    task.wait(0.1)
+                end
+
+                task.wait()
+            end
+        end
 
         function Christmas2025Handler.Init()
             print('Initializing Christmas2025Handler')
@@ -13023,7 +13097,12 @@ Check the Developer Console for more information.]],
                             localPlayer:SetAttribute('StopFarmingTemp', true)
                             task.wait(10)
                             startSleighball()
-                            localPlayer:SetAttribute('StopFarmingTemp', false)
+                        end
+                    elseif MinigameInGameApp.Body.Middle.Container.TitleLabel.Text:match('STARRY BOUNCE') then
+                        if localPlayer:GetAttribute('hasStartedFarming') == true then
+                            localPlayer:SetAttribute('StopFarmingTemp', true)
+                            task.wait(10)
+                            startStarCatch()
                         end
                     end
                 end
@@ -13043,6 +13122,23 @@ Check the Developer Console for more information.]],
 
                     localPlayer:SetAttribute('StopFarmingTemp', true)
                     Bypass('RouterClient').get('MinigameAPI/AttemptJoin'):FireServer('sleighball', true)
+                end
+            end)
+            StaticMap.star_catch_minigame_state.is_game_active:GetPropertyChangedSignal('Value'):Connect(function(
+            )
+                if StaticMap.star_catch_minigame_state.is_game_active.Value then
+                    if getgenv().SETTINGS.ENABLE_AUTO_FARM == false then
+                        return
+                    end
+                    if localPlayer:GetAttribute('hasStartedFarming') == false then
+                        return
+                    end
+                    if localPlayer:GetAttribute('StopFarmingTemp') == true then
+                        return
+                    end
+
+                    localPlayer:SetAttribute('StopFarmingTemp', true)
+                    Bypass('RouterClient').get('MinigameAPI/AttemptJoin'):FireServer('star_catch', true)
                 end
             end)
         end
@@ -13074,134 +13170,124 @@ if not game:IsLoaded() then
     game.Loaded:Wait()
 end
 
-local success, result = pcall(function()
-    setfpscap(getgenv().SETTINGS.SET_FPS or 2)
+setfpscap(getgenv().SETTINGS.SET_FPS or 2)
 
-    if getgenv().loaded == true then
-        print('SCRIPT ALREADY LOADED')
+if getgenv().loaded == true then
+    print('SCRIPT ALREADY LOADED')
 
-        return
-    end
-
-    getgenv().loaded = true
-
-    if game.PlaceId ~= 920587237 then
-        return
-    end
-
-    setfpscap(getgenv().SETTINGS.SET_FPS or 2)
-
-    local ReplicatedStorage = game:GetService('ReplicatedStorage')
-    local Players = game:GetService('Players')
-    local UserGameSettings = UserSettings():GetService('UserGameSettings')
-
-    UserGameSettings.GraphicsQualityLevel = 1
-    UserGameSettings.MasterVolume = 0
-
-    local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
-    local RouterClient = (Bypass('RouterClient'))
-    local localPlayer = Players.LocalPlayer
-    local NewsApp = (localPlayer:WaitForChild('PlayerGui'):WaitForChild('NewsApp'))
-
-    if not NewsApp.Enabled then
-        repeat
-            task.wait(5)
-        until NewsApp.Enabled or localPlayer.Character
-    end
-
-    for i, v in debug.getupvalue(RouterClient.init, 7)do
-        v.Name = i
-    end
-
-    getgenv().auto_accept_trade = false
-    getgenv().autoTrading = false
-    getgenv().auto_trade_all_pets = false
-    getgenv().auto_trade_fullgrown_neon_and_mega = false
-    getgenv().auto_trade_multi_choice = false
-    getgenv().auto_trade_custom = false
-    getgenv().auto_trade_semi_auto = false
-    getgenv().auto_trade_lowtier_pets = false
-    getgenv().auto_trade_rarity_pets = false
-    getgenv().auto_farm = false
-    getgenv().auto_make_neon = false
-    getgenv().auto_trade_Legendary = false
-    getgenv().auto_trade_custom_gifts = false
-    getgenv().auto_trade_all_neons = false
-    getgenv().auto_trade_eggs = false
-    getgenv().auto_trade_all_inventory = false
-    getgenv().feedAgeUpPotionToggle = false
-    getgenv().petCurrentlyFarming1 = nil
-    getgenv().petCurrentlyFarming2 = nil
-
-    local files = {
-        {
-            PrepareAccountHandler = __DARKLUA_BUNDLE_MODULES.load('k'),
-        },
-        {
-            DailyRewardHandler = __DARKLUA_BUNDLE_MODULES.load('l'),
-        },
-        {
-            GameGuiHandler = __DARKLUA_BUNDLE_MODULES.load('m'),
-        },
-        {
-            PotatoModeHandler = __DARKLUA_BUNDLE_MODULES.load('n'),
-        },
-        {
-            TradeLicenseHandler = __DARKLUA_BUNDLE_MODULES.load('o'),
-        },
-        {
-            WebhookHandler = __DARKLUA_BUNDLE_MODULES.load('p'),
-        },
-        {
-            RayfieldHandler = __DARKLUA_BUNDLE_MODULES.load('s'),
-        },
-        {
-            AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.load('w'),
-        },
-        {
-            PetOfflineHandler = __DARKLUA_BUNDLE_MODULES.load('y'),
-        },
-        {
-            StatsGuiHandler = __DARKLUA_BUNDLE_MODULES.load('A'),
-        },
-        {
-            Christmas2025Handler = __DARKLUA_BUNDLE_MODULES.load('C'),
-        },
-    }
-
-    print('----- INITIALIZING MODULES -----')
-
-    for index, _table in ipairs(files)do
-        for moduleName, _ in _table do
-            if files[index][moduleName].Init then
-                print(string.format('INITIALIZING: %s', tostring(moduleName)))
-                files[index][moduleName].Init()
-                task.wait(1)
-            end
-        end
-    end
-
-    print('----- STARTING MODULES -----')
-
-    for index, _table in ipairs(files)do
-        for moduleName, _ in _table do
-            if files[index][moduleName].Start then
-                print(string.format('STARTING: %s', tostring(moduleName)))
-                files[index][moduleName].Start()
-                task.wait(1)
-            end
-        end
-    end
-
-    task.delay(60, function()
-        localPlayer:SetAttribute('hasStartedFarming', true)
-    end)
-end)
-
-if not success then
-    if result:match('Cannot require') then
-        return
-    end
-
-    print(string.format('The Script Errored: %s', tostring(result)))
+    return
 end
+
+getgenv().loaded = true
+
+if game.PlaceId ~= 920587237 then
+    return
+end
+
+setfpscap(getgenv().SETTINGS.SET_FPS or 2)
+
+local ReplicatedStorage = game:GetService('ReplicatedStorage')
+local Players = game:GetService('Players')
+local UserGameSettings = UserSettings():GetService('UserGameSettings')
+
+UserGameSettings.GraphicsQualityLevel = 1
+UserGameSettings.MasterVolume = 0
+
+local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
+local RouterClient = (Bypass('RouterClient'))
+local localPlayer = Players.LocalPlayer
+local NewsApp = (localPlayer:WaitForChild('PlayerGui'):WaitForChild('NewsApp'))
+
+if not NewsApp.Enabled then
+    repeat
+        task.wait(5)
+    until NewsApp.Enabled or localPlayer.Character
+end
+
+for i, v in debug.getupvalue(RouterClient.init, 7)do
+    v.Name = i
+end
+
+getgenv().auto_accept_trade = false
+getgenv().autoTrading = false
+getgenv().auto_trade_all_pets = false
+getgenv().auto_trade_fullgrown_neon_and_mega = false
+getgenv().auto_trade_multi_choice = false
+getgenv().auto_trade_custom = false
+getgenv().auto_trade_semi_auto = false
+getgenv().auto_trade_lowtier_pets = false
+getgenv().auto_trade_rarity_pets = false
+getgenv().auto_farm = false
+getgenv().auto_make_neon = false
+getgenv().auto_trade_Legendary = false
+getgenv().auto_trade_custom_gifts = false
+getgenv().auto_trade_all_neons = false
+getgenv().auto_trade_eggs = false
+getgenv().auto_trade_all_inventory = false
+getgenv().feedAgeUpPotionToggle = false
+getgenv().petCurrentlyFarming1 = nil
+getgenv().petCurrentlyFarming2 = nil
+
+local files = {
+    {
+        PrepareAccountHandler = __DARKLUA_BUNDLE_MODULES.load('k'),
+    },
+    {
+        DailyRewardHandler = __DARKLUA_BUNDLE_MODULES.load('l'),
+    },
+    {
+        GameGuiHandler = __DARKLUA_BUNDLE_MODULES.load('m'),
+    },
+    {
+        PotatoModeHandler = __DARKLUA_BUNDLE_MODULES.load('n'),
+    },
+    {
+        TradeLicenseHandler = __DARKLUA_BUNDLE_MODULES.load('o'),
+    },
+    {
+        WebhookHandler = __DARKLUA_BUNDLE_MODULES.load('p'),
+    },
+    {
+        RayfieldHandler = __DARKLUA_BUNDLE_MODULES.load('s'),
+    },
+    {
+        AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.load('w'),
+    },
+    {
+        PetOfflineHandler = __DARKLUA_BUNDLE_MODULES.load('y'),
+    },
+    {
+        StatsGuiHandler = __DARKLUA_BUNDLE_MODULES.load('A'),
+    },
+    {
+        Christmas2025Handler = __DARKLUA_BUNDLE_MODULES.load('C'),
+    },
+}
+
+print('----- INITIALIZING MODULES -----')
+
+for index, _table in ipairs(files)do
+    for moduleName, _ in _table do
+        if files[index][moduleName].Init then
+            print(string.format('INITIALIZING: %s', tostring(moduleName)))
+            files[index][moduleName].Init()
+            task.wait(1)
+        end
+    end
+end
+
+print('----- STARTING MODULES -----')
+
+for index, _table in ipairs(files)do
+    for moduleName, _ in _table do
+        if files[index][moduleName].Start then
+            print(string.format('STARTING: %s', tostring(moduleName)))
+            files[index][moduleName].Start()
+            task.wait(1)
+        end
+    end
+end
+
+task.delay(60, function()
+    localPlayer:SetAttribute('hasStartedFarming', true)
+end)
