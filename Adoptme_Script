@@ -12130,13 +12130,11 @@ Check the Developer Console for more information.]],
                     DailiesNetService.try_to_claim_daily_rewards('vanilla')
                     task.wait(1)
                     DailiesNetService.try_to_claim_tab_reward('vanilla')
-                    task.wait(1)
-                    DailiesNetService.try_to_claim_tab_reward('2d_tuesdays')
                 end
                 if Utils.IsDayAndHour('Tuesday', 21) then
                     print('SWITCHED TO 2d_kitty BECAUSE ITS EVENT TIME')
                     localPlayer:SetAttribute('IsTuesdayEvent', true)
-                    DailiesNetService.try_to_claim_tab_reward('2d_tuesdays')
+                    DailiesNetService.try_to_claim_daily_rewards('2d_tuesdays')
                     FarmingPet.SetFarmingTable({
                         '2d_kitty',
                     })
@@ -12160,7 +12158,6 @@ Check the Developer Console for more information.]],
         end
         function self.Start()
             RouterClient.get('HousingAPI/ClaimAllDeliveries'):FireServer()
-            DailiesNetService.try_to_claim_tab_reward('2d_tuesdays')
             DailiesNetService.try_to_claim_daily_rewards('2d_tuesdays')
 
             if not getgenv().SETTINGS.ENABLE_AUTO_FARM then
