@@ -11695,20 +11695,52 @@ Check the Developer Console for more information.]],
     end
     function __DARKLUA_BUNDLE_MODULES.v()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
+        local Players = cloneref(game:GetService('Players'))
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local RouterClient = Bypass('RouterClient')
+        local ClientData = Bypass('ClientData')
+        local localPlayer = Players.LocalPlayer
+        local recyclerId = nil
         local PetRelease = {}
+        local getPetRecyclerId = function()
+            if recyclerId then
+                return recyclerId
+            end
+            if not ClientData.get_data()[localPlayer.Name].house_interior then
+                return nil
+            end
+
+            for key, value in ClientData.get_data()[localPlayer.Name].house_interior.furniture do
+                if value.id == 'pet_recycler' then
+                    return key
+                end
+            end
+
+            return nil
+        end
 
         function PetRelease.Use(petUniques)
-            RouterClient.get('HousingAPI/ActivateInteriorFurniture'):InvokeServer('f-27', 'UseBlock', {
+            recyclerId = getPetRecyclerId()
+
+            if not recyclerId then
+                return
+            end
+
+            RouterClient.get('HousingAPI/ActivateInteriorFurniture'):InvokeServer(recyclerId, 'UseBlock', {
                 action = 'use',
                 uniques = petUniques,
             }, Utils.GetCharacter())
             Utils.PrintDebug('Added Pets To Release')
         end
         function PetRelease.Claim()
-            RouterClient.get('HousingAPI/ActivateInteriorFurniture'):InvokeServer('f-27', 'UseBlock', {
+            recyclerId = getPetRecyclerId()
+
+            if not recyclerId then
+                return
+            end
+
+            RouterClient.get('HousingAPI/ActivateInteriorFurniture'):InvokeServer(recyclerId, 'UseBlock', {
                 action = 'claim',
             }, Utils.GetCharacter())
             Utils.PrintDebug('Claimed Eggs from Release pets')
@@ -12103,6 +12135,7 @@ Check the Developer Console for more information.]],
                 end
                 if Utils.IsDayAndHour('Tuesday', 21) then
                     print('SWITCHED TO 2d_kitty BECAUSE ITS EVENT TIME')
+                    localPlayer:SetAttribute('IsTuesdayEvent', true)
                     FarmingPet.SetFarmingTable({
                         '2d_kitty',
                     })
@@ -12121,6 +12154,7 @@ Check the Developer Console for more information.]],
                 }
 
                 FarmingPet.SetFarmingTable(potionFarmPets)
+                localPlayer:SetAttribute('IsTuesdayEvent', false)
             end)
         end
         function self.Start()
@@ -13051,7 +13085,9 @@ Check the Developer Console for more information.]],
             local minigameId = StarCatchMinigameClient.instanced_minigame.minigame_id
 
             while StarCatchMinigameClient.instanced_minigame do
-                if StarCatchMinigameClient.instanced_minigame.ingame_app_controller.right_value >= 40 then
+                local ingameAppController = StarCatchMinigameClient.instanced_minigame.ingame_app_controller
+
+                if ingameAppController and ingameAppController.right_value >= 40 then
                     break
                 end
 
@@ -13113,6 +13149,9 @@ Check the Developer Console for more information.]],
                     if getgenv().SETTINGS.ENABLE_AUTO_FARM == false then
                         return
                     end
+                    if localPlayer:GetAttribute('IsTuesdayEvent') == true then
+                        return
+                    end
                     if localPlayer:GetAttribute('hasStartedFarming') == false then
                         return
                     end
@@ -13128,6 +13167,9 @@ Check the Developer Console for more information.]],
             )
                 if StaticMap.star_catch_minigame_state.is_game_active.Value then
                     if getgenv().SETTINGS.ENABLE_AUTO_FARM == false then
+                        return
+                    end
+                    if localPlayer:GetAttribute('IsTuesdayEvent') == true then
                         return
                     end
                     if localPlayer:GetAttribute('hasStartedFarming') == false then
