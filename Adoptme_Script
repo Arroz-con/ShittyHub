@@ -11155,13 +11155,16 @@ Check the Developer Console for more information.]],
         function Ailment.IceSkating(petUnique)
             Utils.PrintDebug(string.format('\u{26f8} Doing ice_skating on %s \u{26f8}', tostring(Ailment.whichPet)))
             Teleport.GingerbreadCollectionCircle()
+            setfpscap(1)
             task.wait(2)
             Utils.ReEquipPet(Ailment.whichPet)
             waitForTaskToFinish('ice_skating', petUnique)
+            setfpscap(getgenv().SETTINGS.SET_FPS or 2)
         end
         function Ailment.RideTheTrain(petUnique)
             Utils.PrintDebug(string.format('\u{1f682} Doing ride_the_train on %s \u{1f682}', tostring(Ailment.whichPet)))
             Teleport.GingerbreadCollectionCircle()
+            setfpscap(1)
             task.wait(2)
             Utils.ReEquipPet(Ailment.whichPet)
 
@@ -11180,10 +11183,12 @@ Check the Developer Console for more information.]],
             WinterTrainNet.EnterCarriageSeat:fire_server({carriage = seat})
             waitForTaskToFinish('ride_the_train', petUnique)
             getUpFromSitting()
+            setfpscap(getgenv().SETTINGS.SET_FPS or 2)
         end
         function Ailment.SoloRideTheTrain()
             Utils.PrintDebug('\u{1f682} Riding the Train \u{1f682}')
             Teleport.GingerbreadCollectionCircle()
+            setfpscap(1)
             task.wait(2)
 
             local trainSeats = workspace:WaitForChild('WinterTrainSeats', 10)
@@ -11209,13 +11214,16 @@ Check the Developer Console for more information.]],
             until not ClientData.get_data()[localPlayer.Name].winter_2025_train_gingerbread or count > 120
 
             getUpFromSitting()
+            setfpscap(getgenv().SETTINGS.SET_FPS or 2)
         end
         function Ailment.DanceAtDisco(petUnique)
             Utils.PrintDebug(string.format('\u{1f57a} Doing dance_at_the_disco on %s \u{1f57a}', tostring(Ailment.whichPet)))
             Teleport.SpinningDome()
+            setfpscap(1)
             task.wait(2)
             Utils.ReEquipPet(Ailment.whichPet)
             waitForTaskToFinish('dance_at_the_disco', petUnique)
+            setfpscap(getgenv().SETTINGS.SET_FPS or 2)
         end
         function Ailment.BuccaneerBandAilment(petUnique)
             ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('MainMap', localPlayer, ClientData.get_data()[localPlayer.Name].LiveOpsMapType)
@@ -12065,6 +12073,16 @@ Check the Developer Console for more information.]],
                     return true
                 elseif key == 'ice_skating' then
                     Ailment.IceSkating(petUnique)
+                    Teleport.Recycler()
+
+                    return true
+                elseif key == 'ride_the_train' then
+                    Ailment.RideTheTrain(petUnique)
+                    Teleport.Recycler()
+
+                    return true
+                elseif key == 'dance_at_the_disco' then
+                    Ailment.DanceAtDisco(petUnique)
                     Teleport.Recycler()
 
                     return true
