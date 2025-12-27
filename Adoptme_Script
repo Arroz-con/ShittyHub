@@ -12021,11 +12021,6 @@ Check the Developer Console for more information.]],
                     Teleport.FarmingHome()
 
                     return true
-                elseif key == 'ride_the_train' then
-                    Ailment.RideTheTrain(petUnique)
-                    Teleport.FarmingHome()
-
-                    return true
                 end
             end
             for key, _ in ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique]do
@@ -12199,12 +12194,6 @@ Check the Developer Console for more information.]],
 
                     local success, result = pcall(function()
                         startAutoFarm()
-
-                        if ClientData.get_data()[localPlayer.Name].winter_2025_train_gingerbread then
-                            Ailment.SoloRideTheTrain()
-                            Teleport.FarmingHome()
-                        end
-
                         UpdateTextEvent:Fire()
                     end)
 
