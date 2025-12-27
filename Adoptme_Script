@@ -12068,16 +12068,6 @@ Check the Developer Console for more information.]],
                     Teleport.Recycler()
 
                     return true
-                elseif key == 'ride_the_train' then
-                    Ailment.RideTheTrain(petUnique)
-                    Teleport.Recycler()
-
-                    return true
-                elseif key == 'dance_at_the_disco' then
-                    Ailment.DanceAtDisco(petUnique)
-                    Teleport.Recycler()
-
-                    return true
                 end
             end
             for key, _ in ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique]do
@@ -12251,12 +12241,6 @@ Check the Developer Console for more information.]],
 
                     local success, result = pcall(function()
                         startAutoFarm()
-
-                        if ClientData.get_data()[localPlayer.Name].winter_2025_train_gingerbread then
-                            Ailment.SoloRideTheTrain()
-                            Teleport.Recycler()
-                        end
-
                         UpdateTextEvent:Fire()
                     end)
 
