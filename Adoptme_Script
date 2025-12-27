@@ -2723,9 +2723,9 @@ do
             Workspace.Interiors:WaitForChild(tostring(Workspace.Interiors:FindFirstChildWhichIsA('Model')))
 
             localPlayer.Character.PrimaryPart.CFrame = Workspace:WaitForChild('StaticMap'):WaitForChild('Campsite'):WaitForChild('CampsiteOrigin').CFrame + Vector3.new(math.random(1, 5), 10, math.random(1, 5))
-            localPlayer.Character:WaitForChild('HumanoidRootPart').Anchored = false
+            Utils.GetHumanoidRootPart().Anchored = false
 
-            localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+            Utils.GetHumanoid():ChangeState(Enum.HumanoidStateType.Landed)
             Teleport.DeleteWater()
             task.wait(2)
         end
@@ -2738,13 +2738,13 @@ do
 
             localPlayer.Character.PrimaryPart.CFrame = Workspace.Interiors.Nursery:WaitForChild('GumballMachine'):WaitForChild('Root').CFrame + Vector3.new(
 -8, 10, 0)
-            localPlayer.Character:WaitForChild('HumanoidRootPart').Anchored = false
+            Utils.GetHumanoidRootPart().Anchored = false
 
-            localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+            Utils.GetHumanoid():ChangeState(Enum.HumanoidStateType.Landed)
             task.wait(2)
         end
         function Teleport.Recycler()
-            localPlayer.Character:WaitForChild('HumanoidRootPart').Anchored = true
+            Utils.GetHumanoidRootPart().Anchored = true
 
             SetLocationFunc('Nursery', 'MainDoor', {})
             task.wait(1)
@@ -2760,9 +2760,9 @@ do
 
             localPlayer.Character:MoveTo(teleportPostion)
 
-            localPlayer.Character:WaitForChild('HumanoidRootPart').Anchored = false
+            Utils.GetHumanoidRootPart().Anchored = false
 
-            localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+            Utils.GetHumanoid():ChangeState(Enum.HumanoidStateType.Landed)
             task.wait(2)
         end
         function Teleport.CampSite()
@@ -2770,8 +2770,9 @@ do
             task.wait(1)
 
             localPlayer.Character.PrimaryPart.CFrame = Workspace.CampingLocation.CFrame + Vector3.new(rng:NextInteger(1, 30), 5, rng:NextInteger(1, 30))
+            Utils.GetHumanoidRootPart().Anchored = false
 
-            localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+            Utils.GetHumanoid():ChangeState(Enum.HumanoidStateType.Landed)
             Teleport.DeleteWater()
         end
         function Teleport.BeachParty()
@@ -2779,8 +2780,9 @@ do
             task.wait(1)
 
             localPlayer.Character.PrimaryPart.CFrame = Workspace.BeachPartyLocation.CFrame + Vector3.new(math.random(1, 30), 5, math.random(1, 30))
+            Utils.GetHumanoidRootPart().Anchored = false
 
-            localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+            Utils.GetHumanoid():ChangeState(Enum.HumanoidStateType.Landed)
             Teleport.DeleteWater()
         end
         function Teleport.GingerbreadCollectionCircle()
@@ -2813,7 +2815,40 @@ do
             end
 
             localPlayer.Character:MoveTo(navPart.Position)
-            localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+
+            Utils.GetHumanoidRootPart().Anchored = false
+
+            Utils.GetHumanoid():ChangeState(Enum.HumanoidStateType.Landed)
+            Teleport.DeleteWater()
+        end
+        function Teleport.SpinningDome()
+            SetLocationFunc('MainMap', 'Neighborhood/MainDoor', {})
+            task.wait(1)
+            Workspace.Interiors:WaitForChild(tostring(Workspace.Interiors:FindFirstChildWhichIsA('Model')))
+
+            local christmasMap = Workspace.Interiors:WaitForChild('MainMap!Christmas', 10)
+
+            if not christmasMap then
+                return
+            end
+
+            local discoDome = christmasMap:WaitForChild('DiscoDome', 10)
+
+            if not discoDome then
+                return
+            end
+
+            local discoCenter = discoDome:WaitForChild('DiscoCenter', 10)
+
+            if not discoCenter then
+                return
+            end
+
+            Utils.GetCharacter():MoveTo(discoCenter.Position)
+
+            Utils.GetHumanoidRootPart().Anchored = false
+
+            Utils.GetHumanoid():ChangeState(Enum.HumanoidStateType.Landed)
             Teleport.DeleteWater()
         end
         function Teleport.Bonfire()
@@ -2829,7 +2864,7 @@ do
             local location = npc.PrimaryPart.Position + Vector3.new(math.random(1, 15), 5, math.random(1, 15))
 
             localPlayer.Character:MoveTo(location)
-            localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+            Utils.GetHumanoid():ChangeState(Enum.HumanoidStateType.Landed)
             Teleport.DeleteWater()
         end
         function Teleport.PipeOrgan()
@@ -2868,9 +2903,9 @@ do
 
             localPlayer.Character:MoveTo(newPosition)
 
-            localPlayer.Character:WaitForChild('HumanoidRootPart').Anchored = false
+            Utils.GetHumanoidRootPart().Anchored = false
 
-            localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+            Utils.GetHumanoid():ChangeState(Enum.HumanoidStateType.Landed)
             Teleport.DeleteWater()
             task.wait(2)
 
@@ -2884,9 +2919,9 @@ do
             Workspace.Interiors:WaitForChild(tostring(Workspace.Interiors:FindFirstChildWhichIsA('Model')))
 
             localPlayer.Character.PrimaryPart.CFrame = Workspace:WaitForChild('StaticMap'):WaitForChild('Park'):WaitForChild('Roundabout').PrimaryPart.CFrame + vec
-            localPlayer.Character:WaitForChild('HumanoidRootPart').Anchored = false
+            Utils.GetHumanoidRootPart().Anchored = false
 
-            localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+            Utils.GetHumanoid():ChangeState(Enum.HumanoidStateType.Landed)
             Teleport.DeleteWater()
         end
         function Teleport.DownloadMainMap()
@@ -2908,9 +2943,9 @@ do
             task.wait(1)
             Workspace.Interiors:WaitForChild(tostring(Workspace.Interiors:FindFirstChildWhichIsA('Model')))
 
-            localPlayer.Character:WaitForChild('HumanoidRootPart').Anchored = false
+            Utils.GetHumanoidRootPart().Anchored = false
 
-            localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+            Utils.GetHumanoid():ChangeState(Enum.HumanoidStateType.Landed)
             Teleport.DeleteWater()
 
             return true
@@ -2922,9 +2957,9 @@ do
             task.wait(1)
             Workspace.Interiors:WaitForChild(tostring(Workspace.Interiors:FindFirstChildWhichIsA('Model')))
 
-            localPlayer.Character:WaitForChild('HumanoidRootPart').Anchored = false
+            Utils.GetHumanoidRootPart().Anchored = false
 
-            localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+            Utils.GetHumanoid():ChangeState(Enum.HumanoidStateType.Landed)
         end
         function Teleport.SkyCastle()
             localPlayer.Character:WaitForChild('HumanoidRootPart').Anchored = true
@@ -2950,9 +2985,9 @@ do
 
             localPlayer.Character.PrimaryPart.CFrame = skyCastle.Potions.GrowPotion.Part.CFrame + Vector3.new(math.random(1, 5), 10, math.random(
 -5, -1))
-            localPlayer.Character:WaitForChild('HumanoidRootPart').Anchored = false
+            Utils.GetHumanoidRootPart().Anchored = false
 
-            localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+            Utils.GetHumanoid():ChangeState(Enum.HumanoidStateType.Landed)
         end
         function Teleport.Neighborhood()
             localPlayer.Character:WaitForChild('HumanoidRootPart').Anchored = true
@@ -2969,9 +3004,9 @@ do
 
             localPlayer.Character.PrimaryPart.CFrame = Workspace.Interiors['Neighborhood!Fall'].InteriorOrigin.CFrame + Vector3.new(0, 
 -10, 0)
-            localPlayer.Character:WaitForChild('HumanoidRootPart').Anchored = false
+            Utils.GetHumanoidRootPart().Anchored = false
 
-            localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+            Utils.GetHumanoid():ChangeState(Enum.HumanoidStateType.Landed)
             Teleport.DeleteWater()
         end
 
@@ -5114,6 +5149,9 @@ do
                 v.Transparency = 1
             elseif v:IsA('Decal') or v:IsA('Texture') then
                 v.Transparency = 1
+            elseif v:IsA('ParticleEmitter') or v:IsA('Trail') then
+                v.Lifetime = NumberRange.new(1, 1.1)
+                v.Enabled = false
             elseif v:IsA('Explosion') then
                 v.BlastPressure = 1
                 v.BlastRadius = 1
@@ -5130,6 +5168,8 @@ do
                 v.TextureId = 0
             elseif v:IsA('ShirtGraphic') then
                 v.Graphic = 1
+            elseif v:IsA('Animator') then
+                v:Destroy()
             end
         end
 
@@ -11170,6 +11210,13 @@ Check the Developer Console for more information.]],
 
             getUpFromSitting()
         end
+        function Ailment.DanceAtDisco(petUnique)
+            Utils.PrintDebug(string.format('\u{1f57a} Doing dance_at_the_disco on %s \u{1f57a}', tostring(Ailment.whichPet)))
+            Teleport.SpinningDome()
+            task.wait(2)
+            Utils.ReEquipPet(Ailment.whichPet)
+            waitForTaskToFinish('dance_at_the_disco', petUnique)
+        end
         function Ailment.BuccaneerBandAilment(petUnique)
             ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('MainMap', localPlayer, ClientData.get_data()[localPlayer.Name].LiveOpsMapType)
             task.wait(2)
@@ -12007,18 +12054,28 @@ Check the Developer Console for more information.]],
                 if key == 'beach_party' then
                     Teleport.PlaceFloorAtBeachParty()
                     Ailment.BeachPartyAilment(petUnique)
-                    Teleport.FarmingHome()
+                    Teleport.Recycler()
 
                     return true
                 elseif key == 'camping' then
                     Teleport.PlaceFloorAtCampSite()
                     Ailment.CampingAilment(petUnique)
-                    Teleport.FarmingHome()
+                    Teleport.Recycler()
 
                     return true
                 elseif key == 'ice_skating' then
                     Ailment.IceSkating(petUnique)
-                    Teleport.FarmingHome()
+                    Teleport.Recycler()
+
+                    return true
+                elseif key == 'ride_the_train' then
+                    Ailment.RideTheTrain(petUnique)
+                    Teleport.Recycler()
+
+                    return true
+                elseif key == 'dance_at_the_disco' then
+                    Ailment.DanceAtDisco(petUnique)
+                    Teleport.Recycler()
 
                     return true
                 end
@@ -12186,7 +12243,7 @@ Check the Developer Console for more information.]],
             task.wait(2)
             FarmingPet.GetPetToFarm(1)
             task.wait(2)
-            task.defer(function()
+            task.delay(30, function()
                 local UpdateTextEvent = (ReplicatedStorage:WaitForChild('UpdateTextEvent'))
 
                 while getgenv().SETTINGS.ENABLE_AUTO_FARM do
@@ -12194,6 +12251,12 @@ Check the Developer Console for more information.]],
 
                     local success, result = pcall(function()
                         startAutoFarm()
+
+                        if ClientData.get_data()[localPlayer.Name].winter_2025_train_gingerbread then
+                            Ailment.SoloRideTheTrain()
+                            Teleport.Recycler()
+                        end
+
                         UpdateTextEvent:Fire()
                     end)
 
@@ -13273,6 +13336,7 @@ local files = {
     },
 }
 
+localPlayer:SetAttribute('hasStartedFarming', false)
 print('----- INITIALIZING MODULES -----')
 
 for index, _table in ipairs(files)do
@@ -13297,6 +13361,4 @@ for index, _table in ipairs(files)do
     end
 end
 
-task.delay(60, function()
-    localPlayer:SetAttribute('hasStartedFarming', true)
-end)
+localPlayer:SetAttribute('hasStartedFarming', true)
