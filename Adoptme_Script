@@ -4700,6 +4700,7 @@ do
             ['Costume Party starts'] = 'Okay',
             ['Step away from'] = 'Okay',
             ['spawn a vehicle'] = 'Okay',
+            ['Welcome to Adopt Me!'] = 'Next',
         }
         local getNormalDialogTextLabel = function()
             local Dialog = (DialogApp and {
@@ -12073,16 +12074,6 @@ Check the Developer Console for more information.]],
                     return true
                 elseif key == 'ice_skating' then
                     Ailment.IceSkating(petUnique)
-                    Teleport.Recycler()
-
-                    return true
-                elseif key == 'ride_the_train' then
-                    Ailment.RideTheTrain(petUnique)
-                    Teleport.Recycler()
-
-                    return true
-                elseif key == 'dance_at_the_disco' then
-                    Ailment.DanceAtDisco(petUnique)
                     Teleport.Recycler()
 
                     return true
