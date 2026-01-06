@@ -4168,9 +4168,13 @@ do
 
             findHomeButtonAndClick()
 
+            local loadCount = 0
+
             repeat
                 task.wait(1)
-            until ClientData.get_data()[localPlayer.Name].loaded_in == true
+
+                loadCount = loadCount + 1
+            until ClientData.get_data()[localPlayer.Name].loaded_in == true or loadCount >= 15
 
             RouterClient.get('HousingAPI/SetDoorLocked'):InvokeServer(true)
             Utils.WaitForHumanoidRootPart()
