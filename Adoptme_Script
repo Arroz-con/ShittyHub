@@ -12108,6 +12108,7 @@ Check the Developer Console for more information.]],
             local MainFrame = Instance.new('Frame')
 
             MainFrame.Name = 'MainFrame'
+            MainFrame.Visible = getgenv().SETTINGS.ENABLE_AUTO_FARM
             MainFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
             MainFrame.BackgroundTransparency = 1
             MainFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
@@ -12186,12 +12187,8 @@ Check the Developer Console for more information.]],
             otherGuis.TimeLabel.MouseLeave:Connect(function()
                 otherGuis.TimeLabel.Text = TIME_SAVED
             end)
-
-            local isVisible = true
-
             TextButton.Activated:Connect(function()
-                isVisible = not isVisible
-                MainFrame.Visible = isVisible
+                MainFrame.Visible = not MainFrame.Visible
             end)
         end
         function StatsGuiClass.SetTimeLabelText(startTime)
