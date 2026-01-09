@@ -5032,7 +5032,7 @@ do
             if not itemDatabase.image then
                 return false
             end
-            if itemDatabase.rarity ~= 'legendary' then
+            if itemDatabase.rarity ~= 'legendary' or itemDatabase.is_egg then
                 return false
             end
 
