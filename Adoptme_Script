@@ -5069,9 +5069,6 @@ do
                 if not dataInfo.properties then
                     return
                 end
-                if not table.find(AllowOrDenyList.Allowlist, dataInfo.id) then
-                    return
-                end
                 if self.UniqueString == dataInfo.unique then
                     return
                 end
