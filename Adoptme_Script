@@ -4406,8 +4406,10 @@ do
         return self
     end
     function __DARKLUA_BUNDLE_MODULES.m()
+        local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local TextChatService = game:GetService('TextChatService')
+        local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local Trade = __DARKLUA_BUNDLE_MODULES.load('e')
         local Teleport = __DARKLUA_BUNDLE_MODULES.load('f')
@@ -4421,6 +4423,13 @@ do
         local PlaytimePayoutsApp = (PlayerGui:WaitForChild('PlaytimePayoutsApp'))
         local certificateConn
         local starterPackAppConn
+        local appList = {
+            'ExtraButtonsApp',
+            'HouseEditorWrapperApp',
+            'GuideArrowApp',
+            'NavigatorApp',
+            'QuestIconApp',
+        }
         local patterns = {
             ["You haven't collected the Gingerbread"] = 'No',
             ['Be careful when trading'] = 'Okay',
@@ -4587,6 +4596,13 @@ do
         end
 
         function self.Init()
+            for _, name in appList do
+                Bypass('UIManager').set_app_visibility(name, false)
+            end
+
+            Bypass('UIManager').apps.BucksIndicatorApp.instance.CurrencyIndicator.Visible = false
+            Bypass('UIManager').apps.NavigatorApp.instance.Frame.Visible = false
+
             TextChatService.MessageReceived:Connect(function(message)
                 if not (message.TextSource and message.TextSource.UserId) then
                     print('ignoring message with no text source')
