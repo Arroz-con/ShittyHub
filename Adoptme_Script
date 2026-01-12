@@ -5152,6 +5152,11 @@ do
                         value = petStats.Value,
                         inline = true,
                     },
+                    {
+                        name = 'Unique ID',
+                        value = itemData.unique,
+                        inline = false,
+                    },
                 },
                 footer = {
                     text = string.format('\nShittyHub - %s', tostring(DateTime.now():FormatLocalTime('LLL', 'en-us'))),
