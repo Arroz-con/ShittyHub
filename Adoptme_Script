@@ -615,6 +615,7 @@ do
     function __DARKLUA_BUNDLE_MODULES.c()
         return {
             Denylist = {
+                '2d_kitty',
                 'practice_dog',
                 'starter_egg',
                 'dog',
@@ -635,6 +636,7 @@ do
                 'ice_dimension_2025_frostbite_bear',
                 'penguins_2025_dango_penguins',
                 'pet_recycler_2025_giant_panda',
+                'food_pets_2026_dragonfruit_fox',
             },
         }
     end
@@ -5048,7 +5050,7 @@ do
             if not itemDatabase.image then
                 return false
             end
-            if itemDatabase.rarity ~= 'legendary' or itemDatabase.is_egg then
+            if itemDatabase.is_egg then
                 return false
             end
 
@@ -5083,6 +5085,9 @@ do
                     return
                 end
                 if not dataInfo.properties then
+                    return
+                end
+                if not table.find(AllowOrDenyList.Allowlist, dataInfo.id) then
                     return
                 end
                 if self.UniqueString == dataInfo.unique then
@@ -5151,11 +5156,6 @@ do
                         name = tostring(petStats.Name),
                         value = petStats.Value,
                         inline = true,
-                    },
-                    {
-                        name = 'Unique ID',
-                        value = itemData.unique,
-                        inline = false,
                     },
                 },
                 footer = {
