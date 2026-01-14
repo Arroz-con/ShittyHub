@@ -4889,9 +4889,9 @@ do
     function __DARKLUA_BUNDLE_MODULES.n()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
-        local Workspace = (cloneref(game:GetService('Workspace')))
+        local Workspace = game:GetService('Workspace')
+        local Lighting = game:GetService('Lighting')
         local Terrain = (Workspace:WaitForChild('Terrain'))
-        local Lighting = (cloneref(game:GetService('Lighting')))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
         local self = {}
@@ -4914,6 +4914,40 @@ do
             Lighting.FogEnd = math.huge
             Lighting.FogStart = 0
         end
+        local lowSpecTextures = function(v)
+            if v:IsA('Part') then
+                v.Material = Enum.Material.Plastic
+                v.EnableFluidForces = false
+                v.CastShadow = false
+                v.Reflectance = 0
+                v.Transparency = 1
+            elseif v:IsA('BasePart') and not v:IsA('MeshPart') then
+                v.Material = Enum.Material.Plastic
+                v.Reflectance = 0
+                v.Transparency = 1
+            elseif v:IsA('Decal') or v:IsA('Texture') then
+                v.Transparency = 1
+            elseif v:IsA('ParticleEmitter') or v:IsA('Trail') then
+                v.Lifetime = NumberRange.new(1, 1.1)
+                v.Enabled = false
+            elseif v:IsA('Explosion') then
+                v.BlastPressure = 1
+                v.BlastRadius = 1
+            elseif v:IsA('Fire') or v:IsA('SpotLight') or v:IsA('Smoke') or v:IsA('Sparkles') then
+                v.Enabled = false
+            elseif v:IsA('MeshPart') then
+                v.Material = Enum.Material.Plastic
+                v.EnableFluidForces = false
+                v.CastShadow = false
+                v.Reflectance = 0
+                v.TextureID = '10385902758728957'
+                v.Transparency = 1
+            elseif v:IsA('SpecialMesh') then
+                v.TextureId = 0
+            elseif v:IsA('ShirtGraphic') then
+                v.Graphic = 1
+            end
+        end
 
         function self.Init() end
         function self.Start()
@@ -4931,11 +4965,17 @@ do
                     v:Destroy()
                 end
             end
+            for _, v in pairs(Workspace:GetDescendants())do
+                lowSpecTextures(v)
+            end
 
             Workspace:WaitForChild('Interiors').ChildAdded:Connect(function(v)
                 if v:IsA('Model') and table.find(namesToRemove, v.Name) then
                     v:Destroy()
                 end
+            end)
+            Workspace.DescendantAdded:Connect(function(v)
+                lowSpecTextures(v)
             end)
         end
 
