@@ -482,12 +482,13 @@ do
 
             print(string.format('\u{1f41e} DEBUG | %s', tostring(...)))
         end
-        function Utils.IsDayAndHour(day, utcHour)
+        function Utils.IsDayAndHour(day, utcHour, amPm)
             local now = DateTime.now()
             local weekday = now:FormatUniversalTime('dddd', 'en-us')
-            local hour = tonumber(now:FormatUniversalTime('H', 'en-us'))
+            local hour = tonumber(now:FormatUniversalTime('h', 'en-us'))
+            local amPmNow = now:FormatUniversalTime('a', 'en-us')
 
-            return weekday == day and hour == utcHour
+            return weekday == day and hour == utcHour and amPmNow == amPm
         end
         function Utils.CenterText(text, width)
             local textLength = #text
@@ -4415,6 +4416,7 @@ do
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local Trade = __DARKLUA_BUNDLE_MODULES.load('e')
         local Teleport = __DARKLUA_BUNDLE_MODULES.load('f')
+        local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
         local self = {}
         local localPlayer = Players.LocalPlayer
         local PlayerGui = localPlayer:WaitForChild('PlayerGui')
@@ -4433,6 +4435,8 @@ do
             'QuestIconApp',
         }
         local patterns = {
+            ['CODE RED!'] = 'Okay',
+            ['Inspector Shepherd'] = 'No',
             ["You haven't collected the Gingerbread"] = 'No',
             ['Be careful when trading'] = 'Okay',
             ['This trade seems unbalanced'] = 'Next',
@@ -4878,6 +4882,12 @@ do
             TradeApp.Frame.ConfirmationFrame.PartnerOffer.Accepted:GetPropertyChangedSignal('ImageTransparency'):Connect(function(
             )
                 Trade.AutoAcceptTrade()
+                task.wait(2)
+
+                if getgenv().SETTINGS.PET_AUTO_FUSION then
+                    Fusion.MakeMega(false)
+                    Fusion.MakeMega(true)
+                end
             end)
         end
         function self.Start()
@@ -4927,9 +4937,6 @@ do
                 v.Transparency = 1
             elseif v:IsA('Decal') or v:IsA('Texture') then
                 v.Transparency = 1
-            elseif v:IsA('ParticleEmitter') or v:IsA('Trail') then
-                v.Lifetime = NumberRange.new(1, 1.1)
-                v.Enabled = false
             elseif v:IsA('Explosion') then
                 v.BlastPressure = 1
                 v.BlastRadius = 1
@@ -8010,7 +8017,7 @@ This version of Rayfield is intended for interface build ]] .. InterfaceBuild ..
                     TweenService:Create(Input.Title, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()
 
                     Input.InputFrame.InputBox.PlaceholderText = InputSettings.PlaceholderText
-                    Input.InputFrame.Size = UDim2.new(0, Input.InputFrame.InputBox.TextBounds.X + 24, 0, 30)
+                    Input.InputFrame.Size = UDim2.new(0, Input.InputFrame.InputBox.TextBounds.X + 50, 0, 30)
 
                     Input.InputFrame.InputBox.FocusLost:Connect(function()
                         local Success, Response = pcall(function()
@@ -8054,12 +8061,6 @@ This version of Rayfield is intended for interface build ]] .. InterfaceBuild ..
                     Input.MouseLeave:Connect(function()
                         TweenService:Create(Input, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {
                             BackgroundColor3 = SelectedTheme.ElementBackground,
-                        }):Play()
-                    end)
-                    Input.InputFrame.InputBox:GetPropertyChangedSignal('Text'):Connect(function(
-                    )
-                        TweenService:Create(Input.InputFrame, TweenInfo.new(0.55, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
-                            Size = UDim2.new(0, Input.InputFrame.InputBox.TextBounds.X + 24, 0, 30),
                         }):Play()
                     end)
 
@@ -10209,10 +10210,36 @@ Check the Developer Console for more information.]],
                 'stickers',
             }
             local dropdowns = {}
+            local dropdownsTemp = {}
+            local textBoxes = {}
             local selectedItems = {}
             local toggles = {}
 
             for _, tabName in ipairs(inventoryTabs)do
+                textBoxes[tabName] = TradeTab:CreateInput({
+                    Name = string.format('Input Example %s', tostring(tabName)),
+                    CurrentValue = '',
+                    PlaceholderText = 'Input Placeholder',
+                    RemoveTextAfterFocusLost = false,
+                    Flag = 'Input1',
+                    Callback = function(Text)
+                        table.clear(dropdownsTemp[tabName] or {})
+
+                        for _, petId in GetInventory.TabId(tabName)do
+                            if string.find(string.lower(petId), string.lower(Text)) then
+                                if not dropdownsTemp[tabName] then
+                                    dropdownsTemp[tabName] = {}
+                                end
+
+                                table.insert(dropdownsTemp[tabName], petId)
+                            end
+                        end
+
+                        if dropdownsTemp[tabName] then
+                            dropdowns[tabName]:Refresh(dropdownsTemp[tabName])
+                        end
+                    end,
+                })
                 dropdowns[tabName] = TradeTab:CreateDropdown({
                     Name = string.format('Select a %s', tostring(tabName)),
                     Options = {
@@ -11793,15 +11820,19 @@ Check the Developer Console for more information.]],
                     task.wait(1)
                     DailiesNetService.try_to_claim_tab_reward('vanilla')
                 end
-                if Utils.IsDayAndHour('Tuesday', 21) then
-                    print('SWITCHED TO 2d_kitty BECAUSE ITS EVENT TIME')
-                    localPlayer:SetAttribute('IsTuesdayEvent', true)
-                    DailiesNetService.try_to_claim_daily_rewards('2d_tuesdays')
-                    FarmingPet.SetFarmingTable({
-                        '2d_kitty',
-                    })
+                if ClientData.get_data()[localPlayer.Name].synced_value_2d_kitty_tuesdays then
+                    local isTuesdayEvent = Utils.IsDayAndHour('Tuesday', 8, 'am') or Utils.IsDayAndHour('Tuesday', 4, 'pm') or Utils.IsDayAndHour('Wednesday', 12, 'am')
 
-                    return
+                    if isTuesdayEvent then
+                        print('SWITCHED TO 2d_kitty BECAUSE ITS EVENT TIME')
+                        localPlayer:SetAttribute('IsTuesdayEvent', true)
+                        DailiesNetService.try_to_claim_daily_rewards('2d_tuesdays')
+                        FarmingPet.SetFarmingTable({
+                            '2d_kitty',
+                        })
+
+                        return
+                    end
                 end
 
                 local potionFarmPets = {
@@ -12227,7 +12258,7 @@ Check the Developer Console for more information.]],
             TextButton.BackgroundTransparency = 1
             TextButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
             TextButton.BorderSizePixel = 0
-            TextButton.Position = UDim2.new(0.33, 0, 0.08, 0)
+            TextButton.Position = UDim2.new(0.2, 0, 0.5, 0)
             TextButton.Size = UDim2.new(0.1, 0, 0.1, 0)
             TextButton.Font = Enum.Font.FredokaOne
             TextButton.Text = '\u{1f648}'
@@ -12399,6 +12430,20 @@ Check the Developer Console for more information.]],
                 Position = UDim2.new(1, -10, 0.5, 0),
                 Callback = function()
                     setclipboard(Clipboard.CopyDetailedPetInfo())
+                end,
+            })
+
+            local devConsoleToggle = false
+
+            StatsGuiClass.CreateButton({
+                Name = 'DevConsole',
+                Text = '\u{1f6e0}\u{fe0f}',
+                AnchorPoint = Vector2.new(0.5, 0),
+                Position = UDim2.new(0.9, 0, 0, 0),
+                Callback = function()
+                    devConsoleToggle = not devConsoleToggle
+
+                    game:GetService('StarterGui'):SetCore('DevConsoleVisible', devConsoleToggle)
                 end,
             })
 
