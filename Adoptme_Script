@@ -1998,21 +1998,28 @@ do
                 task.wait()
             end
         end
-        function self.SelectTabAndTrade(tab, selectedItem)
+        function self.SelectTabAndTrade(tab, selectedItem, neonOnly, megaOnly)
             inActiveTrade()
 
-            for _, item in ClientData.get_data()[localPlayer.Name].inventory[tab]do
-                if item.id == selectedItem then
-                    if not ClientData.get_data()[localPlayer.Name].in_active_trade then
-                        return
-                    end
+            local userData = ClientData.get_data()[localPlayer.Name]
+            local inventory = userData.inventory[tab]
+            local addItemRemote = RouterClient.get('TradeAPI/AddItemToOffer')
 
-                    RouterClient.get('TradeAPI/AddItemToOffer'):FireServer(item.unique)
+            if not inventory then
+                return
+            end
 
-                    if #ClientData.get_data()[localPlayer.Name].trade.sender_offer.items >= 18 then
-                        return
-                    end
+            for _, item in inventory do
+                if not userData.in_active_trade or #userData.trade.sender_offer.items >= 18 then
+                    return
+                end
 
+                local isCorrectItem = item.id == selectedItem
+                local meetsNeonReq = (not neonOnly) or (item.properties and item.properties.neon)
+                local meetsMegaReq = (not megaOnly) or (item.properties and item.properties.mega_neon)
+
+                if isCorrectItem and meetsNeonReq and meetsMegaReq then
+                    addItemRemote:FireServer(item.unique)
                     task.wait(0.1)
                 end
             end
@@ -10214,10 +10221,12 @@ Check the Developer Console for more information.]],
             local textBoxes = {}
             local selectedItems = {}
             local toggles = {}
+            local neonToggle = false
+            local megaToggle = false
 
             for _, tabName in ipairs(inventoryTabs)do
                 textBoxes[tabName] = TradeTab:CreateInput({
-                    Name = string.format('Input Example %s', tostring(tabName)),
+                    Name = string.format('Search filter for %s', tostring(tabName)),
                     CurrentValue = '',
                     PlaceholderText = 'Input Placeholder',
                     RemoveTextAfterFocusLost = false,
@@ -10255,6 +10264,35 @@ Check the Developer Console for more information.]],
                     end,
                 })
 
+                if tabName == 'pets' then
+                    local neonSection, megaSection
+
+                    neonSection = TradeTab:CreateToggle({
+                        Name = 'Only Neons',
+                        CurrentValue = false,
+                        Flag = 'Toggle1',
+                        Callback = function(Value)
+                            neonToggle = Value
+
+                            if neonToggle then
+                                megaSection:Set(false)
+                            end
+                        end,
+                    })
+                    megaSection = TradeTab:CreateToggle({
+                        Name = 'Only Megas',
+                        CurrentValue = false,
+                        Flag = 'Toggle1',
+                        Callback = function(Value)
+                            megaToggle = Value
+
+                            if megaToggle then
+                                neonSection:Set(false)
+                            end
+                        end,
+                    })
+                end
+
                 TradeTab:CreateButton({
                     Name = string.format('Refresh %s list', tostring(tabName)),
                     Callback = function()
@@ -10271,7 +10309,7 @@ Check the Developer Console for more information.]],
 
                         while getgenv().auto_trade_custom do
                             Trade.SendTradeRequest({selectedPlayer})
-                            Trade.SelectTabAndTrade(tabName, selectedItems[tabName])
+                            Trade.SelectTabAndTrade(tabName, selectedItems[tabName], neonToggle, megaToggle)
 
                             local hasPets = Trade.AcceptNegotiationAndConfirm()
 
