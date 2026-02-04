@@ -4105,6 +4105,26 @@ do
 
             Utils.FireButton(button)
         end
+        local processTradeCollector = function()
+            if getgenv().SETTINGS.ENABLE_TRASH_COLLECTOR and isPlayersInGame(getgenv().SETTINGS.TRASH_COLLECTOR_NAMES) then
+                getgenv().SETTINGS.ENABLE_TRADE_COLLECTOR = false
+
+                Utils.PrintDebug('Trading TRASH collector')
+                Trade.TradeTrashCollector(getgenv().SETTINGS.TRASH_COLLECTOR_NAMES)
+            elseif getgenv().SETTINGS.ENABLE_TRADE_COLLECTOR and isPlayersInGame(getgenv().SETTINGS.TRADE_COLLECTOR_NAME) then
+                Utils.PrintDebug('Trading MULE collector')
+                Trade.TradeCollector(getgenv().SETTINGS.TRADE_COLLECTOR_NAME)
+
+                if not getgenv().FARMSYNC then
+                    return
+                end
+                if not getgenv().FARMSYNC.ENABLED then
+                    return
+                end
+
+                Utils.SetConfigFarming(getgenv().FARMSYNC.FARMING_CONFIG_ID)
+            end
+        end
 
         function self.Init()
             RouterClient.get('SettingsAPI/SetBooleanFlag'):FireServer('arachnophobia_mode_seen', true)
@@ -4243,6 +4263,7 @@ do
             localPlayer.Idled:Connect(function()
                 VirtualUser:ClickButton2(Vector2.new())
             end)
+            processTradeCollector()
 
             if getgenv().BUY_BEFORE_FARMING then
                 localPlayer:SetAttribute('StopFarmingTemp', true)
@@ -4264,25 +4285,8 @@ do
                 Fusion.MakeMega(false)
                 Fusion.MakeMega(true)
             end
-            if getgenv().SETTINGS.ENABLE_TRASH_COLLECTOR and isPlayersInGame(getgenv().SETTINGS.TRASH_COLLECTOR_NAMES) then
-                getgenv().SETTINGS.ENABLE_TRADE_COLLECTOR = false
 
-                Utils.PrintDebug('Trading TRASH collector')
-                Trade.TradeTrashCollector(getgenv().SETTINGS.TRASH_COLLECTOR_NAMES)
-            elseif getgenv().SETTINGS.ENABLE_TRADE_COLLECTOR and isPlayersInGame(getgenv().SETTINGS.TRADE_COLLECTOR_NAME) then
-                Utils.PrintDebug('Trading MULE collector')
-                Trade.TradeCollector(getgenv().SETTINGS.TRADE_COLLECTOR_NAME)
-
-                if not getgenv().FARMSYNC then
-                    return
-                end
-                if not getgenv().FARMSYNC.ENABLED then
-                    return
-                end
-
-                Utils.SetConfigFarming(getgenv().FARMSYNC.FARMING_CONFIG_ID)
-            end
-
+            processTradeCollector()
             Utils.PlaceFLoorUnderPlayer()
             Teleport.FarmingHome()
             localPlayer:SetAttribute('StopFarmingTemp', false)
