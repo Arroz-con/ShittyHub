@@ -4446,6 +4446,7 @@ do
             'QuestIconApp',
         }
         local patterns = {
+            ['UH OH!'] = 'Okay',
             ['CODE RED!'] = 'Okay',
             ['Inspector Shepherd'] = 'No',
             ["You haven't collected the Gingerbread"] = 'No',
@@ -4779,7 +4780,7 @@ do
                 )
                     local text = DialogApp.Dialog.NormalDialog.Info.TextLabel.Text
 
-                    if text:match('is starting soon!') then
+                    if text:match('is starting soon!') or text:match('Would you like to teleport') then
                         Utils.FindButton('No')
                     elseif DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('invitation') then
                         localPlayer:Kick('IS IN PUBLIC SERVER')
@@ -4812,7 +4813,7 @@ do
                     )
                         local text = NormalDialogChild.Info.TextLabel.Text
 
-                        if text:match('is starting soon!') then
+                        if text:match('is starting soon!') or text:match('Would you like to teleport') then
                             Utils.FindButton('No')
                         elseif NormalDialogChild.Info.TextLabel.Text:match('invitation') then
                             localPlayer:Kick('IS IN PUBLIC SERVER')
