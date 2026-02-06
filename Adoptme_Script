@@ -4424,6 +4424,7 @@ do
         local Players = cloneref(game:GetService('Players'))
         local TextChatService = game:GetService('TextChatService')
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
+        local RouterClient = Bypass('RouterClient')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local Trade = __DARKLUA_BUNDLE_MODULES.load('e')
         local Teleport = __DARKLUA_BUNDLE_MODULES.load('f')
@@ -4621,6 +4622,7 @@ do
             Bypass('UIManager').apps.BucksIndicatorApp.instance.CurrencyIndicator.Visible = false
             Bypass('UIManager').apps.NavigatorApp.instance.Frame.Visible = false
 
+            RouterClient.get('SettingsAPI/SetSetting'):FireServer('trade_requests', 1)
             TextChatService.MessageReceived:Connect(function(message)
                 if not (message.TextSource and message.TextSource.UserId) then
                     print('ignoring message with no text source')
