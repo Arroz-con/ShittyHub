@@ -4906,6 +4906,7 @@ do
         end
         function self.Start()
             tryClickPlaytimePayout()
+            task.delay(10, onTextChangedNormalDialog)
         end
 
         return self
