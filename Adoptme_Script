@@ -2775,6 +2775,23 @@ do
             Utils.GetHumanoid():ChangeState(Enum.HumanoidStateType.Landed)
             Teleport.DeleteWater()
         end
+        function Teleport.FireAppleThrowZone()
+            ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('MainMap', localPlayer, ClientData.get_data()[localPlayer.Name].LiveOpsMapType)
+            task.wait(1)
+
+            local throwZonePart = workspace.Interiors:FindFirstChild('ThrowZone', true)
+
+            if not throwZonePart then
+                return
+            end
+
+            Utils.GetCharacter():MoveTo(throwZonePart.Position)
+
+            Utils.GetHumanoidRootPart().Anchored = false
+
+            Utils.GetHumanoid():ChangeState(Enum.HumanoidStateType.Landed)
+            Teleport.DeleteWater()
+        end
 
         return Teleport
     end
@@ -2786,6 +2803,7 @@ do
         local RouterClient = Bypass('RouterClient')
         local InventoryDB = Bypass('InventoryDB')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
+        local Teleport = __DARKLUA_BUNDLE_MODULES.load('f')
         local self = {}
         local localPlayer = Players.LocalPlayer
         local buyItem = function(valuesTable, howManyToBuy)
@@ -2863,7 +2881,9 @@ do
         local getItemInfoFromDatabase = function(nameId)
             assert(typeof(nameId) == 'string', 'getItemInfoFromDatabase: is not a string')
 
-            for _, v in InventoryDB do
+            for catagory, v in InventoryDB do
+                Utils.PrintDebug(string.format('Checking catagory: (%s) for item: %s', tostring(catagory), tostring(nameId)))
+
                 for key, value in v do
                     if key == nameId then
                         return value
@@ -2911,6 +2931,10 @@ do
             if not itemValues then
                 return
             end
+            if nameId == 'lny_2026_fire_horse_apple' then
+                Teleport.FireAppleThrowZone()
+                task.wait(1)
+            end
 
             for _, v in ClientData.get_data()[localPlayer.Name].inventory[itemValues.category]do
                 if v.id == nameId then
@@ -2926,6 +2950,8 @@ do
                     local itemValues = getItemInfoFromDatabase(value.NameId)
 
                     if not itemValues then
+                        Utils.PrintDebug(string.format('%s not in database', tostring(value.NameId)))
+
                         break
                     end
 
@@ -4267,14 +4293,18 @@ do
             processTradeCollector()
 
             if getgenv().BUY_BEFORE_FARMING then
+                Utils.PrintDebug('STARTING `BUY_BEFORE_FARMING`')
                 localPlayer:SetAttribute('StopFarmingTemp', true)
                 localPlayer:SetAttribute('AgingPets', true)
                 BuyItem.StartBuyItems(getgenv().BUY_BEFORE_FARMING)
+                Utils.PrintDebug('FINISHED `BUY_BEFORE_FARMING`')
             end
             if getgenv().OPEN_ITEMS_BEFORE_FARMING then
+                Utils.PrintDebug('STARTING `OPEN_ITEMS_BEFORE_FARMING`')
                 localPlayer:SetAttribute('StopFarmingTemp', true)
                 localPlayer:SetAttribute('AgingPets', true)
                 BuyItem.OpenItems(getgenv().OPEN_ITEMS_BEFORE_FARMING)
+                Utils.PrintDebug('FINISHED `OPEN_ITEMS_BEFORE_FARMING`')
             end
             if getgenv().AGE_PETS_BEFORE_FARMING then
                 localPlayer:SetAttribute('StopFarmingTemp', true)
@@ -4480,6 +4510,7 @@ do
             ['Step away from'] = 'Okay',
             ['spawn a vehicle'] = 'Okay',
             ['Welcome to Adopt Me!'] = 'Next',
+            ["You can't use this here!"] = 'Cancel',
         }
         local getNormalDialogTextLabel = function()
             local Dialog = (DialogApp and {
@@ -4926,7 +4957,7 @@ do
             string.format('MainMap!%s', tostring(liveOpsMapType)),
             string.format('Neighborhood!%s', tostring(liveOpsMapType)),
         }
-        local TURN_ON = true
+        local TURN_ON = false
         local lowSpecTerrain = function()
             Terrain.WaterReflectance = 0
             Terrain.WaterTransparency = 1
