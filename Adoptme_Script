@@ -236,6 +236,9 @@ do
         function Utils.EventCurrencyAmount()
             return ClientData.get_data()[localPlayer.Name].gingerbread_2025 or 0
         end
+        function Utils.PetRecyclerTicketsAmount()
+            return ClientData.get_data()[localPlayer.Name].pet_recycler_tickets_2026 or 0
+        end
         function Utils.FoodItemCount(nameId)
             local count = 0
 
@@ -638,6 +641,7 @@ do
                 'penguins_2025_dango_penguins',
                 'pet_recycler_2025_giant_panda',
                 'food_pets_2026_dragonfruit_fox',
+                'endangered_2026_silverback_gorilla',
             },
         }
     end
@@ -11504,11 +11508,11 @@ Check the Developer Console for more information.]],
         local localPlayer = Players.LocalPlayer
         local PetRelease = {}
         local getPetRecyclerId = function()
-            RouterClient.get('LocationAPI/SetLocation'):FireServer('Nursery')
+            RouterClient.get('LocationAPI/SetLocation'):FireServer('MainMap', localPlayer, ClientData.get_data()[localPlayer.Name].LiveOpsMapType)
             task.wait(1)
 
             for key, value in ClientData.get_data()[localPlayer.Name].house_interior.furniture do
-                if value.id == 'pet_recycler' then
+                if value.id == 'pet_recycler' or value.id == 'pet_recycler_without_tom' then
                     return key
                 end
             end
@@ -11520,26 +11524,16 @@ Check the Developer Console for more information.]],
             local recyclerId = getPetRecyclerId()
 
             if not recyclerId then
+                Utils.PrintDebug('\u{267b} NO RECYCLER ID FOUND \u{267b}')
+
                 return
             end
 
-            RouterClient.get('HousingAPI/ActivateInteriorFurniture'):InvokeServer(recyclerId, 'UseBlock', {
-                action = 'use',
-                uniques = petUniques,
-            }, Utils.GetCharacter())
+            RouterClient.get('HousingAPI/ActivateInteriorFurniture'):InvokeServer(recyclerId, 'UseBlock', {uniques = petUniques}, Utils.GetCharacter())
             Utils.PrintDebug('Added Pets To Release')
         end
-        function PetRelease.Claim()
-            local recyclerId = getPetRecyclerId()
-
-            if not recyclerId then
-                return
-            end
-
-            RouterClient.get('HousingAPI/ActivateInteriorFurniture'):InvokeServer(recyclerId, 'UseBlock', {
-                action = 'claim',
-            }, Utils.GetCharacter())
-            Utils.PrintDebug('Claimed Eggs from Release pets')
+        function PetRelease.ClaimTickets()
+            RouterClient.get('PetRecyclerAPI/TicketsCollected'):InvokeServer()
         end
 
         return PetRelease
@@ -11573,9 +11567,9 @@ Check the Developer Console for more information.]],
             end
 
             local success, result = pcall(function()
-                PetRelease.Claim()
-                task.wait(1)
                 PetRelease.Use(GetInventory.GetPetsToRelease())
+                task.wait(1)
+                PetRelease.ClaimTickets()
             end)
 
             if not success then
@@ -12406,13 +12400,13 @@ Check the Developer Console for more information.]],
 
                 self.TextLabel.Text = string.format('\u{1f95a} %s', tostring(formatted))
             elseif self.TextLabel.Name == 'GiantPanda' then
-                local formatted = Utils.FormatNumber(Utils.PetItemCount('pet_recycler_2025_giant_panda'))
+                local formatted = Utils.FormatNumber(Utils.PetItemCount('endangered_2026_silverback_gorilla'))
 
-                self.TextLabel.Text = string.format('\u{1f43c} %s', tostring(formatted))
+                self.TextLabel.Text = string.format('\u{1f98d} %s', tostring(formatted))
             elseif self.TextLabel.Name == 'Slot11' then
-                local formatted = Utils.FormatNumber(Utils.PetItemCount('winter_2025_snowball_pug'))
+                local formatted = Utils.FormatNumber(Utils.PetRecyclerTicketsAmount())
 
-                self.TextLabel.Text = string.format('\u{1f436} %s', tostring(formatted))
+                self.TextLabel.Text = string.format('\u{1f39f} %s', tostring(formatted))
             elseif self.TextLabel.Name == 'Slot12' then
             end
         end
