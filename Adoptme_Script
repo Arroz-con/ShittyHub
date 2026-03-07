@@ -12408,6 +12408,9 @@ Check the Developer Console for more information.]],
 
                 self.TextLabel.Text = string.format('\u{1f39f} %s', tostring(formatted))
             elseif self.TextLabel.Name == 'Slot12' then
+                local formatted = Utils.FormatNumber(#Players:GetPlayers() or 0)
+
+                self.TextLabel.Text = string.format('\u{1f9d1} %s%%', tostring(formatted))
             end
         end
         function StatsGuiClass.UpdateTextForTemp(self, amount)
