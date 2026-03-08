@@ -11508,7 +11508,7 @@ Check the Developer Console for more information.]],
         local localPlayer = Players.LocalPlayer
         local PetRelease = {}
         local getPetRecyclerId = function()
-            RouterClient.get('LocationAPI/SetLocation'):FireServer('MainMap', localPlayer, ClientData.get_data()[localPlayer.Name].LiveOpsMapType)
+            RouterClient.get('LocationAPI/SetLocation'):FireServer('Nursery', localPlayer, ClientData.get_data()[localPlayer.Name].LiveOpsMapType)
             task.wait(1)
 
             for key, value in ClientData.get_data()[localPlayer.Name].house_interior.furniture do
