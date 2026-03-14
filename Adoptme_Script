@@ -642,6 +642,7 @@ do
                 'pet_recycler_2025_giant_panda',
                 'food_pets_2026_dragonfruit_fox',
                 'endangered_2026_silverback_gorilla',
+                'admin_abuse_egg_2026_robot_chicken',
             },
         }
     end
