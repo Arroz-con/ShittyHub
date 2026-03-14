@@ -4479,7 +4479,6 @@ do
             'HouseEditorWrapperApp',
             'GuideArrowApp',
             'NavigatorApp',
-            'QuestIconApp',
         }
         local patterns = {
             ['UH OH!'] = 'Okay',
@@ -4689,16 +4688,6 @@ do
 
                 Utils.FireButton(Dialog.ExitButton)
             end)
-            Dialog:WaitForChild('ItemPreviewDialog'):GetPropertyChangedSignal('Visible'):Connect(function(
-            )
-                if not Dialog.ItemPreviewDialog.Visible then
-                    return
-                end
-
-                task.wait(5)
-                localPlayer:Kick('GOT NEW PET. SO RESTART GAME')
-                game:Shutdown()
-            end)
             Dialog:GetPropertyChangedSignal('Visible'):Connect(friendTradeAccept)
             Dialog:WaitForChild('FriendAfterTradeDialog'):GetPropertyChangedSignal('Visible'):Connect(function(
             )
@@ -4757,8 +4746,6 @@ do
                         end
 
                         task.wait(2)
-                        localPlayer:Kick()
-                        game:Shutdown()
                     end)
                 end
             end)
@@ -11892,11 +11879,6 @@ Check the Developer Console for more information.]],
             )
                 task.wait(2)
 
-                if dayOrNight == 'NIGHT' then
-                    DailiesNetService.try_to_claim_daily_rewards('vanilla')
-                    task.wait(1)
-                    DailiesNetService.try_to_claim_tab_reward('vanilla')
-                end
                 if ClientData.get_data()[localPlayer.Name].synced_value_2d_kitty_tuesdays then
                     local isTuesdayEvent = Utils.IsDayAndHour('Tuesday', 8, 'am') or Utils.IsDayAndHour('Tuesday', 4, 'pm') or Utils.IsDayAndHour('Wednesday', 12, 'am')
 
@@ -12571,6 +12553,51 @@ Check the Developer Console for more information.]],
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
+        local RouterClient = Bypass('RouterClient')
+        local modules = ReplicatedStorage:WaitForChild('new'):WaitForChild('modules')
+        local DailiesNetService = (require(modules:WaitForChild('Dailies'):WaitForChild('DailiesNetService')))
+        local DailyTaskboardHandler = {}
+        local localPlayer = Players.LocalPlayer
+
+        function DailyTaskboardHandler.Init()
+            print('Initializing DailyTaskboardHandler...')
+            RouterClient.get('DataAPI/DataChanged').OnClientEvent:Connect(function(
+                playerName,
+                dataType,
+                data
+            )
+                if playerName ~= localPlayer.Name then
+                    return
+                end
+                if dataType ~= 'dailies_manager' then
+                    return
+                end
+                if not data then
+                    return
+                end
+                if not data.serialized_tabs then
+                    return
+                end
+
+                for name, _ in data.serialized_tabs do
+                    print(string.format('Daily Taskboard Tab: %s', tostring(name)))
+                    DailiesNetService.try_to_claim_daily_rewards(name)
+                    task.wait(1)
+                    DailiesNetService.try_to_claim_tab_reward(name)
+                    task.wait()
+                end
+            end)
+        end
+        function DailyTaskboardHandler.Start()
+            print('Starting DailyTaskboardHandler...')
+        end
+
+        return DailyTaskboardHandler
+    end
+    function __DARKLUA_BUNDLE_MODULES.C()
+        local ReplicatedStorage = game:GetService('ReplicatedStorage')
+        local Players = game:GetService('Players')
+        local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
         local RouterClient = Bypass('RouterClient')
         local NetRemote = (game:GetService('ReplicatedStorage'):WaitForChild('adoptme_new_net'))
@@ -12751,26 +12778,33 @@ Check the Developer Console for more information.]],
             NetRemote:WaitForChild(
 [[adoptme_legacy_shared.ContentPacks.Sugarfest2026.Game.BoardGame.BoardGameNetService:23]]):FireServer()
         end
-        local tryRollDices = function()
-            local dices = {
-                'sugarfest_2026_dice',
-                'sugarfest_2026_custom_dice',
-            }
+        local tryRollDice = function(diceName)
+            local uniqueId = GetInventory.GetUniqueId('gifts', diceName)
 
-            for _, value in dices do
-                local uniqueId = GetInventory.GetUniqueId('gifts', value)
-
-                if not uniqueId then
-                    continue
-                end
-
-                local args = {
-                    {dice_item_unique = uniqueId},
-                }
-
-                NetRemote:WaitForChild(
-[[adoptme_legacy_shared.ContentPacks.Sugarfest2026.Game.BoardGame.BoardGameNetService:10]]):FireServer(unpack(args))
+            if not uniqueId then
+                return
             end
+
+            local isCustom = diceName == 'sugarfest_2026_custom_dice'
+            local isStandard = diceName == 'sugarfest_2026_dice'
+
+            if not (isCustom or isStandard) then
+                print('invalid dice name provided: ' .. diceName)
+
+                return
+            end
+
+            local payload = {dice_item_unique = uniqueId}
+
+            if isCustom then
+                payload.supplied_distance = 6
+            end
+
+            local remotePath = 
+[[adoptme_legacy_shared.ContentPacks.Sugarfest2026.Game.BoardGame.BoardGameNetService:10]]
+            local remote = NetRemote:WaitForChild(remotePath)
+
+            remote:FireServer(payload)
         end
         local tryGetEggs = function()
             for _, v in eggIds do
@@ -12832,7 +12866,8 @@ Check the Developer Console for more information.]],
                     task.wait(5)
                     tryGetEggs()
                     processCandyCliffCarve()
-                    tryRollDices()
+                    tryRollDice('sugarfest_2026_dice')
+                    tryRollDice('sugarfest_2026_custom_dice')
                 end
             end)
             RouterClient.get('SugarfestAPI/SetFlag'):FireServer('sugarfest_2026_intro_video', true)
@@ -12840,7 +12875,8 @@ Check the Developer Console for more information.]],
         function self.Start()
             getFreeDice()
             task.wait(1)
-            tryRollDices()
+            tryRollDice('sugarfest_2026_dice')
+            tryRollDice('sugarfest_2026_custom_dice')
             tryGetEggs()
             processCandyCliffCarve()
         end
@@ -12946,7 +12982,10 @@ local files = {
         StatsGuiHandler = __DARKLUA_BUNDLE_MODULES.load('A'),
     },
     {
-        SugarFestival2026 = __DARKLUA_BUNDLE_MODULES.load('B'),
+        DailyTaskboardHandler = __DARKLUA_BUNDLE_MODULES.load('B'),
+    },
+    {
+        SugarFestival2026 = __DARKLUA_BUNDLE_MODULES.load('C'),
     },
 }
 
