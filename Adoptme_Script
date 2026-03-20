@@ -12826,8 +12826,8 @@ Check the Developer Console for more information.]],
 [[adoptme_legacy_shared.ContentPacks.Sugarfest2026.ChocolateRiver.ChocolateRiverNet:14]]):FireServer()
         end
         local tryBuyCandyChisel = function()
-            if Utils.EventCurrencyAmount() < 2000000 then
-                print('less than 2mil, skipping candy chisel buy')
+            if Utils.EventCurrencyAmount() < 10000000 then
+                print('less than 10mil, skipping candy chisel buy')
 
                 return
             end
