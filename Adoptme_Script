@@ -4791,27 +4791,6 @@ do
                 end
             end)
 
-            DialogApp.Dialog.CheckboxDialog:GetPropertyChangedSignal('Visible'):Connect(function(
-            )
-                if not DialogApp.Dialog.CheckboxDialog.Visible then
-                    return
-                end
-                if not DialogApp.Dialog.CheckboxDialog:WaitForChild('Info', 10) then
-                    return
-                end
-                if not DialogApp.Dialog.CheckboxDialog.Info:WaitForChild('TextLabel', 10) then
-                    return
-                end
-
-                DialogApp.Dialog.CheckboxDialog.Info.TextLabel:GetPropertyChangedSignal('Text'):Connect(function(
-                )
-                    local text = DialogApp.Dialog.CheckboxDialog.Info.TextLabel.Text
-
-                    if text:match('is starting soon!') or text:match('Would you like to teleport') then
-                        Utils.FindButton('No')
-                    end
-                end)
-            end)
             DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal('Visible'):Connect(function(
             )
                 if not DialogApp.Dialog.NormalDialog.Visible then
@@ -12436,6 +12415,7 @@ Check the Developer Console for more information.]],
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local startTime = DateTime.now().UnixTimestamp
+        local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local StatsGuiClass = __DARKLUA_BUNDLE_MODULES.load('z')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
         local Clipboard = __DARKLUA_BUNDLE_MODULES.load('r')
@@ -12562,7 +12542,8 @@ Check the Developer Console for more information.]],
             task.spawn(function()
                 while true do
                     StatsGuiClass.SetTimeLabelText(startTime)
-                    task.wait(5)
+                    Bypass('UIManager').set_app_visibility('DialogApp', false)
+                    task.wait(10)
                 end
             end)
         end
