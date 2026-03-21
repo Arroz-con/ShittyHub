@@ -54,11 +54,11 @@ getgenv().SETTINGS = {
     ENABLE_TRADE_COLLECTOR = true,
     TRADE_ONLY_NEON_LUMINOUS_AND_MEGA = true,
     TRADE_COLLECTOR_NAME = {
-        "Chesty15242",
-        "Chest19548",
-        "Chest28745",
-        "grabmanypets84",
-        "growaplant916",
+        -- "Chesty15242",
+        -- "Chest19548",
+        -- "Chest28745",
+        -- "grabmanypets84",
+        -- "growaplant916",
     },
 
     TRADE_LIST = {
