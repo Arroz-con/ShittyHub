@@ -11936,14 +11936,11 @@ Check the Developer Console for more information.]],
             FarmingPet.GetPetToFarm(1)
             task.wait(2)
             task.delay(30, function()
-                local UpdateTextEvent = (ReplicatedStorage:WaitForChild('UpdateTextEvent'))
-
                 while getgenv().SETTINGS.ENABLE_AUTO_FARM do
                     getgenv().lastTimeFarming = DateTime.now().UnixTimestamp
 
                     local success, result = pcall(function()
                         startAutoFarm()
-                        UpdateTextEvent:Fire()
                     end)
 
                     if not success then
@@ -12543,6 +12540,7 @@ Check the Developer Console for more information.]],
                 while true do
                     StatsGuiClass.SetTimeLabelText(startTime)
                     Bypass('UIManager').set_app_visibility('DialogApp', false)
+                    UpdateTextEvent:Fire()
                     task.wait(10)
                 end
             end)
@@ -12608,6 +12606,7 @@ Check the Developer Console for more information.]],
         local PayBucks = {}
         local localPlayer = Players.LocalPlayer
         local rng = Random.new()
+        local processedPlayers = {}
         local buyFurniture = function(furnitureId)
             local args = {
                 {
@@ -12652,12 +12651,6 @@ Check the Developer Console for more information.]],
         end
         local waitForPlayerRegister = function(player)
             while true do
-                if not player:IsDescendantOf(game) then
-                    error('Player left the game while waiting for their register.')
-
-                    return nil
-                end
-
                 local key = getPlayerRegisterKey(player)
 
                 if key then
@@ -12669,6 +12662,12 @@ Check the Developer Console for more information.]],
             end
         end
         local onPlayerAdded = function(player)
+            if processedPlayers[player.Name] then
+                return
+            end
+
+            processedPlayers[player.Name] = true
+
             if table.find(getgenv().SETTINGS.PAY_BUCKS_TO, localPlayer.Name) then
                 return
             end
@@ -12676,7 +12675,7 @@ Check the Developer Console for more information.]],
                 return
             end
 
-            task.wait(rng:NextNumber(1, 20))
+            task.wait(rng:NextNumber(1, 10))
 
             local registerKey = waitForPlayerRegister(player)
 
@@ -12701,6 +12700,9 @@ Check the Developer Console for more information.]],
 
             print('Finished paying for player:', player.Name)
         end
+        local onPlayerRemoving = function(player)
+            processedPlayers[player.Name] = nil
+        end
         local trySetupRegister = function()
             local houseInterior = ClientData.get_data()[localPlayer.Name].house_interior
 
@@ -12715,7 +12717,17 @@ Check the Developer Console for more information.]],
             return buyFurniture('cashregister')
         end
 
-        function PayBucks.Init() end
+        function PayBucks.Init()
+            if not getgenv().SETTINGS.PAY_BUCKS_TO then
+                return
+            end
+            if table.find(getgenv().SETTINGS.PAY_BUCKS_TO, localPlayer.Name) then
+                trySetupRegister()
+            end
+
+            Players.PlayerAdded:Connect(onPlayerAdded)
+            Players.PlayerRemoving:Connect(onPlayerRemoving)
+        end
         function PayBucks.Start()
             if not getgenv().SETTINGS.PAY_BUCKS_TO then
                 return
