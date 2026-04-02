@@ -12609,6 +12609,25 @@ Check the Developer Console for more information.]],
         local localPlayer = Players.LocalPlayer
         local rng = Random.new()
         local processedPlayers = {}
+        local buyFurniture = function(furnitureId)
+            local args = {
+                {
+                    {
+                        ['kind'] = furnitureId,
+                        ['properties'] = {
+                            ['cframe'] = CFrame.new(14, 2, -22) * CFrame.Angles(-0, 8.7, 3.8),
+                        },
+                    },
+                },
+            }
+            local response = RouterClient.get('HousingAPI/BuyFurnitures'):InvokeServer(unpack(args))
+
+            if not response.success then
+                return nil
+            end
+
+            return response.results[1].unique
+        end
         local payUser = function(player, furnitureKey)
             if not (player or furnitureKey) then
                 return
@@ -12651,6 +12670,8 @@ Check the Developer Console for more information.]],
             local registerKey = getPlayerRegisterKey(player)
 
             if not registerKey then
+                print('Failed to find or buy register for player:', player.Name)
+
                 return
             end
 
@@ -12672,10 +12693,26 @@ Check the Developer Console for more information.]],
         local onPlayerRemoving = function(player)
             processedPlayers[player] = nil
         end
+        local trySetupRegister = function()
+            local houseInterior = ClientData.get_data()[localPlayer.Name].house_interior
+
+            if houseInterior then
+                for key, value in houseInterior.furniture do
+                    if value.id == 'cashregister' or value.id == 'golden_cash_register' then
+                        return key
+                    end
+                end
+            end
+
+            return buyFurniture('cashregister')
+        end
 
         function PayBucks.Init()
             if not getgenv().SETTINGS.PAY_BUCKS_TO then
                 return
+            end
+            if table.find(getgenv().SETTINGS.PAY_BUCKS_TO, localPlayer.Name) then
+                trySetupRegister()
             end
 
             Players.PlayerAdded:Connect(onPlayerAdded)
