@@ -12604,6 +12604,101 @@ Check the Developer Console for more information.]],
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
         local RouterClient = Bypass('RouterClient')
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
+        local PayBucks = {}
+        local localPlayer = Players.LocalPlayer
+        local rng = Random.new()
+        local processedPlayers = {}
+        local payUser = function(player, furnitureKey)
+            if not (player or furnitureKey) then
+                return
+            end
+
+            RouterClient.get('HousingAPI/ActivateFurniture'):InvokeServer(player, furnitureKey, 'UseBlock', 50, localPlayer.Character)
+        end
+        local getPlayerRegisterKey = function(player)
+            RouterClient.get('HousingAPI/SubscribeToHouse'):FireServer(player)
+            task.wait(5)
+
+            local houseInterior = ClientData.get_data()[localPlayer.Name].house_interior
+
+            if houseInterior then
+                for key, value in houseInterior.furniture do
+                    if value.id == 'cashregister' or value.id == 'golden_cash_register' then
+                        return key
+                    end
+                end
+            end
+
+            return nil
+        end
+        local onPlayerAdded = function(player)
+            if processedPlayers[player] then
+                return
+            end
+
+            processedPlayers[player] = true
+
+            if table.find(getgenv().SETTINGS.PAY_BUCKS_TO, localPlayer.Name) then
+                return
+            end
+            if not table.find(getgenv().SETTINGS.PAY_BUCKS_TO, player.Name) then
+                return
+            end
+
+            task.wait(rng:NextNumber(1, 20))
+
+            local registerKey = getPlayerRegisterKey(player)
+
+            if not registerKey then
+                return
+            end
+
+            print('Found register for player:', player.Name, 'with key:', registerKey)
+            print('Starting to pay')
+
+            while Players:FindFirstChild(player.Name) do
+                if Utils.BucksAmount() < 500 then
+                    break
+                end
+
+                payUser(player, registerKey)
+                print('Waiting 2mins for cooldown', DateTime.now():FormatLocalTime('LTS', 'en-us'))
+                task.wait(120)
+            end
+
+            print('Finished paying for player:', player.Name)
+        end
+        local onPlayerRemoving = function(player)
+            processedPlayers[player] = nil
+        end
+
+        function PayBucks.Init()
+            if not getgenv().SETTINGS.PAY_BUCKS_TO then
+                return
+            end
+
+            Players.PlayerAdded:Connect(onPlayerAdded)
+            Players.PlayerRemoving:Connect(onPlayerRemoving)
+        end
+        function PayBucks.Start()
+            if not getgenv().SETTINGS.PAY_BUCKS_TO then
+                return
+            end
+
+            for _, player in Players:GetPlayers()do
+                onPlayerAdded(player)
+            end
+        end
+
+        return PayBucks
+    end
+    function __DARKLUA_BUNDLE_MODULES.D()
+        local ReplicatedStorage = game:GetService('ReplicatedStorage')
+        local Players = game:GetService('Players')
+        local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
+        local ClientData = Bypass('ClientData')
+        local RouterClient = Bypass('RouterClient')
         local NetRemote = (game:GetService('ReplicatedStorage'):WaitForChild('adoptme_new_net'))
         local GetInventory = __DARKLUA_BUNDLE_MODULES.load('i')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
@@ -13029,7 +13124,10 @@ local files = {
         DailyTaskboardHandler = __DARKLUA_BUNDLE_MODULES.load('B'),
     },
     {
-        SugarFestival2026 = __DARKLUA_BUNDLE_MODULES.load('C'),
+        PayBucks = __DARKLUA_BUNDLE_MODULES.load('C'),
+    },
+    {
+        SugarFestival2026 = __DARKLUA_BUNDLE_MODULES.load('D'),
     },
 }
 
