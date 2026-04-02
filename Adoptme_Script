@@ -12608,7 +12608,6 @@ Check the Developer Console for more information.]],
         local PayBucks = {}
         local localPlayer = Players.LocalPlayer
         local rng = Random.new()
-        local processedPlayers = {}
         local buyFurniture = function(furnitureId)
             local args = {
                 {
@@ -12651,13 +12650,25 @@ Check the Developer Console for more information.]],
 
             return nil
         end
-        local onPlayerAdded = function(player)
-            if processedPlayers[player] then
-                return
+        local waitForPlayerRegister = function(player)
+            while true do
+                if not player:IsDescendantOf(game) then
+                    error('Player left the game while waiting for their register.')
+
+                    return nil
+                end
+
+                local key = getPlayerRegisterKey(player)
+
+                if key then
+                    return key
+                end
+
+                print('Waiting for player:', player.Name, 'to setup their register', DateTime.now():FormatLocalTime('LTS', 'en-us'))
+                task.wait(60)
             end
-
-            processedPlayers[player] = true
-
+        end
+        local onPlayerAdded = function(player)
             if table.find(getgenv().SETTINGS.PAY_BUCKS_TO, localPlayer.Name) then
                 return
             end
@@ -12667,10 +12678,10 @@ Check the Developer Console for more information.]],
 
             task.wait(rng:NextNumber(1, 20))
 
-            local registerKey = getPlayerRegisterKey(player)
+            local registerKey = waitForPlayerRegister(player)
 
             if not registerKey then
-                print('Failed to find or buy register for player:', player.Name)
+                print('Failed to find register for player:', player.Name)
 
                 return
             end
@@ -12690,9 +12701,6 @@ Check the Developer Console for more information.]],
 
             print('Finished paying for player:', player.Name)
         end
-        local onPlayerRemoving = function(player)
-            processedPlayers[player] = nil
-        end
         local trySetupRegister = function()
             local houseInterior = ClientData.get_data()[localPlayer.Name].house_interior
 
@@ -12707,20 +12715,13 @@ Check the Developer Console for more information.]],
             return buyFurniture('cashregister')
         end
 
-        function PayBucks.Init()
+        function PayBucks.Init() end
+        function PayBucks.Start()
             if not getgenv().SETTINGS.PAY_BUCKS_TO then
                 return
             end
             if table.find(getgenv().SETTINGS.PAY_BUCKS_TO, localPlayer.Name) then
                 trySetupRegister()
-            end
-
-            Players.PlayerAdded:Connect(onPlayerAdded)
-            Players.PlayerRemoving:Connect(onPlayerRemoving)
-        end
-        function PayBucks.Start()
-            if not getgenv().SETTINGS.PAY_BUCKS_TO then
-                return
             end
 
             for _, player in Players:GetPlayers()do
