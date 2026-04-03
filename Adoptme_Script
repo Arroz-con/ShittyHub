@@ -4476,6 +4476,7 @@ do
         local starterPackAppConn
         local appList = {
             'MerchPopUpApp',
+            'SubscriptionsPopUpApp',
             'ExtraButtonsApp',
             'HouseEditorWrapperApp',
             'GuideArrowApp',
