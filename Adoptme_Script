@@ -12541,6 +12541,7 @@ Check the Developer Console for more information.]],
                 while true do
                     StatsGuiClass.SetTimeLabelText(startTime)
                     Bypass('UIManager').set_app_visibility('DialogApp', false)
+                    Bypass('UIManager').set_app_visibility('SubscriptionsPopUpApp', false)
                     UpdateTextEvent:Fire()
                     task.wait(10)
                 end
