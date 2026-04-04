@@ -4488,6 +4488,7 @@ do
             'HouseEditorWrapperApp',
             'GuideArrowApp',
             'NavigatorApp',
+            'QuestIconApp',
         }
         local patterns = {
             ['is starting soon!'] = 'Yes',
@@ -13109,7 +13110,7 @@ end
 getgenv().BUY_BEFORE_FARMING = {
     {
         NameId = 'endangered_2026_endangered_egg',
-        MaxAmount = 100,
+        MaxAmount = 200,
     },
 }
 getgenv().SETTINGS = {
