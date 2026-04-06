@@ -12962,16 +12962,17 @@ Check the Developer Console for more information.]],
                 return
             end
 
-            local payload = {
-                dice_item_unique = uniqueId,
-                supplied_distance = 0,
-            }
+            local payload = {dice_item_unique = uniqueId}
 
             if isCustom then
                 payload.supplied_distance = 6
+
+                BoardGameNetService.try_to_roll_dice(uniqueId, payload.supplied_distance)
+
+                return
             end
 
-            BoardGameNetService.try_to_roll_dice(uniqueId, payload.supplied_distance)
+            BoardGameNetService.try_to_roll_dice(uniqueId)
         end
         local tryGetEggs = function()
             for _, v in eggIds do
