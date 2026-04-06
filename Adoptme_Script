@@ -13110,7 +13110,7 @@ end
 getgenv().BUY_BEFORE_FARMING = {
     {
         NameId = 'endangered_2026_endangered_egg',
-        MaxAmount = 200,
+        MaxAmount = 600,
     },
 }
 getgenv().SETTINGS = {
