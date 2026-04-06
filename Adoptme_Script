@@ -13032,13 +13032,6 @@ Check the Developer Console for more information.]],
             )
                 task.wait(5)
 
-                local playerData = ClientData.get_data()[localPlayer.Name]
-                local bunnyManager = playerData and (playerData.sugarfest_2026_easter_bunny_manager)
-
-                if bunnyManager and bunnyManager.bunnies_claimable >= 1 then
-                    NetRemote:WaitForChild('TryClaimBunny'):InvokeServer()
-                    print('Claimed bunny from auto farm')
-                end
                 if dayOrNight == 'DAY' then
                     tryGetEggs()
                     processCandyCliffCarve()
@@ -13105,45 +13098,6 @@ task.wait(10)
 if not game:IsLoaded() then
     game.Loaded:Wait()
 end
-
-getgenv().BUY_BEFORE_FARMING = {
-    {
-        NameId = 'endangered_2026_endangered_egg',
-        MaxAmount = 600,
-    },
-}
-getgenv().SETTINGS = {
-    ENABLE_AUTO_FARM = true,
-    SET_FPS = 2,
-    FOCUS_FARM_AGE_POTION = false,
-    PETS_TO_AGE_IN_PEN = {
-        'endangered_2026_endangered_egg',
-        'pet_recycler_2025_crystal_egg',
-        'pet_recycler_2025_basic_egg',
-        'aztec_egg_2025_tegu',
-        'aztec_egg_2025_jungle_frog',
-    },
-    ENABLE_RELEASE_PETS = false,
-    PET_AUTO_FUSION = true,
-    DEBUG_MODE = true,
-    POTATO_MODE = false,
-    HATCH_EGG_PRIORITY = true,
-    HATCH_EGG_PRIORITY_NAMES = {
-        'endangered_2026_endangered_egg',
-    },
-    PET_ONLY_PRIORITY = false,
-    PET_ONLY_PRIORITY_NAMES = {
-        'moon_2025_glormy_dolphin',
-    },
-    ENABLE_TRADE_COLLECTOR = true,
-    TRADE_ONLY_NEON_LUMINOUS_AND_MEGA = true,
-    TRADE_COLLECTOR_NAME = {},
-    TRADE_LIST = {},
-    ENABLE_TRASH_COLLECTOR = false,
-    TRASH_COLLECTOR_NAMES = {
-        'HazeF0xBane',
-    },
-}
 
 setfpscap(getgenv().SETTINGS.SET_FPS or 2)
 
