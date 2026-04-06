@@ -11165,7 +11165,7 @@ Check the Developer Console for more information.]],
         local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
         local FarmingPet = {}
         local localPlayer = Players.LocalPlayer
-        local petToBuy = 'aztec_egg_2025_aztec_egg'
+        local petToBuy = 'endangered_2026_endangered_egg'
         local potionFarmPets = {
             '2d_kitty',
             'dog',
@@ -11186,12 +11186,10 @@ Check the Developer Console for more information.]],
             if petName:match('Egg') then
                 return true
             end
-            if GetInventory.CheckForPetAndEquip({
-                'aztec_egg_2025_aztec_egg',
-            }, 1) then
+            if GetInventory.CheckForPetAndEquip({petToBuy}, 1) then
                 return true
             else
-                local hasMoney = RouterClient.get('ShopAPI/BuyItem'):InvokeServer('pets', 'aztec_egg_2025_aztec_egg', {})
+                local hasMoney = RouterClient.get('ShopAPI/BuyItem'):InvokeServer('pets', petToBuy, {})
 
                 if hasMoney then
                     return true
