@@ -15,6 +15,129 @@ __DARKLUA_BUNDLE_MODULES = {
 
 do
     function __DARKLUA_BUNDLE_MODULES.a()
+        local Players = cloneref(game:GetService('Players'))
+        local StatsGui = {}
+
+        StatsGui.__index = StatsGui
+
+        local singletonInstance = nil
+        local localPlayer = Players.LocalPlayer
+        local hud = localPlayer:WaitForChild('PlayerGui')
+        local setButtonUiSettings = function(buttonSettings)
+            local button = Instance.new('TextButton')
+
+            button.Name = buttonSettings.Name
+            button.AnchorPoint = buttonSettings.AnchorPoint
+            button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            button.BackgroundTransparency = 1
+            button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            button.BorderSizePixel = 0
+            button.Position = buttonSettings.Position
+            button.Size = UDim2.new(0.2, 0, 0.2, 0)
+            button.Font = Enum.Font.RobotoMono
+            button.Text = buttonSettings.Text
+            button.TextColor3 = Color3.fromRGB(0, 0, 0)
+            button.TextScaled = true
+            button.TextSize = 14
+            button.TextWrapped = true
+            button.TextXAlignment = Enum.TextXAlignment.Left
+            button.Parent = hud:WaitForChild('StatsGui')
+
+            return button
+        end
+
+        function StatsGui.new(player)
+            if singletonInstance then
+                return singletonInstance
+            end
+
+            local self = setmetatable({}, StatsGui)
+
+            self.Labels = {}
+
+            local gui = Instance.new('ScreenGui')
+
+            gui.Name = 'StatsGui'
+            gui.ResetOnSpawn = false
+            gui.IgnoreGuiInset = true
+            gui.Parent = player:WaitForChild('PlayerGui')
+
+            local frame = Instance.new('Frame')
+
+            frame.Name = 'MainFrame'
+            frame.Size = UDim2.fromScale(1, 1)
+            frame.BackgroundTransparency = 0.25
+            frame.BackgroundColor3 = Color3.new(0, 0, 0)
+            frame.Parent = gui
+            self.Instance = gui
+
+            local createLabel = function(name, pos, defaultText)
+                local lbl = Instance.new('TextLabel')
+
+                lbl.Name = name
+                lbl.Position = pos
+                lbl.AnchorPoint = Vector2.new(0.5, 0.5)
+                lbl.Size = UDim2.fromScale(0.7, 0.1)
+                lbl.BackgroundTransparency = 1
+                lbl.TextColor3 = Color3.new(1, 1, 1)
+                lbl.TextScaled = true
+                lbl.Text = defaultText
+                lbl.RichText = true
+                lbl.FontFace = Font.new('rbxasset://fonts/families/RobotoMono.json', Enum.FontWeight.Bold)
+                lbl.Parent = frame
+                self.Labels[name] = lbl
+
+                return lbl
+            end
+
+            createLabel('Timer', UDim2.fromScale(0.5, 0.064), '\u{23f0} 00:00:00')
+            createLabel('Username', UDim2.fromScale(0.5, 0.18), '\u{1f916} fakeusername | \u{1f9d1} 0')
+            createLabel('Bucks', UDim2.fromScale(0.5, 0.29), '\u{1f4b5} Bucks: 0 (+0)')
+            createLabel('Potions', UDim2.fromScale(0.5, 0.39), '\u{1f9ea} Potions: 0 (+0/hour)')
+            createLabel('TinyPotions', UDim2.fromScale(0.5, 0.48), '\u{1f9ea} Tiny Potions: 0 (+0/hour)')
+            createLabel('EventCurrency', UDim2.fromScale(0.5, 0.58), '\u{1f39f} Event Currency: 0 (+0/hour)')
+            createLabel('OtherInfo', UDim2.fromScale(0.5, 0.73), '\u{1f95a} 0 | \u{1f98d} 0 | \u{1f430} 0')
+            createLabel('PlayPen', UDim2.fromScale(0.5, 0.83), '\u{1f3d8}\u{fe0f} PlayPen: 0/4')
+            createLabel('Status', UDim2.fromScale(0.5, 0.93), '\u{1f680} Status: ...')
+
+            singletonInstance = (self)
+
+            return singletonInstance
+        end
+        function StatsGui.Get()
+            return singletonInstance or StatsGui.new(Players.LocalPlayer)
+        end
+        function StatsGui:UpdateLabel(labelName, newText)
+            if self.Labels[labelName] then
+                self.Labels[labelName].Text = newText
+            else
+                warn('Label ' .. labelName .. ' does not exist!')
+            end
+        end
+        function StatsGui:CreateButton(buttonSettings)
+            local button = setButtonUiSettings(buttonSettings)
+
+            button.Activated:Connect(function()
+                button.Text = '\u{2705}'
+
+                buttonSettings.Callback()
+                task.wait(1)
+
+                button.Text = buttonSettings.Text
+            end)
+        end
+        function StatsGui:UpdateStatus(...)
+            if self.Labels['Status'] then
+                self.Labels['Status'].Text = string.format('\u{1f680} Status: %s', tostring(
+...))
+            else
+                warn('Status label does not exist!')
+            end
+        end
+
+        return StatsGui
+    end
+    function __DARKLUA_BUNDLE_MODULES.b()
         local VirtualInputManager = cloneref(game:GetService('VirtualInputManager'))
         local Workspace = cloneref(game:GetService('Workspace'))
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
@@ -23,6 +146,7 @@ do
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
         local RouterClient = Bypass('RouterClient')
+        local myGui = __DARKLUA_BUNDLE_MODULES.load('a').Get()
         local debugMode = getgenv().SETTINGS.DEBUG_MODE or false
         local localPlayer = Players.LocalPlayer
 
@@ -294,7 +418,7 @@ do
             if num >= 1e6 then
                 return string.format('%.2fM', num / 1e6)
             elseif num >= 1e3 then
-                return string.format('%.1fK', num / 1e3)
+                return string.format('%.0fK', num / 1e3)
             else
                 return string.format('%.0f', num)
             end
@@ -500,7 +624,7 @@ do
                 return
             end
 
-            print(string.format('\u{1f41e} DEBUG | %s', tostring(...)))
+            myGui:UpdateStatus(...)
         end
         function Utils.IsDayAndHour(day, utcHour, amPm)
             local now = DateTime.now()
@@ -570,13 +694,13 @@ do
 
         return Utils
     end
-    function __DARKLUA_BUNDLE_MODULES.b()
+    function __DARKLUA_BUNDLE_MODULES.c()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
         local RouterClient = Bypass('RouterClient')
-        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
         local Furniture = {}
         local localPlayer = Players.LocalPlayer
 
@@ -633,7 +757,7 @@ do
 
         return Furniture
     end
-    function __DARKLUA_BUNDLE_MODULES.c()
+    function __DARKLUA_BUNDLE_MODULES.d()
         return {
             Denylist = {
                 '2d_kitty',
@@ -663,7 +787,7 @@ do
             },
         }
     end
-    function __DARKLUA_BUNDLE_MODULES.d()
+    function __DARKLUA_BUNDLE_MODULES.e()
         return {
             'soda_fountain_water',
             'coffee_paper_cup',
@@ -1804,16 +1928,16 @@ do
             'fossil_2024_long_neck_throw_toy',
         }
     end
-    function __DARKLUA_BUNDLE_MODULES.e()
+    function __DARKLUA_BUNDLE_MODULES.f()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
         local RouterClient = Bypass('RouterClient')
         local InventoryDB = Bypass('InventoryDB')
-        local AllowOrDenyList = __DARKLUA_BUNDLE_MODULES.load('c')
-        local TrashItemsList = __DARKLUA_BUNDLE_MODULES.load('d')
-        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
+        local AllowOrDenyList = __DARKLUA_BUNDLE_MODULES.load('d')
+        local TrashItemsList = __DARKLUA_BUNDLE_MODULES.load('e')
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
         local self = {}
         local localPlayer = Players.LocalPlayer
         local lowTierRarity = {
@@ -2591,14 +2715,14 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.f()
+    function __DARKLUA_BUNDLE_MODULES.g()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Workspace = cloneref(game:GetService('Workspace'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
         local CollisionsClient = Bypass('CollisionsClient')
-        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
         local Teleport = {}
         local localPlayer = Players.LocalPlayer
         local getconstants = getconstants or debug.getconstants
@@ -2817,15 +2941,15 @@ do
 
         return Teleport
     end
-    function __DARKLUA_BUNDLE_MODULES.g()
+    function __DARKLUA_BUNDLE_MODULES.h()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
         local RouterClient = Bypass('RouterClient')
         local InventoryDB = Bypass('InventoryDB')
-        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local Teleport = __DARKLUA_BUNDLE_MODULES.load('f')
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
+        local Teleport = __DARKLUA_BUNDLE_MODULES.load('g')
         local self = {}
         local localPlayer = Players.LocalPlayer
         local buyItem = function(valuesTable, howManyToBuy)
@@ -3041,7 +3165,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.h()
+    function __DARKLUA_BUNDLE_MODULES.i()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -3129,19 +3253,19 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.i()
+    function __DARKLUA_BUNDLE_MODULES.j()
         return {}
     end
-    function __DARKLUA_BUNDLE_MODULES.j()
+    function __DARKLUA_BUNDLE_MODULES.k()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = (Bypass('ClientData'))
         local RouterClient = Bypass('RouterClient')
         local InventoryDB = Bypass('InventoryDB')
-        local AllowOrDenyList = __DARKLUA_BUNDLE_MODULES.load('c')
-        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local CurrentIdlePets = __DARKLUA_BUNDLE_MODULES.load('i')
+        local AllowOrDenyList = __DARKLUA_BUNDLE_MODULES.load('d')
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
+        local CurrentIdlePets = __DARKLUA_BUNDLE_MODULES.load('j')
         local GetInventory = {}
         local PetsToReleaseList = getgenv().SETTINGS.PETS_TO_AGE_IN_PEN or {}
         local localPlayer = Players.LocalPlayer
@@ -3728,16 +3852,16 @@ do
 
         return GetInventory
     end
-    function __DARKLUA_BUNDLE_MODULES.k()
+    function __DARKLUA_BUNDLE_MODULES.l()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local PetPotionEffectsDB = (require(ReplicatedStorage:WaitForChild('ClientDB'):WaitForChild('PetPotionEffectsDB')))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
         local RouterClient = Bypass('RouterClient')
-        local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
-        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('j')
+        local Fusion = __DARKLUA_BUNDLE_MODULES.load('i')
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
+        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('k')
         local BulkPotion = {}
         local localPlayer = Players.LocalPlayer
 
@@ -4075,7 +4199,7 @@ do
 
         return BulkPotion
     end
-    function __DARKLUA_BUNDLE_MODULES.l()
+    function __DARKLUA_BUNDLE_MODULES.m()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local VirtualUser = game:GetService('VirtualUser')
         local Players = game:GetService('Players')
@@ -4083,13 +4207,13 @@ do
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local RouterClient = Bypass('RouterClient')
         local ClientData = Bypass('ClientData')
-        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local Furniture = __DARKLUA_BUNDLE_MODULES.load('b')
-        local Trade = __DARKLUA_BUNDLE_MODULES.load('e')
-        local Teleport = __DARKLUA_BUNDLE_MODULES.load('f')
-        local BuyItem = __DARKLUA_BUNDLE_MODULES.load('g')
-        local BulkPotion = __DARKLUA_BUNDLE_MODULES.load('k')
-        local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
+        local Furniture = __DARKLUA_BUNDLE_MODULES.load('c')
+        local Trade = __DARKLUA_BUNDLE_MODULES.load('f')
+        local Teleport = __DARKLUA_BUNDLE_MODULES.load('g')
+        local BuyItem = __DARKLUA_BUNDLE_MODULES.load('h')
+        local BulkPotion = __DARKLUA_BUNDLE_MODULES.load('l')
+        local Fusion = __DARKLUA_BUNDLE_MODULES.load('i')
         local self = {}
         local localPlayer = Players.LocalPlayer
         local rng = Random.new()
@@ -4354,13 +4478,13 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.m()
+    function __DARKLUA_BUNDLE_MODULES.n()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
         local RouterClient = Bypass('RouterClient')
-        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
         local self = {}
         local localPlayer = Players.LocalPlayer
         local PlayerGui = localPlayer:WaitForChild('PlayerGui')
@@ -4478,16 +4602,16 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.n()
+    function __DARKLUA_BUNDLE_MODULES.o()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local TextChatService = game:GetService('TextChatService')
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local RouterClient = Bypass('RouterClient')
-        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local Trade = __DARKLUA_BUNDLE_MODULES.load('e')
-        local Teleport = __DARKLUA_BUNDLE_MODULES.load('f')
-        local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
+        local Trade = __DARKLUA_BUNDLE_MODULES.load('f')
+        local Teleport = __DARKLUA_BUNDLE_MODULES.load('g')
+        local Fusion = __DARKLUA_BUNDLE_MODULES.load('i')
         local self = {}
         local localPlayer = Players.LocalPlayer
         local PlayerGui = localPlayer:WaitForChild('PlayerGui')
@@ -4967,7 +5091,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.o()
+    function __DARKLUA_BUNDLE_MODULES.p()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
         local Workspace = game:GetService('Workspace')
@@ -5059,7 +5183,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.p()
+    function __DARKLUA_BUNDLE_MODULES.q()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -5093,13 +5217,13 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.q()
+    function __DARKLUA_BUNDLE_MODULES.r()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local HttpService = cloneref(game:GetService('HttpService'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
-        local AllowOrDenyList = __DARKLUA_BUNDLE_MODULES.load('c')
-        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
+        local AllowOrDenyList = __DARKLUA_BUNDLE_MODULES.load('d')
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
         local self = {}
         local localPlayer = Players.LocalPlayer
         local getThumbnailImage = function(rbxassetidLink)
@@ -5322,7 +5446,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.r()
+    function __DARKLUA_BUNDLE_MODULES.s()
         if debugX then
             warn('Initialising Rayfield')
         end
@@ -9510,7 +9634,7 @@ Check the Developer Console for more information.]],
 
         return RayfieldLibrary
     end
-    function __DARKLUA_BUNDLE_MODULES.s()
+    function __DARKLUA_BUNDLE_MODULES.t()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -9699,15 +9823,15 @@ Check the Developer Console for more information.]],
 
         return Clipboard
     end
-    function __DARKLUA_BUNDLE_MODULES.t()
+    function __DARKLUA_BUNDLE_MODULES.u()
         local Players = cloneref(game:GetService('Players'))
-        local Rayfield = __DARKLUA_BUNDLE_MODULES.load('r')
-        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('j')
-        local Clipboard = __DARKLUA_BUNDLE_MODULES.load('s')
-        local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
-        local Trade = __DARKLUA_BUNDLE_MODULES.load('e')
-        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local BulkPotion = __DARKLUA_BUNDLE_MODULES.load('k')
+        local Rayfield = __DARKLUA_BUNDLE_MODULES.load('s')
+        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('k')
+        local Clipboard = __DARKLUA_BUNDLE_MODULES.load('t')
+        local Fusion = __DARKLUA_BUNDLE_MODULES.load('i')
+        local Trade = __DARKLUA_BUNDLE_MODULES.load('f')
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
+        local BulkPotion = __DARKLUA_BUNDLE_MODULES.load('l')
         local self = {}
         local localPlayer = Players.LocalPlayer
         local cooldown = false
@@ -10459,7 +10583,7 @@ Check the Developer Console for more information.]],
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.u()
+    function __DARKLUA_BUNDLE_MODULES.v()
         local ReplicatedStorage = (cloneref(game:GetService('ReplicatedStorage')))
         local Workspace = cloneref(game:GetService('Workspace'))
         local Players = cloneref(game:GetService('Players'))
@@ -10469,9 +10593,9 @@ Check the Developer Console for more information.]],
         local RouterClient = (Bypass('RouterClient'))
         local MysteryAilmentClient = (require(ReplicatedStorage.new.modules.Ailments.ClientActions.MysteryAilmentClient))
         local MysteryHelper = (require(ReplicatedStorage.new.modules.Ailments.Helpers.MysteryHelper))
-        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('j')
-        local Teleport = __DARKLUA_BUNDLE_MODULES.load('f')
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
+        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('k')
+        local Teleport = __DARKLUA_BUNDLE_MODULES.load('g')
         local localPlayer = Players.LocalPlayer
         local doctorId = nil
 
@@ -11171,15 +11295,15 @@ Check the Developer Console for more information.]],
 
         return Ailment
     end
-    function __DARKLUA_BUNDLE_MODULES.v()
+    function __DARKLUA_BUNDLE_MODULES.w()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
         local RouterClient = Bypass('RouterClient')
-        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('j')
-        local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
+        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('k')
+        local Fusion = __DARKLUA_BUNDLE_MODULES.load('i')
         local FarmingPet = {}
         local localPlayer = Players.LocalPlayer
         local petToBuy = 'endangered_2026_endangered_egg'
@@ -11511,10 +11635,10 @@ Check the Developer Console for more information.]],
 
         return FarmingPet
     end
-    function __DARKLUA_BUNDLE_MODULES.w()
+    function __DARKLUA_BUNDLE_MODULES.x()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
-        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local RouterClient = Bypass('RouterClient')
         local ClientData = Bypass('ClientData')
@@ -11551,21 +11675,22 @@ Check the Developer Console for more information.]],
 
         return PetRelease
     end
-    function __DARKLUA_BUNDLE_MODULES.x()
+    function __DARKLUA_BUNDLE_MODULES.y()
         local ReplicatedStorage = (cloneref(game:GetService('ReplicatedStorage')))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
         local RouterClient = Bypass('RouterClient')
         local CollisionsClient = Bypass('CollisionsClient')
-        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local Ailment = __DARKLUA_BUNDLE_MODULES.load('u')
-        local Furniture = __DARKLUA_BUNDLE_MODULES.load('b')
-        local Teleport = __DARKLUA_BUNDLE_MODULES.load('f')
-        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('j')
-        local FarmingPet = __DARKLUA_BUNDLE_MODULES.load('v')
-        local Fusion = __DARKLUA_BUNDLE_MODULES.load('h')
-        local PetRelease = __DARKLUA_BUNDLE_MODULES.load('w')
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
+        local Ailment = __DARKLUA_BUNDLE_MODULES.load('v')
+        local Furniture = __DARKLUA_BUNDLE_MODULES.load('c')
+        local Teleport = __DARKLUA_BUNDLE_MODULES.load('g')
+        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('k')
+        local FarmingPet = __DARKLUA_BUNDLE_MODULES.load('w')
+        local Fusion = __DARKLUA_BUNDLE_MODULES.load('i')
+        local PetRelease = __DARKLUA_BUNDLE_MODULES.load('x')
+        local myGui = __DARKLUA_BUNDLE_MODULES.load('a').Get()
         local modules = ReplicatedStorage:WaitForChild('new'):WaitForChild('modules')
         local DailiesNetService = (require(modules:WaitForChild('Dailies'):WaitForChild('DailiesNetService')))
         local self = {}
@@ -11834,7 +11959,7 @@ Check the Developer Console for more information.]],
                 local COUNT_MAX = 300
 
                 repeat
-                    print('Stopping because its in minigame')
+                    myGui:UpdateStatus('Stopping because its in minigame')
 
                     count = count + 30
 
@@ -11843,7 +11968,7 @@ Check the Developer Console for more information.]],
 
                 if Utils.IsMuleInGame(getgenv().SETTINGS.TRADE_COLLECTOR_NAME) then
                     repeat
-                        print('Waiting for mule to leave game...')
+                        myGui:UpdateStatus('Waiting for mule to leave game...')
                         task.wait(60)
                     until not Utils.IsMuleInGame(getgenv().SETTINGS.TRADE_COLLECTOR_NAME)
                 elseif count >= COUNT_MAX then
@@ -11980,13 +12105,13 @@ Check the Developer Console for more information.]],
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.y()
+    function __DARKLUA_BUNDLE_MODULES.z()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local RouterClient = Bypass('RouterClient')
         local ClientData = Bypass('ClientData')
-        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
         local PetOffline = {}
         local localPlayer = Players.LocalPlayer
 
@@ -12013,16 +12138,16 @@ Check the Developer Console for more information.]],
 
         return PetOffline
     end
-    function __DARKLUA_BUNDLE_MODULES.z()
+    function __DARKLUA_BUNDLE_MODULES.A()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
         local RouterClient = (Bypass('RouterClient'))
-        local PetOffline = __DARKLUA_BUNDLE_MODULES.load('y')
-        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('j')
-        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local CurrentIdlePets = __DARKLUA_BUNDLE_MODULES.load('i')
+        local PetOffline = __DARKLUA_BUNDLE_MODULES.load('z')
+        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('k')
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
+        local CurrentIdlePets = __DARKLUA_BUNDLE_MODULES.load('j')
         local PetOfflineHandler = {}
         local localPlayer = Players.LocalPlayer
         local updateCurrentIdlePets = function()
@@ -12187,335 +12312,35 @@ Check the Developer Console for more information.]],
                 return
             end
 
-            task.spawn(function()
-                while true do
-                    print('Pet offline loop, claiming XP and checking pets...')
-                    PetOffline.ClaimAllXP()
-                    task.wait(2)
-                    removeAllPets()
-                    addAllPetsToidleFarm(4)
-                    task.wait(600)
-                end
-            end)
+            PetOffline.ClaimAllXP()
+            task.wait(1)
+            removeAllPets()
+            addAllPetsToidleFarm(4)
         end
 
         return PetOfflineHandler
     end
-    function __DARKLUA_BUNDLE_MODULES.A()
-        local Players = cloneref(game:GetService('Players'))
-        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local StatsGuiClass = {}
-
-        StatsGuiClass.__index = StatsGuiClass
-
-        local localPlayer = Players.LocalPlayer
-        local hud = localPlayer:WaitForChild('PlayerGui')
-
-        Utils.PrintDebug(string.format('hud: %s', tostring(hud)))
-
-        local otherGuis = {}
-        local DEFAULT_COLOR = Color3.fromRGB(71, 70, 70)
-        local setButtonUiSettings = function(buttonSettings)
-            local button = Instance.new('TextButton')
-
-            button.Name = buttonSettings.Name
-            button.AnchorPoint = buttonSettings.AnchorPoint
-            button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-            button.BackgroundTransparency = 1
-            button.BorderColor3 = Color3.fromRGB(0, 0, 0)
-            button.BorderSizePixel = 0
-            button.Position = buttonSettings.Position
-            button.Size = UDim2.new(0.2, 0, 0.2, 0)
-            button.Font = Enum.Font.FredokaOne
-            button.Text = buttonSettings.Text
-            button.TextColor3 = Color3.fromRGB(0, 0, 0)
-            button.TextScaled = true
-            button.TextSize = 14
-            button.TextWrapped = true
-            button.TextXAlignment = Enum.TextXAlignment.Left
-            button.Parent = hud:WaitForChild('StatsGui')
-
-            return button
-        end
-
-        function StatsGuiClass.new(name)
-            local self = setmetatable({}, StatsGuiClass)
-
-            self.TextLabel = Instance.new('TextLabel')
-            self.UICorner = Instance.new('UICorner')
-            self.TextLabel.Name = name
-            self.TextLabel.BackgroundColor3 = DEFAULT_COLOR
-            self.TextLabel.BackgroundTransparency = 0.25
-            self.TextLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
-            self.TextLabel.BorderSizePixel = 0
-            self.TextLabel.Size = UDim2.new(0.330000013, 0, 0.486617982, 0)
-            self.TextLabel.Font = Enum.Font.FredokaOne
-            self.TextLabel.RichText = false
-            self.TextLabel.Text = ''
-            self.TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-            self.TextLabel.TextScaled = true
-            self.TextLabel.TextSize = 14
-            self.TextLabel.TextStrokeTransparency = 0
-            self.TextLabel.TextWrapped = true
-            self.StatsGui = hud:WaitForChild('StatsGui')
-            self.TextLabel.Parent = self.StatsGui:WaitForChild('MainFrame'):WaitForChild('MiddleFrame')
-            self.UICorner.CornerRadius = UDim.new(0, 16)
-            self.UICorner.Parent = self.TextLabel
-            self.Debounce = false
-
-            return self
-        end
-        function StatsGuiClass.Init()
-            local StatsGui = Instance.new('ScreenGui')
-
-            StatsGui.Name = 'StatsGui'
-            StatsGui.DisplayOrder = 1000
-            StatsGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-            StatsGui.ResetOnSpawn = false
-            StatsGui.IgnoreGuiInset = true
-            StatsGui.Parent = hud
-
-            local blackFrame = Instance.new('Frame')
-
-            blackFrame.Name = 'BlackFrame'
-            blackFrame.Size = UDim2.new(1, 0, 1, 0)
-            blackFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-            blackFrame.BackgroundTransparency = 0
-            blackFrame.LayoutOrder = 0
-            blackFrame.Visible = false
-            blackFrame.Parent = StatsGui
-
-            local MainFrame = Instance.new('Frame')
-
-            MainFrame.Name = 'MainFrame'
-            MainFrame.Visible = getgenv().SETTINGS.ENABLE_AUTO_FARM
-            MainFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-            MainFrame.BackgroundTransparency = 1
-            MainFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
-            MainFrame.BorderSizePixel = 0
-            MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-            MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-            MainFrame.Size = UDim2.new(0.6, 0, 0.75, 0)
-            MainFrame.LayoutOrder = 1
-            MainFrame.Parent = StatsGui
-            otherGuis.TimeLabel = Instance.new('TextLabel')
-            otherGuis.TimeLabel.Name = 'TimeLabel'
-            otherGuis.TimeLabel.BackgroundColor3 = DEFAULT_COLOR
-            otherGuis.TimeLabel.BackgroundTransparency = 0.25
-            otherGuis.TimeLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
-            otherGuis.TimeLabel.BorderSizePixel = 0
-            otherGuis.TimeLabel.Size = UDim2.new(1, 0, 0.200000018, 0)
-            otherGuis.TimeLabel.Font = Enum.Font.FredokaOne
-            otherGuis.TimeLabel.RichText = false
-            otherGuis.TimeLabel.Text = '\u{23f1}\u{fe0f} time'
-            otherGuis.TimeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-            otherGuis.TimeLabel.TextScaled = true
-            otherGuis.TimeLabel.TextSize = 14
-            otherGuis.TimeLabel.TextStrokeTransparency = 0
-            otherGuis.TimeLabel.TextWrapped = true
-            otherGuis.TimeLabel.Parent = MainFrame
-
-            local UICorner = Instance.new('UICorner')
-
-            UICorner.CornerRadius = UDim.new(0, 16)
-            UICorner.Parent = otherGuis.TimeLabel
-
-            local MiddleFrame = Instance.new('Frame')
-
-            MiddleFrame.Name = 'MiddleFrame'
-            MiddleFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-            MiddleFrame.BackgroundTransparency = 1
-            MiddleFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
-            MiddleFrame.BorderSizePixel = 0
-            MiddleFrame.Position = UDim2.new(0, 0, 0.219711155, 0)
-            MiddleFrame.Size = UDim2.new(0.999243617, 0, 0.55549103, 0)
-            MiddleFrame.Parent = MainFrame
-
-            local UIGridLayout = Instance.new('UIGridLayout')
-
-            UIGridLayout.SortOrder = Enum.SortOrder.LayoutOrder
-            UIGridLayout.CellPadding = UDim2.new(0.00999999978, 0, 0.00999999978, 0)
-            UIGridLayout.CellSize = UDim2.new(0.242, 0, 0.5, 0)
-            UIGridLayout.FillDirectionMaxCells = 0
-            UIGridLayout.Parent = MiddleFrame
-
-            local TextButton = Instance.new('TextButton')
-
-            TextButton.AnchorPoint = Vector2.new(0.5, 0.5)
-            TextButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-            TextButton.BackgroundTransparency = 1
-            TextButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
-            TextButton.BorderSizePixel = 0
-            TextButton.Position = UDim2.new(0.2, 0, 0.5, 0)
-            TextButton.Size = UDim2.new(0.1, 0, 0.1, 0)
-            TextButton.Font = Enum.Font.FredokaOne
-            TextButton.Text = '\u{1f648}'
-            TextButton.TextColor3 = Color3.fromRGB(0, 0, 0)
-            TextButton.TextScaled = true
-            TextButton.TextSize = 14
-            TextButton.TextWrapped = true
-            TextButton.TextXAlignment = Enum.TextXAlignment.Left
-            TextButton.LayoutOrder = 100
-            TextButton.Parent = StatsGui
-
-            local TIME_SAVED
-
-            otherGuis.TimeLabel.MouseEnter:Connect(function()
-                TIME_SAVED = otherGuis.TimeLabel.Text
-                otherGuis.TimeLabel.Text = string.format('\u{1f916} %s', tostring(localPlayer.Name))
-            end)
-            otherGuis.TimeLabel.MouseLeave:Connect(function()
-                otherGuis.TimeLabel.Text = TIME_SAVED
-            end)
-            TextButton.Activated:Connect(function()
-                MainFrame.Visible = not MainFrame.Visible
-            end)
-        end
-        function StatsGuiClass.SetTimeLabelText(startTime)
-            local currentTime = DateTime.now().UnixTimestamp
-            local timeElapsed = currentTime - startTime
-
-            otherGuis.TimeLabel.Text = string.format('\u{23f1}\u{fe0f} %s', tostring(Utils.FormatTime(timeElapsed)))
-        end
-        function StatsGuiClass.CreateButton(buttonSettings)
-            local button = setButtonUiSettings(buttonSettings)
-
-            button.Activated:Connect(function()
-                button.Text = '\u{2705}'
-
-                buttonSettings.Callback()
-                task.wait(1)
-
-                button.Text = buttonSettings.Text
-            end)
-        end
-        function StatsGuiClass.UpdateTextForTotal(self)
-            if self.TextLabel.Name == 'TotalPotions' then
-                local formatted = Utils.FormatNumber(Utils.FoodItemCount('pet_age_potion'))
-
-                self.TextLabel.Text = string.format('\u{1f9ea} %s', tostring(formatted))
-            elseif self.TextLabel.Name == 'TotalTinyPotions' then
-                local formatted = Utils.FormatNumber(Utils.FoodItemCount('tiny_pet_age_potion'))
-
-                self.TextLabel.Text = string.format('\u{2697}\u{fe0f} %s', tostring(formatted))
-            elseif self.TextLabel.Name == 'TotalBucks' then
-                local formatted = Utils.FormatNumber(Utils.BucksAmount())
-
-                self.TextLabel.Text = string.format('\u{1f4b0} %s', tostring(formatted))
-            elseif self.TextLabel.Name == 'TotalEventCurrency' then
-                local formatted = Utils.FormatNumber(Utils.EventCurrencyAmount())
-
-                self.TextLabel.Text = string.format('\u{1f36d} %s', tostring(formatted))
-            elseif self.TextLabel.Name == 'CrystalEgg' then
-                local formatted = Utils.FormatNumber(Utils.PetItemCount('pet_recycler_2025_crystal_egg'))
-
-                self.TextLabel.Text = string.format('\u{1f95a} %s', tostring(formatted))
-            elseif self.TextLabel.Name == 'GiantPanda' then
-                local formatted = Utils.FormatNumber(Utils.PetItemCount('sugarfest_2026_easter_bunny'))
-
-                self.TextLabel.Text = string.format('\u{1f430} %s', tostring(formatted))
-            elseif self.TextLabel.Name == 'Slot11' then
-                local formatted = Utils.FormatNumber(Utils.PetRecyclerTicketsAmount())
-
-                self.TextLabel.Text = string.format('\u{1f39f} %s', tostring(formatted))
-            elseif self.TextLabel.Name == 'Slot12' then
-                local formatted = Utils.FormatNumber(#Players:GetPlayers() or 0)
-
-                self.TextLabel.Text = string.format('\u{1f9d1} %s', tostring(formatted))
-            end
-        end
-        function StatsGuiClass.UpdateTextForTemp(self, amount)
-            if self.TextLabel.Name == 'TempPotions' and amount then
-                self.TextLabel.Text = string.format('\u{1f9ea} %s', tostring(Utils.FormatNumber(amount)))
-            elseif self.TextLabel.Name == 'TempTinyPotions' and amount then
-                self.TextLabel.Text = string.format('\u{2697}\u{fe0f} %s', tostring(Utils.FormatNumber(amount)))
-            elseif self.TextLabel.Name == 'TempBucks' and amount then
-                self.TextLabel.Text = string.format('\u{1f4b0} %s', tostring(Utils.FormatNumber(amount)))
-            elseif self.TextLabel.Name == 'TempEventCurrency' and amount then
-                self.TextLabel.Text = string.format('\u{1f36d} %s', tostring(Utils.FormatNumber(amount)))
-            end
-        end
-
-        return StatsGuiClass
-    end
     function __DARKLUA_BUNDLE_MODULES.B()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
-        local startTime = DateTime.now().UnixTimestamp
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
-        local StatsGuiClass = __DARKLUA_BUNDLE_MODULES.load('A')
-        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
-        local Clipboard = __DARKLUA_BUNDLE_MODULES.load('s')
+        local StatsGui = __DARKLUA_BUNDLE_MODULES.load('a')
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
+        local Clipboard = __DARKLUA_BUNDLE_MODULES.load('t')
+        local PetOffline = __DARKLUA_BUNDLE_MODULES.load('z')
         local self = {}
         local localPlayer = Players.LocalPlayer
-        local HintApp = (localPlayer:WaitForChild('PlayerGui'):WaitForChild('HintApp'))
-        local startPotionAmount
-        local startTinyPotionAmount
-        local startEventCurrencyAmount
-        local potionsGained = 0
-        local tinyPotionsGained = 0
-        local bucksGained = 0
-        local eventCurrencyGained = 0
-        local UpdateTextEvent
-
-        StatsGuiClass.Init()
-
-        self.TempPotions = StatsGuiClass.new('TempPotions')
-        self.TempTinyPotions = StatsGuiClass.new('TempTinyPotions')
-        self.TempBucks = StatsGuiClass.new('TempBucks')
-        self.TempEventCurrency = StatsGuiClass.new('TempEventCurrency')
-        self.TotalPotions = StatsGuiClass.new('TotalPotions')
-        self.TotalTinyPotions = StatsGuiClass.new('TotalTinyPotions')
-        self.TotalBucks = StatsGuiClass.new('TotalBucks')
-        self.TotalEventCurrency = StatsGuiClass.new('TotalEventCurrency')
-        self.CrystalEgg = StatsGuiClass.new('CrystalEgg')
-        self.GiantPanda = StatsGuiClass.new('GiantPanda')
-        self.Slot11 = StatsGuiClass.new('Slot11')
-        self.Slot12 = StatsGuiClass.new('Slot12')
-
-        local updateAllStatsGui = function()
-            potionsGained = Utils.FoodItemCount('pet_age_potion') - startPotionAmount
-
-            if potionsGained < 0 then
-                potionsGained = 0
-            end
-
-            self.TempPotions:UpdateTextForTemp(potionsGained)
-
-            tinyPotionsGained = Utils.FoodItemCount('tiny_pet_age_potion') - startTinyPotionAmount
-
-            if tinyPotionsGained < 0 then
-                tinyPotionsGained = 0
-            end
-
-            self.TempTinyPotions:UpdateTextForTemp(tinyPotionsGained)
-
-            local currentEventCurrency = Utils.EventCurrencyAmount()
-
-            if currentEventCurrency >= startEventCurrencyAmount then
-                eventCurrencyGained = eventCurrencyGained + (currentEventCurrency - startEventCurrencyAmount)
-                startEventCurrencyAmount = currentEventCurrency
-            elseif currentEventCurrency < startEventCurrencyAmount then
-                startEventCurrencyAmount = currentEventCurrency
-            end
-
-            self.TempEventCurrency:UpdateTextForTemp(eventCurrencyGained)
-            self.TotalEventCurrency:UpdateTextForTotal()
-            self.TotalPotions:UpdateTextForTotal()
-            self.TotalTinyPotions:UpdateTextForTotal()
-            self.TotalBucks:UpdateTextForTotal()
-            self.CrystalEgg:UpdateTextForTotal()
-            self.GiantPanda:UpdateTextForTotal()
-            self.Slot11:UpdateTextForTotal()
-            self.Slot12:UpdateTextForTotal()
-        end
+        local playerGui = (localPlayer:WaitForChild('PlayerGui'))
+        local myGui = StatsGui.new(localPlayer)
+        local startTime = DateTime.now().UnixTimestamp
+        local UPDATE_INTERVAL = 10
+        local startBucksAmount = Utils.BucksAmount()
+        local startPotionAmount = Utils.FoodItemCount('pet_age_potion')
+        local startTinyPotionAmount = Utils.FoodItemCount('tiny_pet_age_potion')
+        local startEventCurrencyAmount = Utils.EventCurrencyAmount()
 
         function self.Init()
-            UpdateTextEvent = Instance.new('BindableEvent')
-            UpdateTextEvent.Name = 'UpdateTextEvent'
-            UpdateTextEvent.Parent = ReplicatedStorage
-
-            StatsGuiClass.CreateButton({
+            myGui:CreateButton({
                 Name = 'CopyDetailed',
                 Text = '\u{1f4cb}',
                 AnchorPoint = Vector2.new(1, 0.5),
@@ -12527,7 +12352,7 @@ Check the Developer Console for more information.]],
 
             local devConsoleToggle = false
 
-            StatsGuiClass.CreateButton({
+            myGui:CreateButton({
                 Name = 'DevConsole',
                 Text = '\u{1f6e0}\u{fe0f}',
                 AnchorPoint = Vector2.new(0.5, 0),
@@ -12538,47 +12363,51 @@ Check the Developer Console for more information.]],
                     game:GetService('StarterGui'):SetCore('DevConsoleVisible', devConsoleToggle)
                 end,
             })
+            myGui:CreateButton({
+                Name = 'HideToggle',
+                Text = '\u{1f648}',
+                AnchorPoint = Vector2.new(0, 0.5),
+                Position = UDim2.new(0.05, 0, 0.2, 0),
+                Callback = function()
+                    myGui.Instance.MainFrame.Visible = not myGui.Instance.MainFrame.Visible
+                end,
+            })
 
-            startPotionAmount = Utils.FoodItemCount('pet_age_potion')
-            startTinyPotionAmount = Utils.FoodItemCount('tiny_pet_age_potion')
-            startEventCurrencyAmount = Utils.EventCurrencyAmount()
+            playerGui:WaitForChild('ToolApp').Enabled = false
 
-            UpdateTextEvent.Event:Connect(updateAllStatsGui)
-            HintApp.TextLabel:GetPropertyChangedSignal('Text'):Connect(function()
-                if HintApp.TextLabel.Text:match('Bucks') then
-                    local text = HintApp.TextLabel.Text
-
-                    if not text then
-                        return
-                    end
-                    if not text:split('+')[2] then
-                        return
-                    end
-
-                    local amount = tonumber(text:split('+')[2]:split(' ')[1])
-
-                    if not amount then
-                        return
-                    end
-
-                    bucksGained = bucksGained + amount
-
-                    self.TempBucks:UpdateTextForTemp(bucksGained)
-                end
-            end)
             task.spawn(function()
                 while true do
-                    StatsGuiClass.SetTimeLabelText(startTime)
                     Bypass('UIManager').set_app_visibility('DialogApp', false)
                     Bypass('UIManager').set_app_visibility('SubscriptionsPopUpApp', false)
-                    UpdateTextEvent:Fire()
-                    task.wait(10)
+                    myGui:UpdateLabel('Timer', string.format('\u{23f0} %s', tostring(Utils.FormatTime(DateTime.now().UnixTimestamp - startTime))))
+                    myGui:UpdateLabel('Username', string.format('\u{1f916} %s | \u{1f9d1} %s', tostring(localPlayer.Name), tostring(#Players:GetPlayers())))
+
+                    local bucksAmount = Utils.BucksAmount()
+                    local bucksGained = bucksAmount - startBucksAmount
+
+                    myGui:UpdateLabel('Bucks', string.format('\u{1f4b5} Bucks: %s (+%s)', tostring(Utils.FormatNumber(bucksAmount)), tostring(Utils.FormatNumber(bucksGained))))
+
+                    local potionsAmount = Utils.FoodItemCount('pet_age_potion')
+                    local potionsGained = potionsAmount - startPotionAmount
+
+                    myGui:UpdateLabel('Potions', string.format('\u{2697} Potions: %s (+%s)', tostring(Utils.FormatNumber(potionsAmount)), tostring(Utils.FormatNumber(potionsGained))))
+
+                    local tinyPotionsAmount = Utils.FoodItemCount('tiny_pet_age_potion')
+                    local tinyPotionsGained = tinyPotionsAmount - startTinyPotionAmount
+
+                    myGui:UpdateLabel('TinyPotions', string.format('\u{1f9ea} Tiny Potions: %s (+%s)', tostring(Utils.FormatNumber(tinyPotionsAmount)), tostring(Utils.FormatNumber(tinyPotionsGained))))
+
+                    local eventCurrencyAmount = Utils.EventCurrencyAmount()
+                    local eventCurrencyGained = eventCurrencyAmount - startEventCurrencyAmount
+
+                    myGui:UpdateLabel('EventCurrency', string.format('\u{1f39f} Event Currency: %s (+%s)', tostring(Utils.FormatNumber(eventCurrencyAmount)), tostring(Utils.FormatNumber(eventCurrencyGained))))
+                    myGui:UpdateLabel('OtherInfo', string.format('\u{1f95a} %s | \u{1f98d} %s | \u{1f430} %s', tostring(Utils.FormatNumber(Utils.PetItemCount('pet_recycler_2025_crystal_egg'))), tostring(Utils.FormatNumber(Utils.PetItemCount('endangered_2026_silverback_gorilla'))), tostring(Utils.FormatNumber(Utils.PetItemCount('sugarfest_2026_easter_bunny')))))
+                    myGui:UpdateLabel('PlayPen', string.format('\u{1f3d8}\u{fe0f} PlayPen: %s/4', tostring(PetOffline.GetAmountOfPetsInPen())))
+                    task.wait(UPDATE_INTERVAL)
                 end
             end)
         end
-        function self.Start()
-            UpdateTextEvent:Fire()
-        end
+        function self.Start() end
 
         return self
     end
@@ -12633,7 +12462,7 @@ Check the Developer Console for more information.]],
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
         local RouterClient = Bypass('RouterClient')
-        local Utils = __DARKLUA_BUNDLE_MODULES.load('a')
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
         local PayBucks = {}
         local localPlayer = Players.LocalPlayer
         local rng = Random.new()
@@ -12847,31 +12676,31 @@ getgenv().petCurrentlyFarming2 = nil
 
 local files = {
     {
-        PrepareAccountHandler = __DARKLUA_BUNDLE_MODULES.load('l'),
+        PrepareAccountHandler = __DARKLUA_BUNDLE_MODULES.load('m'),
     },
     {
-        DailyRewardHandler = __DARKLUA_BUNDLE_MODULES.load('m'),
+        DailyRewardHandler = __DARKLUA_BUNDLE_MODULES.load('n'),
     },
     {
-        GameGuiHandler = __DARKLUA_BUNDLE_MODULES.load('n'),
+        GameGuiHandler = __DARKLUA_BUNDLE_MODULES.load('o'),
     },
     {
-        PotatoModeHandler = __DARKLUA_BUNDLE_MODULES.load('o'),
+        PotatoModeHandler = __DARKLUA_BUNDLE_MODULES.load('p'),
     },
     {
-        TradeLicenseHandler = __DARKLUA_BUNDLE_MODULES.load('p'),
+        TradeLicenseHandler = __DARKLUA_BUNDLE_MODULES.load('q'),
     },
     {
-        WebhookHandler = __DARKLUA_BUNDLE_MODULES.load('q'),
+        WebhookHandler = __DARKLUA_BUNDLE_MODULES.load('r'),
     },
     {
-        RayfieldHandler = __DARKLUA_BUNDLE_MODULES.load('t'),
+        RayfieldHandler = __DARKLUA_BUNDLE_MODULES.load('u'),
     },
     {
-        AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.load('x'),
+        AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.load('y'),
     },
     {
-        PetOfflineHandler = __DARKLUA_BUNDLE_MODULES.load('z'),
+        PetOfflineHandler = __DARKLUA_BUNDLE_MODULES.load('A'),
     },
     {
         StatsGuiHandler = __DARKLUA_BUNDLE_MODULES.load('B'),
