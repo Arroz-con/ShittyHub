@@ -16,6 +16,8 @@ __DARKLUA_BUNDLE_MODULES = {
 do
     function __DARKLUA_BUNDLE_MODULES.a()
         local Players = cloneref(game:GetService('Players'))
+        local GuiService = game:GetService('GuiService')
+        local StarterGui = game:GetService('StarterGui')
         local StatsGui = {}
 
         StatsGui.__index = StatsGui
@@ -23,6 +25,11 @@ do
         local singletonInstance = nil
         local localPlayer = Players.LocalPlayer
         local hud = localPlayer:WaitForChild('PlayerGui')
+
+        GuiService.TouchControlsEnabled = false
+
+        StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, false)
+
         local setButtonUiSettings = function(buttonSettings)
             local button = Instance.new('TextButton')
 
@@ -65,6 +72,8 @@ do
             local frame = Instance.new('Frame')
 
             frame.Name = 'MainFrame'
+            frame.AnchorPoint = Vector2.new(0.5, 0.5)
+            frame.Position = UDim2.fromScale(0.5, 0.5)
             frame.Size = UDim2.fromScale(1, 1)
             frame.BackgroundTransparency = 0.25
             frame.BackgroundColor3 = Color3.new(0, 0, 0)
@@ -90,15 +99,12 @@ do
                 return lbl
             end
 
-            createLabel('Timer', UDim2.fromScale(0.5, 0.064), '\u{23f0} 00:00:00')
-            createLabel('Username', UDim2.fromScale(0.5, 0.18), '\u{1f916} fakeusername | \u{1f9d1} 0')
-            createLabel('Bucks', UDim2.fromScale(0.5, 0.29), '\u{1f4b5} Bucks: 0 (+0)')
-            createLabel('Potions', UDim2.fromScale(0.5, 0.39), '\u{1f9ea} Potions: 0 (+0/hour)')
-            createLabel('TinyPotions', UDim2.fromScale(0.5, 0.48), '\u{1f9ea} Tiny Potions: 0 (+0/hour)')
-            createLabel('EventCurrency', UDim2.fromScale(0.5, 0.58), '\u{1f39f} Event Currency: 0 (+0/hour)')
-            createLabel('OtherInfo', UDim2.fromScale(0.5, 0.73), '\u{1f95a} 0 | \u{1f98d} 0 | \u{1f430} 0')
-            createLabel('PlayPen', UDim2.fromScale(0.5, 0.83), '\u{1f3d8}\u{fe0f} PlayPen: 0/4')
-            createLabel('Status', UDim2.fromScale(0.5, 0.93), '\u{1f680} Status: ...')
+            createLabel('Timer', UDim2.fromScale(0.5, 0.3), '\u{23f0} 00:00:00')
+            createLabel('Username', UDim2.fromScale(0.5, 0.4), '\u{1f916} fakeusername | \u{1f9d1} 0')
+            createLabel('Currency', UDim2.fromScale(0.5, 0.5), '\u{1f4b5} Bucks: 0 (+0) | \u{1f39f} Event Currency: 0 (+0)')
+            createLabel('Potions', UDim2.fromScale(0.5, 0.6), '\u{2697} Potions: 0 (+0) | \u{1f9ea} Tiny Potions: 0 (+0)')
+            createLabel('OtherInfo', UDim2.fromScale(0.5, 0.7), '\u{1f95a} 0 | \u{1f98d} 0 | \u{1f430} 0 | \u{1f3d8}\u{fe0f} PlayPen: 0/4')
+            createLabel('Status', UDim2.fromScale(0.5, 0.8), '\u{1f680} Status: ...')
 
             singletonInstance = (self)
 
@@ -12344,7 +12350,7 @@ Check the Developer Console for more information.]],
                 Name = 'CopyDetailed',
                 Text = '\u{1f4cb}',
                 AnchorPoint = Vector2.new(1, 0.5),
-                Position = UDim2.new(1, -10, 0.5, 0),
+                Position = UDim2.new(1, -10, 0.3, 0),
                 Callback = function()
                     setclipboard(Clipboard.CopyDetailedPetInfo())
                 end,
@@ -12384,25 +12390,18 @@ Check the Developer Console for more information.]],
 
                     local bucksAmount = Utils.BucksAmount()
                     local bucksGained = bucksAmount - startBucksAmount
-
-                    myGui:UpdateLabel('Bucks', string.format('\u{1f4b5} Bucks: %s (+%s)', tostring(Utils.FormatNumber(bucksAmount)), tostring(Utils.FormatNumber(bucksGained))))
-
-                    local potionsAmount = Utils.FoodItemCount('pet_age_potion')
-                    local potionsGained = potionsAmount - startPotionAmount
-
-                    myGui:UpdateLabel('Potions', string.format('\u{2697} Potions: %s (+%s)', tostring(Utils.FormatNumber(potionsAmount)), tostring(Utils.FormatNumber(potionsGained))))
-
-                    local tinyPotionsAmount = Utils.FoodItemCount('tiny_pet_age_potion')
-                    local tinyPotionsGained = tinyPotionsAmount - startTinyPotionAmount
-
-                    myGui:UpdateLabel('TinyPotions', string.format('\u{1f9ea} Tiny Potions: %s (+%s)', tostring(Utils.FormatNumber(tinyPotionsAmount)), tostring(Utils.FormatNumber(tinyPotionsGained))))
-
                     local eventCurrencyAmount = Utils.EventCurrencyAmount()
                     local eventCurrencyGained = eventCurrencyAmount - startEventCurrencyAmount
 
-                    myGui:UpdateLabel('EventCurrency', string.format('\u{1f39f} Event Currency: %s (+%s)', tostring(Utils.FormatNumber(eventCurrencyAmount)), tostring(Utils.FormatNumber(eventCurrencyGained))))
-                    myGui:UpdateLabel('OtherInfo', string.format('\u{1f95a} %s | \u{1f98d} %s | \u{1f430} %s', tostring(Utils.FormatNumber(Utils.PetItemCount('pet_recycler_2025_crystal_egg'))), tostring(Utils.FormatNumber(Utils.PetItemCount('endangered_2026_silverback_gorilla'))), tostring(Utils.FormatNumber(Utils.PetItemCount('sugarfest_2026_easter_bunny')))))
-                    myGui:UpdateLabel('PlayPen', string.format('\u{1f3d8}\u{fe0f} PlayPen: %s/4', tostring(PetOffline.GetAmountOfPetsInPen())))
+                    myGui:UpdateLabel('Currency', string.format('\u{1f4b5} Bucks: %s (+%s) | \u{1f39f} Event: %s (+%s)', tostring(Utils.FormatNumber(bucksAmount)), tostring(Utils.FormatNumber(bucksGained)), tostring(Utils.FormatNumber(eventCurrencyAmount)), tostring(Utils.FormatNumber(eventCurrencyGained))))
+
+                    local potionsAmount = Utils.FoodItemCount('pet_age_potion')
+                    local potionsGained = potionsAmount - startPotionAmount
+                    local tinyPotionsAmount = Utils.FoodItemCount('tiny_pet_age_potion')
+                    local tinyPotionsGained = tinyPotionsAmount - startTinyPotionAmount
+
+                    myGui:UpdateLabel('Potions', string.format('\u{2697} Pots: %s (+%s) | \u{1f9ea} Tiny Pots: %s (+%s)', tostring(Utils.FormatNumber(potionsAmount)), tostring(Utils.FormatNumber(potionsGained)), tostring(Utils.FormatNumber(tinyPotionsAmount)), tostring(Utils.FormatNumber(tinyPotionsGained))))
+                    myGui:UpdateLabel('OtherInfo', string.format('\u{1f95a} %s | \u{1f98d} %s | \u{1f430} %s | \u{1f3d8}\u{fe0f} PlayPen: %s/4', tostring(Utils.FormatNumber(Utils.PetItemCount('pet_recycler_2025_crystal_egg'))), tostring(Utils.FormatNumber(Utils.PetItemCount('endangered_2026_silverback_gorilla'))), tostring(Utils.FormatNumber(Utils.PetItemCount('sugarfest_2026_easter_bunny'))), tostring(Utils.FormatNumber(PetOffline.GetAmountOfPetsInPen()))))
                     task.wait(UPDATE_INTERVAL)
                 end
             end)
