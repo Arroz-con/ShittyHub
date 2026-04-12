@@ -16,8 +16,8 @@ __DARKLUA_BUNDLE_MODULES = {
 do
     function __DARKLUA_BUNDLE_MODULES.a()
         local Players = cloneref(game:GetService('Players'))
-        local GuiService = game:GetService('GuiService')
         local StarterGui = game:GetService('StarterGui')
+        local playerGui = Players.LocalPlayer:WaitForChild('PlayerGui')
         local StatsGui = {}
 
         StatsGui.__index = StatsGui
@@ -25,8 +25,11 @@ do
         local singletonInstance = nil
         local localPlayer = Players.LocalPlayer
         local hud = localPlayer:WaitForChild('PlayerGui')
+        local touchGui = (playerGui:FindFirstChild('TouchGui'))
 
-        GuiService.TouchControlsEnabled = false
+        if touchGui then
+            touchGui.Enabled = false
+        end
 
         StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, false)
 
@@ -94,8 +97,13 @@ do
                 lbl.TextScaled = true
                 lbl.Text = defaultText
                 lbl.RichText = true
-                lbl.FontFace = Font.new('rbxasset://fonts/families/RobotoMono.json', Enum.FontWeight.Bold)
+                lbl.Font = Enum.Font.FredokaOne
                 lbl.Parent = frame
+
+                local uiStroke = Instance.new('UIStroke')
+
+                uiStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
+                uiStroke.Parent = lbl
                 self.Labels[name] = lbl
 
                 return lbl
@@ -155,7 +163,7 @@ do
         local ClientData = Bypass('ClientData')
         local RouterClient = Bypass('RouterClient')
         local myGui = __DARKLUA_BUNDLE_MODULES.load('a').Get()
-        local debugMode = getgenv().SETTINGS.DEBUG_MODE or false
+        local _ = getgenv().SETTINGS.DEBUG_MODE or false
         local localPlayer = Players.LocalPlayer
 
         getgenv().lastTimeFarming = DateTime.now().UnixTimestamp
@@ -628,10 +636,6 @@ do
             return true
         end
         function Utils.PrintDebug(...)
-            if not debugMode then
-                return
-            end
-
             myGui:UpdateStatus(...)
         end
         function Utils.IsDayAndHour(day, utcHour, amPm)
