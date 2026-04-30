@@ -2143,9 +2143,12 @@ do
                     if not table.find(playerTable, player.Name) then
                         continue
                     end
+                    if TradeFrame.Visible then
+                        return true
+                    end
                     if ClientData.get_data()[player.Name] and not ClientData.get_data()[player.Name].in_active_trade then
                         RouterClient.get('TradeAPI/SendTradeRequest'):FireServer(player)
-                        task.wait(1)
+                        task.wait(60)
                     end
                 end
 
