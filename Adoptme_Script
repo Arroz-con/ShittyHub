@@ -1958,6 +1958,7 @@ do
             'rare',
             'ultra_rare',
         }
+        local MAX_TIME_OUT = 300
         local inActiveTrade = function()
             local timeOut = 60
 
@@ -1974,9 +1975,7 @@ do
                 return
             end
         end
-        local waitForActiveTrade = function()
-            local timeOut = 300
-
+        local waitForActiveTrade = function(timeOut)
             while not ClientData.get_data()[localPlayer.Name].in_active_trade do
                 task.wait(1)
 
@@ -2148,15 +2147,14 @@ do
                     end
                     if ClientData.get_data()[player.Name] and not ClientData.get_data()[player.Name].in_active_trade then
                         RouterClient.get('TradeAPI/SendTradeRequest'):FireServer(player)
-                        task.wait(60)
+
+                        if waitForActiveTrade(30) then
+                            return true
+                        end
                     end
                 end
 
-                if waitForActiveTrade() then
-                    return true
-                end
-
-                task.wait()
+                task.wait(1)
             end
         end
         function self.SelectTabAndTrade(tab, selectedItem, neonOnly, megaOnly)
@@ -2352,7 +2350,7 @@ do
             end
         end
         function self.NormalFullgrownOnly()
-            if not waitForActiveTrade() then
+            if not waitForActiveTrade(MAX_TIME_OUT) then
                 return
             end
 
@@ -2384,7 +2382,7 @@ do
             end
         end
         function self.NormalNewbornToPostteen()
-            if not waitForActiveTrade() then
+            if not waitForActiveTrade(MAX_TIME_OUT) then
                 return
             end
 
@@ -2571,7 +2569,7 @@ do
                 if not self.SendTradeRequest(namePassOn) then
                     return Utils.PrintDebug('\u{26a0}\u{fe0f} NO MULES TO TRADE \u{26a0}\u{fe0f}')
                 end
-                if not waitForActiveTrade() then
+                if not waitForActiveTrade(MAX_TIME_OUT) then
                     task.wait(1)
 
                     continue
@@ -2676,7 +2674,7 @@ do
                 if not self.SendTradeRequest(namePassOn) then
                     return Utils.PrintDebug('\u{26a0}\u{fe0f} NO MULES TO TRADE \u{26a0}\u{fe0f}')
                 end
-                if not waitForActiveTrade() then
+                if not waitForActiveTrade(MAX_TIME_OUT) then
                     task.wait(1)
 
                     continue
