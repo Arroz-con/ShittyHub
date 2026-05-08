@@ -12300,7 +12300,6 @@ Check the Developer Console for more information.]],
 
             task.spawn(function()
                 while true do
-                    Bypass('UIManager').set_app_visibility('DialogApp', false)
                     Bypass('UIManager').set_app_visibility('SubscriptionsPopUpApp', false)
                     myGui:UpdateLabel('Timer', tostring(Utils.FormatTime(DateTime.now().UnixTimestamp - startTime)))
                     myGui:UpdateLabel('Username', string.format('User: %s | Players: %s', tostring(localPlayer.Name), tostring(#Players:GetPlayers())))
