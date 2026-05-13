@@ -43,7 +43,7 @@ getgenv().SETTINGS = {
 
     HATCH_EGG_PRIORITY = false,
     HATCH_EGG_PRIORITY_NAMES = {
-        "aztec_egg_2025_aztec_egg", 
+        "endangered_2026_endangered_egg", 
     },
 
     PET_ONLY_PRIORITY = false,
