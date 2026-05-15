@@ -163,7 +163,6 @@ do
         local ClientData = Bypass('ClientData')
         local RouterClient = Bypass('RouterClient')
         local myGui = __DARKLUA_BUNDLE_MODULES.load('a').Get()
-        local _ = getgenv().SETTINGS.DEBUG_MODE or false
         local localPlayer = Players.LocalPlayer
 
         getgenv().lastTimeFarming = DateTime.now().UnixTimestamp
@@ -4825,13 +4824,9 @@ do
             RouterClient.get('SettingsAPI/SetSetting'):FireServer('trade_requests', 1)
             TextChatService.MessageReceived:Connect(function(message)
                 if not (message.TextSource and message.TextSource.UserId) then
-                    print('ignoring message with no text source')
-
                     return
                 end
                 if message.TextSource.UserId == localPlayer.UserId then
-                    print(string.format('ignoring own message: %s', tostring(message.Text)))
-
                     return
                 end
                 if message.Text:match('Server') then
@@ -4840,7 +4835,6 @@ do
 
                 print(string.format('got message from %s: %s', tostring(message.TextSource.Name), tostring(message.Text)))
                 localPlayer:Kick('IS IN PUBLIC SERVER')
-                game:Shutdown()
             end)
 
             local Dialog = (DialogApp:WaitForChild('Dialog'))
@@ -11939,7 +11933,7 @@ Check the Developer Console for more information.]],
 
             tryFeedAgePotion()
 
-            local waitTime = rng:NextInteger(1, 10)
+            local waitTime = rng:NextInteger(5, 15)
 
             baitboxCount = baitboxCount + waitTime
 
@@ -12062,6 +12056,193 @@ Check the Developer Console for more information.]],
         return PetOffline
     end
     function __DARKLUA_BUNDLE_MODULES.z()
+        local ReplicatedStorage = game:GetService('ReplicatedStorage')
+        local Players = game:GetService('Players')
+        local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
+        local ClientData = Bypass('ClientData')
+        local RouterClient = (Bypass('RouterClient'))
+        local PetOffline = __DARKLUA_BUNDLE_MODULES.load('y')
+        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('k')
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
+        local PetOfflineHandler = {}
+        local localPlayer = Players.LocalPlayer
+        local getActivePets = function()
+            return ClientData.get_data()[localPlayer.Name].idle_progression_manager.active_pets
+        end
+        local removeAllPets = function()
+            for key, _ in ClientData.get_data()[localPlayer.Name].idle_progression_manager.active_pets do
+                while true do
+                    PetOffline.RemovePet(key)
+                    task.wait(1)
+
+                    if ClientData.get_data()[localPlayer.Name].idle_progression_manager.active_pets[key] == nil then
+                        break
+                    end
+                end
+            end
+        end
+        local addPet = function(petUniques)
+            if #petUniques <= 0 then
+                return
+            end
+
+            for _, unique in ipairs(petUniques)do
+                if PetOffline.GetAmountOfPetsInPen() >= 4 then
+                    return
+                end
+
+                local count = 0
+
+                while true do
+                    PetOffline.AddPet(unique)
+                    task.wait(2)
+
+                    if ClientData.get_data()[localPlayer.Name].idle_progression_manager.active_pets[unique] then
+                        break
+                    end
+
+                    count = count + 1
+
+                    if count >= 6 then
+                        Utils.PrintDebug('Failed to add pet to idle farming: ' .. unique)
+
+                        break
+                    end
+                end
+            end
+        end
+        local addRarityPetsToPen = function(rarityName)
+            local amount = PetOffline.GetAmountOfPetsInPen()
+            local amountMissing = 4 - amount
+
+            if amountMissing <= 0 then
+                return true
+            end
+
+            print(string.format('AMOUNT MISSING: %s, %s', tostring(amountMissing), tostring(rarityName)))
+
+            local petUniques = GetInventory.GetPetsRarityAndAgeForPen(rarityName)
+
+            addPet(petUniques)
+            task.wait(1)
+
+            return false
+        end
+        local addPetEggsToPen = function()
+            local amount = PetOffline.GetAmountOfPetsInPen()
+            local amountMissing = 4 - amount
+
+            if amountMissing <= 0 then
+                return true
+            end
+
+            print(string.format('AMOUNT MISSING: %s, eggs', tostring(amountMissing)))
+
+            local eggsList = GetInventory.GetPetEggs()
+            local eggIndex = table.find(eggsList, 'pet_recycler_2025_crystal_egg')
+
+            if eggIndex then
+                table.remove(eggsList, eggIndex)
+            end
+
+            local petUniques = GetInventory.GetPetUniquesForPetPen(eggsList, amountMissing)
+
+            addPet(petUniques)
+            task.wait(1)
+
+            return false
+        end
+        local addAllPetsToidleFarm = function(amountMissing)
+            local petUniques = GetInventory.GetPetUniquesForPetPen(getgenv().SETTINGS.PETS_TO_AGE_IN_PEN, amountMissing)
+
+            Utils.PrintDebug(string.format('how many pets ids ther is in table: %s', tostring(#petUniques)))
+            addPet(petUniques)
+
+            if addRarityPetsToPen('legendary') then
+                return
+            end
+            if addRarityPetsToPen('ultra_rare') then
+                return
+            end
+            if addRarityPetsToPen('rare') then
+                return
+            end
+            if addRarityPetsToPen('uncommon') then
+                return
+            end
+            if addRarityPetsToPen('common') then
+                return
+            end
+            if addPetEggsToPen() then
+                return
+            end
+        end
+
+        function PetOfflineHandler.Init()
+            if getgenv().SETTINGS.ENABLE_AUTO_FARM == false then
+                return
+            end
+
+            RouterClient.get('DataAPI/DataChanged').OnClientEvent:Connect(function(
+                playerName,
+                dataType,
+                data
+            )
+                if playerName ~= localPlayer.Name then
+                    return
+                end
+                if dataType ~= 'idle_progression_manager' then
+                    return
+                end
+                if not (data and data.age_up_pending) then
+                    return
+                end
+
+                Utils.PrintDebug('Age up pending, claiming all XP...')
+                PetOffline.ClaimAllXP()
+                task.wait(2)
+
+                for key, value in data.active_pets do
+                    if value.max_age then
+                        Utils.PrintDebug(string.format('HAS PET THAT IS MAXED SO REMOVING... %s', tostring(key)))
+
+                        local retryCount = 0
+
+                        repeat
+                            PetOffline.RemovePet(key)
+
+                            retryCount = retryCount + 1
+
+                            task.wait(2)
+                        until getActivePets()[key] == nil or retryCount >= 3
+                    end
+                end
+
+                local amount = PetOffline.GetAmountOfPetsInPen()
+                local amountMissing = 4 - amount
+
+                if amountMissing <= 0 then
+                    return
+                end
+
+                Utils.PrintDebug(string.format('amount missing: %s so getting more', tostring(amountMissing)))
+                addAllPetsToidleFarm(amountMissing)
+            end)
+        end
+        function PetOfflineHandler.Start()
+            if getgenv().SETTINGS.ENABLE_AUTO_FARM == false then
+                return
+            end
+
+            PetOffline.ClaimAllXP()
+            task.wait(1)
+            removeAllPets()
+            addAllPetsToidleFarm(4)
+        end
+
+        return PetOfflineHandler
+    end
+    function __DARKLUA_BUNDLE_MODULES.A()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -12145,7 +12326,7 @@ Check the Developer Console for more information.]],
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.A()
+    function __DARKLUA_BUNDLE_MODULES.B()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -12154,6 +12335,7 @@ Check the Developer Console for more information.]],
         local DailiesNetService = (require(modules:WaitForChild('Dailies'):WaitForChild('DailiesNetService')))
         local DailyTaskboardHandler = {}
         local localPlayer = Players.LocalPlayer
+        local debouce = false
 
         function DailyTaskboardHandler.Init()
             print('Initializing DailyTaskboardHandler...')
@@ -12168,12 +12350,14 @@ Check the Developer Console for more information.]],
                 if dataType ~= 'dailies_manager' then
                     return
                 end
-                if not data then
+                if not (data and data.serialized_tabs) then
                     return
                 end
-                if not data.serialized_tabs then
+                if debouce then
                     return
                 end
+
+                debouce = true
 
                 for name, _ in data.serialized_tabs do
                     print(string.format('Daily Taskboard Tab: %s', tostring(name)))
@@ -12182,6 +12366,8 @@ Check the Developer Console for more information.]],
                     DailiesNetService.try_to_claim_tab_reward(name)
                     task.wait()
                 end
+
+                debouce = false
             end)
         end
         function DailyTaskboardHandler.Start()
@@ -12190,7 +12376,7 @@ Check the Developer Console for more information.]],
 
         return DailyTaskboardHandler
     end
-    function __DARKLUA_BUNDLE_MODULES.B()
+    function __DARKLUA_BUNDLE_MODULES.C()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -12431,13 +12617,16 @@ local files = {
         AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.load('x'),
     },
     {
-        StatsGuiHandler = __DARKLUA_BUNDLE_MODULES.load('z'),
+        PetOfflineHandler = __DARKLUA_BUNDLE_MODULES.load('z'),
     },
     {
-        DailyTaskboardHandler = __DARKLUA_BUNDLE_MODULES.load('A'),
+        StatsGuiHandler = __DARKLUA_BUNDLE_MODULES.load('A'),
     },
     {
-        PayBucks = __DARKLUA_BUNDLE_MODULES.load('B'),
+        DailyTaskboardHandler = __DARKLUA_BUNDLE_MODULES.load('B'),
+    },
+    {
+        PayBucks = __DARKLUA_BUNDLE_MODULES.load('C'),
     },
 }
 
