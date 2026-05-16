@@ -701,6 +701,40 @@ do
         function Utils.FireRedeemCode(code)
             RouterClient.get('CodeRedemptionAPI/AttemptRedeemCode'):InvokeServer(code)
         end
+        function Utils.InvokeServerWithTimeout(timeout, remoteFunction, ...)
+            local result = nil
+            local hasResponded = false
+            local currentThread = coroutine.running()
+
+            task.spawn(function(...)
+                local success, response = pcall(remoteFunction.InvokeServer, remoteFunction, 
+...)
+
+                if not hasResponded then
+                    hasResponded = true
+                    result = {
+                        success = success,
+                        response = response,
+                    }
+
+                    task.spawn(currentThread)
+                end
+            end, ...)
+            task.delay(timeout, function()
+                if not hasResponded then
+                    hasResponded = true
+
+                    task.spawn(currentThread)
+                end
+            end)
+            coroutine.yield()
+
+            if result then
+                return result.success, result.response
+            else
+                return false, 'Timed out waiting for server response'
+            end
+        end
 
         return Utils
     end
@@ -10555,10 +10589,17 @@ Check the Developer Console for more information.]],
                         return
                     end
 
-                    RouterClient.get('PetObjectAPI/CreatePetObject'):InvokeServer('__Enum_PetObjectCreatorType_2', {
+                    local success, result = Utils.InvokeServerWithTimeout(5, RouterClient.get('PetObjectAPI/CreatePetObject'), '__Enum_PetObjectCreatorType_2', {
                         ['pet_unique'] = ClientData.get('pet_char_wrappers')[Ailment.whichPet].pet_unique,
                         ['unique_id'] = v.unique,
                     })
+
+                    if not success then
+                        Utils.PrintDebug(string.format('\u{26d4} Failed to create food object: %s \u{26d4}', tostring(result)))
+
+                        return
+                    end
+
                     consumeFood()
 
                     return
@@ -10575,9 +10616,13 @@ Check the Developer Console for more information.]],
         end
 
         local useToolOnBaby = function(uniqueId)
-            pcall(function()
-                RouterClient.get('ToolAPI/ServerUseTool'):InvokeServer(uniqueId, 'END')
-            end)
+            local success, result = Utils.InvokeServerWithTimeout(5, RouterClient.get('ToolAPI/ServerUseTool'), uniqueId, 'END')
+
+            if not success then
+                Utils.PrintDebug(string.format('\u{26d4} Failed to use tool on baby: %s \u{26d4}', tostring(result)))
+
+                return
+            end
         end
         local PianoAilment = function(pianoId, petCharOrPlayerChar)
             local args = {
@@ -10589,17 +10634,20 @@ Check the Developer Console for more information.]],
                 },
                 petCharOrPlayerChar,
             }
+            local success, result = Utils.InvokeServerWithTimeout(5, RouterClient.get('HousingAPI/ActivateFurniture'), unpack(args))
 
-            task.spawn(function()
-                RouterClient.get('HousingAPI/ActivateFurniture'):InvokeServer(unpack(args))
-            end)
+            if not success then
+                Utils.PrintDebug(string.format('\u{26d4} Failed to activate furniture: %s \u{26d4}', tostring(result)))
+            end
         end
         local furnitureAilments = function(nameId, petCharOrPlayerChar)
-            task.spawn(function()
-                RouterClient.get('HousingAPI/ActivateFurniture'):InvokeServer(localPlayer, nameId, 'UseBlock', {
-                    ['cframe'] = localPlayer.Character.HumanoidRootPart.CFrame,
-                }, petCharOrPlayerChar)
-            end)
+            local success, result = Utils.InvokeServerWithTimeout(5, RouterClient.get('HousingAPI/ActivateFurniture'), localPlayer, nameId, 'UseBlock', {
+                ['cframe'] = localPlayer.Character.HumanoidRootPart.CFrame,
+            }, petCharOrPlayerChar)
+
+            if not success then
+                Utils.PrintDebug(string.format('\u{26d4} Failed to activate furniture: %s \u{26d4}', tostring(result)))
+            end
         end
         local isDoctorLoaded = function()
             local stuckCount = 0
@@ -10674,8 +10722,13 @@ Check the Developer Console for more information.]],
                 ClientData.get('pet_char_wrappers')[Ailment.whichPet].char,
                 localPlayer.Character.StrollerTool.ModelHandle.TouchToSits.TouchToSit,
             }
+            local success, result = Utils.InvokeServerWithTimeout(5, RouterClient.get('AdoptAPI/UseStroller'), unpack(args))
 
-            RouterClient.get('AdoptAPI/UseStroller'):InvokeServer(unpack(args))
+            if not success then
+                Utils.PrintDebug(string.format('\u{26d4} Failed to use stroller: %s \u{26d4}', tostring(result)))
+
+                return false
+            end
 
             return true
         end
