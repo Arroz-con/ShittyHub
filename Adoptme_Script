@@ -10746,8 +10746,7 @@ Check the Developer Console for more information.]],
             task.wait(1)
             Utils.PrintDebug('Exited from seat')
         end
-
-        local function babyGetFoodAndEat(FoodPassOn)
+        local babyGetFoodAndEat = function(FoodPassOn)
             local hasFood = false
 
             for _, v in ClientData.get_data()[localPlayer.Name].inventory.food do
@@ -10764,11 +10763,8 @@ Check the Developer Console for more information.]],
 
             if not hasFood then
                 RouterClient.get('ShopAPI/BuyItem'):InvokeServer('food', FoodPassOn, {})
-                task.wait(1)
-                babyGetFoodAndEat(FoodPassOn)
             end
         end
-
         local pickMysteryTask = function(mysteryId, petUnique)
             Utils.PrintDebug(string.format('mystery id: %s', tostring(mysteryId)))
 
@@ -10867,7 +10863,7 @@ Check the Developer Console for more information.]],
         function Ailment.HungryAilment()
             Utils.PrintDebug(string.format('\u{1f356} Doing hungry task on %s \u{1f356}', tostring(Ailment.whichPet)))
             Utils.ReEquipPet(Ailment.whichPet)
-            FoodAilments('icecream')
+            FoodAilments('ham')
             Utils.PrintDebug(string.format('\u{1f356} Finished hungry task on %s \u{1f356}', tostring(Ailment.whichPet)))
         end
         function Ailment.ThirstyAilment()
@@ -11147,7 +11143,7 @@ Check the Developer Console for more information.]],
             local stuckCount = 0
 
             repeat
-                babyGetFoodAndEat('icecream')
+                babyGetFoodAndEat('ham')
 
                 stuckCount = stuckCount + 1
 
@@ -11166,7 +11162,7 @@ Check the Developer Console for more information.]],
             local stuckCount = 0
 
             repeat
-                babyGetFoodAndEat('lemonade')
+                babyGetFoodAndEat('water')
 
                 stuckCount = stuckCount + 1
 
