@@ -1991,22 +1991,6 @@ do
             'ultra_rare',
         }
         local MAX_TIME_OUT = 300
-        local inActiveTrade = function()
-            local timeOut = 60
-
-            repeat
-                task.wait(1)
-
-                timeOut = timeOut - 1
-            until ClientData.get_data()[localPlayer.Name].in_active_trade or timeOut <= 0
-
-            if timeOut <= 0 then
-                return
-            end
-            if #ClientData.get_data()[localPlayer.Name].trade.sender_offer.items >= 18 then
-                return
-            end
-        end
         local waitForActiveTrade = function(timeOut)
             while not ClientData.get_data()[localPlayer.Name].in_active_trade do
                 task.wait(1)
@@ -2190,7 +2174,9 @@ do
             end
         end
         function self.SelectTabAndTrade(tab, selectedItem, neonOnly, megaOnly)
-            inActiveTrade()
+            if not waitForActiveTrade(MAX_TIME_OUT) then
+                return
+            end
 
             local userData = ClientData.get_data()[localPlayer.Name]
             local inventory = userData.inventory[tab]
@@ -2216,7 +2202,9 @@ do
             end
         end
         function self.NeonNewbornToPostteen()
-            inActiveTrade()
+            if not waitForActiveTrade(MAX_TIME_OUT) then
+                return
+            end
 
             for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
                 if table.find(AllowOrDenyList.Denylist, pet.id) then
@@ -2249,8 +2237,9 @@ do
 
             newOptions['ages'] = convertPetAges(newOptions)
 
-            inActiveTrade()
-
+            if not waitForActiveTrade(MAX_TIME_OUT) then
+                return
+            end
             if isNormal then
                 if MultipleOptionsTradeLoop(newOptions, nil, nil) then
                     return
@@ -2270,7 +2259,9 @@ do
             return
         end
         function self.LowTiers()
-            inActiveTrade()
+            if not waitForActiveTrade(MAX_TIME_OUT) then
+                return
+            end
 
             for _, petDB in InventoryDB.pets do
                 for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
@@ -2294,7 +2285,9 @@ do
             end
         end
         function self.NewbornToPostteen(rarity)
-            inActiveTrade()
+            if not waitForActiveTrade(MAX_TIME_OUT) then
+                return
+            end
 
             for _, petDB in InventoryDB.pets do
                 for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
@@ -2321,8 +2314,9 @@ do
             if typeof(petIds) ~= 'table' then
                 return
             end
-
-            inActiveTrade()
+            if not waitForActiveTrade(MAX_TIME_OUT) then
+                return
+            end
 
             for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
                 if table.find(AllowOrDenyList.Denylist, pet.id) then
@@ -2344,7 +2338,9 @@ do
             end
         end
         function self.FullgrownAndAnyNeonsAndMegas()
-            inActiveTrade()
+            if not waitForActiveTrade(MAX_TIME_OUT) then
+                return
+            end
 
             for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
                 if pet.properties.age == 6 or pet.properties.neon or pet.properties.mega_neon then
@@ -2363,7 +2359,9 @@ do
             end
         end
         function self.Fullgrown()
-            inActiveTrade()
+            if not waitForActiveTrade(MAX_TIME_OUT) then
+                return
+            end
 
             for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
                 if pet.properties.age == 6 or (pet.properties.age == 6 and pet.properties.neon) or pet.properties.mega_neon then
@@ -2448,7 +2446,9 @@ do
             end
         end
         function self.AllPetsOfSameRarity(rarity)
-            inActiveTrade()
+            if not waitForActiveTrade(MAX_TIME_OUT) then
+                return
+            end
 
             for _, petDB in InventoryDB.pets do
                 for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
@@ -2482,7 +2482,9 @@ do
             end
         end
         function self.AllInventory(TabPassOn)
-            inActiveTrade()
+            if not waitForActiveTrade(MAX_TIME_OUT) then
+                return
+            end
 
             for _, item in ClientData.get_data()[localPlayer.Name].inventory[TabPassOn]do
                 if table.find(AllowOrDenyList.Denylist, item.id) then
@@ -2502,7 +2504,9 @@ do
             end
         end
         function self.AllPets()
-            inActiveTrade()
+            if not waitForActiveTrade(MAX_TIME_OUT) then
+                return
+            end
 
             for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
                 if table.find(AllowOrDenyList.Denylist, pet.id) then
@@ -2522,7 +2526,9 @@ do
             end
         end
         function self.AllNeons(version)
-            inActiveTrade()
+            if not waitForActiveTrade(MAX_TIME_OUT) then
+                return
+            end
 
             for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
                 if pet.properties[version] then
@@ -12289,6 +12295,7 @@ Check the Developer Console for more information.]],
                 Position = UDim2.new(0.05, 0, 0.2, 0),
                 Callback = function()
                     myGui.Instance.MainFrame.Visible = not myGui.Instance.MainFrame.Visible
+                    playerGui:WaitForChild('ToolApp').Enabled = not myGui.Instance.MainFrame.Visible
                 end,
             })
 
