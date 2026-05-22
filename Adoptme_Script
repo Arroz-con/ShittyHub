@@ -2129,7 +2129,7 @@ do
                             RouterClient.get('TradeAPI/AcceptNegotiation'):FireServer()
                         end
                     end
-                    if #tradeData.sender_offer.items == 0 and #tradeData.recipient_offer.items == 0 then
+                    if tradeData.sender_offer and #tradeData.sender_offer.items == 0 and tradeData.recipient_offer and #tradeData.recipient_offer.items == 0 then
                         RouterClient.get('TradeAPI/DeclineTrade'):FireServer()
 
                         return false
