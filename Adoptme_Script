@@ -2125,7 +2125,7 @@ do
                     local tradeData = getTradeData()
 
                     if tradeData and tradeData.current_stage and tradeData.current_stage == 'negotiation' then
-                        if not tradeData.sender_offer.negotiated then
+                        if not (tradeData.sender_offer and tradeData.sender_offer.negotiated) then
                             RouterClient.get('TradeAPI/AcceptNegotiation'):FireServer()
                         end
                     end
@@ -2135,7 +2135,7 @@ do
                         return false
                     end
                     if tradeData and tradeData.current_stage and tradeData.current_stage == 'confirmation' then
-                        if not tradeData.sender_offer.confirmed then
+                        if not (tradeData.sender_offer and tradeData.sender_offer.confirmed) then
                             RouterClient.get('TradeAPI/ConfirmTrade'):FireServer()
                         end
                     end
@@ -10139,8 +10139,12 @@ Check the Developer Console for more information.]],
                     getgenv().auto_trade_all_neons = Value
 
                     while getgenv().auto_trade_all_neons do
-                        Trade.SendTradeRequest({selectedPlayer})
+                        if not Trade.SendTradeRequest({selectedPlayer}) then
+                            Utils.PrintDebug('\u{26a0}\u{fe0f} PLAYER YOU WERE TRADING LEFT GAME \u{26a0}\u{fe0f}')
+                            TradeAllMegas:Set(false)
 
+                            return
+                        end
                         if not Trade.AllNeons('mega_neon') then
                             TradeAllMegas:Set(false)
 
@@ -10167,8 +10171,12 @@ Check the Developer Console for more information.]],
                     getgenv().auto_trade_all_neons = Value
 
                     while getgenv().auto_trade_all_neons do
-                        Trade.SendTradeRequest({selectedPlayer})
+                        if not Trade.SendTradeRequest({selectedPlayer}) then
+                            Utils.PrintDebug('\u{26a0}\u{fe0f} PLAYER YOU WERE TRADING LEFT GAME \u{26a0}\u{fe0f}')
+                            TradeAllNeons:Set(false)
 
+                            return
+                        end
                         if not Trade.AllNeons('neon') then
                             TradeAllNeons:Set(false)
 
