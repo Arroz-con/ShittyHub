@@ -2536,24 +2536,30 @@ do
         end
         function self.AllNeons(version)
             if not waitForActiveTrade(MAX_TIME_OUT) then
-                return
+                return false
             end
 
             for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
                 if pet.properties[version] then
                     if not ClientData.get_data()[localPlayer.Name].in_active_trade then
-                        return
+                        return false
                     end
 
                     RouterClient.get('TradeAPI/AddItemToOffer'):FireServer(pet.unique)
 
                     if getTradeData() and #getTradeData().sender_offer.items >= 18 then
-                        return
+                        return true
                     end
 
                     task.wait(0.1)
                 end
             end
+
+            if getTradeData() and #getTradeData().sender_offer.items >= 1 then
+                return true
+            end
+
+            return false
         end
         function self.CheckInventory()
             if not isMulesInGame(getgenv().SETTINGS.TRADE_COLLECTOR_NAME) then
@@ -10134,12 +10140,19 @@ Check the Developer Console for more information.]],
 
                     while getgenv().auto_trade_all_neons do
                         Trade.SendTradeRequest({selectedPlayer})
-                        Trade.AllNeons('mega_neon')
+
+                        if not Trade.AllNeons('mega_neon') then
+                            TradeAllMegas:Set(false)
+
+                            return
+                        end
 
                         local hasPets = Trade.AcceptNegotiationAndConfirm()
 
                         if not hasPets then
                             TradeAllMegas:Set(false)
+
+                            return
                         end
 
                         task.wait()
@@ -10155,12 +10168,19 @@ Check the Developer Console for more information.]],
 
                     while getgenv().auto_trade_all_neons do
                         Trade.SendTradeRequest({selectedPlayer})
-                        Trade.AllNeons('neon')
+
+                        if not Trade.AllNeons('neon') then
+                            TradeAllNeons:Set(false)
+
+                            return
+                        end
 
                         local hasPets = Trade.AcceptNegotiationAndConfirm()
 
                         if not hasPets then
                             TradeAllNeons:Set(false)
+
+                            return
                         end
 
                         task.wait()
