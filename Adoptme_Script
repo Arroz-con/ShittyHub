@@ -4699,7 +4699,7 @@ do
         }
         local patterns = {
             ['is starting soon!'] = 'Yes',
-            ['UH OH!'] = 'Okay',
+            ['Thunder has'] = 'Okay',
             ['CODE RED!'] = 'Okay',
             ['Inspector Shepherd'] = 'No',
             ["You haven't collected the Gingerbread"] = 'No',
