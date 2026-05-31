@@ -741,526 +741,6 @@ do
     function __DARKLUA_BUNDLE_MODULES.c()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
-        local Workspace = cloneref(game:GetService('Workspace'))
-        local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
-        local ClientData = Bypass('ClientData')
-        local CollisionsClient = Bypass('CollisionsClient')
-        local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
-        local Teleport = {}
-        local localPlayer = Players.LocalPlayer
-        local getconstants = getconstants or debug.getconstants
-        local getgc = getgc or get_gc_objects or debug.getgc
-        local get_thread_identity = getthreadidentity or get_thread_identity or gti or getidentity or syn.get_thread_identity or fluxus.get_thread_identity
-        local set_thread_identity = setthreadidentity or set_thread_context or sti or setthreadcontext or setidentity or syn.set_thread_identity or fluxus.set_thread_identity
-        local SetLocationTP
-        local rng = Random.new()
-
-        for _, v in pairs(getgc())do
-            if type(v) == 'function' then
-                if getfenv(v).script == ReplicatedStorage.ClientModules.Core.InteriorsM.InteriorsM then
-                    if table.find(getconstants(v), 'LocationAPI/SetLocation') then
-                        SetLocationTP = v
-
-                        break
-                    end
-                end
-            end
-        end
-
-        local SetLocationFunc = function(a, b, c)
-            local k = get_thread_identity()
-
-            print(string.format('Current identity: %s', tostring(k)))
-            set_thread_identity(2)
-            SetLocationTP(a, b, c)
-            set_thread_identity(k)
-        end
-
-        function Teleport.Init() end
-        function Teleport.PlaceFloorAtFarmingHome()
-            if Workspace:FindFirstChild('FarmingHomeLocation') then
-                return
-            end
-
-            local part = Instance.new('Part')
-            local SurfaceGui = Instance.new('SurfaceGui')
-            local TextLabel = Instance.new('TextLabel')
-
-            part.Position = Vector3.new(10000, 0, 10000)
-            part.Size = Vector3.new(200, 2, 200)
-            part.Anchored = true
-            part.Transparency = 1
-            part.Name = 'FarmingHomeLocation'
-            part.Parent = Workspace
-            SurfaceGui.Parent = part
-            SurfaceGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-            SurfaceGui.AlwaysOnTop = false
-            SurfaceGui.CanvasSize = Vector2.new(600, 600)
-            SurfaceGui.Face = Enum.NormalId.Top
-            TextLabel.Parent = SurfaceGui
-            TextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-            TextLabel.BackgroundTransparency = 1
-            TextLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
-            TextLabel.BorderSizePixel = 0
-            TextLabel.Size = UDim2.new(1, 0, 1, 0)
-            TextLabel.Font = Enum.Font.SourceSans
-            TextLabel.Text = ''
-            TextLabel.TextColor3 = Color3.fromRGB(0, 0, 0)
-            TextLabel.TextScaled = true
-            TextLabel.TextSize = 14
-            TextLabel.TextWrapped = true
-        end
-        function Teleport.PlaceCameraPart()
-            if Workspace:FindFirstChild('CameraPartLocation') then
-                return
-            end
-
-            local part = Instance.new('Part')
-
-            part.Position = Vector3.new(100000, 10000, 100000)
-            part.Size = Vector3.new(2, 2, 2)
-            part.Anchored = true
-            part.Transparency = 1
-            part.Name = 'CameraPartLocation'
-            part.Parent = Workspace
-        end
-        function Teleport.PlaceFloorAtCampSite()
-            if Workspace:FindFirstChild('CampingLocation') then
-                return
-            end
-
-            local campsite = Workspace.StaticMap.Campsite.CampsiteOrigin
-            local part = Instance.new('Part')
-
-            part.Position = campsite.Position + Vector3.new(0, -1, 0)
-            part.Size = Vector3.new(200, 2, 200)
-            part.Anchored = true
-            part.Transparency = 1
-            part.Name = 'CampingLocation'
-            part.Parent = Workspace
-        end
-        function Teleport.PlaceFloorAtBeachParty()
-            if Workspace:FindFirstChild('BeachPartyLocation') then
-                return
-            end
-
-            local part = Instance.new('Part')
-
-            part.Position = Workspace.StaticMap.Beach.BeachPartyAilmentTarget.Position + Vector3.new(0, 
--12, 0)
-            part.Size = Vector3.new(1000, 2, 1000)
-            part.Anchored = true
-            part.Transparency = 0
-            part.Name = 'BeachPartyLocation'
-            part.Parent = Workspace
-        end
-        function Teleport.DeleteWater()
-            Workspace.Terrain:Clear()
-        end
-        function Teleport.FarmingHome()
-            Utils.WaitForHumanoidRootPart().Anchored = true
-
-            Utils.GetCharacter():MoveTo(Workspace.FarmingHomeLocation.Position + Vector3.new(0, 5, 0))
-
-            Utils.WaitForHumanoidRootPart().Anchored = false
-
-            Utils.GetCharacter().Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
-            Teleport.DeleteWater()
-        end
-        function Teleport.MainMap()
-            local isAlreadyOnMainMap = Workspace:FindFirstChild('Interiors'):FindFirstChild('center_map_plot', true)
-
-            if isAlreadyOnMainMap then
-                return
-            end
-
-            CollisionsClient.set_collidable(false)
-
-            Utils.GetHumanoidRootPart().Anchored = true
-
-            SetLocationFunc('MainMap', 'Neighborhood/MainDoor', {})
-            Workspace.Interiors:WaitForChild(tostring(Workspace.Interiors:FindFirstChildWhichIsA('Model')))
-
-            localPlayer.Character.PrimaryPart.CFrame = Workspace:WaitForChild('StaticMap'):WaitForChild('Campsite'):WaitForChild('CampsiteOrigin').CFrame + Vector3.new(math.random(1, 5), 10, math.random(1, 5))
-            Utils.GetHumanoidRootPart().Anchored = false
-
-            Utils.GetHumanoid():ChangeState(Enum.HumanoidStateType.Landed)
-            Teleport.DeleteWater()
-            task.wait(2)
-        end
-        function Teleport.CampSite()
-            ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('MainMap', localPlayer, ClientData.get_data()[localPlayer.Name].LiveOpsMapType)
-            task.wait(1)
-
-            localPlayer.Character.PrimaryPart.CFrame = Workspace.CampingLocation.CFrame + Vector3.new(rng:NextInteger(1, 30), 5, rng:NextInteger(1, 30))
-            Utils.GetHumanoidRootPart().Anchored = false
-
-            Utils.GetHumanoid():ChangeState(Enum.HumanoidStateType.Landed)
-            Teleport.DeleteWater()
-        end
-        function Teleport.BeachParty()
-            ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('MainMap', localPlayer, ClientData.get_data()[localPlayer.Name].LiveOpsMapType)
-            task.wait(1)
-
-            localPlayer.Character.PrimaryPart.CFrame = Workspace.BeachPartyLocation.CFrame + Vector3.new(math.random(1, 30), 5, math.random(1, 30))
-            Utils.GetHumanoidRootPart().Anchored = false
-
-            Utils.GetHumanoid():ChangeState(Enum.HumanoidStateType.Landed)
-            Teleport.DeleteWater()
-        end
-        function Teleport.GingerbreadCollectionCircle()
-            ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('MainMap', localPlayer, ClientData.get_data()[localPlayer.Name].LiveOpsMapType)
-            task.wait(1)
-
-            local iceSkatingPart = workspace.StaticMap.TeleportLocations:FindFirstChild('ice_skating')
-
-            if not iceSkatingPart then
-                return
-            end
-
-            Utils.GetHumanoidRootPart().Anchored = true
-
-            localPlayer.Character:MoveTo(iceSkatingPart.Position)
-
-            Utils.GetHumanoidRootPart().Anchored = false
-
-            Utils.GetHumanoid():ChangeState(Enum.HumanoidStateType.Landed)
-            Teleport.DeleteWater()
-        end
-        function Teleport.SpinningDome()
-            ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('MainMap', localPlayer, ClientData.get_data()[localPlayer.Name].LiveOpsMapType)
-            task.wait(1)
-
-            local discoPart = workspace.StaticMap:FindFirstChild('DiscoOrigin')
-
-            if not discoPart then
-                return
-            end
-
-            Utils.GetCharacter():MoveTo(discoPart.Position)
-
-            Utils.GetHumanoidRootPart().Anchored = false
-
-            Utils.GetHumanoid():ChangeState(Enum.HumanoidStateType.Landed)
-            Teleport.DeleteWater()
-        end
-        function Teleport.FireAppleThrowZone()
-            ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('MainMap', localPlayer, ClientData.get_data()[localPlayer.Name].LiveOpsMapType)
-            task.wait(1)
-
-            local throwZonePart = workspace.Interiors:FindFirstChild('ThrowZone', true)
-
-            if not throwZonePart then
-                return
-            end
-
-            Utils.GetCharacter():MoveTo(throwZonePart.Position)
-
-            Utils.GetHumanoidRootPart().Anchored = false
-
-            Utils.GetHumanoid():ChangeState(Enum.HumanoidStateType.Landed)
-            Teleport.DeleteWater()
-        end
-
-        return Teleport
-    end
-    function __DARKLUA_BUNDLE_MODULES.d()
-        local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
-        local Players = cloneref(game:GetService('Players'))
-        local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
-        local ClientData = Bypass('ClientData')
-        local RouterClient = Bypass('RouterClient')
-        local InventoryDB = Bypass('InventoryDB')
-        local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
-        local Teleport = __DARKLUA_BUNDLE_MODULES.load('c')
-        local self = {}
-        local localPlayer = Players.LocalPlayer
-        local buyItem = function(valuesTable, howManyToBuy)
-            local hasMoney = Bypass('RouterClient').get('ShopAPI/BuyItem'):InvokeServer(valuesTable.category, valuesTable.id, {
-                ['buy_count'] = howManyToBuy,
-            })
-
-            if hasMoney ~= 'success' then
-                return false
-            end
-
-            return true
-        end
-        local getAmountToPurchase = function(valuesTable, currencyLimit)
-            local currency = ClientData.get_data()[localPlayer.Name][valuesTable.currency_id] or ClientData.get_data()[localPlayer.Name]['money']
-
-            if not currency then
-                return 0, Utils.PrintDebug('NO CURRENCY ON PLAYER')
-            end
-
-            currency = currency - currencyLimit
-
-            local count = 0
-
-            while true do
-                local moneyLeft = currency - valuesTable.cost
-
-                if moneyLeft <= 0 then
-                    break
-                end
-                if count >= 99 then
-                    break
-                end
-
-                currency = moneyLeft
-                count = count + 1
-
-                task.wait()
-            end
-
-            return count
-        end
-        local getHowManyCanPurchase = function(valuesTable, maxAmount)
-            local currency = ClientData.get_data()[localPlayer.Name][valuesTable.currency_id] or ClientData.get_data()[localPlayer.Name]['money']
-
-            if not currency then
-                return 0, Utils.PrintDebug('NO CURRENCY ON PLAYER')
-            end
-            if not valuesTable.cost then
-                return 0, Utils.PrintDebug('Pet doesnt have Cost to it?')
-            end
-
-            local count = 0
-
-            while true do
-                local moneyLeft = currency - valuesTable.cost
-
-                if moneyLeft <= 0 then
-                    break
-                end
-                if count >= maxAmount or count >= 99 then
-                    break
-                end
-
-                currency = moneyLeft
-                count = count + 1
-
-                task.wait()
-            end
-
-            Utils.PrintDebug(string.format('getHowManyCanPurchase: %s', tostring(count)))
-
-            return count
-        end
-        local getItemInfoFromDatabase = function(nameId)
-            assert(typeof(nameId) == 'string', 'getItemInfoFromDatabase: is not a string')
-
-            for catagory, v in InventoryDB do
-                Utils.PrintDebug(string.format('Checking catagory: (%s) for item: %s', tostring(catagory), tostring(nameId)))
-
-                for key, value in v do
-                    if key == nameId then
-                        return value
-                    end
-                end
-            end
-
-            return nil
-        end
-        local getAmountNeeded = function(nameId, maxAmount)
-            local itemValues = getItemInfoFromDatabase(nameId)
-
-            if not itemValues then
-                return 0
-            end
-
-            local count = 0
-
-            for _, item in ClientData.get_data()[localPlayer.Name].inventory[itemValues.category]do
-                if nameId == item.id then
-                    count = count + 1
-                end
-            end
-
-            if count < maxAmount then
-                return (maxAmount - count)
-            end
-
-            return 0
-        end
-        local buyPet = function(valuesTable, howManyToBuy)
-            local hasMoney = RouterClient.get('ShopAPI/BuyItem'):InvokeServer(valuesTable.category, valuesTable.id, {
-                ['buy_count'] = howManyToBuy,
-            })
-
-            if hasMoney ~= 'success' then
-                return false
-            end
-
-            return true
-        end
-        local openBox = function(nameId)
-            local itemValues = getItemInfoFromDatabase(nameId)
-
-            if not itemValues then
-                return
-            end
-            if nameId == 'lny_2026_fire_horse_apple' then
-                Teleport.FireAppleThrowZone()
-                task.wait(1)
-            end
-
-            for _, v in ClientData.get_data()[localPlayer.Name].inventory[itemValues.category]do
-                if v.id == nameId then
-                    RouterClient.get('LootBoxAPI/ExchangeItemForReward'):InvokeServer(v['id'], v['unique'])
-                    task.wait(0.1)
-                end
-            end
-        end
-
-        function self.StartBuyItems(itemToBuy)
-            for _, value in ipairs(itemToBuy)do
-                while true do
-                    local itemValues = getItemInfoFromDatabase(value.NameId)
-
-                    if not itemValues then
-                        Utils.PrintDebug(string.format('%s not in database', tostring(value.NameId)))
-
-                        break
-                    end
-
-                    local amountNeeded = getAmountNeeded(value.NameId, value.MaxAmount)
-
-                    if amountNeeded == 0 then
-                        Utils.PrintDebug(string.format('has max amount of: %s skipping', tostring(value.NameId)))
-
-                        break
-                    end
-
-                    local amountPurchase = getHowManyCanPurchase(itemValues, amountNeeded)
-
-                    if amountPurchase == 0 then
-                        Utils.PrintDebug(string.format('amount to purchase is: %s', tostring(amountPurchase)))
-
-                        break
-                    end
-                    if not buyPet(itemValues, amountPurchase) then
-                        Utils.PrintDebug('Has no money to buy more or something went wrong.')
-
-                        break
-                    end
-
-                    task.wait()
-                end
-            end
-        end
-        function self.OpenItems(nameIdTable)
-            assert(typeof(nameIdTable) == 'table', 'is not a table')
-
-            for _, v in nameIdTable do
-                openBox(v)
-            end
-        end
-        function self.BuyGlormy()
-            local stones = ClientData.get_data()[localPlayer.Name].social_stones_2025 or 0
-
-            if stones <= 24 then
-                return
-            end
-
-            RouterClient.get('SocialStonesAPI/AttemptExchange'):FireServer('pets', 'moon_2025_glormy_dolphin', 1)
-        end
-        function self.BuyItemWithCurrencyLimit(itemNameId, currencyLimit)
-            while Bypass('ClientData').get_data()[localPlayer.Name].money >= currencyLimit do
-                local itemValues = getItemInfoFromDatabase(itemNameId)
-
-                if not itemValues then
-                    break
-                end
-
-                local amountPurchase = getAmountToPurchase(itemValues, currencyLimit)
-
-                if amountPurchase <= 0 then
-                    break
-                end
-                if not buyItem(itemValues, amountPurchase) then
-                    break
-                end
-
-                task.wait(1)
-            end
-        end
-
-        return self
-    end
-    function __DARKLUA_BUNDLE_MODULES.e()
-        local ReplicatedStorage = game:GetService('ReplicatedStorage')
-        local Players = game:GetService('Players')
-        local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
-        local RouterClient = Bypass('RouterClient')
-        local ClientData = Bypass('ClientData')
-        local BuyItem = __DARKLUA_BUNDLE_MODULES.load('d')
-        local contentPacks = (ReplicatedStorage:WaitForChild('SharedModules'):WaitForChild('ContentPacks'))
-        local JourneyRepairNet = (require(contentPacks:WaitForChild('JourneyPass2026'):WaitForChild('Game'):WaitForChild('JourneyRepairNet')))
-        local localPlayer = Players.LocalPlayer
-        local SummerCamp2026 = {}
-        local tryClaimRepair = function()
-            local journeyRepair = ClientData.get_data()[localPlayer.Name].journey_repair
-
-            if journeyRepair.repair_complete then
-                return
-            end
-
-            for _, v in {
-                'repair_1',
-                'repair_2',
-                'repair_3',
-            }do
-                local args = {
-                    {
-                        week_index = journeyRepair.week_index,
-                        cycle_index = journeyRepair.cycle_index,
-                        marker_id = v,
-                    },
-                }
-
-                JourneyRepairNet.ClaimPart:fire_server(unpack(args))
-                task.wait(1)
-            end
-        end
-
-        function SummerCamp2026.Init()
-            RouterClient.get('DataAPI/DataChanged').OnClientEvent:Connect(function(
-                playerName,
-                dataKey,
-                dataValue
-            )
-                if playerName ~= localPlayer.Name then
-                    return
-                end
-                if dataKey ~= 'journey_repair' then
-                    return
-                end
-
-                print('Data Changed Event Fired for journey_repair!')
-
-                if type(dataKey) ~= 'table' then
-                    return
-                end
-
-                print(
-[[Data Value has correct structure, firing marker claim event...]])
-                tryClaimRepair()
-
-                if getgenv().BUY_BEFORE_FARMING then
-                    BuyItem.StartBuyItems(getgenv().BUY_BEFORE_FARMING)
-                end
-            end)
-        end
-        function SummerCamp2026.Start()
-            tryClaimRepair()
-        end
-
-        return SummerCamp2026
-    end
-    function __DARKLUA_BUNDLE_MODULES.f()
-        local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
-        local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
         local RouterClient = Bypass('RouterClient')
@@ -1321,7 +801,7 @@ do
 
         return Furniture
     end
-    function __DARKLUA_BUNDLE_MODULES.g()
+    function __DARKLUA_BUNDLE_MODULES.d()
         return {
             Denylist = {
                 '2d_kitty',
@@ -1351,7 +831,7 @@ do
             },
         }
     end
-    function __DARKLUA_BUNDLE_MODULES.h()
+    function __DARKLUA_BUNDLE_MODULES.e()
         return {
             'soda_fountain_water',
             'coffee_paper_cup',
@@ -2492,15 +1972,15 @@ do
             'fossil_2024_long_neck_throw_toy',
         }
     end
-    function __DARKLUA_BUNDLE_MODULES.i()
+    function __DARKLUA_BUNDLE_MODULES.f()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
         local RouterClient = Bypass('RouterClient')
         local InventoryDB = Bypass('InventoryDB')
-        local AllowOrDenyList = __DARKLUA_BUNDLE_MODULES.load('g')
-        local TrashItemsList = __DARKLUA_BUNDLE_MODULES.load('h')
+        local AllowOrDenyList = __DARKLUA_BUNDLE_MODULES.load('d')
+        local TrashItemsList = __DARKLUA_BUNDLE_MODULES.load('e')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
         local self = {}
         local localPlayer = Players.LocalPlayer
@@ -3301,7 +2781,457 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.j()
+    function __DARKLUA_BUNDLE_MODULES.g()
+        local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
+        local Players = cloneref(game:GetService('Players'))
+        local Workspace = cloneref(game:GetService('Workspace'))
+        local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
+        local ClientData = Bypass('ClientData')
+        local CollisionsClient = Bypass('CollisionsClient')
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
+        local Teleport = {}
+        local localPlayer = Players.LocalPlayer
+        local getconstants = getconstants or debug.getconstants
+        local getgc = getgc or get_gc_objects or debug.getgc
+        local get_thread_identity = getthreadidentity or get_thread_identity or gti or getidentity or syn.get_thread_identity or fluxus.get_thread_identity
+        local set_thread_identity = setthreadidentity or set_thread_context or sti or setthreadcontext or setidentity or syn.set_thread_identity or fluxus.set_thread_identity
+        local SetLocationTP
+        local rng = Random.new()
+
+        for _, v in pairs(getgc())do
+            if type(v) == 'function' then
+                if getfenv(v).script == ReplicatedStorage.ClientModules.Core.InteriorsM.InteriorsM then
+                    if table.find(getconstants(v), 'LocationAPI/SetLocation') then
+                        SetLocationTP = v
+
+                        break
+                    end
+                end
+            end
+        end
+
+        local SetLocationFunc = function(a, b, c)
+            local k = get_thread_identity()
+
+            print(string.format('Current identity: %s', tostring(k)))
+            set_thread_identity(2)
+            SetLocationTP(a, b, c)
+            set_thread_identity(k)
+        end
+
+        function Teleport.Init() end
+        function Teleport.PlaceFloorAtFarmingHome()
+            if Workspace:FindFirstChild('FarmingHomeLocation') then
+                return
+            end
+
+            local part = Instance.new('Part')
+            local SurfaceGui = Instance.new('SurfaceGui')
+            local TextLabel = Instance.new('TextLabel')
+
+            part.Position = Vector3.new(10000, 0, 10000)
+            part.Size = Vector3.new(200, 2, 200)
+            part.Anchored = true
+            part.Transparency = 1
+            part.Name = 'FarmingHomeLocation'
+            part.Parent = Workspace
+            SurfaceGui.Parent = part
+            SurfaceGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+            SurfaceGui.AlwaysOnTop = false
+            SurfaceGui.CanvasSize = Vector2.new(600, 600)
+            SurfaceGui.Face = Enum.NormalId.Top
+            TextLabel.Parent = SurfaceGui
+            TextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            TextLabel.BackgroundTransparency = 1
+            TextLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            TextLabel.BorderSizePixel = 0
+            TextLabel.Size = UDim2.new(1, 0, 1, 0)
+            TextLabel.Font = Enum.Font.SourceSans
+            TextLabel.Text = ''
+            TextLabel.TextColor3 = Color3.fromRGB(0, 0, 0)
+            TextLabel.TextScaled = true
+            TextLabel.TextSize = 14
+            TextLabel.TextWrapped = true
+        end
+        function Teleport.PlaceCameraPart()
+            if Workspace:FindFirstChild('CameraPartLocation') then
+                return
+            end
+
+            local part = Instance.new('Part')
+
+            part.Position = Vector3.new(100000, 10000, 100000)
+            part.Size = Vector3.new(2, 2, 2)
+            part.Anchored = true
+            part.Transparency = 1
+            part.Name = 'CameraPartLocation'
+            part.Parent = Workspace
+        end
+        function Teleport.PlaceFloorAtCampSite()
+            if Workspace:FindFirstChild('CampingLocation') then
+                return
+            end
+
+            local campsite = Workspace.StaticMap.Campsite.CampsiteOrigin
+            local part = Instance.new('Part')
+
+            part.Position = campsite.Position + Vector3.new(0, -1, 0)
+            part.Size = Vector3.new(200, 2, 200)
+            part.Anchored = true
+            part.Transparency = 1
+            part.Name = 'CampingLocation'
+            part.Parent = Workspace
+        end
+        function Teleport.PlaceFloorAtBeachParty()
+            if Workspace:FindFirstChild('BeachPartyLocation') then
+                return
+            end
+
+            local part = Instance.new('Part')
+
+            part.Position = Workspace.StaticMap.Beach.BeachPartyAilmentTarget.Position + Vector3.new(0, 
+-12, 0)
+            part.Size = Vector3.new(1000, 2, 1000)
+            part.Anchored = true
+            part.Transparency = 0
+            part.Name = 'BeachPartyLocation'
+            part.Parent = Workspace
+        end
+        function Teleport.DeleteWater()
+            Workspace.Terrain:Clear()
+        end
+        function Teleport.FarmingHome()
+            Utils.WaitForHumanoidRootPart().Anchored = true
+
+            Utils.GetCharacter():MoveTo(Workspace.FarmingHomeLocation.Position + Vector3.new(0, 5, 0))
+
+            Utils.WaitForHumanoidRootPart().Anchored = false
+
+            Utils.GetCharacter().Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+            Teleport.DeleteWater()
+        end
+        function Teleport.MainMap()
+            local isAlreadyOnMainMap = Workspace:FindFirstChild('Interiors'):FindFirstChild('center_map_plot', true)
+
+            if isAlreadyOnMainMap then
+                return
+            end
+
+            CollisionsClient.set_collidable(false)
+
+            Utils.GetHumanoidRootPart().Anchored = true
+
+            SetLocationFunc('MainMap', 'Neighborhood/MainDoor', {})
+            Workspace.Interiors:WaitForChild(tostring(Workspace.Interiors:FindFirstChildWhichIsA('Model')))
+
+            localPlayer.Character.PrimaryPart.CFrame = Workspace:WaitForChild('StaticMap'):WaitForChild('Campsite'):WaitForChild('CampsiteOrigin').CFrame + Vector3.new(math.random(1, 5), 10, math.random(1, 5))
+            Utils.GetHumanoidRootPart().Anchored = false
+
+            Utils.GetHumanoid():ChangeState(Enum.HumanoidStateType.Landed)
+            Teleport.DeleteWater()
+            task.wait(2)
+        end
+        function Teleport.CampSite()
+            ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('MainMap', localPlayer, ClientData.get_data()[localPlayer.Name].LiveOpsMapType)
+            task.wait(1)
+
+            localPlayer.Character.PrimaryPart.CFrame = Workspace.CampingLocation.CFrame + Vector3.new(rng:NextInteger(1, 30), 5, rng:NextInteger(1, 30))
+            Utils.GetHumanoidRootPart().Anchored = false
+
+            Utils.GetHumanoid():ChangeState(Enum.HumanoidStateType.Landed)
+            Teleport.DeleteWater()
+        end
+        function Teleport.BeachParty()
+            ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('MainMap', localPlayer, ClientData.get_data()[localPlayer.Name].LiveOpsMapType)
+            task.wait(1)
+
+            localPlayer.Character.PrimaryPart.CFrame = Workspace.BeachPartyLocation.CFrame + Vector3.new(math.random(1, 30), 5, math.random(1, 30))
+            Utils.GetHumanoidRootPart().Anchored = false
+
+            Utils.GetHumanoid():ChangeState(Enum.HumanoidStateType.Landed)
+            Teleport.DeleteWater()
+        end
+        function Teleport.GingerbreadCollectionCircle()
+            ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('MainMap', localPlayer, ClientData.get_data()[localPlayer.Name].LiveOpsMapType)
+            task.wait(1)
+
+            local iceSkatingPart = workspace.StaticMap.TeleportLocations:FindFirstChild('ice_skating')
+
+            if not iceSkatingPart then
+                return
+            end
+
+            Utils.GetHumanoidRootPart().Anchored = true
+
+            localPlayer.Character:MoveTo(iceSkatingPart.Position)
+
+            Utils.GetHumanoidRootPart().Anchored = false
+
+            Utils.GetHumanoid():ChangeState(Enum.HumanoidStateType.Landed)
+            Teleport.DeleteWater()
+        end
+        function Teleport.SpinningDome()
+            ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('MainMap', localPlayer, ClientData.get_data()[localPlayer.Name].LiveOpsMapType)
+            task.wait(1)
+
+            local discoPart = workspace.StaticMap:FindFirstChild('DiscoOrigin')
+
+            if not discoPart then
+                return
+            end
+
+            Utils.GetCharacter():MoveTo(discoPart.Position)
+
+            Utils.GetHumanoidRootPart().Anchored = false
+
+            Utils.GetHumanoid():ChangeState(Enum.HumanoidStateType.Landed)
+            Teleport.DeleteWater()
+        end
+        function Teleport.FireAppleThrowZone()
+            ReplicatedStorage.API['LocationAPI/SetLocation']:FireServer('MainMap', localPlayer, ClientData.get_data()[localPlayer.Name].LiveOpsMapType)
+            task.wait(1)
+
+            local throwZonePart = workspace.Interiors:FindFirstChild('ThrowZone', true)
+
+            if not throwZonePart then
+                return
+            end
+
+            Utils.GetCharacter():MoveTo(throwZonePart.Position)
+
+            Utils.GetHumanoidRootPart().Anchored = false
+
+            Utils.GetHumanoid():ChangeState(Enum.HumanoidStateType.Landed)
+            Teleport.DeleteWater()
+        end
+
+        return Teleport
+    end
+    function __DARKLUA_BUNDLE_MODULES.h()
+        local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
+        local Players = cloneref(game:GetService('Players'))
+        local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
+        local ClientData = Bypass('ClientData')
+        local RouterClient = Bypass('RouterClient')
+        local InventoryDB = Bypass('InventoryDB')
+        local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
+        local Teleport = __DARKLUA_BUNDLE_MODULES.load('g')
+        local self = {}
+        local localPlayer = Players.LocalPlayer
+        local buyItem = function(valuesTable, howManyToBuy)
+            local hasMoney = Bypass('RouterClient').get('ShopAPI/BuyItem'):InvokeServer(valuesTable.category, valuesTable.id, {
+                ['buy_count'] = howManyToBuy,
+            })
+
+            if hasMoney ~= 'success' then
+                return false
+            end
+
+            return true
+        end
+        local getAmountToPurchase = function(valuesTable, currencyLimit)
+            local currency = ClientData.get_data()[localPlayer.Name][valuesTable.currency_id] or ClientData.get_data()[localPlayer.Name]['money']
+
+            if not currency then
+                return 0, Utils.PrintDebug('NO CURRENCY ON PLAYER')
+            end
+
+            currency = currency - currencyLimit
+
+            local count = 0
+
+            while true do
+                local moneyLeft = currency - valuesTable.cost
+
+                if moneyLeft <= 0 then
+                    break
+                end
+                if count >= 99 then
+                    break
+                end
+
+                currency = moneyLeft
+                count = count + 1
+
+                task.wait()
+            end
+
+            return count
+        end
+        local getHowManyCanPurchase = function(valuesTable, maxAmount)
+            local currency = ClientData.get_data()[localPlayer.Name][valuesTable.currency_id] or ClientData.get_data()[localPlayer.Name]['money']
+
+            if not currency then
+                return 0, Utils.PrintDebug('NO CURRENCY ON PLAYER')
+            end
+            if not valuesTable.cost then
+                return 0, Utils.PrintDebug('Pet doesnt have Cost to it?')
+            end
+
+            local count = 0
+
+            while true do
+                local moneyLeft = currency - valuesTable.cost
+
+                if moneyLeft <= 0 then
+                    break
+                end
+                if count >= maxAmount or count >= 99 then
+                    break
+                end
+
+                currency = moneyLeft
+                count = count + 1
+
+                task.wait()
+            end
+
+            Utils.PrintDebug(string.format('getHowManyCanPurchase: %s', tostring(count)))
+
+            return count
+        end
+        local getItemInfoFromDatabase = function(nameId)
+            assert(typeof(nameId) == 'string', 'getItemInfoFromDatabase: is not a string')
+
+            for catagory, v in InventoryDB do
+                Utils.PrintDebug(string.format('Checking catagory: (%s) for item: %s', tostring(catagory), tostring(nameId)))
+
+                for key, value in v do
+                    if key == nameId then
+                        return value
+                    end
+                end
+            end
+
+            return nil
+        end
+        local getAmountNeeded = function(nameId, maxAmount)
+            local itemValues = getItemInfoFromDatabase(nameId)
+
+            if not itemValues then
+                return 0
+            end
+
+            local count = 0
+
+            for _, item in ClientData.get_data()[localPlayer.Name].inventory[itemValues.category]do
+                if nameId == item.id then
+                    count = count + 1
+                end
+            end
+
+            if count < maxAmount then
+                return (maxAmount - count)
+            end
+
+            return 0
+        end
+        local buyPet = function(valuesTable, howManyToBuy)
+            local hasMoney = RouterClient.get('ShopAPI/BuyItem'):InvokeServer(valuesTable.category, valuesTable.id, {
+                ['buy_count'] = howManyToBuy,
+            })
+
+            if hasMoney ~= 'success' then
+                return false
+            end
+
+            return true
+        end
+        local openBox = function(nameId)
+            local itemValues = getItemInfoFromDatabase(nameId)
+
+            if not itemValues then
+                return
+            end
+            if nameId == 'lny_2026_fire_horse_apple' then
+                Teleport.FireAppleThrowZone()
+                task.wait(1)
+            end
+
+            for _, v in ClientData.get_data()[localPlayer.Name].inventory[itemValues.category]do
+                if v.id == nameId then
+                    RouterClient.get('LootBoxAPI/ExchangeItemForReward'):InvokeServer(v['id'], v['unique'])
+                    task.wait(0.1)
+                end
+            end
+        end
+
+        function self.StartBuyItems(itemToBuy)
+            for _, value in ipairs(itemToBuy)do
+                while true do
+                    local itemValues = getItemInfoFromDatabase(value.NameId)
+
+                    if not itemValues then
+                        Utils.PrintDebug(string.format('%s not in database', tostring(value.NameId)))
+
+                        break
+                    end
+
+                    local amountNeeded = getAmountNeeded(value.NameId, value.MaxAmount)
+
+                    if amountNeeded == 0 then
+                        Utils.PrintDebug(string.format('has max amount of: %s skipping', tostring(value.NameId)))
+
+                        break
+                    end
+
+                    local amountPurchase = getHowManyCanPurchase(itemValues, amountNeeded)
+
+                    if amountPurchase == 0 then
+                        Utils.PrintDebug(string.format('amount to purchase is: %s', tostring(amountPurchase)))
+
+                        break
+                    end
+                    if not buyPet(itemValues, amountPurchase) then
+                        Utils.PrintDebug('Has no money to buy more or something went wrong.')
+
+                        break
+                    end
+
+                    task.wait()
+                end
+            end
+        end
+        function self.OpenItems(nameIdTable)
+            assert(typeof(nameIdTable) == 'table', 'is not a table')
+
+            for _, v in nameIdTable do
+                openBox(v)
+            end
+        end
+        function self.BuyGlormy()
+            local stones = ClientData.get_data()[localPlayer.Name].social_stones_2025 or 0
+
+            if stones <= 24 then
+                return
+            end
+
+            RouterClient.get('SocialStonesAPI/AttemptExchange'):FireServer('pets', 'moon_2025_glormy_dolphin', 1)
+        end
+        function self.BuyItemWithCurrencyLimit(itemNameId, currencyLimit)
+            while Bypass('ClientData').get_data()[localPlayer.Name].money >= currencyLimit do
+                local itemValues = getItemInfoFromDatabase(itemNameId)
+
+                if not itemValues then
+                    break
+                end
+
+                local amountPurchase = getAmountToPurchase(itemValues, currencyLimit)
+
+                if amountPurchase <= 0 then
+                    break
+                end
+                if not buyItem(itemValues, amountPurchase) then
+                    break
+                end
+
+                task.wait(1)
+            end
+        end
+
+        return self
+    end
+    function __DARKLUA_BUNDLE_MODULES.i()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -3389,19 +3319,19 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.k()
+    function __DARKLUA_BUNDLE_MODULES.j()
         return {}
     end
-    function __DARKLUA_BUNDLE_MODULES.l()
+    function __DARKLUA_BUNDLE_MODULES.k()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = (Bypass('ClientData'))
         local RouterClient = Bypass('RouterClient')
         local InventoryDB = Bypass('InventoryDB')
-        local AllowOrDenyList = __DARKLUA_BUNDLE_MODULES.load('g')
+        local AllowOrDenyList = __DARKLUA_BUNDLE_MODULES.load('d')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
-        local CurrentIdlePets = __DARKLUA_BUNDLE_MODULES.load('k')
+        local CurrentIdlePets = __DARKLUA_BUNDLE_MODULES.load('j')
         local GetInventory = {}
         local PetsToReleaseList = getgenv().SETTINGS.PETS_TO_AGE_IN_PEN or {}
         local localPlayer = Players.LocalPlayer
@@ -3988,16 +3918,16 @@ do
 
         return GetInventory
     end
-    function __DARKLUA_BUNDLE_MODULES.m()
+    function __DARKLUA_BUNDLE_MODULES.l()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local PetPotionEffectsDB = (require(ReplicatedStorage:WaitForChild('ClientDB'):WaitForChild('PetPotionEffectsDB')))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
         local RouterClient = Bypass('RouterClient')
-        local Fusion = __DARKLUA_BUNDLE_MODULES.load('j')
+        local Fusion = __DARKLUA_BUNDLE_MODULES.load('i')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
-        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('l')
+        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('k')
         local BulkPotion = {}
         local localPlayer = Players.LocalPlayer
 
@@ -4335,7 +4265,7 @@ do
 
         return BulkPotion
     end
-    function __DARKLUA_BUNDLE_MODULES.n()
+    function __DARKLUA_BUNDLE_MODULES.m()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local VirtualUser = game:GetService('VirtualUser')
         local Players = game:GetService('Players')
@@ -4344,12 +4274,12 @@ do
         local RouterClient = Bypass('RouterClient')
         local ClientData = Bypass('ClientData')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
-        local Furniture = __DARKLUA_BUNDLE_MODULES.load('f')
-        local Trade = __DARKLUA_BUNDLE_MODULES.load('i')
-        local Teleport = __DARKLUA_BUNDLE_MODULES.load('c')
-        local BuyItem = __DARKLUA_BUNDLE_MODULES.load('d')
-        local BulkPotion = __DARKLUA_BUNDLE_MODULES.load('m')
-        local Fusion = __DARKLUA_BUNDLE_MODULES.load('j')
+        local Furniture = __DARKLUA_BUNDLE_MODULES.load('c')
+        local Trade = __DARKLUA_BUNDLE_MODULES.load('f')
+        local Teleport = __DARKLUA_BUNDLE_MODULES.load('g')
+        local BuyItem = __DARKLUA_BUNDLE_MODULES.load('h')
+        local BulkPotion = __DARKLUA_BUNDLE_MODULES.load('l')
+        local Fusion = __DARKLUA_BUNDLE_MODULES.load('i')
         local self = {}
         local localPlayer = Players.LocalPlayer
         local rng = Random.new()
@@ -4614,7 +4544,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.o()
+    function __DARKLUA_BUNDLE_MODULES.n()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -4738,16 +4668,16 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.p()
+    function __DARKLUA_BUNDLE_MODULES.o()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local TextChatService = game:GetService('TextChatService')
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local RouterClient = Bypass('RouterClient')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
-        local Trade = __DARKLUA_BUNDLE_MODULES.load('i')
-        local Teleport = __DARKLUA_BUNDLE_MODULES.load('c')
-        local Fusion = __DARKLUA_BUNDLE_MODULES.load('j')
+        local Trade = __DARKLUA_BUNDLE_MODULES.load('f')
+        local Teleport = __DARKLUA_BUNDLE_MODULES.load('g')
+        local Fusion = __DARKLUA_BUNDLE_MODULES.load('i')
         local self = {}
         local localPlayer = Players.LocalPlayer
         local PlayerGui = localPlayer:WaitForChild('PlayerGui')
@@ -5223,7 +5153,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.q()
+    function __DARKLUA_BUNDLE_MODULES.p()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -5257,12 +5187,12 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.r()
+    function __DARKLUA_BUNDLE_MODULES.q()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local HttpService = cloneref(game:GetService('HttpService'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
-        local AllowOrDenyList = __DARKLUA_BUNDLE_MODULES.load('g')
+        local AllowOrDenyList = __DARKLUA_BUNDLE_MODULES.load('d')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
         local self = {}
         local localPlayer = Players.LocalPlayer
@@ -5486,7 +5416,7 @@ do
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.s()
+    function __DARKLUA_BUNDLE_MODULES.r()
         if debugX then
             warn('Initialising Rayfield')
         end
@@ -9674,7 +9604,7 @@ Check the Developer Console for more information.]],
 
         return RayfieldLibrary
     end
-    function __DARKLUA_BUNDLE_MODULES.t()
+    function __DARKLUA_BUNDLE_MODULES.s()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -9863,15 +9793,15 @@ Check the Developer Console for more information.]],
 
         return Clipboard
     end
-    function __DARKLUA_BUNDLE_MODULES.u()
+    function __DARKLUA_BUNDLE_MODULES.t()
         local Players = cloneref(game:GetService('Players'))
-        local Rayfield = __DARKLUA_BUNDLE_MODULES.load('s')
-        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('l')
-        local Clipboard = __DARKLUA_BUNDLE_MODULES.load('t')
-        local Fusion = __DARKLUA_BUNDLE_MODULES.load('j')
-        local Trade = __DARKLUA_BUNDLE_MODULES.load('i')
+        local Rayfield = __DARKLUA_BUNDLE_MODULES.load('r')
+        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('k')
+        local Clipboard = __DARKLUA_BUNDLE_MODULES.load('s')
+        local Fusion = __DARKLUA_BUNDLE_MODULES.load('i')
+        local Trade = __DARKLUA_BUNDLE_MODULES.load('f')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
-        local BulkPotion = __DARKLUA_BUNDLE_MODULES.load('m')
+        local BulkPotion = __DARKLUA_BUNDLE_MODULES.load('l')
         local self = {}
         local localPlayer = Players.LocalPlayer
         local cooldown = false
@@ -10645,13 +10575,13 @@ Check the Developer Console for more information.]],
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.v()
+    function __DARKLUA_BUNDLE_MODULES.u()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local RouterClient = Bypass('RouterClient')
         local ClientData = Bypass('ClientData')
-        local BuyItem = __DARKLUA_BUNDLE_MODULES.load('d')
+        local BuyItem = __DARKLUA_BUNDLE_MODULES.load('h')
         local contentPacks = (ReplicatedStorage:WaitForChild('SharedModules'):WaitForChild('ContentPacks'))
         local JourneyRepairNet = (require(contentPacks:WaitForChild('JourneyPass2026'):WaitForChild('Game'):WaitForChild('JourneyRepairNet')))
         local localPlayer = Players.LocalPlayer
@@ -10695,17 +10625,11 @@ Check the Developer Console for more information.]],
                 end
 
                 print('Data Changed Event Fired for journey_repair!')
-
-                if type(dataKey) ~= 'table' then
-                    return
-                end
-
-                print(
-[[Data Value has correct structure, firing marker claim event...]])
                 tryClaimRepair()
 
                 if getgenv().BUY_BEFORE_FARMING then
                     BuyItem.StartBuyItems(getgenv().BUY_BEFORE_FARMING)
+                    print('Attempted to buy items for Summer Camp 2026!')
                 end
             end)
         end
@@ -10715,7 +10639,7 @@ Check the Developer Console for more information.]],
 
         return SummerCamp2026
     end
-    function __DARKLUA_BUNDLE_MODULES.w()
+    function __DARKLUA_BUNDLE_MODULES.v()
         local ReplicatedStorage = (cloneref(game:GetService('ReplicatedStorage')))
         local Workspace = cloneref(game:GetService('Workspace'))
         local Players = cloneref(game:GetService('Players'))
@@ -10726,8 +10650,8 @@ Check the Developer Console for more information.]],
         local MysteryAilmentClient = (require(ReplicatedStorage.new.modules.Ailments.ClientActions.MysteryAilmentClient))
         local MysteryHelper = (require(ReplicatedStorage.new.modules.Ailments.Helpers.MysteryHelper))
         local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
-        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('l')
-        local Teleport = __DARKLUA_BUNDLE_MODULES.load('c')
+        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('k')
+        local Teleport = __DARKLUA_BUNDLE_MODULES.load('g')
         local localPlayer = Players.LocalPlayer
         local doctorId = nil
 
@@ -11399,15 +11323,15 @@ Check the Developer Console for more information.]],
 
         return Ailment
     end
-    function __DARKLUA_BUNDLE_MODULES.x()
+    function __DARKLUA_BUNDLE_MODULES.w()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
         local RouterClient = Bypass('RouterClient')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
-        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('l')
-        local Fusion = __DARKLUA_BUNDLE_MODULES.load('j')
+        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('k')
+        local Fusion = __DARKLUA_BUNDLE_MODULES.load('i')
         local FarmingPet = {}
         local localPlayer = Players.LocalPlayer
         local petToBuy = 'endangered_2026_endangered_egg'
@@ -11737,7 +11661,7 @@ Check the Developer Console for more information.]],
 
         return FarmingPet
     end
-    function __DARKLUA_BUNDLE_MODULES.y()
+    function __DARKLUA_BUNDLE_MODULES.x()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
@@ -11779,7 +11703,7 @@ Check the Developer Console for more information.]],
 
         return PetRelease
     end
-    function __DARKLUA_BUNDLE_MODULES.z()
+    function __DARKLUA_BUNDLE_MODULES.y()
         local ReplicatedStorage = (cloneref(game:GetService('ReplicatedStorage')))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -11787,13 +11711,13 @@ Check the Developer Console for more information.]],
         local RouterClient = Bypass('RouterClient')
         local CollisionsClient = Bypass('CollisionsClient')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
-        local Ailment = __DARKLUA_BUNDLE_MODULES.load('w')
-        local Furniture = __DARKLUA_BUNDLE_MODULES.load('f')
-        local Teleport = __DARKLUA_BUNDLE_MODULES.load('c')
-        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('l')
-        local FarmingPet = __DARKLUA_BUNDLE_MODULES.load('x')
-        local Fusion = __DARKLUA_BUNDLE_MODULES.load('j')
-        local PetRelease = __DARKLUA_BUNDLE_MODULES.load('y')
+        local Ailment = __DARKLUA_BUNDLE_MODULES.load('v')
+        local Furniture = __DARKLUA_BUNDLE_MODULES.load('c')
+        local Teleport = __DARKLUA_BUNDLE_MODULES.load('g')
+        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('k')
+        local FarmingPet = __DARKLUA_BUNDLE_MODULES.load('w')
+        local Fusion = __DARKLUA_BUNDLE_MODULES.load('i')
+        local PetRelease = __DARKLUA_BUNDLE_MODULES.load('x')
         local myGui = __DARKLUA_BUNDLE_MODULES.load('a').Get()
         local modules = ReplicatedStorage:WaitForChild('new'):WaitForChild('modules')
         local DailiesNetService = (require(modules:WaitForChild('Dailies'):WaitForChild('DailiesNetService')))
@@ -12203,7 +12127,7 @@ Check the Developer Console for more information.]],
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.A()
+    function __DARKLUA_BUNDLE_MODULES.z()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -12236,14 +12160,14 @@ Check the Developer Console for more information.]],
 
         return PetOffline
     end
-    function __DARKLUA_BUNDLE_MODULES.B()
+    function __DARKLUA_BUNDLE_MODULES.A()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local ClientData = Bypass('ClientData')
         local RouterClient = (Bypass('RouterClient'))
-        local PetOffline = __DARKLUA_BUNDLE_MODULES.load('A')
-        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('l')
+        local PetOffline = __DARKLUA_BUNDLE_MODULES.load('z')
+        local GetInventory = __DARKLUA_BUNDLE_MODULES.load('k')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
         local PetOfflineHandler = {}
         local localPlayer = Players.LocalPlayer
@@ -12423,14 +12347,14 @@ Check the Developer Console for more information.]],
 
         return PetOfflineHandler
     end
-    function __DARKLUA_BUNDLE_MODULES.C()
+    function __DARKLUA_BUNDLE_MODULES.B()
         local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
         local Players = cloneref(game:GetService('Players'))
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
         local StatsGui = __DARKLUA_BUNDLE_MODULES.load('a')
         local Utils = __DARKLUA_BUNDLE_MODULES.load('b')
-        local Clipboard = __DARKLUA_BUNDLE_MODULES.load('t')
-        local PetOffline = __DARKLUA_BUNDLE_MODULES.load('A')
+        local Clipboard = __DARKLUA_BUNDLE_MODULES.load('s')
+        local PetOffline = __DARKLUA_BUNDLE_MODULES.load('z')
         local self = {}
         local localPlayer = Players.LocalPlayer
         local playerGui = (localPlayer:WaitForChild('PlayerGui'))
@@ -12510,7 +12434,7 @@ Check the Developer Console for more information.]],
 
         return self
     end
-    function __DARKLUA_BUNDLE_MODULES.D()
+    function __DARKLUA_BUNDLE_MODULES.C()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -12560,7 +12484,7 @@ Check the Developer Console for more information.]],
 
         return DailyTaskboardHandler
     end
-    function __DARKLUA_BUNDLE_MODULES.E()
+    function __DARKLUA_BUNDLE_MODULES.D()
         local ReplicatedStorage = game:GetService('ReplicatedStorage')
         local Players = game:GetService('Players')
         local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -12738,9 +12662,6 @@ setfpscap(getgenv().SETTINGS.SET_FPS or 2)
 
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
 local Players = game:GetService('Players')
-
-__DARKLUA_BUNDLE_MODULES.load('e')
-
 local UserGameSettings = UserSettings():GetService('UserGameSettings')
 
 UserGameSettings.GraphicsQualityLevel = 1
@@ -12783,40 +12704,40 @@ getgenv().petCurrentlyFarming2 = nil
 
 local files = {
     {
-        PrepareAccountHandler = __DARKLUA_BUNDLE_MODULES.load('n'),
+        PrepareAccountHandler = __DARKLUA_BUNDLE_MODULES.load('m'),
     },
     {
-        DailyRewardHandler = __DARKLUA_BUNDLE_MODULES.load('o'),
+        DailyRewardHandler = __DARKLUA_BUNDLE_MODULES.load('n'),
     },
     {
-        GameGuiHandler = __DARKLUA_BUNDLE_MODULES.load('p'),
+        GameGuiHandler = __DARKLUA_BUNDLE_MODULES.load('o'),
     },
     {
-        TradeLicenseHandler = __DARKLUA_BUNDLE_MODULES.load('q'),
+        TradeLicenseHandler = __DARKLUA_BUNDLE_MODULES.load('p'),
     },
     {
-        WebhookHandler = __DARKLUA_BUNDLE_MODULES.load('r'),
+        WebhookHandler = __DARKLUA_BUNDLE_MODULES.load('q'),
     },
     {
-        RayfieldHandler = __DARKLUA_BUNDLE_MODULES.load('u'),
+        RayfieldHandler = __DARKLUA_BUNDLE_MODULES.load('t'),
     },
     {
-        SummerCamp2026 = __DARKLUA_BUNDLE_MODULES.load('v'),
+        SummerCamp2026 = __DARKLUA_BUNDLE_MODULES.load('u'),
     },
     {
-        AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.load('z'),
+        AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.load('y'),
     },
     {
-        PetOfflineHandler = __DARKLUA_BUNDLE_MODULES.load('B'),
+        PetOfflineHandler = __DARKLUA_BUNDLE_MODULES.load('A'),
     },
     {
-        StatsGuiHandler = __DARKLUA_BUNDLE_MODULES.load('C'),
+        StatsGuiHandler = __DARKLUA_BUNDLE_MODULES.load('B'),
     },
     {
-        DailyTaskboardHandler = __DARKLUA_BUNDLE_MODULES.load('D'),
+        DailyTaskboardHandler = __DARKLUA_BUNDLE_MODULES.load('C'),
     },
     {
-        PayBucks = __DARKLUA_BUNDLE_MODULES.load('E'),
+        PayBucks = __DARKLUA_BUNDLE_MODULES.load('D'),
     },
 }
 
