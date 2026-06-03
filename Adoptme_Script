@@ -12407,7 +12407,16 @@ Check the Developer Console for more information.]],
                 while true do
                     Bypass('UIManager').set_app_visibility('SubscriptionsPopUpApp', false)
                     myGui:UpdateLabel('Timer', tostring(Utils.FormatTime(DateTime.now().UnixTimestamp - startTime)))
-                    myGui:UpdateLabel('Username', string.format('User: %s | Players: %s', tostring(localPlayer.Name), tostring(#Players:GetPlayers())))
+
+                    local playerCount = #Players:GetPlayers()
+
+                    myGui:UpdateLabel('Username', string.format('User: %s | Players: %s', tostring(localPlayer.Name), tostring(playerCount)))
+
+                    if getgenv().SETTINGS.SHOULD_CRASH_ON_MULTIPLAYER and playerCount > 1 then
+                        localPlayer:Kick('Multiple players detected. Crashing as per settings.')
+                        task.wait(10)
+                        game:Shutdown()
+                    end
 
                     local bucksAmount = Utils.BucksAmount()
                     local bucksGained = bucksAmount - startBucksAmount
