@@ -4698,6 +4698,7 @@ do
             'QuestIconApp',
         }
         local patterns = {
+            ['Boat tour'] = 'Okay',
             ['is starting soon!'] = 'Yes',
             ['The Journey Pass'] = 'Okay',
             ['Thunder has'] = 'Okay',
@@ -11718,6 +11719,7 @@ Check the Developer Console for more information.]],
         local FarmingPet = __DARKLUA_BUNDLE_MODULES.load('w')
         local Fusion = __DARKLUA_BUNDLE_MODULES.load('i')
         local PetRelease = __DARKLUA_BUNDLE_MODULES.load('x')
+        local BuyItem = __DARKLUA_BUNDLE_MODULES.load('h')
         local myGui = __DARKLUA_BUNDLE_MODULES.load('a').Get()
         local modules = ReplicatedStorage:WaitForChild('new'):WaitForChild('modules')
         local DailiesNetService = (require(modules:WaitForChild('Dailies'):WaitForChild('DailiesNetService')))
@@ -12054,6 +12056,9 @@ Check the Developer Console for more information.]],
             )
                 task.wait(2)
 
+                if Utils.IsDayAndHour('Saturday', 4, 'am') then
+                    BuyItem.BuyItemWithCurrencyLimit('journey_pass_2026_gecko_duck', 10000)
+                end
                 if ClientData.get_data()[localPlayer.Name].synced_value_2d_kitty_tuesdays then
                     local isTuesdayEvent = Utils.IsDayAndHour('Tuesday', 8, 'am') or Utils.IsDayAndHour('Tuesday', 4, 'pm') or Utils.IsDayAndHour('Wednesday', 12, 'am')
 
