@@ -12654,6 +12654,13 @@ if not game:IsLoaded() then
     game.Loaded:Wait()
 end
 
+getgenv().BUY_BEFORE_FARMING = {
+    {
+        NameId = 'journey_pass_2026_gecko_duck',
+        MaxAmount = 9999,
+    },
+}
+
 setfpscap(getgenv().SETTINGS.SET_FPS or 2)
 
 if getgenv().loaded == true then
