@@ -10594,16 +10594,12 @@ Check the Developer Console for more information.]],
                 return
             end
 
-            for _, v in {
-                'repair_1',
-                'repair_2',
-                'repair_3',
-            }do
+            for i = 1, 10 do
                 local args = {
                     {
                         week_index = journeyRepair.week_index,
                         cycle_index = journeyRepair.cycle_index,
-                        marker_id = v,
+                        marker_id = 'trash_' .. i,
                     },
                 }
 
