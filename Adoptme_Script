@@ -10849,7 +10849,9 @@ Check the Developer Console for more information.]],
             local FarmingPet = __DARKLUA_BUNDLE_MODULES.v()
             local Fusion = __DARKLUA_BUNDLE_MODULES.h()
             local PetRelease = __DARKLUA_BUNDLE_MODULES.w()
-            local BuyItem = __DARKLUA_BUNDLE_MODULES.g()
+
+            __DARKLUA_BUNDLE_MODULES.g()
+
             local myGui = __DARKLUA_BUNDLE_MODULES.a().Get()
             local modules = ReplicatedStorage:WaitForChild('new'):WaitForChild('modules')
             local DailiesNetService = (require(modules:WaitForChild('Dailies'):WaitForChild('DailiesNetService')))
@@ -11246,11 +11248,6 @@ Check the Developer Console for more information.]],
 
                         local success, result = pcall(function()
                             startAutoFarm()
-
-                            if Utils.IsDayAndHour('Saturday', 4, 'pm') then
-                                print('its admin abuse time')
-                                BuyItem.BuyItemWithCurrencyLimit('journey_2026_sheepdog_duck', 5000)
-                            end
                         end)
 
                         if not success then
