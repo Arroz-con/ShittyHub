@@ -9657,36 +9657,51 @@ Check the Developer Console for more information.]],
             local RouterClient = Bypass('RouterClient')
             local ClientData = Bypass('ClientData')
             local BuyItem = __DARKLUA_BUNDLE_MODULES.g()
+            local GetInventory = __DARKLUA_BUNDLE_MODULES.j()
             local contentPacks = (ReplicatedStorage:WaitForChild('SharedModules'):WaitForChild('ContentPacks'))
-            local JourneyRepairNet = (require(contentPacks:WaitForChild('JourneyPass2026'):WaitForChild('Game'):WaitForChild('JourneyRepairNet')))
+            local gameFolder = (contentPacks:WaitForChild('JourneyPass2026'):WaitForChild('Game'))
+            local JourneyRepairNet = gameFolder:WaitForChild('JourneyRepairNet')
             local localPlayer = Players.LocalPlayer
             local SummerCamp2026 = {}
             local tryClaimRepair = function()
-                local journeyRepair = ClientData.get_data()[localPlayer.Name].journey_repair
+                pcall(function()
+                    local journeyRepair = ClientData.get_data()[localPlayer.Name].journey_repair
 
-                if journeyRepair.repair_complete then
+                    if journeyRepair.repair_complete then
+                        return
+                    end
+
+                    for i = 1, 3 do
+                        local args = {
+                            {
+                                week_index = journeyRepair.week_index,
+                                cycle_index = journeyRepair.cycle_index,
+                                marker_id = 'airship_feather_' .. i,
+                            },
+                        }
+
+                        JourneyRepairNet.ClaimAirshipFeather:fire_server(unpack(args))
+                        task.wait(1)
+                    end
+                end)
+            end
+            local tryBuySheepdogDuck = function()
+                local foodId = GetInventory.GetUniqueId('food', 'sandwich-default')
+
+                if not foodId then
+                    print('Food not found in inventory!')
+
                     return
                 end
 
-                for i = 1, 3 do
-                    local args = {
-                        {
-                            week_index = journeyRepair.week_index,
-                            cycle_index = journeyRepair.cycle_index,
-                            marker_id = 'airship_feather_' .. i,
-                        },
-                    }
-
-                    JourneyRepairNet.ClaimAirshipFeather:fire_server(unpack(args))
-                    task.wait(1)
-                end
+                RouterClient.get('HousingAPI/ActivateInteriorFurniture'):InvokeServer('dagi_npc', 'UseBlock', {r_1 = foodId}, game:GetService('Players').LocalPlayer.Character)
             end
 
             function SummerCamp2026.Init()
                 RouterClient.get('DataAPI/DataChanged').OnClientEvent:Connect(function(
                     playerName,
                     dataKey,
-                    dataValue
+                    dataValues
                 )
                     if playerName ~= localPlayer.Name then
                         return
@@ -9702,10 +9717,13 @@ Check the Developer Console for more information.]],
                         BuyItem.StartBuyItems(getgenv().BUY_BEFORE_FARMING)
                         print('Attempted to buy items for Summer Camp 2026!')
                     end
+
+                    tryBuySheepdogDuck()
                 end)
             end
             function SummerCamp2026.Start()
                 tryClaimRepair()
+                tryBuySheepdogDuck()
             end
 
             return SummerCamp2026
