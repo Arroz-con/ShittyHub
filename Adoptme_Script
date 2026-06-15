@@ -10805,7 +10805,7 @@ Check the Developer Console for more information.]],
             local localPlayer = Players.LocalPlayer
             local PetRelease = {}
             local getPetRecyclerId = function()
-                RouterClient.get('LocationAPI/SetLocation'):FireServer('Nursery', localPlayer, ClientData.get_data()[localPlayer.Name].LiveOpsMapType)
+                RouterClient.get('LocationAPI/SetLocation'):FireServer('Nursery')
                 task.wait(1)
 
                 for key, value in ClientData.get_data()[localPlayer.Name].house_interior.furniture do
@@ -10867,9 +10867,6 @@ Check the Developer Console for more information.]],
             local FarmingPet = __DARKLUA_BUNDLE_MODULES.v()
             local Fusion = __DARKLUA_BUNDLE_MODULES.h()
             local PetRelease = __DARKLUA_BUNDLE_MODULES.w()
-
-            __DARKLUA_BUNDLE_MODULES.g()
-
             local myGui = __DARKLUA_BUNDLE_MODULES.a().Get()
             local modules = ReplicatedStorage:WaitForChild('new'):WaitForChild('modules')
             local DailiesNetService = (require(modules:WaitForChild('Dailies'):WaitForChild('DailiesNetService')))
