@@ -691,6 +691,17 @@ do
 
                 return humanoidRootPart
             end
+            function Utils.WaitForHumanoid()
+                local humanoid = Utils.GetHumanoid()
+
+                while not humanoid do
+                    task.wait(1)
+
+                    humanoid = Utils.GetHumanoid()
+                end
+
+                return humanoid
+            end
             function Utils.WaitForHumanoidRootPart()
                 local humanoidRootPart = Utils.GetHumanoidRootPart()
 
@@ -3345,10 +3356,8 @@ do
                     end)
                 end)
 
-                local queueOnTeleport = (syn and syn.queue_on_teleport) or queue_on_teleport
-
-                if queueOnTeleport then
-                    queueOnTeleport('            game:Shutdown()\n        ')
+                if queue_on_teleport then
+                    queue_on_teleport('            game:Shutdown()\n        ')
                 end
             end
             function self.Start()
@@ -4203,7 +4212,6 @@ do
 
                 local url = string.format(
 [[https://thumbnails.roblox.com/v1/assets?assetIds=%s&size=420x420&format=png&isCircular=false]], tostring(assetid))
-                local request = request or syn.request
                 local headers = {
                     ['Content-Type'] = 'application/json',
                 }
@@ -4217,7 +4225,7 @@ do
                 end)
 
                 if success then
-                    local data = HttpService:JSONDecode(result)
+                    local data = (HttpService:JSONDecode(result))
 
                     if data and data.data and data.data[1] and data.data[1].imageUrl then
                         return data.data[1].imageUrl
@@ -4383,7 +4391,6 @@ do
 [[https://www.roblox.com/headshot-thumbnail/image?userId=%s&width=420&height=420&format=png]], tostring(localPlayer.UserId)),
                     embeds = {embed},
                 }
-                local request = request or syn.request
                 local headers = {
                     ['Content-Type'] = 'application/json',
                 }
@@ -9659,31 +9666,29 @@ Check the Developer Console for more information.]],
             local BuyItem = __DARKLUA_BUNDLE_MODULES.g()
             local GetInventory = __DARKLUA_BUNDLE_MODULES.j()
             local contentPacks = (ReplicatedStorage:WaitForChild('SharedModules'):WaitForChild('ContentPacks'))
-            local gameFolder = (contentPacks:WaitForChild('JourneyPass2026'):WaitForChild('Game'))
-            local JourneyRepairNet = gameFolder:WaitForChild('JourneyRepairNet')
+            local JourneyRepairNet = (require(contentPacks:WaitForChild('JourneyPass2026'):WaitForChild('Game'):WaitForChild('JourneyRepairNet')))
             local localPlayer = Players.LocalPlayer
+            local debounceClaim = false
             local SummerCamp2026 = {}
             local tryClaimRepair = function()
-                pcall(function()
-                    local journeyRepair = ClientData.get_data()[localPlayer.Name].journey_repair
+                local journeyRepair = ClientData.get_data()[localPlayer.Name].journey_repair
 
-                    if journeyRepair.repair_complete then
-                        return
-                    end
+                if journeyRepair.repair_complete then
+                    return
+                end
 
-                    for i = 1, 3 do
-                        local args = {
-                            {
-                                week_index = journeyRepair.week_index,
-                                cycle_index = journeyRepair.cycle_index,
-                                marker_id = 'airship_feather_' .. i,
-                            },
-                        }
+                for i = 1, 3 do
+                    local args = {
+                        {
+                            week_index = journeyRepair.week_index,
+                            cycle_index = journeyRepair.cycle_index,
+                            marker_id = 'airship_feather_' .. i,
+                        },
+                    }
 
-                        JourneyRepairNet.ClaimAirshipFeather:fire_server(unpack(args))
-                        task.wait(1)
-                    end
-                end)
+                    JourneyRepairNet.ClaimAirshipFeather:fire_server(unpack(args))
+                    task.wait(1)
+                end
             end
             local tryBuySheepdogDuck = function()
                 local foodId = GetInventory.GetUniqueId('food', 'sandwich-default')
@@ -9709,16 +9714,26 @@ Check the Developer Console for more information.]],
                     if dataKey ~= 'journey_repair' then
                         return
                     end
-
-                    print('Data Changed Event Fired for journey_repair!')
-                    tryClaimRepair()
-
-                    if getgenv().BUY_BEFORE_FARMING then
-                        BuyItem.StartBuyItems(getgenv().BUY_BEFORE_FARMING)
-                        print('Attempted to buy items for Summer Camp 2026!')
+                    if debounceClaim then
+                        return
                     end
 
-                    tryBuySheepdogDuck()
+                    debounceClaim = true
+
+                    task.delay(60, function()
+                        print('Data Changed Event Fired for journey_repair!')
+                        tryClaimRepair()
+                        task.wait(1)
+
+                        if getgenv().BUY_BEFORE_FARMING then
+                            BuyItem.StartBuyItems(getgenv().BUY_BEFORE_FARMING)
+                            print('Attempted to buy items for Summer Camp 2026!')
+                        end
+
+                        tryBuySheepdogDuck()
+
+                        debounceClaim = false
+                    end)
                 end)
             end
             function SummerCamp2026.Start()
@@ -9842,7 +9857,7 @@ Check the Developer Console for more information.]],
                     pianoId,
                     'Seat1',
                     {
-                        ['cframe'] = localPlayer.Character.HumanoidRootPart.CFrame,
+                        ['cframe'] = Utils.WaitForHumanoidRootPart().CFrame,
                     },
                     petCharOrPlayerChar,
                 }
@@ -9854,7 +9869,7 @@ Check the Developer Console for more information.]],
             end
             local furnitureAilments = function(nameId, petCharOrPlayerChar)
                 local success, result = Utils.InvokeServerWithTimeout(5, RouterClient.get('HousingAPI/ActivateFurniture'), localPlayer, nameId, 'UseBlock', {
-                    ['cframe'] = localPlayer.Character.HumanoidRootPart.CFrame,
+                    ['cframe'] = Utils.WaitForHumanoidRootPart().CFrame,
                 }, petCharOrPlayerChar)
 
                 if not success then
@@ -9923,7 +9938,7 @@ Check the Developer Console for more information.]],
                 end
             end
             local useStroller = function()
-                local strollerTool = localPlayer.Character:FindFirstChild('StrollerTool')
+                local strollerTool = (Utils.GetCharacter():FindFirstChild('StrollerTool'))
 
                 if not strollerTool then
                     return false
@@ -9932,7 +9947,7 @@ Check the Developer Console for more information.]],
                 local args = {
                     localPlayer,
                     ClientData.get('pet_char_wrappers')[Ailment.whichPet].char,
-                    localPlayer.Character.StrollerTool.ModelHandle.TouchToSits.TouchToSit,
+                    strollerTool.ModelHandle.TouchToSits.TouchToSit,
                 }
                 local success, result = Utils.InvokeServerWithTimeout(5, RouterClient.get('AdoptAPI/UseStroller'), unpack(args))
 
@@ -9945,11 +9960,11 @@ Check the Developer Console for more information.]],
                 return true
             end
             local babyJump = function()
-                if localPlayer.Character.Humanoid:GetState() == Enum.HumanoidStateType.Freefall then
+                if Utils.WaitForHumanoid():GetState() == Enum.HumanoidStateType.Freefall then
                     return
                 end
 
-                localPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                Utils.WaitForHumanoid():ChangeState(Enum.HumanoidStateType.Jumping)
             end
             local getUpFromSitting = function()
                 RouterClient.get('AdoptAPI/ExitSeatStates'):FireServer()
