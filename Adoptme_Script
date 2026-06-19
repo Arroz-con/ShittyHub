@@ -9658,107 +9658,6 @@ Check the Developer Console for more information.]],
     end
     do
         local __modImpl = function()
-            local ReplicatedStorage = game:GetService('ReplicatedStorage')
-            local Players = game:GetService('Players')
-            local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
-            local RouterClient = Bypass('RouterClient')
-            local ClientData = Bypass('ClientData')
-            local BuyItem = __DARKLUA_BUNDLE_MODULES.g()
-            local GetInventory = __DARKLUA_BUNDLE_MODULES.j()
-            local contentPacks = (ReplicatedStorage:WaitForChild('SharedModules'):WaitForChild('ContentPacks'))
-            local JourneyRepairNet = (require(contentPacks:WaitForChild('JourneyPass2026'):WaitForChild('Game'):WaitForChild('JourneyRepairNet')))
-            local localPlayer = Players.LocalPlayer
-            local debounceClaim = false
-            local SummerCamp2026 = {}
-            local tryClaimRepair = function()
-                local journeyRepair = ClientData.get_data()[localPlayer.Name].journey_repair
-
-                if journeyRepair.repair_complete then
-                    return
-                end
-
-                for i = 1, 3 do
-                    local args = {
-                        {
-                            week_index = journeyRepair.week_index,
-                            cycle_index = journeyRepair.cycle_index,
-                            marker_id = 'airship_feather_' .. i,
-                        },
-                    }
-
-                    JourneyRepairNet.ClaimAirshipFeather:fire_server(unpack(args))
-                    task.wait(1)
-                end
-            end
-            local tryBuySheepdogDuck = function()
-                local foodId = GetInventory.GetUniqueId('food', 'sandwich-default')
-
-                if not foodId then
-                    print('Food not found in inventory!')
-
-                    return
-                end
-
-                RouterClient.get('HousingAPI/ActivateInteriorFurniture'):InvokeServer('dagi_npc', 'UseBlock', {r_1 = foodId}, game:GetService('Players').LocalPlayer.Character)
-            end
-
-            function SummerCamp2026.Init()
-                RouterClient.get('DataAPI/DataChanged').OnClientEvent:Connect(function(
-                    playerName,
-                    dataKey,
-                    dataValues
-                )
-                    if playerName ~= localPlayer.Name then
-                        return
-                    end
-                    if dataKey ~= 'journey_repair' then
-                        return
-                    end
-                    if debounceClaim then
-                        return
-                    end
-
-                    debounceClaim = true
-
-                    task.delay(60, function()
-                        print('Data Changed Event Fired for journey_repair!')
-                        tryClaimRepair()
-                        task.wait(1)
-
-                        if getgenv().BUY_BEFORE_FARMING then
-                            BuyItem.StartBuyItems(getgenv().BUY_BEFORE_FARMING)
-                            print('Attempted to buy items for Summer Camp 2026!')
-                        end
-
-                        tryBuySheepdogDuck()
-
-                        debounceClaim = false
-                    end)
-                end)
-            end
-            function SummerCamp2026.Start()
-                tryClaimRepair()
-                tryBuySheepdogDuck()
-            end
-
-            return SummerCamp2026
-        end
-
-        function __DARKLUA_BUNDLE_MODULES.t()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.t
-
-            if not v then
-                v = {
-                    c = __modImpl(),
-                }
-                __DARKLUA_BUNDLE_MODULES.cache.t = v
-            end
-
-            return v.c
-        end
-    end
-    do
-        local __modImpl = function()
             local ReplicatedStorage = (cloneref(game:GetService('ReplicatedStorage')))
             local Workspace = cloneref(game:GetService('Workspace'))
             local Players = cloneref(game:GetService('Players'))
@@ -10443,14 +10342,14 @@ Check the Developer Console for more information.]],
             return Ailment
         end
 
-        function __DARKLUA_BUNDLE_MODULES.u()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.u
+        function __DARKLUA_BUNDLE_MODULES.t()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.t
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.u = v
+                __DARKLUA_BUNDLE_MODULES.cache.t = v
             end
 
             return v.c
@@ -10796,14 +10695,14 @@ Check the Developer Console for more information.]],
             return FarmingPet
         end
 
-        function __DARKLUA_BUNDLE_MODULES.v()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.v
+        function __DARKLUA_BUNDLE_MODULES.u()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.u
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.v = v
+                __DARKLUA_BUNDLE_MODULES.cache.u = v
             end
 
             return v.c
@@ -10853,14 +10752,14 @@ Check the Developer Console for more information.]],
             return PetRelease
         end
 
-        function __DARKLUA_BUNDLE_MODULES.w()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.w
+        function __DARKLUA_BUNDLE_MODULES.v()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.v
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.w = v
+                __DARKLUA_BUNDLE_MODULES.cache.v = v
             end
 
             return v.c
@@ -10875,13 +10774,13 @@ Check the Developer Console for more information.]],
             local RouterClient = Bypass('RouterClient')
             local CollisionsClient = Bypass('CollisionsClient')
             local Utils = __DARKLUA_BUNDLE_MODULES.b()
-            local Ailment = __DARKLUA_BUNDLE_MODULES.u()
+            local Ailment = __DARKLUA_BUNDLE_MODULES.t()
             local Furniture = __DARKLUA_BUNDLE_MODULES.c()
             local Teleport = __DARKLUA_BUNDLE_MODULES.f()
             local GetInventory = __DARKLUA_BUNDLE_MODULES.j()
-            local FarmingPet = __DARKLUA_BUNDLE_MODULES.v()
+            local FarmingPet = __DARKLUA_BUNDLE_MODULES.u()
             local Fusion = __DARKLUA_BUNDLE_MODULES.h()
-            local PetRelease = __DARKLUA_BUNDLE_MODULES.w()
+            local PetRelease = __DARKLUA_BUNDLE_MODULES.v()
             local myGui = __DARKLUA_BUNDLE_MODULES.a().Get()
             local modules = ReplicatedStorage:WaitForChild('new'):WaitForChild('modules')
             local DailiesNetService = (require(modules:WaitForChild('Dailies'):WaitForChild('DailiesNetService')))
@@ -11292,14 +11191,14 @@ Check the Developer Console for more information.]],
             return self
         end
 
-        function __DARKLUA_BUNDLE_MODULES.x()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.x
+        function __DARKLUA_BUNDLE_MODULES.w()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.w
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.x = v
+                __DARKLUA_BUNDLE_MODULES.cache.w = v
             end
 
             return v.c
@@ -11340,14 +11239,14 @@ Check the Developer Console for more information.]],
             return PetOffline
         end
 
-        function __DARKLUA_BUNDLE_MODULES.y()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.y
+        function __DARKLUA_BUNDLE_MODULES.x()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.x
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.y = v
+                __DARKLUA_BUNDLE_MODULES.cache.x = v
             end
 
             return v.c
@@ -11360,7 +11259,7 @@ Check the Developer Console for more information.]],
             local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
             local ClientData = Bypass('ClientData')
             local RouterClient = (Bypass('RouterClient'))
-            local PetOffline = __DARKLUA_BUNDLE_MODULES.y()
+            local PetOffline = __DARKLUA_BUNDLE_MODULES.x()
             local GetInventory = __DARKLUA_BUNDLE_MODULES.j()
             local Utils = __DARKLUA_BUNDLE_MODULES.b()
             local PetOfflineHandler = {}
@@ -11542,14 +11441,14 @@ Check the Developer Console for more information.]],
             return PetOfflineHandler
         end
 
-        function __DARKLUA_BUNDLE_MODULES.z()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.z
+        function __DARKLUA_BUNDLE_MODULES.y()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.y
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.z = v
+                __DARKLUA_BUNDLE_MODULES.cache.y = v
             end
 
             return v.c
@@ -11563,7 +11462,7 @@ Check the Developer Console for more information.]],
             local StatsGui = __DARKLUA_BUNDLE_MODULES.a()
             local Utils = __DARKLUA_BUNDLE_MODULES.b()
             local Clipboard = __DARKLUA_BUNDLE_MODULES.r()
-            local PetOffline = __DARKLUA_BUNDLE_MODULES.y()
+            local PetOffline = __DARKLUA_BUNDLE_MODULES.x()
             local self = {}
             local localPlayer = Players.LocalPlayer
             local playerGui = (localPlayer:WaitForChild('PlayerGui'))
@@ -11653,14 +11552,14 @@ Check the Developer Console for more information.]],
             return self
         end
 
-        function __DARKLUA_BUNDLE_MODULES.A()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.A
+        function __DARKLUA_BUNDLE_MODULES.z()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.z
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.A = v
+                __DARKLUA_BUNDLE_MODULES.cache.z = v
             end
 
             return v.c
@@ -11718,14 +11617,14 @@ Check the Developer Console for more information.]],
             return DailyTaskboardHandler
         end
 
-        function __DARKLUA_BUNDLE_MODULES.B()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.B
+        function __DARKLUA_BUNDLE_MODULES.A()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.A
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.B = v
+                __DARKLUA_BUNDLE_MODULES.cache.A = v
             end
 
             return v.c
@@ -11884,14 +11783,14 @@ Check the Developer Console for more information.]],
             return PayBucks
         end
 
-        function __DARKLUA_BUNDLE_MODULES.C()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.C
+        function __DARKLUA_BUNDLE_MODULES.B()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.B
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.C = v
+                __DARKLUA_BUNDLE_MODULES.cache.B = v
             end
 
             return v.c
@@ -11984,22 +11883,19 @@ local files = {
         RayfieldHandler = __DARKLUA_BUNDLE_MODULES.s(),
     },
     {
-        SummerCamp2026 = __DARKLUA_BUNDLE_MODULES.t(),
+        AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.w(),
     },
     {
-        AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.x(),
+        PetOfflineHandler = __DARKLUA_BUNDLE_MODULES.y(),
     },
     {
-        PetOfflineHandler = __DARKLUA_BUNDLE_MODULES.z(),
+        StatsGuiHandler = __DARKLUA_BUNDLE_MODULES.z(),
     },
     {
-        StatsGuiHandler = __DARKLUA_BUNDLE_MODULES.A(),
+        DailyTaskboardHandler = __DARKLUA_BUNDLE_MODULES.A(),
     },
     {
-        DailyTaskboardHandler = __DARKLUA_BUNDLE_MODULES.B(),
-    },
-    {
-        PayBucks = __DARKLUA_BUNDLE_MODULES.C(),
+        PayBucks = __DARKLUA_BUNDLE_MODULES.B(),
     },
 }
 
