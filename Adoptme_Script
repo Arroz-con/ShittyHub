@@ -9731,6 +9731,15 @@ Check the Developer Console for more information.]],
             local tryBuyBait = function()
                 BuyItem.BuyItemWithCurrencyLimit('summer_2026_fishing_bait', 100000)
             end
+            local tryBuyFishingRod = function()
+                for _, v in ClientData.get_data()[localPlayer.Name].fishing_manager.bought_unique_items do
+                    if v == true then
+                        return
+                    end
+                end
+
+                FishingNetService.purchase_item('summer_2026_bronze_fishing_rod', 1)
+            end
 
             function Summer2026.Init()
                 RouterClient.get('WeatherAPI/WeatherUpdated').OnClientEvent:Connect(function(
@@ -9743,6 +9752,7 @@ Check the Developer Console for more information.]],
                 end)
             end
             function Summer2026.Start()
+                tryBuyFishingRod()
                 FishingNetService.upgrade_fishing_rod()
                 tryBuyBait()
                 tryCatchFish()
