@@ -2704,6 +2704,17 @@ do
 
                 return nil
             end
+            function GetInventory.GetAmountOfItems(tabId, nameId)
+                local count = 0
+
+                for _, v in ClientData.get_data()[localPlayer.Name].inventory[tabId]do
+                    if v.id == nameId then
+                        count = count + 1
+                    end
+                end
+
+                return count
+            end
             function GetInventory.IsPetInInventory(tabId, uniqueId)
                 for _, v in ClientData.get_data()[localPlayer.Name].inventory[tabId]do
                     if v.unique == uniqueId then
@@ -9710,11 +9721,80 @@ Check the Developer Console for more information.]],
             local RouterClient = Bypass('RouterClient')
             local BuyItem = __DARKLUA_BUNDLE_MODULES.g()
             local GetInventory = __DARKLUA_BUNDLE_MODULES.j()
+            local Utils = __DARKLUA_BUNDLE_MODULES.b()
             local contentPacks = (ReplicatedStorage:WaitForChild('SharedModules'):WaitForChild('ContentPacks'))
             local FishingNetService = (require(contentPacks:WaitForChild('Summer2026'):WaitForChild('Fishing'):WaitForChild('FishingNetService')))
             local localPlayer = Players.LocalPlayer
             local Summer2026 = {}
+            local tryBuyBait = function()
+                BuyItem.BuyItemWithCurrencyLimit('summer_2026_fishing_bait', 76000)
+            end
+            local tryCatchRainbowFish = function()
+                for lake, fishs in ClientData.get_data()[localPlayer.Name].fishing_manager.hotspots do
+                    for unique, fishName in fishs do
+                        if fishName == 'summer_2026_rainbow_fish' then
+                            print('\u{1f308} RAINBOW FISH DETECTED \u{1f308}')
+                            BuyItem.StartBuyItems({
+                                {
+                                    NameId = 'summer_2026_fishing_bait',
+                                    MaxAmount = 1,
+                                },
+                            })
+                            task.wait(1)
+                            FishingNetService.catch_fish(lake, unique)
+                        end
+                    end
+                end
+            end
+            local tryBuyRainbowTrout = function()
+                if Utils.EventCurrencyAmount() < 70000 then
+                    return
+                end
+                if not GetInventory.GetUniqueId('gifts', 'summer_2026_rainbow_fish') then
+                    return
+                end
+
+                FishingNetService.purchase_item('summer_2026_rainbow_trout', 1)
+            end
+            local tryBuyTealwoodMonsterBait = function()
+                if GetInventory.GetUniqueId('gifts', 'summer_2026_monster_fishing_bait') then
+                    return true
+                end
+                if Utils.EventCurrencyAmount() < 75000 then
+                    return false
+                end
+                if GetInventory.GetAmountOfItems('gifts', 'summer_2026_bronze_fish') < 75 then
+                    return false
+                end
+                if GetInventory.GetAmountOfItems('gifts', 'summer_2026_silver_fish') < 35 then
+                    return false
+                end
+                if GetInventory.GetAmountOfItems('gifts', 'summer_2026_gold_fish') < 15 then
+                    return false
+                end
+
+                FishingNetService.purchase_item('summer_2026_monster_fishing_bait', 1)
+                task.wait()
+
+                return GetInventory.GetUniqueId('gift', 'summer_2026_monster_fishing_bait') ~= nil
+            end
+            local tryCatchTealwoodMonster = function()
+                if not tryBuyTealwoodMonsterBait() then
+                    return
+                end
+
+                for lake, fishs in ClientData.get_data()[localPlayer.Name].fishing_manager.hotspots do
+                    for unique, fishName in fishs do
+                        if fishName == 'summer_2026_lake_monster' then
+                            FishingNetService.catch_fish(lake, unique)
+                        end
+                    end
+                end
+            end
             local tryCatchFish = function()
+                tryCatchTealwoodMonster()
+                tryCatchRainbowFish()
+
                 if not GetInventory.GetUniqueId('gifts', 'summer_2026_fishing_bait') then
                     warn('No fishing bait')
 
@@ -9728,9 +9808,6 @@ Check the Developer Console for more information.]],
                     end
                 end
             end
-            local tryBuyBait = function()
-                BuyItem.BuyItemWithCurrencyLimit('summer_2026_fishing_bait', 100000)
-            end
             local tryBuyFishingRod = function()
                 for _, v in ClientData.get_data()[localPlayer.Name].fishing_manager.bought_unique_items do
                     if v == true then
@@ -9740,22 +9817,31 @@ Check the Developer Console for more information.]],
 
                 FishingNetService.purchase_item('summer_2026_bronze_fishing_rod', 1)
             end
+            local tryUpgradeFishingRod = function()
+                if ClientData.get_data()[localPlayer.Name].fishing_manager.bought_unique_items['summer_2026_gold_fishing_rod'] then
+                    return
+                end
+
+                FishingNetService.upgrade_fishing_rod()
+            end
 
             function Summer2026.Init()
                 RouterClient.get('WeatherAPI/WeatherUpdated').OnClientEvent:Connect(function(
                     dayOrNight
                 )
                     task.wait(3)
-                    FishingNetService.upgrade_fishing_rod()
+                    tryUpgradeFishingRod()
                     tryBuyBait()
                     tryCatchFish()
+                    tryBuyRainbowTrout()
                 end)
             end
             function Summer2026.Start()
                 tryBuyFishingRod()
-                FishingNetService.upgrade_fishing_rod()
+                tryUpgradeFishingRod()
                 tryBuyBait()
                 tryCatchFish()
+                tryBuyRainbowTrout()
             end
 
             return Summer2026
