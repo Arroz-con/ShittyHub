@@ -9725,6 +9725,7 @@ Check the Developer Console for more information.]],
             local contentPacks = (ReplicatedStorage:WaitForChild('SharedModules'):WaitForChild('ContentPacks'))
             local FishingNetService = (require(contentPacks:WaitForChild('Summer2026'):WaitForChild('Fishing'):WaitForChild('FishingNetService')))
             local localPlayer = Players.LocalPlayer
+            local HAS_FISHS_FOR_MONSTER_BAIT = false
             local Summer2026 = {}
             local tryBuyBait = function()
                 BuyItem.BuyItemWithCurrencyLimit('summer_2026_fishing_bait', 76000)
@@ -9747,6 +9748,9 @@ Check the Developer Console for more information.]],
                 end
             end
             local tryBuyRainbowTrout = function()
+                if HAS_FISHS_FOR_MONSTER_BAIT then
+                    return
+                end
                 if Utils.EventCurrencyAmount() < 70000 then
                     return
                 end
@@ -9760,9 +9764,6 @@ Check the Developer Console for more information.]],
                 if GetInventory.GetUniqueId('gifts', 'summer_2026_monster_fishing_bait') then
                     return true
                 end
-                if Utils.EventCurrencyAmount() < 75000 then
-                    return false
-                end
                 if GetInventory.GetAmountOfItems('gifts', 'summer_2026_bronze_fish') < 75 then
                     return false
                 end
@@ -9772,11 +9773,19 @@ Check the Developer Console for more information.]],
                 if GetInventory.GetAmountOfItems('gifts', 'summer_2026_gold_fish') < 15 then
                     return false
                 end
+                if Utils.EventCurrencyAmount() < 75000 then
+                    HAS_FISHS_FOR_MONSTER_BAIT = true
+
+                    return false
+                end
 
                 FishingNetService.purchase_item('summer_2026_monster_fishing_bait', 1)
+
+                HAS_FISHS_FOR_MONSTER_BAIT = false
+
                 task.wait()
 
-                return GetInventory.GetUniqueId('gift', 'summer_2026_monster_fishing_bait') ~= nil
+                return GetInventory.GetUniqueId('gifts', 'summer_2026_monster_fishing_bait') ~= nil
             end
             local tryCatchTealwoodMonster = function()
                 if not tryBuyTealwoodMonsterBait() then
