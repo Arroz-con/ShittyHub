@@ -488,17 +488,23 @@ do
                     return
                 end
                 if firesignal then
-                    pcall(function()
-                        local mouseButton1Down = button.MouseButton1Down
-                        local mouseButton1Click = button.MouseButton1Click
-                        local mouseButton1Up = button.MouseButton1Up
+                    local retries = 0
 
-                        firesignal(mouseButton1Down)
-                        task.wait()
-                        firesignal(mouseButton1Click)
-                        task.wait()
-                        firesignal(mouseButton1Up)
-                    end)
+                    repeat
+                        pcall(function()
+                            local mouseButton1Down = button.MouseButton1Down
+                            local mouseButton1Click = button.MouseButton1Click
+                            local mouseButton1Up = button.MouseButton1Up
+
+                            firesignal(mouseButton1Down)
+                            task.wait(0.1)
+                            firesignal(mouseButton1Click)
+                            task.wait(0.1)
+                            firesignal(mouseButton1Up)
+
+                            retries = retries + 1
+                        end)
+                    until not button or button.Visible == false or retries > 3
                 else
                     Utils.ClickGuiButton(button)
                 end
@@ -661,12 +667,12 @@ do
 
                 return string.format('%s %s %s', tostring(string.rep(' ', left)), tostring(text), tostring(string.rep(' ', right)))
             end
-            function Utils.WaitForPetToEquip()
+            function Utils.WaitForPetToEquip(whichPet)
                 local hasPetChar = nil
                 local stuckTimer = 0
 
                 repeat
-                    hasPetChar = ClientData.get('pet_char_wrappers') and ClientData.get('pet_char_wrappers')[1] and ClientData.get('pet_char_wrappers')[1].pet_unique and true or false
+                    hasPetChar = ClientData.get('pet_char_wrappers') and ClientData.get('pet_char_wrappers')[whichPet] and ClientData.get('pet_char_wrappers')[whichPet].pet_unique and true or false
                     stuckTimer = stuckTimer + 1
 
                     task.wait(1)
@@ -2259,7 +2265,7 @@ do
 
                     getgenv().petCurrentlyFarming1 = petUnique
 
-                    Utils.WaitForPetToEquip()
+                    Utils.WaitForPetToEquip(whichPet)
 
                     return true
                 elseif whichPet == 2 then
@@ -2269,7 +2275,7 @@ do
 
                     getgenv().petCurrentlyFarming2 = petUnique
 
-                    Utils.WaitForPetToEquip()
+                    Utils.WaitForPetToEquip(whichPet)
 
                     return true
                 end
@@ -3410,6 +3416,8 @@ do
                 })
                 task.wait(2)
                 Utils.WaitForHumanoidRootPart()
+
+                Utils.WaitForHumanoid().WalkSpeed = 0
 
                 local count = 0
 
@@ -9716,6 +9724,7 @@ Check the Developer Console for more information.]],
         local __modImpl = function()
             local ReplicatedStorage = game:GetService('ReplicatedStorage')
             local Players = game:GetService('Players')
+            local Workspace = (game:GetService('Workspace'))
             local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
             local ClientData = Bypass('ClientData')
             local RouterClient = Bypass('RouterClient')
@@ -9724,11 +9733,57 @@ Check the Developer Console for more information.]],
             local Utils = __DARKLUA_BUNDLE_MODULES.b()
             local contentPacks = (ReplicatedStorage:WaitForChild('SharedModules'):WaitForChild('ContentPacks'))
             local FishingNetService = (require(contentPacks:WaitForChild('Summer2026'):WaitForChild('Fishing'):WaitForChild('FishingNetService')))
+            local BalloonFightNetService = (require(contentPacks:WaitForChild('Summer2026'):WaitForChild('BalloonFight'):WaitForChild('BalloonFightNetService')))
             local localPlayer = Players.LocalPlayer
+            local fishes = {
+                {
+                    id = 'summer_2026_gold_fish',
+                    max = 15,
+                },
+                {
+                    id = 'summer_2026_silver_fish',
+                    max = 35,
+                },
+                {
+                    id = 'summer_2026_bronze_fish',
+                    max = 75,
+                },
+            }
             local HAS_FISHS_FOR_MONSTER_BAIT = false
             local Summer2026 = {}
+            local checkFishesInventory = function()
+                for i = #fishes, 1, -1 do
+                    local fish = fishes[i]
+
+                    if fish.max ~= math.huge and GetInventory.GetAmountOfItems('gifts', fish.id) >= fish.max then
+                        table.remove(fishes, i)
+                    end
+                end
+            end
             local tryBuyBait = function()
-                BuyItem.BuyItemWithCurrencyLimit('summer_2026_fishing_bait', 76000)
+                if HAS_FISHS_FOR_MONSTER_BAIT then
+                    return
+                end
+
+                BuyItem.StartBuyItems({
+                    {
+                        NameId = 'summer_2026_fishing_bait',
+                        MaxAmount = 10,
+                    },
+                })
+            end
+            local getFishId = function(name, caughtFish)
+                local hotspots = ClientData.get_data()[localPlayer.Name].fishing_manager.hotspots
+
+                for lake, fishs in hotspots do
+                    for unique, fishName in fishs do
+                        if fishName == name and not table.find(caughtFish, unique) then
+                            return lake, unique
+                        end
+                    end
+                end
+
+                return nil, nil
             end
             local tryCatchRainbowFish = function()
                 for lake, fishs in ClientData.get_data()[localPlayer.Name].fishing_manager.hotspots do
@@ -9749,6 +9804,9 @@ Check the Developer Console for more information.]],
             end
             local tryBuyRainbowTrout = function()
                 if HAS_FISHS_FOR_MONSTER_BAIT then
+                    print(
+[[Not buying rainbow trout because it has items to buy monster bait, just waiting on acorns (75k+)]])
+
                     return
                 end
                 if Utils.EventCurrencyAmount() < 70000 then
@@ -9782,6 +9840,20 @@ Check the Developer Console for more information.]],
                 FishingNetService.purchase_item('summer_2026_monster_fishing_bait', 1)
 
                 HAS_FISHS_FOR_MONSTER_BAIT = false
+                fishes = {
+                    {
+                        id = 'summer_2026_gold_fish',
+                        max = 15,
+                    },
+                    {
+                        id = 'summer_2026_silver_fish',
+                        max = 35,
+                    },
+                    {
+                        id = 'summer_2026_bronze_fish',
+                        max = 75,
+                    },
+                }
 
                 task.wait()
 
@@ -9810,11 +9882,25 @@ Check the Developer Console for more information.]],
                     return
                 end
 
-                for lake, fishs in ClientData.get_data()[localPlayer.Name].fishing_manager.hotspots do
-                    for unique, fishName in fishs do
-                        FishingNetService.catch_fish(lake, unique)
-                        task.wait(1)
+                checkFishesInventory()
+
+                local baitCount = GetInventory.GetAmountOfItems('gifts', 'summer_2026_fishing_bait') or 1
+                local caughtFish = {}
+
+                for _ = 1, baitCount do
+                    for _, fishData in ipairs(fishes)do
+                        local lake, uniqueId = getFishId(fishData.id, caughtFish)
+
+                        if lake and uniqueId then
+                            table.insert(caughtFish, uniqueId)
+                            FishingNetService.catch_fish(lake, uniqueId)
+                            print('Caught:', uniqueId, lake)
+
+                            break
+                        end
                     end
+
+                    task.wait(1)
                 end
             end
             local tryBuyFishingRod = function()
@@ -9833,16 +9919,38 @@ Check the Developer Console for more information.]],
 
                 FishingNetService.upgrade_fishing_rod()
             end
+            local tryBalloonFight = function()
+                for _ = 1, 55 do
+                    BalloonFightNetService.register_hit(8002733564, Utils.GetCharacter():GetPivot().Position)
+                    task.wait(1)
+
+                    for i, v in Workspace.Acorns:GetChildren()do
+                        if v:IsA('Model') then
+                            local primaryPart = v.PrimaryPart
+
+                            if not primaryPart then
+                                continue
+                            end
+
+                            primaryPart.CFrame = Utils.WaitForHumanoidRootPart().CFrame
+                        end
+                    end
+                end
+            end
 
             function Summer2026.Init()
                 RouterClient.get('WeatherAPI/WeatherUpdated').OnClientEvent:Connect(function(
                     dayOrNight
                 )
                     task.wait(3)
-                    tryUpgradeFishingRod()
-                    tryBuyBait()
-                    tryCatchFish()
-                    tryBuyRainbowTrout()
+
+                    if dayOrNight == 'DAY' then
+                        tryUpgradeFishingRod()
+                        tryBuyBait()
+                        tryCatchFish()
+                        tryBuyRainbowTrout()
+                        tryBalloonFight()
+                    end
                 end)
             end
             function Summer2026.Start()
@@ -9851,6 +9959,7 @@ Check the Developer Console for more information.]],
                 tryBuyBait()
                 tryCatchFish()
                 tryBuyRainbowTrout()
+                tryBalloonFight()
             end
 
             return Summer2026
@@ -10381,23 +10490,6 @@ Check the Developer Console for more information.]],
 
                 ReplicatedStorage.API:FindFirstChild('AdoptAPI/EjectBaby'):FireServer(ClientData.get('pet_char_wrappers')[Ailment.whichPet]['char'])
             end
-            function Ailment.HalloweenWalkAilment(petUnique)
-                Utils.ReEquipPet(Ailment.whichPet)
-                Utils.PrintDebug(string.format('\u{1f9ae} Doing walking task on %s \u{1f9ae}', tostring(Ailment.whichPet)))
-
-                if not Utils.IsPetEquipped(Ailment.whichPet) then
-                    return
-                end
-
-                RouterClient.get('AdoptAPI/HoldBaby'):FireServer(ClientData.get('pet_char_wrappers')[Ailment.whichPet]['char'])
-                waitForJumpingToFinish('wear_scare', petUnique)
-
-                if not Utils.IsPetEquipped(Ailment.whichPet) then
-                    return
-                end
-
-                ReplicatedStorage.API:FindFirstChild('AdoptAPI/EjectBaby'):FireServer(ClientData.get('pet_char_wrappers')[Ailment.whichPet]['char'])
-            end
             function Ailment.RideAilment(strollerId, petUnique)
                 if not strollerId then
                     Utils.PrintDebug(string.format('NO strollerId: %s', tostring(strollerId)))
@@ -10613,36 +10705,25 @@ Check the Developer Console for more information.]],
                     return false
                 end
             end
-            local isfocusFarmPets = function()
+            local isfocusFarmPets = function(whichPet)
                 local pets = ClientData.get('pet_char_wrappers')
-                local equippedPet = pets and pets[1]
+                local equippedPet = pets and pets[whichPet]
 
                 if not equippedPet then
-                    if not Utils.Equip(getgenv().petCurrentlyFarming1, false) then
+                    if not Utils.Equip(string.format('%s%s', tostring(getgenv().petCurrentlyFarming), tostring(whichPet)), false) then
                         return false
                     end
-                    if not Utils.WaitForPetToEquip() then
+                    if not Utils.WaitForPetToEquip(whichPet) then
                         return false
                     end
                 end
 
                 pets = ClientData.get('pet_char_wrappers')
-                equippedPet = pets and pets[1]
+                equippedPet = pets and pets[whichPet]
 
                 local petId = equippedPet and equippedPet.pet_id
 
                 return petId ~= nil and table.find(potionFarmPets, petId) ~= nil
-            end
-            local isProHandler = function()
-                local subscription = ClientData.get_data()[localPlayer.Name].subscription_equip_2x_pets
-
-                if not subscription then
-                    localPlayer:SetAttribute('isProHandler', false)
-
-                    return
-                end
-
-                localPlayer:SetAttribute('isProHandler', subscription.active)
             end
             local getEgg = function()
                 for _, v in ClientData.get_data()[localPlayer.Name].inventory.pets do
@@ -10705,13 +10786,7 @@ Check the Developer Console for more information.]],
             end
             function FarmingPet.GetPetToFarm(whichPet)
                 if getgenv().SETTINGS.FOCUS_FARM_AGE_POTION then
-                    if whichPet == 1 and isfocusFarmPets() then
-                        return
-                    end
-
-                    isProHandler()
-
-                    if whichPet == 2 and localPlayer:GetAttribute('isProHandler') == true and getgenv().petCurrentlyFarming2 then
+                    if isfocusFarmPets(whichPet) then
                         return
                     end
 
@@ -10999,7 +11074,6 @@ Check the Developer Console for more information.]],
             local DailiesNetService = (require(modules:WaitForChild('Dailies'):WaitForChild('DailiesNetService')))
             local self = {}
             local localPlayer = Players.LocalPlayer
-            local rng = Random.new(DateTime.now().UnixTimestamp)
             local jobId = game.JobId
             local baitboxCount = 0
             local strollerId = GetInventory.GetUniqueId('strollers', 'stroller-default')
@@ -11078,9 +11152,6 @@ Check the Developer Console for more information.]],
             end
             local completePetAilments = function(whichPet)
                 if localPlayer:GetAttribute('StopFarmingTemp') == true then
-                    return false
-                end
-                if localPlayer:GetAttribute('IsProHandler') == false and whichPet == 2 then
                     return false
                 end
 
@@ -11207,10 +11278,6 @@ Check the Developer Console for more information.]],
                         end
 
                         return true
-                    elseif key == 'wear_scare' then
-                        Ailment.HalloweenWalkAilment(petUnique)
-
-                        return true
                     end
                 end
                 for key, _ in ClientData.get_data()[localPlayer.Name].ailments_manager.ailments[petUnique]do
@@ -11279,19 +11346,26 @@ Check the Developer Console for more information.]],
 
                 Utils.RemoveHandHeldItem()
 
+                local equippedCount = ClientData.get_data()[localPlayer.Name].equipped_pets_allowed or 1
+
                 if getgenv().SETTINGS.HATCH_EGG_PRIORITY then
-                    FarmingPet.CheckIfEgg(1)
-                    task.wait(1)
+                    for i = 1, equippedCount do
+                        FarmingPet.CheckIfEgg(i)
+                    end
                 end
                 if getgenv().SETTINGS.FOCUS_FARM_AGE_POTION then
-                    FarmingPet.GetPetToFarm(1)
+                    for i = 1, equippedCount do
+                        FarmingPet.GetPetToFarm(i)
+                    end
                 end
 
                 Utils.WaitForHumanoidRootPart().Anchored = false
 
-                if not completePetAilments(1) then
-                    task.wait()
-                    completeBabyAilments()
+                for i = 1, equippedCount do
+                    if not completePetAilments(i) then
+                        task.wait()
+                        completeBabyAilments()
+                    end
                 end
 
                 task.wait(1)
@@ -11316,7 +11390,7 @@ Check the Developer Console for more information.]],
 
                 tryFeedAgePotion()
 
-                local waitTime = rng:NextInteger(2, 6)
+                local waitTime = 1
 
                 baitboxCount = baitboxCount + waitTime
 
@@ -11381,8 +11455,22 @@ Check the Developer Console for more information.]],
                 Utils.PrintDebug('teleported to farming place')
                 tryToReleasePets()
                 Utils.UnEquipAllPets()
+
+                local proHandlerCert = GetInventory.GetUniqueId('gifts', 'subscription_2024_2x_pet_certificate')
+
+                if proHandlerCert then
+                    pcall(function()
+                        RouterClient.get('ToolAPI/ServerUseTool'):InvokeServer(proHandlerCert, 'END', true)
+                    end)
+                end
+
                 task.wait(2)
-                FarmingPet.GetPetToFarm(1)
+
+                for i = 1, ClientData.get_data()[localPlayer.Name].equipped_pets_allowed or 1 do
+                    FarmingPet.GetPetToFarm(i)
+                    task.wait()
+                end
+
                 task.wait(2)
                 task.delay(30, function()
                     while getgenv().SETTINGS.ENABLE_AUTO_FARM do
