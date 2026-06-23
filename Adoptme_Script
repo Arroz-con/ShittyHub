@@ -10841,8 +10841,6 @@ Check the Developer Console for more information.]],
                         end
                     end
                     if isfocusFarmPets(potionFarmPets, whichPet) then
-                        Utils.PrintDebug(string.format('Has focusFarmpets list equipped, %s', tostring(whichPet)))
-
                         return
                     end
 
@@ -11496,6 +11494,7 @@ Check the Developer Console for more information.]],
 
                         local success, result = pcall(function()
                             startAutoFarm()
+                            Utils.PrintDebug('Waiting for task...')
                         end)
 
                         if not success then
