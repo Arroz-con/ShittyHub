@@ -3715,9 +3715,10 @@ do
                 'QuestIconApp',
             }
             local patterns = {
+                ['caught enough Karp'] = 'Next',
                 ['Your certificate'] = 'Okay',
                 ['Wind has picked'] = 'Okay',
-                ['Fishing Rod'] = 'Okay',
+                ['new Fishing Rod'] = 'Okay',
                 ['is starting soon!'] = 'Yes',
                 ['The Journey Pass'] = 'Okay',
                 ['Thunder has'] = 'Okay',
@@ -10742,10 +10743,13 @@ Check the Developer Console for more information.]],
                 local equippedPet = pets and pets[whichPet]
 
                 if not equippedPet then
-                    local petFarming = string.format('%s%s', tostring(getgenv().petCurrentlyFarming), tostring(whichPet))
+                    local petFarming
 
-                    print('isfocusFarmPets:', petFarming)
-
+                    if whichPet == 1 then
+                        petFarming = getgenv().petCurrentlyFarming1
+                    elseif whichPet == 2 then
+                        petFarming = getgenv().petCurrentlyFarming2
+                    end
                     if not Utils.Equip(petFarming, false) then
                         return false
                     end
