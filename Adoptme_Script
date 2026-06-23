@@ -3715,8 +3715,9 @@ do
                 'QuestIconApp',
             }
             local patterns = {
+                ['Your certificate'] = 'Okay',
                 ['Wind has picked'] = 'Okay',
-                ['Boat tour starts'] = 'Okay',
+                ['Fishing Rod'] = 'Okay',
                 ['is starting soon!'] = 'Yes',
                 ['The Journey Pass'] = 'Okay',
                 ['Thunder has'] = 'Okay',
@@ -10736,12 +10737,16 @@ Check the Developer Console for more information.]],
                     return false
                 end
             end
-            local isfocusFarmPets = function(whichPet)
+            local isfocusFarmPets = function(petsToFarmList, whichPet)
                 local pets = ClientData.get('pet_char_wrappers')
                 local equippedPet = pets and pets[whichPet]
 
                 if not equippedPet then
-                    if not Utils.Equip(string.format('%s%s', tostring(getgenv().petCurrentlyFarming), tostring(whichPet)), false) then
+                    local petFarming = string.format('%s%s', tostring(getgenv().petCurrentlyFarming), tostring(whichPet))
+
+                    print('isfocusFarmPets:', petFarming)
+
+                    if not Utils.Equip(petFarming, false) then
                         return false
                     end
                     if not Utils.WaitForPetToEquip(whichPet) then
@@ -10754,7 +10759,7 @@ Check the Developer Console for more information.]],
 
                 local petId = equippedPet and equippedPet.pet_id
 
-                return petId ~= nil and table.find(potionFarmPets, petId) ~= nil
+                return petId ~= nil and table.find(petsToFarmList, petId) ~= nil
             end
             local getEgg = function()
                 for _, v in ClientData.get_data()[localPlayer.Name].inventory.pets do
@@ -10817,16 +10822,22 @@ Check the Developer Console for more information.]],
             end
             function FarmingPet.GetPetToFarm(whichPet)
                 if getgenv().SETTINGS.FOCUS_FARM_AGE_POTION then
-                    if isfocusFarmPets(whichPet) then
-                        return
+                    if ClientData.get_data()[localPlayer.Name].synced_value_2d_kitty_tuesdays then
+                        if isfocusFarmPets({
+                            '2d_kitty',
+                        }, whichPet) then
+                            return
+                        end
+                        if GetInventory.CheckForPetAndEquip({
+                            '2d_kitty',
+                        }, whichPet) then
+                            print('FOUND 2d kitty', whichPet)
+
+                            return
+                        end
                     end
-
-                    print('trying to see if 2d kitty')
-
-                    if GetInventory.CheckForPetAndEquip({
-                        '2d_kitty',
-                    }, whichPet) then
-                        print('FOUND 2d kitty', whichPet)
+                    if isfocusFarmPets(potionFarmPets, whichPet) then
+                        Utils.PrintDebug(string.format('Has focusFarmpets list equipped, %s', tostring(whichPet)))
 
                         return
                     end
@@ -11434,34 +11445,6 @@ Check the Developer Console for more information.]],
                     dayOrNight
                 )
                     task.wait(2)
-
-                    if ClientData.get_data()[localPlayer.Name].synced_value_2d_kitty_tuesdays then
-                        local isTuesdayEvent = Utils.IsDayAndHour('Tuesday', 8, 'am') or Utils.IsDayAndHour('Tuesday', 4, 'pm') or Utils.IsDayAndHour('Wednesday', 12, 'am')
-
-                        if isTuesdayEvent then
-                            print('SWITCHED TO 2d_kitty BECAUSE ITS EVENT TIME')
-                            localPlayer:SetAttribute('IsTuesdayEvent', true)
-                            DailiesNetService.try_to_claim_daily_rewards('2d_tuesdays')
-                            FarmingPet.SetFarmingTable({
-                                '2d_kitty',
-                            })
-
-                            return
-                        end
-                    end
-
-                    local potionFarmPets = {
-                        '2d_kitty',
-                        'dog',
-                        'cat',
-                        'starter_egg',
-                        'cracked_egg',
-                        'basic_egg_2022_ant',
-                        'basic_egg_2022_mouse',
-                    }
-
-                    FarmingPet.SetFarmingTable(potionFarmPets)
-                    localPlayer:SetAttribute('IsTuesdayEvent', false)
                 end)
             end
             function self.Start()
@@ -12130,6 +12113,14 @@ Check the Developer Console for more information.]],
     end
 end
 
+if getgenv().loaded == true then
+    print('SCRIPT ALREADY LOADED')
+
+    return
+end
+
+getgenv().loaded = true
+
 setfpscap(2)
 task.wait(10)
 
@@ -12138,14 +12129,6 @@ if not game:IsLoaded() then
 end
 
 setfpscap(getgenv().SETTINGS.SET_FPS or 2)
-
-if getgenv().loaded == true then
-    print('SCRIPT ALREADY LOADED')
-
-    return
-end
-
-getgenv().loaded = true
 
 if game.PlaceId ~= 920587237 then
     return
