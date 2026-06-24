@@ -1,5 +1,15 @@
 --!strict
-
+type tradeData = {
+    current_stage: string,
+    sender_offer: {
+        negotiated: boolean,
+        confirmed: boolean,
+        items: { any },
+    },
+    recipient_offer: {
+        items: { any },
+    },
+}
 -----------------------------
 -- SERVICES --
 -----------------------------
@@ -48,14 +58,20 @@ local localPlayer = Players.LocalPlayer
 -- PRIVATE FUNCTIONS --
 -----------------------------
 
-local function waitForActiveTrade(timeout: number?): boolean
-    timeout = timeout or 60
-    if not timeout then return false end
+local function getTradeData()
+    if ClientData.get_data()[localPlayer.Name].trade then
+        return ClientData.get_data()[localPlayer.Name].trade
+    end
+    return nil
+end
 
+local function waitForActiveTrade(timeOut: number): boolean
     while not ClientData.get_data()[localPlayer.Name].in_active_trade do
         task.wait(1)
-        timeout -= 1
-        if timeout <= 0 then return false, print("⚠️ waiting for trade timedout ⚠️") end
+        timeOut -= 1
+        if timeOut <= 0 then
+            return false
+        end
     end
     return true
 end
@@ -71,22 +87,28 @@ function Trade.AcceptNegotiationAndConfirm()
     repeat
         task.wait(1)
         if ClientData.get_data()[localPlayer.Name].in_active_trade then
-            if ClientData.get_data()[localPlayer.Name].trade.current_stage == "negotiation" then
-                if not ClientData.get_data()[localPlayer.Name].trade.sender_offer.negotiated then
+            local tradeData: tradeData = getTradeData()
+            if tradeData and tradeData.current_stage and tradeData.current_stage == "negotiation" then
+                if not (tradeData.sender_offer and tradeData.sender_offer.negotiated) then
                     RouterClient.get("TradeAPI/AcceptNegotiation"):FireServer()
                 end
             end
 
             if
-                #ClientData.get_data()[localPlayer.Name].trade.sender_offer.items == 0
-                and #ClientData.get_data()[localPlayer.Name].trade.recipient_offer.items == 0
+                tradeData
+                and tradeData.sender_offer
+                and tradeData.sender_offer.items
+                and #tradeData.sender_offer.items == 0
+                and tradeData.recipient_offer
+                and tradeData.recipient_offer.items
+                and #tradeData.recipient_offer.items == 0
             then
                 RouterClient.get("TradeAPI/DeclineTrade"):FireServer()
                 return false
             end
 
-            if ClientData.get_data()[localPlayer.Name].trade.current_stage == "confirmation" then
-                if not ClientData.get_data()[localPlayer.Name].trade.sender_offer.confirmed then
+            if tradeData and tradeData.current_stage and tradeData.current_stage == "confirmation" then
+                if not (tradeData.sender_offer and tradeData.sender_offer.confirmed) then
                     RouterClient.get("TradeAPI/ConfirmTrade"):FireServer()
                 end
             end
@@ -106,8 +128,9 @@ function Trade.SendTradeRequest(player: Player): boolean
 
         if ClientData.get_data()[player.Name] and not ClientData.get_data()[player.Name].in_active_trade then
             RouterClient.get("TradeAPI/SendTradeRequest"):FireServer(player)
+            if not waitForActiveTrade(30) then return false end
         end
-        task.wait(5)
+        task.wait(1)
     end
 end
 
@@ -145,14 +168,14 @@ local function getPetByLevelOrder(petId: string, maxAmount: number, isNeon: bool
 end
 
 function Trade.NewbornToPostteenByPetId(petId: string, maxAmount: number)
-    if not waitForActiveTrade() then return end
+    if not waitForActiveTrade(60) then return end
 
     getPetByLevelOrder(petId, maxAmount, true)
     getPetByLevelOrder(petId, maxAmount, nil)
 end
 
 function Trade.MegaAndByPetId(petId: string, maxAmount: number)
-    if not waitForActiveTrade() then return end
+    if not waitForActiveTrade(60) then return end
 
     if #ClientData.get_data()[localPlayer.Name].trade.sender_offer.items >= maxAmount then
         return
