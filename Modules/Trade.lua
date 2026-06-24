@@ -1,15 +1,15 @@
---!strict
-type tradeData = {
-    current_stage: string,
-    sender_offer: {
-        negotiated: boolean,
-        confirmed: boolean,
-        items: { any },
-    },
-    recipient_offer: {
-        items: { any },
-    },
-}
+--!nonstrict
+-- type tradeData = {
+--     current_stage: string,
+--     sender_offer: {
+--         negotiated: boolean,
+--         confirmed: boolean,
+--         items: { any },
+--     },
+--     recipient_offer: {
+--         items: { any },
+--     },
+-- }
 -----------------------------
 -- SERVICES --
 -----------------------------
@@ -87,7 +87,7 @@ function Trade.AcceptNegotiationAndConfirm(): boolean
     repeat
         task.wait(1)
         if ClientData.get_data()[localPlayer.Name].in_active_trade then
-            local tradeData: tradeData = getTradeData()
+            local tradeData = getTradeData()
             if tradeData and tradeData.current_stage and tradeData.current_stage == "negotiation" then
                 if not (tradeData.sender_offer and tradeData.sender_offer.negotiated) then
                     RouterClient.get("TradeAPI/AcceptNegotiation"):FireServer()
