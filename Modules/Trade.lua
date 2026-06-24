@@ -82,7 +82,7 @@ end
 
 -- sender_offer is then one who send the trade
 -- recipient_offer is the one who got the trade
-function Trade.AcceptNegotiationAndConfirm()
+function Trade.AcceptNegotiationAndConfirm(): boolean
     local timeOut = 30
     repeat
         task.wait(1)
