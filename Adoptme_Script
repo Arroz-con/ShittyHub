@@ -9780,7 +9780,6 @@ Check the Developer Console for more information.]],
                     max = 75,
                 },
             }
-            local HAS_FISHS_FOR_MONSTER_BAIT = false
             local Summer2026 = {}
             local checkFishesInventory = function()
                 for i = #fishes, 1, -1 do
@@ -9792,10 +9791,6 @@ Check the Developer Console for more information.]],
                 end
             end
             local tryBuyBait = function()
-                if HAS_FISHS_FOR_MONSTER_BAIT then
-                    return
-                end
-
                 BuyItem.StartBuyItems({
                     {
                         NameId = 'summer_2026_fishing_bait',
@@ -9834,12 +9829,6 @@ Check the Developer Console for more information.]],
                 end
             end
             local tryBuyRainbowTrout = function()
-                if HAS_FISHS_FOR_MONSTER_BAIT then
-                    print(
-[[Not buying rainbow trout because it has items to buy monster bait, just waiting on acorns (75k+)]])
-
-                    return
-                end
                 if Utils.EventCurrencyAmount() < 70000 then
                     return
                 end
@@ -9847,6 +9836,7 @@ Check the Developer Console for more information.]],
                     return
                 end
 
+                print('Bought Rainbow Trout')
                 FishingNetService.purchase_item('summer_2026_rainbow_trout', 1)
             end
             local tryBuyTealwoodMonsterBait = function()
@@ -9863,14 +9853,11 @@ Check the Developer Console for more information.]],
                     return false
                 end
                 if Utils.EventCurrencyAmount() < 75000 then
-                    HAS_FISHS_FOR_MONSTER_BAIT = true
-
                     return false
                 end
 
                 FishingNetService.purchase_item('summer_2026_monster_fishing_bait', 1)
 
-                HAS_FISHS_FOR_MONSTER_BAIT = false
                 fishes = {
                     {
                         id = 'summer_2026_gold_fish',
@@ -9892,6 +9879,8 @@ Check the Developer Console for more information.]],
             end
             local tryCatchTealwoodMonster = function()
                 if not tryBuyTealwoodMonsterBait() then
+                    print('Doesnt have the requirements to buy monster bait')
+
                     return
                 end
 
@@ -9904,9 +9893,6 @@ Check the Developer Console for more information.]],
                 end
             end
             local tryCatchFish = function()
-                tryCatchTealwoodMonster()
-                tryCatchRainbowFish()
-
                 if not GetInventory.GetUniqueId('gifts', 'summer_2026_fishing_bait') then
                     warn('No fishing bait')
 
@@ -9977,9 +9963,19 @@ Check the Developer Console for more information.]],
 
                     if dayOrNight == 'DAY' then
                         tryUpgradeFishingRod()
-                        tryBuyBait()
-                        tryCatchFish()
-                        tryBuyRainbowTrout()
+
+                        if getgenv().SETTINGS.BUY_TEALWOOD_MONSTER then
+                            print('Trying to catch tealwood or get fish requirements')
+                            tryBuyBait()
+                            tryCatchTealwoodMonster()
+                            tryCatchFish()
+                        end
+                        if getgenv().SETTINGS.BUY_RAINBOW_TROUT then
+                            print('trying to catch rainbow fish or buy rainbow trout')
+                            tryCatchRainbowFish()
+                            tryBuyRainbowTrout()
+                        end
+
                         tryBalloonFight()
                     end
                 end)
@@ -9987,9 +9983,17 @@ Check the Developer Console for more information.]],
             function Summer2026.Start()
                 tryBuyFishingRod()
                 tryUpgradeFishingRod()
-                tryBuyBait()
-                tryCatchFish()
-                tryBuyRainbowTrout()
+
+                if getgenv().SETTINGS.BUY_TEALWOOD_MONSTER then
+                    tryBuyBait()
+                    tryCatchTealwoodMonster()
+                    tryCatchFish()
+                end
+                if getgenv().SETTINGS.BUY_RAINBOW_TROUT then
+                    tryCatchRainbowFish()
+                    tryBuyRainbowTrout()
+                end
+
                 tryBalloonFight()
             end
 
