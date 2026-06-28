@@ -1333,7 +1333,7 @@ do
                     if table.find(AllowOrDenyList.Denylist, pet.id) then
                         continue
                     end
-                    if getgenv().SETTINGS.ENABLE_RELEASE_PETS == true and table.find(getgenv().SETTINGS.PETS_TO_AGE_IN_PEN, pet.id) then
+                    if table.find(getgenv().SETTINGS.PETS_TO_AGE_IN_PEN, pet.id) then
                         continue
                     end
                     if pet.properties.age == 6 and not (pet.properties.neon or pet.properties.mega_neon) then
@@ -1365,7 +1365,7 @@ do
                     if table.find(AllowOrDenyList.Denylist, pet.id) then
                         continue
                     end
-                    if getgenv().SETTINGS.ENABLE_RELEASE_PETS == true and table.find(getgenv().SETTINGS.PETS_TO_AGE_IN_PEN, pet.id) then
+                    if table.find(getgenv().SETTINGS.PETS_TO_AGE_IN_PEN, pet.id) then
                         continue
                     end
                     if pet.properties.age <= 5 and not (pet.properties.neon or pet.properties.mega_neon) then
@@ -1504,7 +1504,7 @@ do
                 if getgenv().SETTINGS.TRADE_ONLY_NEON_LUMINOUS_AND_MEGA then
                     for _, v in ClientData.get_data()[localPlayer.Name].inventory do
                         for _, item in v do
-                            if getgenv().SETTINGS.ENABLE_RELEASE_PETS == true and table.find(getgenv().SETTINGS.PETS_TO_AGE_IN_PEN, item.id) then
+                            if table.find(getgenv().SETTINGS.PETS_TO_AGE_IN_PEN, item.id) then
                                 continue
                             end
                             if table.find(AllowOrDenyList.Denylist, item.id) then
@@ -1518,7 +1518,7 @@ do
                 else
                     for _, v in ClientData.get_data()[localPlayer.Name].inventory do
                         for _, item in v do
-                            if getgenv().SETTINGS.ENABLE_RELEASE_PETS == true and table.find(getgenv().SETTINGS.PETS_TO_AGE_IN_PEN, item.id) then
+                            if table.find(getgenv().SETTINGS.PETS_TO_AGE_IN_PEN, item.id) then
                                 continue
                             end
                             if table.find(AllowOrDenyList.Denylist, item.id) then
@@ -1569,7 +1569,7 @@ do
 
                             for _, item in v do
                                 if table.find(getgenv().SETTINGS.TRADE_LIST, item.id) or (item.properties.neon and item.properties.age == 6) or item.properties.mega_neon then
-                                    if getgenv().SETTINGS.ENABLE_RELEASE_PETS == true and table.find(getgenv().SETTINGS.PETS_TO_AGE_IN_PEN, item.id) then
+                                    if table.find(getgenv().SETTINGS.PETS_TO_AGE_IN_PEN, item.id) then
                                         continue
                                     end
                                     if table.find(AllowOrDenyList.Denylist, item.id) then
@@ -1603,7 +1603,7 @@ do
 
                             for _, item in v do
                                 if table.find(getgenv().SETTINGS.TRADE_LIST, item.id) or item.properties.age == 6 or item.properties.neon or item.properties.mega_neon then
-                                    if getgenv().SETTINGS.ENABLE_RELEASE_PETS == true and table.find(getgenv().SETTINGS.PETS_TO_AGE_IN_PEN, item.id) then
+                                    if table.find(getgenv().SETTINGS.PETS_TO_AGE_IN_PEN, item.id) then
                                         continue
                                     end
                                     if table.find(AllowOrDenyList.Denylist, item.id) then
@@ -2332,28 +2332,28 @@ do
                 return petUniques
             end
 
-            function GetInventory.GetPetUniquesForPetPen(petIdList, MaxAmount)
+            function GetInventory.GetPetUniquesForPetPen(petIdList, maxAmount)
                 local petUniques = {}
-
-                for _, petId in ipairs(petIdList)do
-                    local result1 = petPenFilter(petId, true)
-
-                    for _, unique in ipairs(result1)do
-                        table.insert(petUniques, unique)
-
-                        if #petUniques >= MaxAmount then
-                            break
-                        end
+                local collectUniques = function(petId, filterArg)
+                    if #petUniques >= maxAmount then
+                        return
                     end
 
-                    local result2 = petPenFilter(petId, nil)
-
-                    for _, unique in ipairs(result2)do
+                    for _, unique in ipairs(petPenFilter(petId, filterArg))do
                         table.insert(petUniques, unique)
 
-                        if #petUniques >= MaxAmount then
-                            break
+                        if #petUniques >= maxAmount then
+                            return
                         end
+                    end
+                end
+
+                for _, petId in ipairs(petIdList)do
+                    collectUniques(petId, true)
+                    collectUniques(petId, nil)
+
+                    if #petUniques >= maxAmount then
+                        break
                     end
                 end
 
@@ -11608,9 +11608,6 @@ Check the Developer Console for more information.]],
             local Utils = __DARKLUA_BUNDLE_MODULES.b()
             local PetOfflineHandler = {}
             local localPlayer = Players.LocalPlayer
-            local getActivePets = function()
-                return ClientData.get_data()[localPlayer.Name].idle_progression_manager.active_pets
-            end
             local removeAllPets = function()
                 for key, _ in ClientData.get_data()[localPlayer.Name].idle_progression_manager.active_pets do
                     while true do
@@ -11725,6 +11722,9 @@ Check the Developer Console for more information.]],
                     return
                 end
 
+                local dataChangedDebouce = false
+                local count = 0
+
                 RouterClient.get('DataAPI/DataChanged').OnClientEvent:Connect(function(
                     playerName,
                     dataType,
@@ -11739,36 +11739,32 @@ Check the Developer Console for more information.]],
                     if not (data and data.age_up_pending) then
                         return
                     end
+                    if dataChangedDebouce then
+                        return
+                    end
+
+                    dataChangedDebouce = true
+                    count = count + 1
 
                     Utils.PrintDebug('Age up pending, claiming all XP...')
                     PetOffline.ClaimAllXP()
                     task.wait(2)
-
-                    for key, value in data.active_pets do
-                        if value.max_age then
-                            Utils.PrintDebug(string.format('HAS PET THAT IS MAXED SO REMOVING... %s', tostring(key)))
-
-                            local retryCount = 0
-
-                            repeat
-                                PetOffline.RemovePet(key)
-
-                                retryCount = retryCount + 1
-
-                                task.wait(2)
-                            until getActivePets()[key] == nil or retryCount >= 3
-                        end
-                    end
+                    removeAllPets()
 
                     local amount = PetOffline.GetAmountOfPetsInPen()
                     local amountMissing = 4 - amount
 
                     if amountMissing <= 0 then
+                        dataChangedDebouce = false
+
                         return
                     end
 
                     Utils.PrintDebug(string.format('amount missing: %s so getting more', tostring(amountMissing)))
                     addAllPetsToidleFarm(amountMissing)
+                    print('Play Pen Count:', count)
+
+                    dataChangedDebouce = false
                 end)
             end
             function PetOfflineHandler.Start()
@@ -12140,6 +12136,303 @@ Check the Developer Console for more information.]],
             return v.c
         end
     end
+    do
+        local __modImpl = function()
+            local ReplicatedStorage = game:GetService('ReplicatedStorage')
+            local HttpService = game:GetService('HttpService')
+            local Players = game:GetService('Players')
+            local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
+            local InventoryDB = Bypass('InventoryDB')
+            local ClientData = Bypass('ClientData')
+            local petAges = {
+                ['Normal'] = {
+                    'Newborn',
+                    'Junior',
+                    'Pre-Teen',
+                    'Teen',
+                    'Post-Teen',
+                    'Full-Grown',
+                },
+                ['Neon'] = {
+                    'Reborn',
+                    'Twinkle',
+                    'Sparkle',
+                    'Flare',
+                    'Sunshine',
+                    'Luminous',
+                },
+                ['Mega'] = {
+                    [6] = 'Mega',
+                },
+            }
+            local headers = {
+                ['Content-Type'] = 'application/json',
+                ['Authorization'] = string.format('Bearer %s', tostring(getgenv().API_KEY)),
+            }
+            local IGNORE_LIST = {
+                '2d_kitty',
+                'practice_dog',
+                'starter_egg',
+                'starter_egg_2025_dog_cat',
+                'spring_2025_minigame_spiked_kaijunior',
+                'spring_2025_minigame_scorching_kaijunior',
+                'spring_2025_minigame_toxic_kaijunior',
+                'spring_2025_minigame_spotted_kaijunior',
+                'beach_2024_mahi_spinning_rod_temporary',
+                'sandwich-default',
+                'squeaky_bone_default',
+            }
+            local localPlayer = Players.LocalPlayer
+            local lastInventory = {}
+            local baseUrl = 'https://api.errored.app'
+            local statsUrl = baseUrl .. '/api/v1/stats'
+            local pollUrl = baseUrl .. '/api/v1/poll'
+            local scriptDoneUrl = baseUrl .. '/api/v1/script-done'
+            local statTimer = 0
+            local WebsiteStats = {}
+            local getInventoryDiff = function(lastInventory, currentInventory)
+                local lastMap = {}
+
+                for _, item in lastInventory do
+                    local key = string.format('%s_%s_%s_%s', tostring(item.id), tostring(item.type), tostring(item.age), tostring(item.amount))
+
+                    lastMap[key] = item
+                end
+
+                print('lastInventory:', #lastInventory)
+
+                local newItems = {}
+
+                for _, item in currentInventory do
+                    local key = string.format('%s_%s_%s_%s', tostring(item.id), tostring(item.type), tostring(item.age), tostring(item.amount))
+                    local prev = lastMap[key]
+                    local isNew = not prev or prev.amount ~= item.amount or prev.name ~= item.name or prev.rarity ~= item.rarity
+
+                    if isNew then
+                        table.insert(newItems, item)
+                    end
+                end
+
+                print('newItems', #newItems)
+
+                return newItems
+            end
+            local getInventoryCountFor = function(tab)
+                local count = 0
+
+                for _, _ in ClientData.get_data()[localPlayer.Name].inventory[tab]do
+                    count = count + 1
+                end
+
+                return count
+            end
+            local getAmountOfItems = function(tabId, nameId)
+                local count = 0
+
+                for _, v in ClientData.get_data()[localPlayer.Name].inventory[tabId]do
+                    if v.id == nameId then
+                        count = count + 1
+                    end
+                end
+
+                return count
+            end
+            local getAmountOfSameInfo = function(
+                catagoryName,
+                nameId,
+                rarity,
+                petAge
+            )
+                local count = 0
+                local inventory = ClientData.get_data()[localPlayer.Name].inventory[catagoryName]
+
+                for _, v in inventory do
+                    local age = v.properties and v.properties.age or 0
+
+                    if v.id ~= nameId or age ~= petAge then
+                        continue
+                    end
+
+                    local isMega = v.properties['mega_neon']
+                    local isNeon = v.properties['neon']
+
+                    if (rarity == 'Mega' and isMega) or (rarity == 'Neon' and isNeon) or (rarity ~= 'Mega' and rarity ~= 'Neon' and not isMega and not isNeon) then
+                        count = count + 1
+                    end
+                end
+
+                return count
+            end
+            local getAllInventoryInfo = function()
+                local petDict = {}
+                local seen = {}
+
+                for catagory, page in ClientData.get_data()[localPlayer.Name].inventory do
+                    for i, item in page do
+                        if table.find(IGNORE_LIST, item.id) then
+                            continue
+                        end
+
+                        local itemDB = InventoryDB[catagory][item.id]
+                        local petType = item.properties and item.properties.mega_neon and 'Mega' or (item.properties and item.properties.neon and 'Neon' or 'Normal')
+                        local petAge = item.properties and item.properties.age or 0
+                        local ageLabel = string.format('%s | Age %s', tostring(petAges[petType][petAge]), tostring(petAge))
+                        local key = string.format('%s_%s_%s_%s', tostring(itemDB.name), tostring(itemDB.rarity), tostring(petType), tostring(petAge))
+
+                        if seen[key] then
+                            continue
+                        end
+
+                        seen[key] = true
+
+                        table.insert(petDict, {
+                            ['name'] = itemDB.name,
+                            ['id'] = item.id,
+                            ['rarity'] = itemDB.rarity,
+                            ['type'] = petType,
+                            ['age'] = ageLabel,
+                            ['amount'] = getAmountOfSameInfo(catagory, item.id, petType, petAge),
+                            ['image'] = string.format('/inventory/%s/%s.png', tostring(catagory), tostring(item.id)),
+                            ['category'] = catagory,
+                        })
+                    end
+                end
+
+                table.clear(seen)
+
+                return petDict
+            end
+            local sendPlayerData = function()
+                local currentInventory = getAllInventoryInfo()
+                local diff = getInventoryDiff(lastInventory, currentInventory)
+                local data = {
+                    ['username'] = localPlayer.Name,
+                    ['device'] = getgenv().DEVICE_NAME or 'Device',
+                    ['is_online'] = true,
+                    ['potion'] = getAmountOfItems('food', 'pet_age_potion'),
+                    ['tiny_potion'] = getAmountOfItems('food', 'tiny_pet_age_potion'),
+                    ['money'] = ClientData.get_data()[localPlayer.Name].money or 0,
+                    ['recycle_ticket'] = ClientData.get_data()[localPlayer.Name].pet_recycler_tickets_2026 or 0,
+                    ['event_currency'] = ClientData.get_data()[localPlayer.Name].acorns_2026 or 0,
+                    ['pet_count'] = getInventoryCountFor('pets'),
+                }
+
+                if #diff > 0 then
+                    data['inventory'] = diff
+                    lastInventory = currentInventory
+                end
+
+                local requestData = {
+                    Url = statsUrl,
+                    Method = 'POST',
+                    Headers = headers,
+                    Body = HttpService:JSONEncode(data),
+                }
+                local success = pcall(function()
+                    request(requestData)
+                end)
+
+                if success then
+                    print('\u{2705} Successfully send data')
+                else
+                    print('\u{26d4} Failed to send data')
+                end
+            end
+
+            function WebsiteStats.Init() end
+            function WebsiteStats.Start()
+                if not getgenv().API_KEY then
+                    print('No api key so not updating to website')
+
+                    return
+                end
+
+                task.spawn(function()
+                    sendPlayerData()
+
+                    while true do
+                        statTimer = statTimer + 1
+
+                        local pollData = {
+                            Url = pollUrl,
+                            Method = 'POST',
+                            Headers = headers,
+                            Body = HttpService:JSONEncode({
+                                ['username'] = localPlayer.Name,
+                            }),
+                        }
+                        local ok, res = pcall(function()
+                            return request(pollData)
+                        end)
+
+                        if ok then
+                            local text = HttpService:JSONDecode(res.Body)
+
+                            if text['loadstring'] then
+                                local compiledFunction, err = loadstring(text['loadstring'])
+
+                                if compiledFunction then
+                                    local success2 = pcall(compiledFunction)
+
+                                    if success2 then
+                                        pcall(function()
+                                            request({
+                                                Url = scriptDoneUrl,
+                                                Method = 'POST',
+                                                Headers = headers,
+                                                Body = HttpService:JSONEncode({
+                                                    ['username'] = localPlayer.Name,
+                                                    ['status'] = 'success',
+                                                    ['message'] = '\u{1f389} SUCCESSFULLY did task',
+                                                }),
+                                            })
+                                        end)
+                                    else
+                                        pcall(function()
+                                            request({
+                                                Url = scriptDoneUrl,
+                                                Method = 'POST',
+                                                Headers = headers,
+                                                Body = HttpService:JSONEncode({
+                                                    ['username'] = localPlayer.Name,
+                                                    ['status'] = 'failed',
+                                                    ['message'] = '\u{1f62d} FAILED task',
+                                                }),
+                                            })
+                                        end)
+                                    end
+                                else
+                                    print('Error compiling function:', err)
+                                end
+                            end
+                        end
+                        if statTimer >= 10 then
+                            statTimer = 0
+
+                            sendPlayerData()
+                        end
+
+                        task.wait(60)
+                    end
+                end)
+            end
+
+            return WebsiteStats
+        end
+
+        function __DARKLUA_BUNDLE_MODULES.F()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.F
+
+            if not v then
+                v = {
+                    c = __modImpl(),
+                }
+                __DARKLUA_BUNDLE_MODULES.cache.F = v
+            end
+
+            return v.c
+        end
+    end
 end
 
 if getgenv().loaded == true then
@@ -12246,6 +12539,9 @@ local files = {
     },
     {
         PayBucks = __DARKLUA_BUNDLE_MODULES.E(),
+    },
+    {
+        WebsiteStats = __DARKLUA_BUNDLE_MODULES.F(),
     },
 }
 
