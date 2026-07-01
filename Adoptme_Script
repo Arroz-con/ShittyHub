@@ -10013,7 +10013,7 @@ Check the Developer Console for more information.]],
                     tryBuyRainbowTrout()
                 end
 
-                tryBalloonFight()
+                task.spawn(tryBalloonFight)
                 tryCollectBottle()
                 tryHandInBone()
                 tryHandInPages()
@@ -12341,78 +12341,82 @@ Check the Developer Console for more information.]],
 
             function WebsiteStats.Init() end
             function WebsiteStats.Start()
-                if not getgenv().API_KEY then
-                    print('No api key so not updating to website')
+                local key = getgenv().API_KEY
+
+                if not key or #key < 30 then
+                    print(
+[[No api key or api key is too short so not updating to website]])
 
                     return
                 end
 
                 task.spawn(function()
-                    sendPlayerData()
+                    pcall(sendPlayerData)
 
                     while true do
-                        statTimer = statTimer + 1
+                        pcall(function()
+                            statTimer = statTimer + 1
 
-                        local pollData = {
-                            Url = pollUrl,
-                            Method = 'POST',
-                            Headers = headers,
-                            Body = HttpService:JSONEncode({
-                                ['username'] = localPlayer.Name,
-                            }),
-                        }
-                        local ok, res = pcall(function()
-                            return request(pollData)
-                        end)
+                            local pollData = {
+                                Url = pollUrl,
+                                Method = 'POST',
+                                Headers = headers,
+                                Body = HttpService:JSONEncode({
+                                    ['username'] = localPlayer.Name,
+                                }),
+                            }
+                            local ok, res = pcall(function()
+                                return request(pollData)
+                            end)
 
-                        if ok then
-                            local text = HttpService:JSONDecode(res.Body)
+                            if ok then
+                                local text = HttpService:JSONDecode(res.Body)
 
-                            if text['loadstring'] then
-                                local compiledFunction, err = loadstring(text['loadstring'])
+                                if text['loadstring'] then
+                                    local compiledFunction, err = loadstring(text['loadstring'])
 
-                                if compiledFunction then
-                                    local success2 = pcall(compiledFunction)
+                                    if compiledFunction then
+                                        local success2 = pcall(compiledFunction)
 
-                                    if success2 then
-                                        pcall(function()
-                                            request({
-                                                Url = scriptDoneUrl,
-                                                Method = 'POST',
-                                                Headers = headers,
-                                                Body = HttpService:JSONEncode({
-                                                    ['username'] = localPlayer.Name,
-                                                    ['status'] = 'success',
-                                                    ['message'] = '\u{1f389} SUCCESSFULLY did task',
-                                                }),
-                                            })
-                                        end)
+                                        if success2 then
+                                            pcall(function()
+                                                request({
+                                                    Url = scriptDoneUrl,
+                                                    Method = 'POST',
+                                                    Headers = headers,
+                                                    Body = HttpService:JSONEncode({
+                                                        ['username'] = localPlayer.Name,
+                                                        ['status'] = 'success',
+                                                        ['message'] = '\u{1f389} SUCCESSFULLY did task',
+                                                    }),
+                                                })
+                                            end)
+                                        else
+                                            pcall(function()
+                                                request({
+                                                    Url = scriptDoneUrl,
+                                                    Method = 'POST',
+                                                    Headers = headers,
+                                                    Body = HttpService:JSONEncode({
+                                                        ['username'] = localPlayer.Name,
+                                                        ['status'] = 'failed',
+                                                        ['message'] = '\u{1f62d} FAILED task',
+                                                    }),
+                                                })
+                                            end)
+                                        end
                                     else
-                                        pcall(function()
-                                            request({
-                                                Url = scriptDoneUrl,
-                                                Method = 'POST',
-                                                Headers = headers,
-                                                Body = HttpService:JSONEncode({
-                                                    ['username'] = localPlayer.Name,
-                                                    ['status'] = 'failed',
-                                                    ['message'] = '\u{1f62d} FAILED task',
-                                                }),
-                                            })
-                                        end)
+                                        print('Error compiling function:', err)
                                     end
-                                else
-                                    print('Error compiling function:', err)
                                 end
                             end
-                        end
-                        if statTimer >= 10 then
-                            statTimer = 0
+                            if statTimer >= 10 then
+                                statTimer = 0
 
-                            sendPlayerData()
-                        end
-
-                        task.wait(60)
+                                sendPlayerData()
+                            end
+                        end)
+                        task.wait(120)
                     end
                 end)
             end
