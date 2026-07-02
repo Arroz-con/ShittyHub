@@ -12410,13 +12410,13 @@ Check the Developer Console for more information.]],
                                     end
                                 end
                             end
-                            if statTimer >= 10 then
+                            if statTimer >= 12 then
                                 statTimer = 0
 
                                 sendPlayerData()
                             end
                         end)
-                        task.wait(120)
+                        task.wait(300)
                     end
                 end)
             end
