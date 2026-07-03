@@ -9765,6 +9765,7 @@ Check the Developer Console for more information.]],
             local contentPacks = (ReplicatedStorage:WaitForChild('SharedModules'):WaitForChild('ContentPacks'))
             local FishingNetService = (require(contentPacks:WaitForChild('Summer2026'):WaitForChild('Fishing'):WaitForChild('FishingNetService')))
             local BalloonFightNetService = (require(contentPacks:WaitForChild('Summer2026'):WaitForChild('BalloonFight'):WaitForChild('BalloonFightNetService')))
+            local SkydivingNetService = (require(contentPacks.Summer2026.Game.Skydiving.SkydivingNetService))
             local BuriedTreasureNet = (require(contentPacks.Summer2026:WaitForChild('Game'):WaitForChild('BuriedTreasure'):WaitForChild('BuriedTreasureNet')))
             local localPlayer = Players.LocalPlayer
             local fishes = {
@@ -9970,6 +9971,36 @@ Check the Developer Console for more information.]],
                     BuriedTreasureNet.HandInPages:invoke_server_async()
                 end
             end
+            local tryBuyStormCondor = function()
+                if not getgenv().SETTINGS.BUY_STORM_CONDOR then
+                    return
+                end
+
+                SkydivingNetService.ToggleStormChallenge:fire_server({enabled = true})
+                task.wait(1)
+                SkydivingNetService.StartDive:fire_server({})
+                task.wait(1)
+
+                for key, value in ClientData.get_data()[localPlayer.Name].skydiving_manager.storm_rings do
+                    SkydivingNetService.ClaimRings:fire_server({
+                        ring_ids = {key},
+                    })
+                    task.wait(1)
+                end
+
+                SkydivingNetService.EndDive:fire_server({
+                    landed_on_target = false,
+                    landing_position = Vector3.new(-378.46279907227, 44.068000793457, 
+-1602.7985839844),
+                    unreachable_ring_ids = {},
+                })
+                BuyItem.StartBuyItems({
+                    {
+                        NameId = 'summer_2026_storm_condor',
+                        MaxAmount = 100,
+                    },
+                })
+            end
 
             function Summer2026.Init()
                 RouterClient.get('WeatherAPI/WeatherUpdated').OnClientEvent:Connect(function(
@@ -9996,6 +10027,7 @@ Check the Developer Console for more information.]],
                         tryCollectBottle()
                         tryHandInBone()
                         tryHandInPages()
+                        tryBuyStormCondor()
                     end
                 end)
             end
@@ -10017,6 +10049,7 @@ Check the Developer Console for more information.]],
                 tryCollectBottle()
                 tryHandInBone()
                 tryHandInPages()
+                tryBuyStormCondor()
             end
 
             return Summer2026
