@@ -472,8 +472,8 @@ do
                 end
 
                 pcall(function()
-                    local xOffset1 = xOffset or 60
-                    local yOffset1 = yOffset or 60
+                    local xOffset1 = xOffset or 5
+                    local yOffset1 = yOffset or 5
 
                     task.wait()
                     VirtualInputManager:SendMouseButtonEvent(button.AbsolutePosition.X + xOffset1, button.AbsolutePosition.Y + yOffset1, 0, true, game, 1)
@@ -3724,6 +3724,7 @@ do
                 'QuestIconApp',
             }
             local patterns = {
+                ['admin'] = 'Awesome',
                 ['caught enough Karp'] = 'Next',
                 ['Your certificate'] = 'Okay',
                 ['Wind has picked'] = 'Okay',
