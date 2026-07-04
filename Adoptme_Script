@@ -505,18 +505,6 @@ do
                         retries = retries + 1
                     end)
                 until not button or button.Visible == false or retries > 3
-
-                retries = 0
-
-                if button and button.Visible then
-                    Utils.PrintDebug(
-[[Button still visible after firing signals, attempting to click it.]])
-
-                    repeat
-                        Utils.ClickGuiButton(button)
-                        task.wait(0.1)
-                    until not button or button.Visible == false or retries > 3
-                end
             end
             function Utils.FindButton(text, dialogFramePassOn)
                 task.wait(0.1)
