@@ -487,26 +487,35 @@ do
                 if not button then
                     return
                 end
-                if firesignal then
-                    local retries = 0
+
+                local retries = 0
+
+                repeat
+                    pcall(function()
+                        local mouseButton1Down = button.MouseButton1Down
+                        local mouseButton1Click = button.MouseButton1Click
+                        local mouseButton1Up = button.MouseButton1Up
+
+                        firesignal(mouseButton1Down)
+                        task.wait(0.1)
+                        firesignal(mouseButton1Click)
+                        task.wait(0.1)
+                        firesignal(mouseButton1Up)
+
+                        retries = retries + 1
+                    end)
+                until not button or button.Visible == false or retries > 3
+
+                retries = 0
+
+                if button and button.Visible then
+                    Utils.PrintDebug(
+[[Button still visible after firing signals, attempting to click it.]])
 
                     repeat
-                        pcall(function()
-                            local mouseButton1Down = button.MouseButton1Down
-                            local mouseButton1Click = button.MouseButton1Click
-                            local mouseButton1Up = button.MouseButton1Up
-
-                            firesignal(mouseButton1Down)
-                            task.wait(0.1)
-                            firesignal(mouseButton1Click)
-                            task.wait(0.1)
-                            firesignal(mouseButton1Up)
-
-                            retries = retries + 1
-                        end)
+                        Utils.ClickGuiButton(button)
+                        task.wait(0.1)
                     until not button or button.Visible == false or retries > 3
-                else
-                    Utils.ClickGuiButton(button)
                 end
             end
             function Utils.FindButton(text, dialogFramePassOn)
