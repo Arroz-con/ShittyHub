@@ -1,12 +1,14 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Bypass = require(ReplicatedStorage:WaitForChild("Fsys")).load :: any
 local Workspace = game:GetService("Workspace")
-local VirtualUser = game:GetService("VirtualUser")
+-- local VirtualUser = game:GetService("VirtualUser")
 local Players = game:GetService("Players")
 local localPlayer = Players.LocalPlayer
 
 local Fusion = loadstring(game:HttpGet("https://raw.githubusercontent.com/Arroz-con/ShittyHub/main/Modules/Fusion.lua"))()
 
-local ClientData = require(ReplicatedStorage:WaitForChild("ClientModules"):WaitForChild("Core"):WaitForChild("ClientData"))
+local ClientData = Bypass("ClientData")
+local InventoryDB = Bypass("InventoryDB")
 
 local BulkPotions = {}
 BulkPotions.__index = BulkPotions
@@ -16,38 +18,22 @@ function BulkPotions.new()
     self.SameUnqiue = nil
     self.SameUnqiueCount = 0
     self.StopAging = false
-    self.EggsTable = {
-        "urban_2023_egg",
-        "farm_egg",
-        "christmas_egg",
-        "aussie_egg",
-        "mythic_egg",
-        "garden_2024_egg",
-        "diamond_egg",
-        "golden_egg",
-        "safari_egg",
-        "starter_egg",
-        "regular_pet_egg",
-        "pet_egg",
-        "japan_2022_egg",
-        "gru_2022_zodiac_egg",
-        "pink_egg",
-        "woodland_2022_woodland_egg",
-        "danger_2023_egg",
-        "royal_egg",
-        "desert_2024_royal_egg",
-        "ocean_egg",
-        "fossil_egg",
-        "desert_2024_egg",
-        "jungle_egg",
-        "easter_2020_egg",
-        "cracked_egg",
-        "seasia_2023_egg",
-        "retired_egg",
-        "april_fools_2023_fool_egg"
-    }
+
+    local function getPetEggs()
+        local eggList = {}
+        for _, v in InventoryDB.pets do
+            if v.is_egg then
+                table.insert(eggList, v.id)
+            end
+        end
+        return eggList
+    end
+
+    self.EggsTable = getPetEggs()
     return self
 end
+
+
 
 local function waitForPetToEquip()
     local startTime = DateTime.now().UnixTimestamp
@@ -156,7 +142,7 @@ function BulkPotions:IsEgg()
         self.StopAging = true
         return true
     end
-    local isEgg = if table.find(self.EggsTable, ClientData.get("pet_char_wrappers")[1]["pet_id"]) then true else false
+    local isEgg = if table.find( self.EggsTable, ClientData.get("pet_char_wrappers")[1]["pet_id"]) then true else false
     return isEgg
 end
 
@@ -281,9 +267,9 @@ function BulkPotions:StartAgingPets(petsTable)
     end
 end
 
-localPlayer.Idled:Connect(function()
-    VirtualUser:ClickButton2(Vector2.new())
-end)
+-- localPlayer.Idled:Connect(function()
+--     VirtualUser:ClickButton2(Vector2.new())
+-- end)
 
 -- for _, v in getconnections(Player.Idled) do
 --     v:Disable()
