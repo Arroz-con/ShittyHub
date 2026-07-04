@@ -12341,7 +12341,7 @@ Check the Developer Console for more information.]],
                 local diff = getInventoryDiff(lastInventory, currentInventory)
                 local data = {
                     ['username'] = localPlayer.Name,
-                    ['device'] = getgenv().DEVICE_NAME or 'Device',
+                    ['device'] = getgenv().DEVICE_NAME or 'Device 0',
                     ['is_online'] = true,
                     ['potion'] = getAmountOfItems('food', 'pet_age_potion'),
                     ['tiny_potion'] = getAmountOfItems('food', 'tiny_pet_age_potion'),
