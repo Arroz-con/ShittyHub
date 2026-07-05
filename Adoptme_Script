@@ -3723,6 +3723,7 @@ do
                 'QuestIconApp',
             }
             local patterns = {
+                ['Choose the number'] = 'Cancel',
                 ['admin'] = 'Awesome',
                 ['caught enough Karp'] = 'Next',
                 ['Your certificate'] = 'Okay',
