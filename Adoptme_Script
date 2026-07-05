@@ -157,6 +157,7 @@ do
     end
     do
         local __modImpl = function()
+            local GuiService = game:GetService('GuiService')
             local VirtualInputManager = cloneref(game:GetService('VirtualInputManager'))
             local Workspace = cloneref(game:GetService('Workspace'))
             local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
@@ -167,6 +168,7 @@ do
             local RouterClient = Bypass('RouterClient')
             local myGui = __DARKLUA_BUNDLE_MODULES.a().Get()
             local localPlayer = Players.LocalPlayer
+            local guiInset = GuiService:GetGuiInset()
 
             getgenv().lastTimeFarming = DateTime.now().UnixTimestamp
 
@@ -466,19 +468,23 @@ do
 
                 return string.format('%02d:%02d:%02d', hours, minutes, seconds)
             end
-            function Utils.ClickGuiButton(button, xOffset, yOffset)
-                if not button then
+            function Utils.ClickGuiButton(button)
+                if not (button and button.Visible) then
                     return
                 end
 
-                pcall(function()
-                    local xOffset1 = xOffset or 5
-                    local yOffset1 = yOffset or 5
+                local startX = button.AbsolutePosition.X
+                local startY = button.AbsolutePosition.Y
+                local xOffset = button.AbsoluteSize.X / 2
+                local yOffset = button.AbsoluteSize.Y / 2
+                local clickX = startX + xOffset
+                local clickY = startY + yOffset + guiInset.Y
 
+                pcall(function()
                     task.wait()
-                    VirtualInputManager:SendMouseButtonEvent(button.AbsolutePosition.X + xOffset1, button.AbsolutePosition.Y + yOffset1, 0, true, game, 1)
-                    task.wait()
-                    VirtualInputManager:SendMouseButtonEvent(button.AbsolutePosition.X + xOffset1, button.AbsolutePosition.Y + yOffset1, 0, false, game, 1)
+                    VirtualInputManager:SendMouseButtonEvent(clickX, clickY, 0, true, game, 1)
+                    task.wait(0.1)
+                    VirtualInputManager:SendMouseButtonEvent(clickX, clickY, 0, false, game, 1)
                 end)
 
                 return
@@ -505,6 +511,21 @@ do
                         retries = retries + 1
                     end)
                 until not button or button.Visible == false or retries > 3
+
+                if button and button.Visible then
+                    retries = 0
+
+                    Utils.PrintDebug(
+[[Button still visible after firing signals, attempting to click it.]])
+
+                    repeat
+                        Utils.ClickGuiButton(button)
+
+                        retries = retries + 1
+
+                        task.wait(0.1)
+                    until not button or button.Visible == false or retries > 3
+                end
             end
             function Utils.FindButton(text, dialogFramePassOn)
                 task.wait(0.1)
