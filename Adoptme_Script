@@ -481,9 +481,8 @@ do
                 local clickY = startY + yOffset + guiInset.Y
 
                 pcall(function()
-                    task.wait()
                     VirtualInputManager:SendMouseButtonEvent(clickX, clickY, 0, true, game, 1)
-                    task.wait(0.1)
+                    task.wait(0.05)
                     VirtualInputManager:SendMouseButtonEvent(clickX, clickY, 0, false, game, 1)
                 end)
 
@@ -513,18 +512,9 @@ do
                 until not button or button.Visible == false or retries > 3
 
                 if button and button.Visible then
-                    retries = 0
-
                     Utils.PrintDebug(
 [[Button still visible after firing signals, attempting to click it.]])
-
-                    repeat
-                        Utils.ClickGuiButton(button)
-
-                        retries = retries + 1
-
-                        task.wait(0.1)
-                    until not button or button.Visible == false or retries > 3
+                    Utils.ClickGuiButton(button)
                 end
             end
             function Utils.FindButton(text, dialogFramePassOn)
