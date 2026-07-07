@@ -28,6 +28,7 @@ type PetDictType = {
 -- SERVICES --
 -----------------------------
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace") :: any
 local Players = game:GetService("Players")
 
 -----------------------------
@@ -104,14 +105,14 @@ end
 --     return count
 -- end
 
--- local function consumeItem(potionName: string)
---     local agePotion = Workspace.PetObjects:WaitForChild(potionName, 15)
---     if not agePotion then
---         return
---     end
+local function consumeItem(potionName: string)
+    local agePotion = Workspace.PetObjects:WaitForChild(potionName, 15)
+    if not agePotion then
+        return
+    end
 
---     ReplicatedStorage.API["PetAPI/ConsumeFoodObject"]:FireServer(agePotion, ClientData.get("pet_char_wrappers")[1].pet_unique)
--- end
+    RouterClient.get("PetAPI/ConsumeFoodObject"):FireServer(agePotion, ClientData.get("pet_char_wrappers")[1].pet_unique)
+end
 
 local function getPotionUniques(nameId: string): { string }
     local potions = {}
@@ -305,8 +306,8 @@ function BulkPotion.FeedAgePotion(): ()
     BulkPotion.SameUnqiue = potionUniques :: any
     print(`USING POTIONS: {#potionUniques}`)
     print(createPotionObject(potionUniques))
-    task.wait(2)
-    -- consumeItem("AgePotion")
+    task.wait(1)
+    consumeItem("AgePotion")
     -- local mainFrame = gethui()["StatsGui"]:WaitForChild("MainFrame") :: Frame
     -- local TotalPotions = mainFrame:WaitForChild("MiddleFrame"):WaitForChild("TotalPotions") :: TextLabel
     -- local TotalTinyPotions = mainFrame:WaitForChild("MiddleFrame"):WaitForChild("TotalTinyPotions") :: TextLabel
