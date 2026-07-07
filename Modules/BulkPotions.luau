@@ -88,15 +88,15 @@ function BulkPotions:IsPetNeon(petName: string)
     end
 end
 
-local function agePotionCount(nameId)
-    local count = 0
-    for _, v in ClientData.get_data()[localPlayer.Name].inventory.food do
-        if v.id == nameId then
-            count += 1
-        end
-    end
-    return count
-end
+-- local function agePotionCount(nameId)
+--     local count = 0
+--     for _, v in ClientData.get_data()[localPlayer.Name].inventory.food do
+--         if v.id == nameId then
+--             count += 1
+--         end
+--     end
+--     return count
+-- end
 
 local function consumeItem(potionName: string)
     local agePotion = Workspace.PetObjects:WaitForChild(potionName, 10)
@@ -151,8 +151,8 @@ function BulkPotions:FeedAgePotion()
     if self:IsSameUnique() then return end
 
     self.SameUnqiueCount = 0
-    local TotalPotions = localPlayer.PlayerGui.StatsGui.MainFrame.MiddleFrame.TotalPotions
-    local TotalTinyPotions = localPlayer.PlayerGui.StatsGui.MainFrame.MiddleFrame.TotalTinyPotions
+    -- local TotalPotions = localPlayer.PlayerGui.StatsGui.MainFrame.MiddleFrame.TotalPotions
+    -- local TotalTinyPotions = localPlayer.PlayerGui.StatsGui.MainFrame.MiddleFrame.TotalTinyPotions
 
     for _, v in ClientData.get_data()[localPlayer.Name].inventory.food do
         if v.id == "pet_age_potion" then
@@ -173,7 +173,7 @@ function BulkPotions:FeedAgePotion()
             ReplicatedStorage.API["PetObjectAPI/CreatePetObject"]:InvokeServer(unpack(args))
             task.wait(1)
             consumeItem("AgePotion")
-            TotalPotions.Text = `🧪 {agePotionCount("pet_age_potion")}`
+            -- TotalPotions.Text = `🧪 {agePotionCount("pet_age_potion")}`
             return
         end
     end
@@ -197,13 +197,13 @@ function BulkPotions:FeedAgePotion()
             ReplicatedStorage.API["PetObjectAPI/CreatePetObject"]:InvokeServer(unpack(args))
             task.wait(1)
             consumeItem("TinyAgePotion")
-            TotalTinyPotions.Text = `⚗️ {agePotionCount("tiny_pet_age_potion")}`
+            -- TotalTinyPotions.Text = `⚗️ {agePotionCount("tiny_pet_age_potion")}`
             return
         end
     end
     
-    TotalPotions.Text = `🧪 {agePotionCount("pet_age_potion")}`
-    TotalTinyPotions.Text = `⚗️ {agePotionCount("tiny_pet_age_potion")}`
+    -- TotalPotions.Text = `🧪 {agePotionCount("pet_age_potion")}`
+    -- TotalTinyPotions.Text = `⚗️ {agePotionCount("tiny_pet_age_potion")}`
     return
 end
 
