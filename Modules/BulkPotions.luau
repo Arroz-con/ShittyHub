@@ -199,7 +199,7 @@ function BulkPotion.IsPetNormal(petName: string): boolean
 
     if BulkPotion.PetUniqueId ~= "" then
         RouterClient.get("ToolAPI/Unequip"):InvokeServer(BulkPotion.PetUniqueId, { ["use_sound_delay"] = true })
-        task.wait(1)
+        task.wait(.1)
         RouterClient.get("ToolAPI/Equip"):InvokeServer(BulkPotion.PetUniqueId, { ["use_sound_delay"] = true })
         waitForPetToEquip()
         return true
@@ -229,7 +229,7 @@ function BulkPotion.IsPetNeon(petName: string): boolean
 
     if BulkPotion.PetUniqueId ~= "" then
         RouterClient.get("ToolAPI/Unequip"):InvokeServer(BulkPotion.PetUniqueId, { ["use_sound_delay"] = true })
-        task.wait(1)
+        task.wait(.1)
         RouterClient.get("ToolAPI/Equip"):InvokeServer(BulkPotion.PetUniqueId, { ["use_sound_delay"] = true })
         waitForPetToEquip()
         return true
@@ -251,7 +251,7 @@ function BulkPotion.IsSameUnique(): boolean
                     BulkPotion.SameUnqiueCount = 0
                     BulkPotion.SameUnqiue = {}
                 end
-                task.wait(1)
+                task.wait(.1)
                 return true
             end
         end
@@ -266,7 +266,7 @@ function BulkPotion.IsEgg(): boolean
     local EquipTimeout = 0
     local hasPetChar = false
     repeat
-        task.wait(1)
+        task.wait(.1)
         hasPetChar = if ClientData.get("pet_char_wrappers")[1] and ClientData.get("pet_char_wrappers")[1]["char"]
             then true
             else false
@@ -306,7 +306,6 @@ function BulkPotion.FeedAgePotion(): ()
     BulkPotion.SameUnqiue = potionUniques :: any
     print(`USING POTIONS: {#potionUniques}`)
     print(createPotionObject(potionUniques))
-    task.wait(1)
     consumeItem("AgePotion")
     -- local mainFrame = gethui()["StatsGui"]:WaitForChild("MainFrame") :: Frame
     -- local TotalPotions = mainFrame:WaitForChild("MiddleFrame"):WaitForChild("TotalPotions") :: TextLabel
@@ -319,9 +318,9 @@ end
 
 function BulkPotion.AgeAllPetsOfSameName(petId: string, maxAmount: number): boolean
     Fusion.MakeMega(false) -- makes neon
-    task.wait(1)
+    task.wait(.1)
     Fusion.MakeMega(true) -- makes mega
-    task.wait(1)
+    task.wait(.1)
     
     local result = getMaxMega(petId)
     if result >= maxAmount then
