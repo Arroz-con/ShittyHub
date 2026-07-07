@@ -303,7 +303,8 @@ function BulkPotion.FeedAgePotion(): ()
     end
 
     BulkPotion.SameUnqiue = potionUniques :: any
-
+    print(`USING POTIONS: {#potionUniques}`)
+    print(createPotionObject(potionUniques))
     task.wait(2)
     -- consumeItem("AgePotion")
     -- local mainFrame = gethui()["StatsGui"]:WaitForChild("MainFrame") :: Frame
