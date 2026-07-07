@@ -3718,6 +3718,7 @@ do
                 'QuestIconApp',
             }
             local patterns = {
+                ['Karp Bait is no longer needed'] = 'Next',
                 ['Choose the number'] = 'Cancel',
                 ['admin'] = 'Awesome',
                 ['caught enough Karp'] = 'Next',
@@ -3749,6 +3750,7 @@ do
                 ['Right now'] = 'Next',
                 ['You can customize it'] = 'Start',
                 ['Your subscription'] = 'Okay!',
+                ["You've been refunded"] = 'Okay',
                 ['You have been refunded'] = 'Awesome!',
                 ["You can't afford this"] = 'Okay',
                 ['mailbox'] = 'Okay',
@@ -9773,63 +9775,12 @@ Check the Developer Console for more information.]],
             local SkydivingNetService = (require(contentPacks.Summer2026.Game.Skydiving.SkydivingNetService))
             local BuriedTreasureNet = (require(contentPacks.Summer2026:WaitForChild('Game'):WaitForChild('BuriedTreasure'):WaitForChild('BuriedTreasureNet')))
             local localPlayer = Players.LocalPlayer
-            local fishes = {
-                {
-                    id = 'summer_2026_gold_fish',
-                    max = 15,
-                },
-                {
-                    id = 'summer_2026_silver_fish',
-                    max = 35,
-                },
-                {
-                    id = 'summer_2026_bronze_fish',
-                    max = 75,
-                },
-            }
             local Summer2026 = {}
-            local checkFishesInventory = function()
-                for i = #fishes, 1, -1 do
-                    local fish = fishes[i]
-
-                    if fish.max ~= math.huge and GetInventory.GetAmountOfItems('gifts', fish.id) >= fish.max then
-                        table.remove(fishes, i)
-                    end
-                end
-            end
-            local tryBuyBait = function()
-                BuyItem.StartBuyItems({
-                    {
-                        NameId = 'summer_2026_fishing_bait',
-                        MaxAmount = 10,
-                    },
-                })
-            end
-            local getFishId = function(name, caughtFish)
-                local hotspots = ClientData.get_data()[localPlayer.Name].fishing_manager.hotspots
-
-                for lake, fishs in hotspots do
-                    for unique, fishName in fishs do
-                        if fishName == name and not table.find(caughtFish, unique) then
-                            return lake, unique
-                        end
-                    end
-                end
-
-                return nil, nil
-            end
             local tryCatchRainbowFish = function()
                 for lake, fishs in ClientData.get_data()[localPlayer.Name].fishing_manager.hotspots do
                     for unique, fishName in fishs do
                         if fishName == 'summer_2026_rainbow_fish' then
                             print('\u{1f308} RAINBOW FISH DETECTED \u{1f308}')
-                            BuyItem.StartBuyItems({
-                                {
-                                    NameId = 'summer_2026_fishing_bait',
-                                    MaxAmount = 1,
-                                },
-                            })
-                            task.wait(1)
                             FishingNetService.catch_fish(lake, unique)
                         end
                     end
@@ -9864,22 +9815,6 @@ Check the Developer Console for more information.]],
                 end
 
                 FishingNetService.purchase_item('summer_2026_monster_fishing_bait', 1)
-
-                fishes = {
-                    {
-                        id = 'summer_2026_gold_fish',
-                        max = 15,
-                    },
-                    {
-                        id = 'summer_2026_silver_fish',
-                        max = 35,
-                    },
-                    {
-                        id = 'summer_2026_bronze_fish',
-                        max = 75,
-                    },
-                }
-
                 task.wait()
 
                 return GetInventory.GetUniqueId('gifts', 'summer_2026_monster_fishing_bait') ~= nil
@@ -9900,31 +9835,14 @@ Check the Developer Console for more information.]],
                 end
             end
             local tryCatchFish = function()
-                if not GetInventory.GetUniqueId('gifts', 'summer_2026_fishing_bait') then
-                    warn('No fishing bait')
+                local hotspots = ClientData.get_data()[localPlayer.Name].fishing_manager.hotspots
 
-                    return
-                end
-
-                checkFishesInventory()
-
-                local baitCount = GetInventory.GetAmountOfItems('gifts', 'summer_2026_fishing_bait') or 1
-                local caughtFish = {}
-
-                for _ = 1, baitCount do
-                    for _, fishData in ipairs(fishes)do
-                        local lake, uniqueId = getFishId(fishData.id, caughtFish)
-
-                        if lake and uniqueId then
-                            table.insert(caughtFish, uniqueId)
-                            FishingNetService.catch_fish(lake, uniqueId)
-                            print('Caught:', uniqueId, lake)
-
-                            break
-                        end
+                for lake, fishs in hotspots do
+                    for unique, fishName in fishs do
+                        FishingNetService.catch_fish(lake, unique)
+                        print('Caught:', unique, lake)
+                        task.wait(1)
                     end
-
-                    task.wait(1)
                 end
             end
             local tryBuyFishingRod = function()
@@ -10016,16 +9934,15 @@ Check the Developer Console for more information.]],
 
                     if dayOrNight == 'DAY' then
                         tryUpgradeFishingRod()
+                        tryCatchFish()
+                        tryCatchRainbowFish()
 
                         if getgenv().SETTINGS.BUY_TEALWOOD_MONSTER then
                             print('Trying to catch tealwood or get fish requirements')
-                            tryBuyBait()
                             tryCatchTealwoodMonster()
-                            tryCatchFish()
                         end
                         if getgenv().SETTINGS.BUY_RAINBOW_TROUT then
                             print('trying to catch rainbow fish or buy rainbow trout')
-                            tryCatchRainbowFish()
                             tryBuyRainbowTrout()
                         end
 
@@ -10040,14 +9957,13 @@ Check the Developer Console for more information.]],
             function Summer2026.Start()
                 tryBuyFishingRod()
                 tryUpgradeFishingRod()
+                tryCatchFish()
+                tryCatchRainbowFish()
 
                 if getgenv().SETTINGS.BUY_TEALWOOD_MONSTER then
-                    tryBuyBait()
                     tryCatchTealwoodMonster()
-                    tryCatchFish()
                 end
                 if getgenv().SETTINGS.BUY_RAINBOW_TROUT then
-                    tryCatchRainbowFish()
                     tryBuyRainbowTrout()
                 end
 
@@ -12407,7 +12323,7 @@ Check the Developer Console for more information.]],
                                     end
                                 end
                             end
-                            if statTimer >= 30 then
+                            if statTimer >= 3 then
                                 statTimer = 0
 
                                 sendPlayerData()
