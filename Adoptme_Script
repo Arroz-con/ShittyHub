@@ -2895,6 +2895,7 @@ do
             __DARKLUA_BUNDLE_MODULES.d()
 
             local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
+            local Workspace = (game:GetService('Workspace'))
             local Players = cloneref(game:GetService('Players'))
             local PetPotionEffectsDB = (require(ReplicatedStorage:WaitForChild('ClientDB'):WaitForChild('PetPotionEffectsDB')))
             local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -2947,6 +2948,17 @@ do
                 end
 
                 return count
+            end
+            local consumeItem = function(potionName)
+                local agePotion = Workspace.PetObjects:WaitForChild(potionName, 15)
+
+                if not agePotion then
+                    Utils.PrintDebug('no age potion in workspace')
+
+                    return
+                end
+
+                RouterClient.get('PetAPI/ConsumeFoodObject'):FireServer(agePotion, ClientData.get('pet_char_wrappers')[1].pet_unique)
             end
             local getPotionUniques = function(nameId)
                 local potions = {}
@@ -3160,7 +3172,8 @@ do
 
                 Utils.PrintDebug(string.format('USING POTIONS: %s', tostring(#potionUniques)))
                 Utils.PrintDebug(createPotionObject(potionUniques))
-                task.wait(2)
+                task.wait(1)
+                consumeItem('AgePotion')
 
                 return
             end
@@ -9776,16 +9789,6 @@ Check the Developer Console for more information.]],
             local BuriedTreasureNet = (require(contentPacks.Summer2026:WaitForChild('Game'):WaitForChild('BuriedTreasure'):WaitForChild('BuriedTreasureNet')))
             local localPlayer = Players.LocalPlayer
             local Summer2026 = {}
-            local tryCatchRainbowFish = function()
-                for lake, fishs in ClientData.get_data()[localPlayer.Name].fishing_manager.hotspots do
-                    for unique, fishName in fishs do
-                        if fishName == 'summer_2026_rainbow_fish' then
-                            print('\u{1f308} RAINBOW FISH DETECTED \u{1f308}')
-                            FishingNetService.catch_fish(lake, unique)
-                        end
-                    end
-                end
-            end
             local tryBuyRainbowTrout = function()
                 if Utils.EventCurrencyAmount() < 70000 then
                     return
@@ -9832,6 +9835,37 @@ Check the Developer Console for more information.]],
                             FishingNetService.catch_fish(lake, unique)
                         end
                     end
+                end
+            end
+            local FISH_IDS = {
+                'summer_2026_bronze_fish',
+                'summer_2026_silver_fish',
+                'summer_2026_gold_fish',
+                'summer_2026_rainbow_fish',
+            }
+            local sellExtraFishes = function(keep)
+                for _, fishId in FISH_IDS do
+                    local have = GetInventory.GetAmountOfItems('gifts', fishId) or 0
+                    local extra = have - (keep[fishId] or 0)
+
+                    if extra > 0 then
+                        print('Selling', extra, fishId)
+                        FishingNetService.sell_fish(fishId, extra)
+                        task.wait(1)
+                    end
+                end
+            end
+            local trySellFishes = function()
+                if getgenv().SETTINGS.BUY_TEALWOOD_MONSTER then
+                    sellExtraFishes({
+                        summer_2026_bronze_fish = 75,
+                        summer_2026_silver_fish = 35,
+                        summer_2026_gold_fish = 15,
+                    })
+                elseif getgenv().SETTINGS.BUY_RAINBOW_TROUT then
+                    sellExtraFishes({summer_2026_rainbow_fish = 99999})
+                else
+                    sellExtraFishes({})
                 end
             end
             local tryCatchFish = function()
@@ -9935,7 +9969,6 @@ Check the Developer Console for more information.]],
                     if dayOrNight == 'DAY' then
                         tryUpgradeFishingRod()
                         tryCatchFish()
-                        tryCatchRainbowFish()
 
                         if getgenv().SETTINGS.BUY_TEALWOOD_MONSTER then
                             print('Trying to catch tealwood or get fish requirements')
@@ -9946,6 +9979,7 @@ Check the Developer Console for more information.]],
                             tryBuyRainbowTrout()
                         end
 
+                        trySellFishes()
                         tryBalloonFight()
                         tryCollectBottle()
                         tryHandInBone()
@@ -9958,7 +9992,6 @@ Check the Developer Console for more information.]],
                 tryBuyFishingRod()
                 tryUpgradeFishingRod()
                 tryCatchFish()
-                tryCatchRainbowFish()
 
                 if getgenv().SETTINGS.BUY_TEALWOOD_MONSTER then
                     tryCatchTealwoodMonster()
@@ -9967,6 +10000,7 @@ Check the Developer Console for more information.]],
                     tryBuyRainbowTrout()
                 end
 
+                trySellFishes()
                 task.spawn(tryBalloonFight)
                 tryCollectBottle()
                 tryHandInBone()
