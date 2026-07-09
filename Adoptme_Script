@@ -12365,7 +12365,7 @@ Check the Developer Console for more information.]],
                         if not spv.newness_order or spv.newness_order <= 0 then
                             continue
                         end
-                        if table.find(AllowOrDenyList.Denylist, spv.id) then
+                        if table.find(AllowOrDenyList.Denylist, spv.id) or spv.category == 'food' then
                             continue
                         end
                         if not spv.unique or seenNewItemUniques[spv.unique] then
