@@ -3719,20 +3719,18 @@ do
             local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
             local RouterClient = Bypass('RouterClient')
             local Utils = __DARKLUA_BUNDLE_MODULES.b()
-            local Trade = __DARKLUA_BUNDLE_MODULES.f()
             local Teleport = __DARKLUA_BUNDLE_MODULES.g()
-            local Fusion = __DARKLUA_BUNDLE_MODULES.i()
             local self = {}
             local localPlayer = Players.LocalPlayer
             local PlayerGui = localPlayer:WaitForChild('PlayerGui')
             local DialogApp = (PlayerGui:WaitForChild('DialogApp'))
             local MinigameRewardsApp = (PlayerGui:WaitForChild('MinigameRewardsApp'))
             local MinigameInGameApp = (PlayerGui:WaitForChild('MinigameInGameApp'))
-            local TradeApp = (PlayerGui:WaitForChild('TradeApp'))
             local PlaytimePayoutsApp = (PlayerGui:WaitForChild('PlaytimePayoutsApp'))
             local certificateConn
             local starterPackAppConn
             local appList = {
+                'DialogApp',
                 'MerchPopUpApp',
                 'SubscriptionsPopUpApp',
                 'ExtraButtonsApp',
@@ -4182,19 +4180,17 @@ do
                 )
                     tryClickPlaytimePayout()
                 end)
-                TradeApp.Frame.NegotiationFrame.Body.PartnerOffer.Accepted:GetPropertyChangedSignal('ImageTransparency'):Connect(function(
+                RouterClient.get_event('TradeAPI/TradeRequestReceived').OnClientEvent:Connect(function(
+                    otherPlayer
                 )
-                    Trade.AutoAcceptTrade()
-                end)
-                TradeApp.Frame.ConfirmationFrame.PartnerOffer.Accepted:GetPropertyChangedSignal('ImageTransparency'):Connect(function(
-                )
-                    Trade.AutoAcceptTrade()
-                    task.wait(2)
-
-                    if getgenv().SETTINGS.PET_AUTO_FUSION then
-                        Fusion.MakeMega(false)
-                        Fusion.MakeMega(true)
+                    if otherPlayer.UserId == localPlayer.UserId then
+                        return
                     end
+
+                    Utils.PrintDebug(string.format('Trade request received from %s (UserId: %s)', tostring(otherPlayer.Name), tostring(otherPlayer.UserId)))
+                    pcall(function()
+                        RouterClient.get('TradeAPI/AcceptOrDeclineTradeRequest'):InvokeServer(otherPlayer, true)
+                    end)
                 end)
             end
             function self.Start()
