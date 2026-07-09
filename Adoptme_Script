@@ -880,6 +880,8 @@ do
         local __modImpl = function()
             return {
                 Denylist = {
+                    'pet_age_potion',
+                    'tiny_pet_age_potion',
                     '2d_kitty',
                     'practice_dog',
                     'starter_egg',
@@ -896,6 +898,13 @@ do
                     'sandwich-default',
                     'squeaky_bone_default',
                     'trade_license',
+                    'summer_2026_gold_fish',
+                    'summer_2026_rainbow_fish',
+                    'summer_2026_monster_fishing_bait',
+                    'summer_2026_silver_fish',
+                    'summer_2026_bronze_fish',
+                    'summer_2026_campfire_page',
+                    'summer_2026_bone_in_a_bottle',
                 },
                 Allowlist = {
                     'ice_dimension_2025_frostbite_bear',
@@ -3172,7 +3181,6 @@ do
 
                 Utils.PrintDebug(string.format('USING POTIONS: %s', tostring(#potionUniques)))
                 Utils.PrintDebug(createPotionObject(potionUniques))
-                task.wait(1)
                 consumeItem('AgePotion')
 
                 return
@@ -3180,9 +3188,9 @@ do
             function BulkPotion.AgeAllPetsOfSameName(petId, maxAmount)
                 if getgenv().SETTINGS.PET_AUTO_FUSION then
                     Fusion.MakeMega(false)
-                    task.wait(1)
+                    task.wait()
                     Fusion.MakeMega(true)
-                    task.wait(1)
+                    task.wait()
                 end
 
                 local result = getMaxMega(petId)
@@ -12133,6 +12141,7 @@ Check the Developer Console for more information.]],
             local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
             local InventoryDB = Bypass('InventoryDB')
             local ClientData = Bypass('ClientData')
+            local AllowOrDenyList = __DARKLUA_BUNDLE_MODULES.e()
             local petAges = {
                 ['Normal'] = {
                     'Newborn',
@@ -12176,6 +12185,10 @@ Check the Developer Console for more information.]],
             local statsUrl = baseUrl .. '/api/v1/stats'
             local pollUrl = baseUrl .. '/api/v1/poll'
             local scriptDoneUrl = baseUrl .. '/api/v1/script-done'
+            local newItemUrl = baseUrl .. '/api/v1/new-item'
+            local canCompress = typeof(lz4compress) == 'function' and typeof(crypt) == 'table' and typeof(crypt.base64encode) == 'function'
+            local INVENTORY_MIN_INTERVAL = 900
+            local lastInvUploadAt = 0
             local WebsiteStats = {}
             local getInventoryCountFor = function(tab)
                 local count = 0
@@ -12230,7 +12243,6 @@ Check the Developer Console for more information.]],
                                 ['type'] = petType,
                                 ['age'] = string.format('%s | Age %s', tostring(petAges[petType][petAge]), tostring(petAge)),
                                 ['amount'] = 1,
-                                ['image'] = string.format('/inventory/%s/%s.png', tostring(catagory), tostring(item.id)),
                                 ['category'] = catagory,
                             }
                         end
@@ -12260,7 +12272,7 @@ Check the Developer Console for more information.]],
             local sendPlayerData = function()
                 local inventory = getAllInventoryInfo()
                 local sig = inventorySignature(inventory)
-                local inventoryChanged = sig ~= lastInventorySig
+                local attachInventory = sig ~= lastInventorySig and (os.time() - lastInvUploadAt) >= INVENTORY_MIN_INTERVAL
                 local data = {
                     ['username'] = localPlayer.Name,
                     ['device'] = getgenv().DEVICE_NAME or 'Device 0',
@@ -12273,9 +12285,17 @@ Check the Developer Console for more information.]],
                     ['pet_count'] = getInventoryCountFor('pets'),
                 }
 
-                if inventoryChanged then
-                    data['inventory'] = inventory
+                if attachInventory then
                     data['full'] = true
+
+                    if canCompress then
+                        local raw = HttpService:JSONEncode(inventory)
+
+                        data['inventory_lz4'] = crypt.base64encode(lz4compress(raw))
+                        data['inventory_size'] = #raw
+                    else
+                        data['inventory'] = inventory
+                    end
                 end
 
                 local success = pcall(request, {
@@ -12286,12 +12306,74 @@ Check the Developer Console for more information.]],
                 })
 
                 if success then
-                    if inventoryChanged then
+                    if attachInventory then
                         lastInventorySig = sig
+                        lastInvUploadAt = os.time()
                     end
                 else
                     warn('[WebsiteStats] failed to send stats')
                 end
+            end
+            local seenNewItemUniques = {}
+            local reportNewItem = function(spv)
+                local props = spv.properties
+                local petType = props and props.mega_neon and 'Mega' or (props and props.neon and 'Neon' or 'Normal')
+                local petAge = props and props.age or 0
+                local db = InventoryDB[spv.category]
+                local itemDB = db and db[spv.id]
+
+                pcall(request, {
+                    Url = newItemUrl,
+                    Method = 'POST',
+                    Headers = headers,
+                    Body = HttpService:JSONEncode({
+                        ['username'] = localPlayer.Name,
+                        ['device'] = getgenv().DEVICE_NAME or 'Device 0',
+                        ['unique'] = spv.unique,
+                        ['id'] = spv.id,
+                        ['name'] = itemDB and itemDB.name or spv.id,
+                        ['rarity'] = itemDB and itemDB.rarity or nil,
+                        ['type'] = petType,
+                        ['age'] = string.format('%s | Age %s', tostring((petAges[petType] or {})[petAge] or '?'), tostring(petAge)),
+                        ['category'] = spv.category,
+                    }),
+                })
+            end
+            local connectNewItemListener = function()
+                local DataPartiallyChanged = Bypass('RouterClient').get_event('DataAPI/DataPartiallyChanged')
+
+                DataPartiallyChanged.OnClientEvent:Connect(function(
+                    playerName,
+                    changes
+                )
+                    if playerName ~= localPlayer.Name then
+                        return
+                    end
+                    if typeof(changes) ~= 'table' then
+                        return
+                    end
+
+                    for _, change in changes do
+                        local spv = change and change.serialized_partial_value
+
+                        if typeof(spv) ~= 'table' then
+                            continue
+                        end
+                        if not spv.newness_order or spv.newness_order <= 0 then
+                            continue
+                        end
+                        if table.find(AllowOrDenyList.Denylist, spv.id) then
+                            continue
+                        end
+                        if not spv.unique or seenNewItemUniques[spv.unique] then
+                            continue
+                        end
+
+                        seenNewItemUniques[spv.unique] = true
+
+                        reportNewItem(spv)
+                    end
+                end)
             end
             local reportScriptDone = function(success)
                 pcall(request, {
@@ -12316,6 +12398,7 @@ Check the Developer Console for more information.]],
                     return
                 end
 
+                pcall(connectNewItemListener)
                 task.spawn(function()
                     task.wait(math.random() * 60)
                     pcall(sendPlayerData)
