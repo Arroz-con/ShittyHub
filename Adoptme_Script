@@ -880,6 +880,9 @@ do
         local __modImpl = function()
             return {
                 Denylist = {
+                    'water',
+                    'ham_vip',
+                    'ham',
                     'pet_age_potion',
                     'tiny_pet_age_potion',
                     '2d_kitty',
