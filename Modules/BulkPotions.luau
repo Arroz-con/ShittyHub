@@ -318,9 +318,9 @@ end
 
 function BulkPotion.AgeAllPetsOfSameName(petId: string, maxAmount: number): boolean
     Fusion.MakeMega(false) -- makes neon
-    task.wait(.1)
+    task.wait(1)
     Fusion.MakeMega(true) -- makes mega
-    task.wait(.1)
+    task.wait(1)
     
     local result = getMaxMega(petId)
     if result >= maxAmount then
