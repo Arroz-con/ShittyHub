@@ -7,7 +7,7 @@ local Player = Players.LocalPlayer
 
 local Fusion = {}
 
-local function getFullgrownPets(mega: boolean): table
+local function getFullgrownPets(mega: boolean): {}
     local fullgrownTable = {}
 
     if mega then
