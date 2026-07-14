@@ -3,9 +3,285 @@ local __DARKLUA_BUNDLE_MODULES = {cache = {}}
 do
     do
         local __modImpl = function()
+            local RunService = game:GetService('RunService')
+            local FN_MARKER = newproxy()
+            local THREAD_MARKER = newproxy()
+            local GENERIC_OBJECT_CLEANUP_METHODS = table.freeze({
+                'Destroy',
+                'Disconnect',
+                'destroy',
+                'disconnect',
+            })
+            local getObjectCleanupFunction = function(object, cleanupMethod)
+                local t = typeof(object)
+
+                if t == 'function' then
+                    return FN_MARKER
+                elseif t == 'thread' then
+                    return THREAD_MARKER
+                end
+                if cleanupMethod then
+                    return cleanupMethod
+                end
+                if t == 'Instance' then
+                    return 'Destroy'
+                elseif t == 'RBXScriptConnection' then
+                    return 'Disconnect'
+                elseif t == 'table' then
+                    for _, genericCleanupMethod in GENERIC_OBJECT_CLEANUP_METHODS do
+                        if typeof(object[genericCleanupMethod]) == 'function' then
+                            return genericCleanupMethod
+                        end
+                    end
+                end
+
+                error(string.format('failed to get cleanup function for object %s: %s', tostring(t), tostring(object)), 3)
+            end
+            local assertPromiseLike = function(object)
+                if typeof(object) ~= 'table' or typeof(object.getStatus) ~= 'function' or typeof(object.finally) ~= 'function' or typeof(object.cancel) ~= 'function' then
+                    error('did not receive a promise as an argument', 3)
+                end
+            end
+            local assertSignalLike = function(object)
+                if typeof(object) ~= 'RBXScriptSignal' and (typeof(object) ~= 'table' or typeof(object.Connect) ~= 'function' or typeof(object.Once) ~= 'function') then
+                    error('did not receive a signal as an argument', 3)
+                end
+            end
+            local Trove = {}
+
+            Trove.__index = Trove
+
+            function Trove.new()
+                local self = setmetatable({}, Trove)
+
+                self._objects = {}
+                self._cleaning = false
+
+                return (self)
+            end
+            function Trove.Add(self, object, cleanupMethod)
+                if self._cleaning then
+                    error('cannot call trove:Add() while cleaning', 2)
+                end
+
+                local cleanup = getObjectCleanupFunction(object, cleanupMethod)
+
+                table.insert(self._objects, {object, cleanup})
+
+                return object
+            end
+            function Trove.Clone(self, instance)
+                if self._cleaning then
+                    error('cannot call trove:Clone() while cleaning', 2)
+                end
+
+                return self:Add(instance:Clone())
+            end
+            function Trove.Construct(self, class, ...)
+                if self._cleaning then
+                    error('Cannot call trove:Construct() while cleaning', 2)
+                end
+
+                local object = nil
+                local t = type(class)
+
+                if t == 'table' then
+                    object = (class).new(...)
+                elseif t == 'function' then
+                    object = (class)(...)
+                end
+
+                return self:Add(object)
+            end
+            function Trove.Connect(self, signal, fn)
+                if self._cleaning then
+                    error('Cannot call trove:Connect() while cleaning', 2)
+                end
+
+                assertSignalLike(signal)
+
+                local confirmedSignal = signal
+
+                return self:Add(confirmedSignal:Connect(fn))
+            end
+            function Trove.Once(self, signal, fn)
+                if self._cleaning then
+                    error('Cannot call trove:Connect() while cleaning', 2)
+                end
+
+                assertSignalLike(signal)
+
+                local confirmedSignal = signal
+                local conn
+
+                conn = confirmedSignal:Once(function(...)
+                    fn(...)
+                    self:Pop(conn)
+                end)
+
+                return self:Add(conn)
+            end
+            function Trove.BindToRenderStep(self, name, priority, fn)
+                if self._cleaning then
+                    error('cannot call trove:BindToRenderStep() while cleaning', 2)
+                end
+
+                RunService:BindToRenderStep(name, priority, fn)
+                self:Add(function()
+                    RunService:UnbindFromRenderStep(name)
+                end)
+            end
+            function Trove.AddPromise(self, promise)
+                if self._cleaning then
+                    error('cannot call trove:AddPromise() while cleaning', 2)
+                end
+
+                assertPromiseLike(promise)
+
+                local confirmedPromise = promise
+
+                if confirmedPromise:getStatus() == 'Started' then
+                    confirmedPromise:finally(function()
+                        if self._cleaning then
+                            return
+                        end
+
+                        self:_findAndRemoveFromObjects(confirmedPromise, false)
+                    end)
+                    self:Add(confirmedPromise, 'cancel')
+                end
+
+                return confirmedPromise
+            end
+            function Trove.Remove(self, object)
+                if self._cleaning then
+                    error('cannot call trove:Remove() while cleaning', 2)
+                end
+
+                return self:_findAndRemoveFromObjects(object, true)
+            end
+            function Trove.Pop(self, object)
+                if self._cleaning then
+                    error('cannot call trove:Pop() while cleaning', 2)
+                end
+
+                return self:_findAndRemoveFromObjects(object, false)
+            end
+            function Trove.Extend(self)
+                if self._cleaning then
+                    error('cannot call trove:Extend() while cleaning', 2)
+                end
+
+                return self:Construct(Trove)
+            end
+            function Trove.Clean(self)
+                if self._cleaning then
+                    return
+                end
+
+                self._cleaning = true
+
+                for _, obj in self._objects do
+                    self:_cleanupObject(obj[1], obj[2])
+                end
+
+                table.clear(self._objects)
+
+                self._cleaning = false
+            end
+            function Trove.WrapClean(self)
+                return function()
+                    self:Clean()
+                end
+            end
+            function Trove._findAndRemoveFromObjects(self, object, cleanup)
+                local objects = self._objects
+
+                for i, obj in objects do
+                    if obj[1] == object then
+                        local n = #objects
+
+                        objects[i] = objects[n]
+                        objects[n] = nil
+
+                        if cleanup then
+                            self:_cleanupObject(obj[1], obj[2])
+                        end
+
+                        return true
+                    end
+                end
+
+                return false
+            end
+            function Trove._cleanupObject(_self, object, cleanupMethod)
+                if cleanupMethod == FN_MARKER then
+                    task.spawn(object)
+                elseif cleanupMethod == THREAD_MARKER then
+                    pcall(task.cancel, object)
+                else
+                    object[cleanupMethod](object)
+                end
+            end
+            function Trove.AttachToInstance(self, instance)
+                if self._cleaning then
+                    error('cannot call trove:AttachToInstance() while cleaning', 2)
+                elseif not instance:IsDescendantOf(game) then
+                    error('instance is not a descendant of the game hierarchy', 2)
+                end
+
+                return self:Connect(instance.Destroying, function()
+                    self:Destroy()
+                end)
+            end
+            function Trove.Destroy(self)
+                self:Clean()
+            end
+
+            return {
+                new = Trove.new,
+            }
+        end
+
+        function __DARKLUA_BUNDLE_MODULES.a()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.a
+
+            if not v then
+                v = {
+                    c = __modImpl(),
+                }
+                __DARKLUA_BUNDLE_MODULES.cache.a = v
+            end
+
+            return v.c
+        end
+    end
+    do
+        local __modImpl = function()
+            local module = __DARKLUA_BUNDLE_MODULES.a()
+
+            return module
+        end
+
+        function __DARKLUA_BUNDLE_MODULES.b()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.b
+
+            if not v then
+                v = {
+                    c = __modImpl(),
+                }
+                __DARKLUA_BUNDLE_MODULES.cache.b = v
+            end
+
+            return v.c
+        end
+    end
+    do
+        local __modImpl = function()
             local Players = cloneref(game:GetService('Players'))
             local StarterGui = game:GetService('StarterGui')
             local playerGui = Players.LocalPlayer:WaitForChild('PlayerGui')
+            local trove = getgenv().AutoFarmTrove
             local StatsGui = {}
 
             StatsGui.__index = StatsGui
@@ -52,6 +328,12 @@ do
                 local self = setmetatable({}, StatsGui)
 
                 self.Labels = {}
+
+                local oldGui = player:WaitForChild('PlayerGui'):FindFirstChild('StatsGui')
+
+                if oldGui then
+                    oldGui:Destroy()
+                end
 
                 local gui = Instance.new('ScreenGui')
 
@@ -121,13 +403,13 @@ do
             function StatsGui:CreateButton(buttonSettings)
                 local button = setButtonUiSettings(buttonSettings)
 
-                button.Activated:Connect(function()
+                trove:Connect(button.Activated, function()
                     button.Text = '\u{2705}'
 
                     buttonSettings.Callback()
-                    task.wait(1)
-
-                    button.Text = buttonSettings.Text
+                    trove:Add(task.delay(1, function()
+                        button.Text = buttonSettings.Text
+                    end))
                 end)
             end
             function StatsGui:UpdateStatus(...)
@@ -142,14 +424,14 @@ do
             return StatsGui
         end
 
-        function __DARKLUA_BUNDLE_MODULES.a()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.a
+        function __DARKLUA_BUNDLE_MODULES.c()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.c
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.a = v
+                __DARKLUA_BUNDLE_MODULES.cache.c = v
             end
 
             return v.c
@@ -166,7 +448,7 @@ do
             local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
             local ClientData = Bypass('ClientData')
             local RouterClient = Bypass('RouterClient')
-            local myGui = __DARKLUA_BUNDLE_MODULES.a().Get()
+            local myGui = __DARKLUA_BUNDLE_MODULES.c().Get()
             local localPlayer = Players.LocalPlayer
             local guiInset = GuiService:GetGuiInset()
 
@@ -763,18 +1045,35 @@ do
                     return false, 'Timed out waiting for server response'
                 end
             end
+            function Utils.SafeRequire(root, timeout, ...)
+                local current = root
+
+                for _, name in {...}do
+                    current = current:WaitForChild(name, timeout)
+
+                    if not current then
+                        return nil
+                    end
+                end
+
+                if current:IsA('ModuleScript') then
+                    return (require(current))
+                end
+
+                return nil
+            end
 
             return Utils
         end
 
-        function __DARKLUA_BUNDLE_MODULES.b()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.b
+        function __DARKLUA_BUNDLE_MODULES.d()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.d
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.b = v
+                __DARKLUA_BUNDLE_MODULES.cache.d = v
             end
 
             return v.c
@@ -787,7 +1086,7 @@ do
             local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
             local ClientData = Bypass('ClientData')
             local RouterClient = Bypass('RouterClient')
-            local Utils = __DARKLUA_BUNDLE_MODULES.b()
+            local Utils = __DARKLUA_BUNDLE_MODULES.d()
             local Furniture = {}
             local localPlayer = Players.LocalPlayer
 
@@ -845,14 +1144,14 @@ do
             return Furniture
         end
 
-        function __DARKLUA_BUNDLE_MODULES.c()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.c
+        function __DARKLUA_BUNDLE_MODULES.e()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.e
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.c = v
+                __DARKLUA_BUNDLE_MODULES.cache.e = v
             end
 
             return v.c
@@ -863,14 +1162,14 @@ do
             return true
         end
 
-        function __DARKLUA_BUNDLE_MODULES.d()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.d
+        function __DARKLUA_BUNDLE_MODULES.f()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.f
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.d = v
+                __DARKLUA_BUNDLE_MODULES.cache.f = v
             end
 
             return v.c
@@ -920,14 +1219,14 @@ do
             }
         end
 
-        function __DARKLUA_BUNDLE_MODULES.e()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.e
+        function __DARKLUA_BUNDLE_MODULES.g()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.g
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.e = v
+                __DARKLUA_BUNDLE_MODULES.cache.g = v
             end
 
             return v.c
@@ -935,7 +1234,7 @@ do
     end
     do
         local __modImpl = function()
-            __DARKLUA_BUNDLE_MODULES.d()
+            __DARKLUA_BUNDLE_MODULES.f()
 
             local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
             local Players = cloneref(game:GetService('Players'))
@@ -943,8 +1242,8 @@ do
             local ClientData = Bypass('ClientData')
             local RouterClient = Bypass('RouterClient')
             local InventoryDB = Bypass('InventoryDB')
-            local AllowOrDenyList = __DARKLUA_BUNDLE_MODULES.e()
-            local Utils = __DARKLUA_BUNDLE_MODULES.b()
+            local AllowOrDenyList = __DARKLUA_BUNDLE_MODULES.g()
+            local Utils = __DARKLUA_BUNDLE_MODULES.d()
             local self = {}
             local localPlayer = Players.LocalPlayer
             local lowTierRarity = {
@@ -1663,14 +1962,14 @@ do
             return self
         end
 
-        function __DARKLUA_BUNDLE_MODULES.f()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.f
+        function __DARKLUA_BUNDLE_MODULES.h()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.h
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.f = v
+                __DARKLUA_BUNDLE_MODULES.cache.h = v
             end
 
             return v.c
@@ -1684,7 +1983,7 @@ do
             local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
             local ClientData = Bypass('ClientData')
             local CollisionsClient = Bypass('CollisionsClient')
-            local Utils = __DARKLUA_BUNDLE_MODULES.b()
+            local Utils = __DARKLUA_BUNDLE_MODULES.d()
             local Teleport = {}
             local localPlayer = Players.LocalPlayer
             local getconstants = getconstants or debug.getconstants
@@ -1904,14 +2203,14 @@ do
             return Teleport
         end
 
-        function __DARKLUA_BUNDLE_MODULES.g()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.g
+        function __DARKLUA_BUNDLE_MODULES.i()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.i
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.g = v
+                __DARKLUA_BUNDLE_MODULES.cache.i = v
             end
 
             return v.c
@@ -1925,8 +2224,8 @@ do
             local ClientData = Bypass('ClientData')
             local RouterClient = Bypass('RouterClient')
             local InventoryDB = Bypass('InventoryDB')
-            local Utils = __DARKLUA_BUNDLE_MODULES.b()
-            local Teleport = __DARKLUA_BUNDLE_MODULES.g()
+            local Utils = __DARKLUA_BUNDLE_MODULES.d()
+            local Teleport = __DARKLUA_BUNDLE_MODULES.i()
             local self = {}
             local localPlayer = Players.LocalPlayer
             local buyItem = function(valuesTable, howManyToBuy)
@@ -2143,14 +2442,14 @@ do
             return self
         end
 
-        function __DARKLUA_BUNDLE_MODULES.h()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.h
+        function __DARKLUA_BUNDLE_MODULES.j()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.j
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.h = v
+                __DARKLUA_BUNDLE_MODULES.cache.j = v
             end
 
             return v.c
@@ -2247,14 +2546,14 @@ do
             return self
         end
 
-        function __DARKLUA_BUNDLE_MODULES.i()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.i
+        function __DARKLUA_BUNDLE_MODULES.k()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.k
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.i = v
+                __DARKLUA_BUNDLE_MODULES.cache.k = v
             end
 
             return v.c
@@ -2265,14 +2564,14 @@ do
             return {}
         end
 
-        function __DARKLUA_BUNDLE_MODULES.j()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.j
+        function __DARKLUA_BUNDLE_MODULES.l()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.l
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.j = v
+                __DARKLUA_BUNDLE_MODULES.cache.l = v
             end
 
             return v.c
@@ -2280,7 +2579,7 @@ do
     end
     do
         local __modImpl = function()
-            __DARKLUA_BUNDLE_MODULES.d()
+            __DARKLUA_BUNDLE_MODULES.f()
 
             local ReplicatedStorage = game:GetService('ReplicatedStorage')
             local Players = game:GetService('Players')
@@ -2288,9 +2587,9 @@ do
             local ClientData = (Bypass('ClientData'))
             local RouterClient = Bypass('RouterClient')
             local InventoryDB = Bypass('InventoryDB')
-            local AllowOrDenyList = __DARKLUA_BUNDLE_MODULES.e()
-            local Utils = __DARKLUA_BUNDLE_MODULES.b()
-            local CurrentIdlePets = __DARKLUA_BUNDLE_MODULES.j()
+            local AllowOrDenyList = __DARKLUA_BUNDLE_MODULES.g()
+            local Utils = __DARKLUA_BUNDLE_MODULES.d()
+            local CurrentIdlePets = __DARKLUA_BUNDLE_MODULES.l()
             local GetInventory = {}
             local PetsToReleaseList = getgenv().SETTINGS.PETS_TO_AGE_IN_PEN or {}
             local localPlayer = Players.LocalPlayer
@@ -2889,14 +3188,14 @@ do
             return GetInventory
         end
 
-        function __DARKLUA_BUNDLE_MODULES.k()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.k
+        function __DARKLUA_BUNDLE_MODULES.m()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.m
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.k = v
+                __DARKLUA_BUNDLE_MODULES.cache.m = v
             end
 
             return v.c
@@ -2904,7 +3203,7 @@ do
     end
     do
         local __modImpl = function()
-            __DARKLUA_BUNDLE_MODULES.d()
+            __DARKLUA_BUNDLE_MODULES.f()
 
             local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
             local Workspace = (game:GetService('Workspace'))
@@ -2913,9 +3212,9 @@ do
             local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
             local ClientData = Bypass('ClientData')
             local RouterClient = Bypass('RouterClient')
-            local Fusion = __DARKLUA_BUNDLE_MODULES.i()
-            local Utils = __DARKLUA_BUNDLE_MODULES.b()
-            local GetInventory = __DARKLUA_BUNDLE_MODULES.k()
+            local Fusion = __DARKLUA_BUNDLE_MODULES.k()
+            local Utils = __DARKLUA_BUNDLE_MODULES.d()
+            local GetInventory = __DARKLUA_BUNDLE_MODULES.m()
             local BulkPotion = {}
             local localPlayer = Players.LocalPlayer
 
@@ -3267,14 +3566,14 @@ do
             return BulkPotion
         end
 
-        function __DARKLUA_BUNDLE_MODULES.l()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.l
+        function __DARKLUA_BUNDLE_MODULES.n()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.n
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.l = v
+                __DARKLUA_BUNDLE_MODULES.cache.n = v
             end
 
             return v.c
@@ -3289,39 +3588,18 @@ do
             local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
             local RouterClient = Bypass('RouterClient')
             local ClientData = Bypass('ClientData')
-            local Utils = __DARKLUA_BUNDLE_MODULES.b()
-            local Furniture = __DARKLUA_BUNDLE_MODULES.c()
-            local Trade = __DARKLUA_BUNDLE_MODULES.f()
-            local Teleport = __DARKLUA_BUNDLE_MODULES.g()
-            local BuyItem = __DARKLUA_BUNDLE_MODULES.h()
-            local BulkPotion = __DARKLUA_BUNDLE_MODULES.l()
-            local Fusion = __DARKLUA_BUNDLE_MODULES.i()
+            local Trove = __DARKLUA_BUNDLE_MODULES.b()
+            local Utils = __DARKLUA_BUNDLE_MODULES.d()
+            local Furniture = __DARKLUA_BUNDLE_MODULES.e()
+            local Trade = __DARKLUA_BUNDLE_MODULES.h()
+            local Teleport = __DARKLUA_BUNDLE_MODULES.i()
+            local BuyItem = __DARKLUA_BUNDLE_MODULES.j()
+            local BulkPotion = __DARKLUA_BUNDLE_MODULES.n()
+            local Fusion = __DARKLUA_BUNDLE_MODULES.k()
+            local trove = getgenv().AutoFarmTrove
             local self = {}
             local localPlayer = Players.LocalPlayer
             local rng = Random.new()
-            local PlayerGui = localPlayer:WaitForChild('PlayerGui')
-            local DialogApp = (PlayerGui:WaitForChild('DialogApp'))
-            local NewsApp = (PlayerGui:WaitForChild('NewsApp'))
-            local pickColorConn = nil
-            local pickColorTutorial = function()
-                local colorButton = (DialogApp.Dialog.ThemeColorDialog:WaitForChild('Info'):WaitForChild('Response'):WaitForChild('ColorTemplate'))
-
-                if not colorButton then
-                    return
-                end
-
-                Utils.FireButton(colorButton)
-                task.wait(3)
-
-                local doneButton = (DialogApp.Dialog.ThemeColorDialog:WaitForChild('Buttons'):WaitForChild('ButtonTemplate'))
-
-                if not doneButton then
-                    return
-                end
-
-                Utils.FireButton(doneButton)
-                Utils.PrintDebug('PICKED COLOR')
-            end
             local isPlayersInGame = function(playerList)
                 for _, player in Players:GetPlayers()do
                     if player.Name == localPlayer.Name then
@@ -3351,21 +3629,6 @@ do
                     Furniture.GetFurnituresKey()
                 end
             end
-            local findHomeButtonAndClick = function()
-                local homeFrame = (DialogApp:FindFirstChild('Home', true))
-
-                if not homeFrame or not homeFrame.Visible then
-                    return
-                end
-
-                local button = (homeFrame:WaitForChild('Button', 6))
-
-                if not button then
-                    return
-                end
-
-                Utils.FireButton(button)
-            end
             local processTradeCollector = function()
                 if getgenv().SETTINGS.ENABLE_TRASH_COLLECTOR and isPlayersInGame(getgenv().SETTINGS.TRASH_COLLECTOR_NAMES) then
                     getgenv().SETTINGS.ENABLE_TRADE_COLLECTOR = false
@@ -3374,15 +3637,6 @@ do
                 elseif getgenv().SETTINGS.ENABLE_TRADE_COLLECTOR and isPlayersInGame(getgenv().SETTINGS.TRADE_COLLECTOR_NAME) then
                     Utils.PrintDebug('Trading MULE collector')
                     Trade.TradeCollector(getgenv().SETTINGS.TRADE_COLLECTOR_NAME)
-
-                    if not getgenv().FARMSYNC then
-                        return
-                    end
-                    if not getgenv().FARMSYNC.ENABLED then
-                        return
-                    end
-
-                    Utils.SetConfigFarming(getgenv().FARMSYNC.FARMING_CONFIG_ID)
                 end
             end
 
@@ -3390,10 +3644,13 @@ do
                 RouterClient.get('SettingsAPI/SetBooleanFlag'):FireServer('arachnophobia_mode_seen', true)
                 task.wait()
                 RouterClient.get('SettingsAPI/SetSetting'):FireServer('arachnophobia_mode', false)
-                DialogApp.Dialog.ThemeColorDialog:GetPropertyChangedSignal('Visible'):Connect(pickColorTutorial)
-                DialogApp.Dialog.SpawnChooserDialog:GetPropertyChangedSignal('Visible'):Connect(findHomeButtonAndClick)
-                Players.PlayerAdded:Connect(function(player)
-                    player.CharacterAdded:Connect(function(character)
+                trove:Connect(Players.PlayerAdded, function(player)
+                    local playerTrove = Trove.new()
+
+                    playerTrove:AttachToInstance(player)
+                    playerTrove:Connect(player.CharacterAdded, function(
+                        character
+                    )
                         if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, localPlayer.Name) then
                             return
                         end
@@ -3436,25 +3693,6 @@ do
                 setfpscap(getgenv().SETTINGS.SET_FPS)
                 StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Captures, false)
 
-                if DialogApp.Dialog.ThemeColorDialog.Visible then
-                    Utils.PrintDebug('picking color')
-                    pickColorTutorial()
-
-                    if pickColorConn then
-                        pickColorConn:Disconnect()
-                    end
-                end
-                if NewsApp.Enabled then
-                    Utils.PrintDebug('NEWSAPP ENABLED')
-
-                    local AbsPlay = (NewsApp:WaitForChild('EnclosingFrame'):WaitForChild('MainFrame'):WaitForChild('Buttons'):WaitForChild('PlayButton'))
-
-                    Utils.FireButton(AbsPlay)
-                    Utils.PrintDebug('NEWSAPP CLICKED')
-                end
-
-                findHomeButtonAndClick()
-
                 local loadCount = 0
 
                 repeat
@@ -3480,7 +3718,9 @@ do
                         break
                     end
 
-                    RouterClient.get('HousingAPI/SubscribeToHouse'):FireServer(Players.LocalPlayer)
+                    pcall(function()
+                        RouterClient.get('TeamAPI/Spawn'):InvokeServer()
+                    end)
 
                     count = count + 10
 
@@ -3520,7 +3760,7 @@ do
                     v:Disable()
                 end
 
-                localPlayer.Idled:Connect(function()
+                trove:Connect(localPlayer.Idled, function()
                     VirtualUser:ClickButton2(Vector2.new())
                 end)
                 processTradeCollector()
@@ -3559,14 +3799,14 @@ do
             return self
         end
 
-        function __DARKLUA_BUNDLE_MODULES.m()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.m
+        function __DARKLUA_BUNDLE_MODULES.o()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.o
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.m = v
+                __DARKLUA_BUNDLE_MODULES.cache.o = v
             end
 
             return v.c
@@ -3579,11 +3819,12 @@ do
             local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
             local ClientData = Bypass('ClientData')
             local RouterClient = Bypass('RouterClient')
-            local Utils = __DARKLUA_BUNDLE_MODULES.b()
-            local self = {}
+            local Utils = __DARKLUA_BUNDLE_MODULES.d()
             local localPlayer = Players.LocalPlayer
+            local trove = getgenv().AutoFarmTrove
             local PlayerGui = localPlayer:WaitForChild('PlayerGui')
-            local DailyLoginApp = PlayerGui:WaitForChild('DailyLoginApp')
+            local DailyLoginApp = (PlayerGui:WaitForChild('DailyLoginApp'))
+            local self = {}
             local DailyRewardTable = {
                 [9] = 'reward_1',
                 [30] = 'reward_2',
@@ -3645,67 +3886,80 @@ do
             local dailyLoginAppClick = function()
                 Utils.PrintDebug('Clicking on Daily login app')
 
-                local frame = (DailyLoginApp and {
-                    (DailyLoginApp:FindFirstChild('Frame')),
-                } or {nil})[1]
-                local body = (frame and {
-                    (frame:FindFirstChild('Body')),
-                } or {nil})[1]
-                local buttons = (body and {
-                    (body:FindFirstChild('Buttons')),
-                } or {nil})[1]
+                if not DailyLoginApp then
+                    return
+                end
+
+                local buttons = DailyLoginApp:FindFirstChild('Buttons', true)
 
                 if not buttons then
                     return
                 end
 
-                for _, v in buttons:GetDescendants()do
-                    if v:IsA('TextLabel') then
-                        if v.Text == 'CLOSE' and v.Parent and v.Parent.Parent then
-                            local button = (v.Parent.Parent)
+                local pressButton = function(label, actionName, firesTwice)
+                    local parent = label.Parent
+                    local button = (parent and parent.Parent)
 
-                            Utils.PrintDebug('pressed Close on daily login')
-                            Utils.FireButton(button)
-                            task.wait(1)
-                            grabDailyReward()
-                        elseif v.Text == 'CLAIM!' and v.Parent and v.Parent.Parent then
-                            local button = (v.Parent.Parent)
+                    if button and button:IsA('GuiButton') then
+                        Utils.PrintDebug(string.format('Pressed %s on daily login', tostring(actionName)))
+                        Utils.FireButton(button)
 
-                            Utils.PrintDebug('pressed claim on daily login')
+                        if firesTwice then
+                            task.wait(0.1)
                             Utils.FireButton(button)
-                            task.wait(1)
-                            Utils.FireButton(button)
-                            grabDailyReward()
+                        end
+
+                        task.wait(1)
+                        grabDailyReward()
+
+                        return true
+                    end
+
+                    return false
+                end
+
+                for _, child in buttons:GetDescendants()do
+                    if not child:IsA('TextLabel') then
+                        continue
+                    end
+                    if child.Text == 'CLOSE' then
+                        if pressButton(child, 'Close', false) then
+                            break
+                        end
+                    elseif child.Text == 'CLAIM!' then
+                        if pressButton(child, 'Claim', true) then
+                            break
                         end
                     end
                 end
             end
 
             function self.Init()
-                self.DailyClaimConnection = DailyLoginApp:GetPropertyChangedSignal('Enabled'):Connect(function(
+                trove:Add(DailyLoginApp:GetPropertyChangedSignal('Enabled'):Once(function(
                 )
-                    dailyLoginAppClick()
-
-                    if self.DailyClaimConnection then
-                        self.DailyClaimConnection:Disconnect()
+                    if DailyLoginApp.Enabled then
+                        dailyLoginAppClick()
                     end
-                end)
+                end))
             end
             function self.Start()
-                dailyLoginAppClick()
+                if DailyLoginApp.Enabled then
+                    dailyLoginAppClick()
+                    trove:Clean()
+                end
             end
 
             return self
         end
 
-        function __DARKLUA_BUNDLE_MODULES.n()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.n
+        function __DARKLUA_BUNDLE_MODULES.p()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.p
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.n = v
+                __DARKLUA_BUNDLE_MODULES.cache.p = v
             end
 
             return v.c
@@ -3713,225 +3967,54 @@ do
     end
     do
         local __modImpl = function()
+            return true
+        end
+
+        function __DARKLUA_BUNDLE_MODULES.q()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.q
+
+            if not v then
+                v = {
+                    c = __modImpl(),
+                }
+                __DARKLUA_BUNDLE_MODULES.cache.q = v
+            end
+
+            return v.c
+        end
+    end
+    do
+        local __modImpl = function()
+            __DARKLUA_BUNDLE_MODULES.q()
+
             local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
             local Players = cloneref(game:GetService('Players'))
             local TextChatService = game:GetService('TextChatService')
             local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
             local RouterClient = Bypass('RouterClient')
-            local Utils = __DARKLUA_BUNDLE_MODULES.b()
-            local Trade = __DARKLUA_BUNDLE_MODULES.f()
-            local Teleport = __DARKLUA_BUNDLE_MODULES.g()
-            local Fusion = __DARKLUA_BUNDLE_MODULES.i()
+            local Utils = __DARKLUA_BUNDLE_MODULES.d()
+            local Trade = __DARKLUA_BUNDLE_MODULES.h()
+            local Fusion = __DARKLUA_BUNDLE_MODULES.k()
+            local trove = getgenv().AutoFarmTrove
             local self = {}
             local localPlayer = Players.LocalPlayer
             local PlayerGui = localPlayer:WaitForChild('PlayerGui')
-            local DialogApp = (PlayerGui:WaitForChild('DialogApp'))
-            local MinigameRewardsApp = (PlayerGui:WaitForChild('MinigameRewardsApp'))
-            local MinigameInGameApp = (PlayerGui:WaitForChild('MinigameInGameApp'))
             local TradeApp = (PlayerGui:WaitForChild('TradeApp'))
-            local PlaytimePayoutsApp = (PlayerGui:WaitForChild('PlaytimePayoutsApp'))
-            local certificateConn
-            local starterPackAppConn
-            local appList = {
-                'DialogApp',
-                'MerchPopUpApp',
-                'SubscriptionsPopUpApp',
-                'ExtraButtonsApp',
-                'HouseEditorWrapperApp',
-                'GuideArrowApp',
-                'NavigatorApp',
-                'QuestIconApp',
+            local excludeAppList = {
+                'TradeApp',
+                'BackpackApp',
+                'BattlePassApp',
+                'IdleProgressionApp',
             }
-            local patterns = {
-                ['Karp Bait is no longer needed'] = 'Next',
-                ['Choose the number'] = 'Cancel',
-                ['admin'] = 'Awesome',
-                ['caught enough Karp'] = 'Next',
-                ['Your certificate'] = 'Okay',
-                ['Wind has picked'] = 'Okay',
-                ['new Fishing Rod'] = 'Okay',
-                ['is starting soon!'] = 'Yes',
-                ['The Journey Pass'] = 'Okay',
-                ['Thunder has'] = 'Okay',
-                ['CODE RED!'] = 'Okay',
-                ['Inspector Shepherd'] = 'No',
-                ["You haven't collected the Gingerbread"] = 'No',
-                ['Be careful when trading'] = 'Okay',
-                ['This trade seems unbalanced'] = 'Next',
-                ['Social Stones!'] = 'Okay',
-                ['sent you a trade request'] = 'Accept',
-                ['Trade request from'] = 'Okay',
-                ['Any items lost'] = 'I understand',
-                ['4.5%% Legendary'] = 'Okay',
-                ['You have been awarded'] = 'Awesome!',
-                ['Thanks for subscribing!'] = 'Okay',
-                ["Let's start the day"] = 'Start',
-                ['Are you subscribed'] = 'Yes',
-                ['your inventory!'] = 'Awesome!',
-                ["You've chosen this"] = 'Yes',
-                ['You can change this option'] = 'Okay',
-                ['You have enough'] = 'Okay',
-                ['Thanks for'] = 'Okay',
-                ['Right now'] = 'Next',
-                ['You can customize it'] = 'Start',
-                ['Your subscription'] = 'Okay!',
-                ["You've been refunded"] = 'Okay',
-                ['You have been refunded'] = 'Awesome!',
-                ["You can't afford this"] = 'Okay',
-                ['mailbox'] = 'Okay',
-                ['Pay 1500 Bucks'] = 'Yes',
-                ['Pet Pen!'] = 'Go to Pet Pen',
-                ['The Homepass has been restarted'] = 'Okay',
-                ['Costume Party starts'] = 'Okay',
-                ['Step away from'] = 'Okay',
-                ['spawn a vehicle'] = 'Okay',
-                ['Welcome to Adopt Me!'] = 'Next',
-                ["You can't use this here!"] = 'Cancel',
-            }
-            local getNormalDialogTextLabel = function()
-                local Dialog = (DialogApp and {
-                    (DialogApp:FindFirstChild('Dialog')),
-                } or {nil})[1]
-                local NormalDialog = (Dialog and {
-                    (Dialog:FindFirstChild('NormalDialog')),
-                } or {nil})[1]
-                local Info = (NormalDialog and {
-                    (NormalDialog:FindFirstChild('Info')),
-                } or {nil})[1]
-
-                if not Info then
-                    return nil
-                end
-
-                local TextLabel = (Info:FindFirstChild('TextLabel'))
-
-                if not TextLabel then
-                    return nil
-                end
-
-                return TextLabel
-            end
-            local onTextChangedNormalDialog = function()
-                local TextLabel = getNormalDialogTextLabel()
-
-                if not TextLabel then
-                    return
-                end
-
-                for pattern, button in patterns do
-                    if TextLabel.Text:match(pattern) then
-                        Utils.FindButton(button)
-
-                        return
-                    end
-                end
-            end
-            local removeGameOverButton = function(screenGuiName)
-                task.wait(0.1)
-
-                local guiFrame = localPlayer:WaitForChild('PlayerGui'):FindFirstChild(screenGuiName)
-
-                if not guiFrame then
-                    return
-                end
-
-                local body = guiFrame:FindFirstChild('Body')
-                local button = (body and {
-                    (body:WaitForChild('Button', 10)),
-                } or {nil})[1]
-                local face = (button and {
-                    (button:WaitForChild('Face', 10)),
-                } or {nil})[1]
-
-                if not (button and face) then
-                    return
-                end
-
-                for _, v in pairs(button:GetDescendants())do
-                    if v:IsA('TextLabel') and v.Text == 'NICE!' and v.Parent then
-                        local guiButton = (v.Parent.Parent)
-
-                        Utils.FireButton(guiButton)
-
-                        return
-                    end
-                end
-            end
-            local friendTradeAccept = function()
-                local dialogFrame = (DialogApp:WaitForChild('Dialog'))
-
-                if not dialogFrame.Visible then
-                    return
-                end
-
-                local HeaderDialog = (dialogFrame:WaitForChild('HeaderDialog', 10))
-
-                if not HeaderDialog then
-                    return
-                end
-
-                HeaderDialog:GetPropertyChangedSignal('Visible'):Connect(function(
-                )
-                    if not HeaderDialog.Visible then
-                        return
-                    end
-
-                    local Info = HeaderDialog:WaitForChild('Info', 10)
-
-                    if not Info then
-                        return
-                    end
-
-                    local TextLabel = (Info:WaitForChild('TextLabel', 10))
-
-                    if not TextLabel then
-                        return
-                    end
-
-                    TextLabel:GetPropertyChangedSignal('Text'):Connect(function()
-                        if not TextLabel.Visible then
-                            return
-                        end
-                        if TextLabel.Text:match('sent you a trade request') then
-                            Utils.FindButton('Accept', 'HeaderDialog')
-                        end
-                    end)
-                end)
-            end
-            local tryClickPlaytimePayout = function()
-                if not PlaytimePayoutsApp.Enabled then
-                    return
-                end
-                if not PlaytimePayoutsApp:WaitForChild('Frame', 10) then
-                    return
-                end
-                if not PlaytimePayoutsApp.Frame:WaitForChild('Container', 10) then
-                    return
-                end
-                if not PlaytimePayoutsApp.Frame.Container:WaitForChild('CashOutContainer', 10) then
-                    return
-                end
-                if not PlaytimePayoutsApp.Frame.Container.CashOutContainer:WaitForChild('CashOutButton', 10) then
-                    return
-                end
-
-                local button = (PlaytimePayoutsApp.Frame.Container.CashOutContainer.CashOutButton:WaitForChild('DepthButton', 10))
-
-                Utils.FireButton(button)
-                task.wait(1)
-                Utils.PrintDebug('\u{1f911} Cashed out playtime rewards')
-            end
 
             function self.Init()
-                for _, name in appList do
-                    Bypass('UIManager').set_app_visibility(name, false)
-                end
-
                 Bypass('UIManager').apps.BucksIndicatorApp.instance.CurrencyIndicator.Visible = false
                 Bypass('UIManager').apps.NavigatorApp.instance.Frame.Visible = false
 
                 RouterClient.get('SettingsAPI/SetSetting'):FireServer('trade_requests', 1)
-                TextChatService.MessageReceived:Connect(function(message)
+                trove:Connect(TextChatService.MessageReceived, function(
+                    message
+                )
                     if not (message.TextSource and message.TextSource.UserId) then
                         return
                     end
@@ -3946,244 +4029,24 @@ do
                     localPlayer:Kick('IS IN PUBLIC SERVER')
                 end)
 
-                local Dialog = (DialogApp:WaitForChild('Dialog'))
-
-                Dialog:WaitForChild('ExitButton'):GetPropertyChangedSignal('Visible'):Connect(function(
-                )
-                    if not Dialog.ExitButton.Visible then
-                        return
+                for _, app in Bypass('UIManager').apps do
+                    if not (typeof(app.instance) == 'Instance' and app.instance:IsA('ScreenGui')) then
+                        continue
+                    end
+                    if table.find(excludeAppList, app.instance.Name) then
+                        continue
                     end
 
-                    Utils.FireButton(Dialog.ExitButton)
-                end)
-                Dialog:GetPropertyChangedSignal('Visible'):Connect(friendTradeAccept)
-                Dialog:WaitForChild('FriendAfterTradeDialog'):GetPropertyChangedSignal('Visible'):Connect(function(
-                )
-                    if not Dialog.FriendAfterTradeDialog.Visible then
-                        return
-                    end
-
-                    local exitButton = (Dialog:WaitForChild('ExitButton', 60))
-
-                    task.wait(1)
-
-                    if not exitButton or not exitButton.Visible then
-                        return
-                    end
-
-                    Utils.FireButton(exitButton)
-                end)
-
-                local normalDialog = (Dialog:WaitForChild('NormalDialog'))
-
-                normalDialog:GetPropertyChangedSignal('Visible'):Connect(function(
-                )
-                    if normalDialog.Visible then
-                        if not normalDialog:WaitForChild('Info', 10) then
-                            return
-                        end
-                        if not normalDialog.Info:WaitForChild('TextLabel', 10) then
-                            return
-                        end
-
-                        normalDialog.Info.TextLabel:GetPropertyChangedSignal('Text'):Connect(onTextChangedNormalDialog)
-                    end
-                end)
-                Dialog.ChildAdded:Connect(function(Child)
-                    if Child.Name == 'NormalDialog' then
-                        Child:GetPropertyChangedSignal('Visible'):Connect(function(
-                        )
-                            local myChild = Child
-
-                            if not myChild.Visible then
-                                return
-                            end
-                            if not myChild:WaitForChild('Info', 10) then
-                                return
-                            end
-                            if not myChild.Info:WaitForChild('TextLabel', 10) then
-                                return
-                            end
-
-                            myChild.Info.TextLabel:GetPropertyChangedSignal('Text'):Connect(onTextChangedNormalDialog)
-                        end)
-                    elseif Child.Name == 'ItemPreviewDialog' then
-                        Child:GetPropertyChangedSignal('Visible'):Connect(function(
-                        )
-                            local myChild = Child
-
-                            if not myChild.Visible then
-                                return
-                            end
-
-                            task.wait(2)
-                        end)
-                    end
-                end)
-
-                local CertificateApp = (PlayerGui:WaitForChild('CertificateApp'))
-
-                certificateConn = CertificateApp:GetPropertyChangedSignal('Enabled'):Connect(function(
-                )
-                    if not CertificateApp.Enabled then
-                        return
-                    end
-                    if not CertificateApp:WaitForChild('Content', 10) then
-                        return
-                    end
-                    if not CertificateApp.Content:WaitForChild('ExitButton', 10) then
-                        return
-                    end
-
-                    Utils.FireButton(CertificateApp.Content.ExitButton)
-
-                    if certificateConn then
-                        certificateConn:Disconnect()
-                    end
-                end)
-
-                local FTUEStarterPackApp = (PlayerGui:WaitForChild('FTUEStarterPackApp'))
-
-                starterPackAppConn = FTUEStarterPackApp.Popups.Default:GetPropertyChangedSignal('Visible'):Connect(function(
-                )
-                    if not FTUEStarterPackApp.Popups.Default.Visible then
-                        return
-                    end
-                    if not FTUEStarterPackApp.Popups.Default:WaitForChild('ExitButton', 10) then
-                        return
-                    end
-
-                    Utils.FireButton(FTUEStarterPackApp.Popups.Default.ExitButton)
-
-                    if starterPackAppConn then
-                        starterPackAppConn:Disconnect()
-                    end
-                end)
-
-                DialogApp.Dialog.NormalDialog:GetPropertyChangedSignal('Visible'):Connect(function(
-                )
-                    if not DialogApp.Dialog.NormalDialog.Visible then
-                        return
-                    end
-                    if not DialogApp.Dialog.NormalDialog:WaitForChild('Info', 10) then
-                        return
-                    end
-                    if not DialogApp.Dialog.NormalDialog.Info:WaitForChild('TextLabel', 10) then
-                        return
-                    end
-
-                    DialogApp.Dialog.NormalDialog.Info.TextLabel:GetPropertyChangedSignal('Text'):Connect(function(
+                    trove:Connect(app.instance:GetPropertyChangedSignal('Enabled'), function(
                     )
-                        local text = DialogApp.Dialog.NormalDialog.Info.TextLabel.Text
-
-                        if text:match('is starting soon!') or text:match('Would you like to teleport') or text:match('Would you like to') then
-                            Utils.FindButton('No')
-                        elseif DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('invitation') then
-                            localPlayer:Kick('IS IN PUBLIC SERVER')
-                            game:Shutdown()
-                        elseif DialogApp.Dialog.NormalDialog.Info.TextLabel.Text:match('You found a') then
-                            Utils.FindButton('Okay')
+                        if app.instance.Enabled then
+                            Bypass('UIManager').set_app_visibility(app.instance.Name, false)
+                            print(string.format('%s: %s', tostring(app.instance.Name), tostring(app.instance.Enabled)))
                         end
                     end)
-                end)
-                DialogApp.Dialog.ChildAdded:Connect(function(child)
-                    if child.Name ~= 'NormalDialog' then
-                        return
-                    end
+                end
 
-                    local NormalDialogChild = child
-
-                    NormalDialogChild:GetPropertyChangedSignal('Visible'):Connect(function(
-                    )
-                        if not NormalDialogChild.Visible then
-                            return
-                        end
-                        if not NormalDialogChild:WaitForChild('Info', 10) then
-                            return
-                        end
-                        if not NormalDialogChild.Info:WaitForChild('TextLabel', 10) then
-                            return
-                        end
-
-                        NormalDialogChild.Info.TextLabel:GetPropertyChangedSignal('Text'):Connect(function(
-                        )
-                            local text = NormalDialogChild.Info.TextLabel.Text
-
-                            if text:match('is starting soon!') or text:match('Would you like to teleport') or text:match('Would you like to') then
-                                Utils.FindButton('No')
-                            elseif NormalDialogChild.Info.TextLabel.Text:match('invitation') then
-                                localPlayer:Kick('IS IN PUBLIC SERVER')
-                                game:Shutdown()
-                            elseif NormalDialogChild.Info.TextLabel.Text:match('You found a') then
-                                Utils.FindButton('Okay')
-                            end
-                        end)
-                    end)
-                end)
-                MinigameInGameApp:GetPropertyChangedSignal('Enabled'):Connect(function(
-                )
-                    if MinigameInGameApp.Enabled then
-                        if not MinigameInGameApp:WaitForChild('Body', 10) then
-                            return
-                        end
-                        if not MinigameInGameApp.Body:WaitForChild('Middle', 10) then
-                            return
-                        end
-                        if not MinigameInGameApp.Body.Middle:WaitForChild('Container', 10) then
-                            return
-                        end
-                        if not MinigameInGameApp.Body.Middle.Container:WaitForChild('TitleLabel', 10) then
-                            return
-                        end
-
-                        local text = MinigameInGameApp.Body.Middle.Container.TitleLabel.Text
-
-                        if text:match('TREASURE DEFENSE') or text:match('CANNON CIRCLE') then
-                            if getgenv().SETTINGS.EVENT and getgenv().SETTINGS.EVENT.DO_MINIGAME then
-                                localPlayer:SetAttribute('StopFarmingTemp', true)
-                                task.wait(2)
-                            end
-                        end
-                    end
-                end)
-                MinigameRewardsApp.Body:GetPropertyChangedSignal('Visible'):Connect(function(
-                )
-                    if MinigameRewardsApp.Body.Visible then
-                        if not MinigameRewardsApp.Body:WaitForChild('Button', 10) then
-                            return
-                        end
-                        if not MinigameRewardsApp.Body.Button:WaitForChild('Face', 10) then
-                            return
-                        end
-                        if not MinigameRewardsApp.Body.Button.Face:WaitForChild('TextLabel', 10) then
-                            return
-                        end
-                        if not MinigameRewardsApp.Body:WaitForChild('Reward', 10) then
-                            return
-                        end
-                        if not MinigameRewardsApp.Body.Reward:WaitForChild('TitleLabel', 10) then
-                            return
-                        end
-                        if MinigameRewardsApp.Body.Button.Face.TextLabel.Text:match('NICE!') then
-                            Utils.WaitForHumanoidRootPart().Anchored = true
-
-                            task.wait(2)
-                            removeGameOverButton('MinigameRewardsApp')
-                            Utils.GetCharacter()
-                            task.wait(6)
-                            Teleport.FarmingHome()
-
-                            Utils.WaitForHumanoidRootPart().Anchored = false
-
-                            localPlayer:SetAttribute('StopFarmingTemp', false)
-                        end
-                    end
-                end)
-                PlaytimePayoutsApp:GetPropertyChangedSignal('Enabled'):Connect(function(
-                )
-                    tryClickPlaytimePayout()
-                end)
-                RouterClient.get_event('TradeAPI/TradeRequestReceived').OnClientEvent:Connect(function(
+                trove:Connect(RouterClient.get_event('TradeAPI/TradeRequestReceived').OnClientEvent, function(
                     otherPlayer
                 )
                     if otherPlayer.UserId == localPlayer.UserId then
@@ -4195,11 +4058,11 @@ do
                         RouterClient.get('TradeAPI/AcceptOrDeclineTradeRequest'):InvokeServer(otherPlayer, true)
                     end)
                 end)
-                TradeApp.Frame.NegotiationFrame.Body.PartnerOffer.Accepted:GetPropertyChangedSignal('ImageTransparency'):Connect(function(
+                trove:Connect(TradeApp.Frame.NegotiationFrame.Body.PartnerOffer.Accepted:GetPropertyChangedSignal('ImageTransparency'), function(
                 )
                     Trade.AutoAcceptTrade()
                 end)
-                TradeApp.Frame.ConfirmationFrame.PartnerOffer.Accepted:GetPropertyChangedSignal('ImageTransparency'):Connect(function(
+                trove:Connect(TradeApp.Frame.ConfirmationFrame.PartnerOffer.Accepted:GetPropertyChangedSignal('ImageTransparency'), function(
                 )
                     Trade.AutoAcceptTrade()
                     task.wait(2)
@@ -4209,28 +4072,34 @@ do
                         Fusion.MakeMega(true)
                     end
                 end)
-            end
-            function self.Start()
-                tryClickPlaytimePayout()
 
-                if Bypass('UIManager').apps.MerchPopUpApp.visible then
-                    Utils.FireButton(Bypass('UIManager').apps.MerchPopUpApp.instance.Background.KeyImage.ExitButton)
+                for name, app in Bypass('UIManager').apps do
+                    if not (typeof(app.instance) == 'Instance' and app.instance:IsA('ScreenGui')) then
+                        continue
+                    end
+                    if table.find(excludeAppList, app.instance.Name) then
+                        continue
+                    end
+                    if app.instance.Enabled then
+                        app.instance.Enabled = false
+
+                        Bypass('UIManager').set_app_visibility(app.instance.Name, false)
+                    end
                 end
-
-                task.delay(10, onTextChangedNormalDialog)
             end
+            function self.Start() end
 
             return self
         end
 
-        function __DARKLUA_BUNDLE_MODULES.o()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.o
+        function __DARKLUA_BUNDLE_MODULES.r()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.r
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.o = v
+                __DARKLUA_BUNDLE_MODULES.cache.r = v
             end
 
             return v.c
@@ -4272,14 +4141,14 @@ do
             return self
         end
 
-        function __DARKLUA_BUNDLE_MODULES.p()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.p
+        function __DARKLUA_BUNDLE_MODULES.s()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.s
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.p = v
+                __DARKLUA_BUNDLE_MODULES.cache.s = v
             end
 
             return v.c
@@ -4291,7 +4160,7 @@ do
             local Players = cloneref(game:GetService('Players'))
             local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
             local ClientData = Bypass('ClientData')
-            local Utils = __DARKLUA_BUNDLE_MODULES.b()
+            local Utils = __DARKLUA_BUNDLE_MODULES.d()
             local self = {}
             local localPlayer = Players.LocalPlayer
             local doStarterTutorial = function()
@@ -4317,14 +4186,14 @@ do
             return self
         end
 
-        function __DARKLUA_BUNDLE_MODULES.q()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.q
+        function __DARKLUA_BUNDLE_MODULES.t()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.t
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.q = v
+                __DARKLUA_BUNDLE_MODULES.cache.t = v
             end
 
             return v.c
@@ -4332,248 +4201,8 @@ do
     end
     do
         local __modImpl = function()
-            local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
-            local Players = cloneref(game:GetService('Players'))
-            local HttpService = cloneref(game:GetService('HttpService'))
-            local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
-            local AllowOrDenyList = __DARKLUA_BUNDLE_MODULES.e()
-            local Utils = __DARKLUA_BUNDLE_MODULES.b()
-            local self = {}
-            local localPlayer = Players.LocalPlayer
-            local getThumbnailImage = function(rbxassetidLink)
-                local assetid = rbxassetidLink:match('rbxassetid://(%d+)')
+            local _ = getgenv().AutoFarmTrove
 
-                if not assetid then
-                    return nil
-                end
-
-                local url = string.format(
-[[https://thumbnails.roblox.com/v1/assets?assetIds=%s&size=420x420&format=png&isCircular=false]], tostring(assetid))
-                local headers = {
-                    ['Content-Type'] = 'application/json',
-                }
-                local requestOptions = {
-                    Url = url,
-                    Method = 'GET',
-                    Headers = headers,
-                }
-                local success, result = pcall(function()
-                    return request(requestOptions).Body
-                end)
-
-                if success then
-                    local data = (HttpService:JSONDecode(result))
-
-                    if data and data.data and data.data[1] and data.data[1].imageUrl then
-                        return data.data[1].imageUrl
-                    end
-                end
-
-                return nil
-            end
-            local getItemFromDatabase = function(nameId)
-                return Bypass('InventoryDB').pets[nameId] or nil
-            end
-            local getPetNeonOrMega = function(itemData)
-                local info = {}
-
-                if itemData.properties.neon then
-                    info = {
-                        ['Name'] = 'Neon',
-                        ['Value'] = 'Yes',
-                    }
-                elseif itemData.properties.mega_neon then
-                    info = {
-                        ['Name'] = 'Mega',
-                        ['Value'] = 'Yes',
-                    }
-                else
-                    info = {
-                        ['Name'] = 'Normal',
-                        ['Value'] = 'Yes',
-                    }
-                end
-
-                return info
-            end
-            local filterData = function(data)
-                local itemDatabase = getItemFromDatabase(data['id'])
-
-                if not itemDatabase then
-                    return false
-                end
-                if not itemDatabase.image then
-                    return false
-                end
-                if itemDatabase.is_egg then
-                    return false
-                end
-
-                self.SendWebHook(data, itemDatabase)
-
-                return true
-            end
-            local startWebHook = function()
-                Utils.PrintDebug('Webhook Started')
-
-                local DataPartiallyChanged = Bypass('RouterClient').get_event('DataAPI/DataPartiallyChanged')
-
-                self.Connection = DataPartiallyChanged.OnClientEvent:Connect(function(
-                    playerName,
-                    _,
-                    dataInfo,
-                    _
-                )
-                    if playerName ~= localPlayer.Name then
-                        return
-                    end
-                    if typeof(dataInfo) ~= 'table' then
-                        return
-                    end
-                    if not dataInfo.category or dataInfo.category ~= 'pets' then
-                        return
-                    end
-                    if dataInfo.newness_order and dataInfo.newness_order <= 0 then
-                        return
-                    end
-                    if table.find(AllowOrDenyList.Denylist, dataInfo.id) then
-                        return
-                    end
-                    if not dataInfo.properties then
-                        return
-                    end
-                    if not table.find(AllowOrDenyList.Allowlist, dataInfo.id) then
-                        return
-                    end
-                    if self.UniqueString == dataInfo.unique then
-                        return
-                    end
-
-                    self.UniqueString = dataInfo.unique
-
-                    filterData(dataInfo)
-
-                    if not getgenv().FARMSYNC then
-                        return
-                    end
-                    if not getgenv().FARMSYNC.ENABLED then
-                        return
-                    end
-                    if getgenv().client and getgenv().client:ChangeConfig(getgenv().FARMSYNC.TRADING_CONFIG_ID) then
-                        if table.find(getgenv().SETTINGS.TRADE_COLLECTOR_NAME, localPlayer.Name) then
-                            print('Skipping change config because its the trade collector')
-
-                            return
-                        end
-
-                        task.wait(math.random(1, 5))
-                        getgenv().client:Disconnect()
-                        localPlayer:Kick('')
-                        game:Shutdown()
-                    end
-                end)
-            end
-
-            function self.Init()
-                self.Connection = nil
-                self.Cooldown = false
-                self.UniqueString = ''
-            end
-            function self.Start()
-                if getgenv().WEBHOOK and getgenv().WEBHOOK.URL and #getgenv().WEBHOOK.URL >= 10 then
-                    startWebHook()
-                end
-            end
-            function self.SendWebHook(itemData, itemDataDB)
-                local imageUrl = getThumbnailImage(itemDataDB['image'])
-                local petStats = getPetNeonOrMega(itemData)
-                local embed = {
-                    title = 'NEW PET DETECTED!',
-                    description = string.format('[%s] %s got it', tostring(getgenv().WEBHOOK.VPS_NAME or 'None'), tostring(localPlayer.Name)),
-                    color = 0xccff,
-                    fields = {
-                        {
-                            name = 'Pet Name',
-                            value = itemDataDB.name,
-                            inline = true,
-                        },
-                        {
-                            name = 'Rarity',
-                            value = itemDataDB.rarity,
-                            inline = true,
-                        },
-                        {
-                            name = 'Age',
-                            value = itemData.properties.age,
-                            inline = true,
-                        },
-                        {
-                            name = tostring(petStats.Name),
-                            value = petStats.Value,
-                            inline = true,
-                        },
-                    },
-                    footer = {
-                        text = string.format('\nShittyHub - %s', tostring(DateTime.now():FormatLocalTime('LLL', 'en-us'))),
-                    },
-                }
-
-                if imageUrl then
-                    embed.thumbnail = {url = imageUrl}
-                end
-
-                local dataFrame = {
-                    username = 'Pet Notifier',
-                    avatar_url = string.format(
-[[https://www.roblox.com/headshot-thumbnail/image?userId=%s&width=420&height=420&format=png]], tostring(localPlayer.UserId)),
-                    embeds = {embed},
-                }
-                local headers = {
-                    ['Content-Type'] = 'application/json',
-                }
-                local jsonData = HttpService:JSONEncode(dataFrame)
-                local requestData = {
-                    Url = getgenv().WEBHOOK.URL,
-                    Method = 'POST',
-                    Headers = headers,
-                    Body = jsonData,
-                }
-                local success, result = pcall(function()
-                    return request(requestData)
-                end)
-
-                if success then
-                    Utils.PrintDebug(string.format('Request Succesful: %s', tostring(result)))
-                else
-                    Utils.PrintDebug(string.format('Request Failed: %s', tostring(result)))
-                end
-
-                return nil
-            end
-            function self.Cleanup()
-                if self.Connection then
-                    self.Connection:Disconnect()
-                end
-            end
-
-            return self
-        end
-
-        function __DARKLUA_BUNDLE_MODULES.r()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.r
-
-            if not v then
-                v = {
-                    c = __modImpl(),
-                }
-                __DARKLUA_BUNDLE_MODULES.cache.r = v
-            end
-
-            return v.c
-        end
-    end
-    do
-        local __modImpl = function()
             if debugX then
                 warn('Initialising Rayfield')
             end
@@ -8779,14 +8408,14 @@ Check the Developer Console for more information.]],
             return RayfieldLibrary
         end
 
-        function __DARKLUA_BUNDLE_MODULES.s()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.s
+        function __DARKLUA_BUNDLE_MODULES.u()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.u
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.s = v
+                __DARKLUA_BUNDLE_MODULES.cache.u = v
             end
 
             return v.c
@@ -8794,7 +8423,7 @@ Check the Developer Console for more information.]],
     end
     do
         local __modImpl = function()
-            __DARKLUA_BUNDLE_MODULES.d()
+            __DARKLUA_BUNDLE_MODULES.f()
 
             local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
             local Players = cloneref(game:GetService('Players'))
@@ -8985,14 +8614,14 @@ Check the Developer Console for more information.]],
             return Clipboard
         end
 
-        function __DARKLUA_BUNDLE_MODULES.t()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.t
+        function __DARKLUA_BUNDLE_MODULES.v()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.v
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.t = v
+                __DARKLUA_BUNDLE_MODULES.cache.v = v
             end
 
             return v.c
@@ -9001,13 +8630,16 @@ Check the Developer Console for more information.]],
     do
         local __modImpl = function()
             local Players = cloneref(game:GetService('Players'))
-            local Rayfield = __DARKLUA_BUNDLE_MODULES.s()
-            local GetInventory = __DARKLUA_BUNDLE_MODULES.k()
-            local Clipboard = __DARKLUA_BUNDLE_MODULES.t()
-            local Fusion = __DARKLUA_BUNDLE_MODULES.i()
-            local Trade = __DARKLUA_BUNDLE_MODULES.f()
-            local Utils = __DARKLUA_BUNDLE_MODULES.b()
-            local BulkPotion = __DARKLUA_BUNDLE_MODULES.l()
+            local Rayfield = __DARKLUA_BUNDLE_MODULES.u()
+            local GetInventory = __DARKLUA_BUNDLE_MODULES.m()
+            local Clipboard = __DARKLUA_BUNDLE_MODULES.v()
+            local Fusion = __DARKLUA_BUNDLE_MODULES.k()
+            local Trade = __DARKLUA_BUNDLE_MODULES.h()
+            local Utils = __DARKLUA_BUNDLE_MODULES.d()
+            local BulkPotion = __DARKLUA_BUNDLE_MODULES.n()
+
+            getgenv().RayfieldLibrary = Rayfield
+
             local self = {}
             local localPlayer = Players.LocalPlayer
             local cooldown = false
@@ -9782,14 +9414,14 @@ Check the Developer Console for more information.]],
             return self
         end
 
-        function __DARKLUA_BUNDLE_MODULES.u()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.u
+        function __DARKLUA_BUNDLE_MODULES.w()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.w
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.u = v
+                __DARKLUA_BUNDLE_MODULES.cache.w = v
             end
 
             return v.c
@@ -9803,15 +9435,16 @@ Check the Developer Console for more information.]],
             local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
             local ClientData = Bypass('ClientData')
             local RouterClient = Bypass('RouterClient')
-            local BuyItem = __DARKLUA_BUNDLE_MODULES.h()
-            local GetInventory = __DARKLUA_BUNDLE_MODULES.k()
-            local Utils = __DARKLUA_BUNDLE_MODULES.b()
+            local BuyItem = __DARKLUA_BUNDLE_MODULES.j()
+            local GetInventory = __DARKLUA_BUNDLE_MODULES.m()
+            local Utils = __DARKLUA_BUNDLE_MODULES.d()
             local contentPacks = (ReplicatedStorage:WaitForChild('SharedModules'):WaitForChild('ContentPacks'))
-            local FishingNetService = (require(contentPacks:WaitForChild('Summer2026'):WaitForChild('Fishing'):WaitForChild('FishingNetService')))
-            local BalloonFightNetService = (require(contentPacks:WaitForChild('Summer2026'):WaitForChild('BalloonFight'):WaitForChild('BalloonFightNetService')))
-            local SkydivingNetService = (require(contentPacks.Summer2026.Game.Skydiving.SkydivingNetService))
-            local BuriedTreasureNet = (require(contentPacks.Summer2026:WaitForChild('Game'):WaitForChild('BuriedTreasure'):WaitForChild('BuriedTreasureNet')))
+            local FishingNetService = Utils.SafeRequire(contentPacks, 5, 'Summer2026', 'Fishing', 'FishingNetService')
+            local BalloonFightNetService = Utils.SafeRequire(contentPacks, 5, 'Summer2026', 'BalloonFight', 'BalloonFightNetService')
+            local SkydivingNetService = Utils.SafeRequire(contentPacks, 5, 'Summer2026', 'Game', 'Skydiving', 'SkydivingNetService')
+            local BuriedTreasureNet = Utils.SafeRequire(contentPacks, 5, 'Summer2026', 'Game', 'BuriedTreasure', 'BuriedTreasureNet')
             local localPlayer = Players.LocalPlayer
+            local trove = getgenv().AutoFarmTrove
             local Summer2026 = {}
             local tryBuyRainbowTrout = function()
                 if Utils.EventCurrencyAmount() < 70000 then
@@ -9985,7 +9618,11 @@ Check the Developer Console for more information.]],
             end
 
             function Summer2026.Init()
-                RouterClient.get('WeatherAPI/WeatherUpdated').OnClientEvent:Connect(function(
+                if not FishingNetService then
+                    return
+                end
+
+                trove:Connect(RouterClient.get('WeatherAPI/WeatherUpdated').OnClientEvent, function(
                     dayOrNight
                 )
                     task.wait(3)
@@ -10013,6 +9650,10 @@ Check the Developer Console for more information.]],
                 end)
             end
             function Summer2026.Start()
+                if not FishingNetService then
+                    return
+                end
+
                 tryBuyFishingRod()
                 tryUpgradeFishingRod()
                 tryCatchFish()
@@ -10035,14 +9676,14 @@ Check the Developer Console for more information.]],
             return Summer2026
         end
 
-        function __DARKLUA_BUNDLE_MODULES.v()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.v
+        function __DARKLUA_BUNDLE_MODULES.x()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.x
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.v = v
+                __DARKLUA_BUNDLE_MODULES.cache.x = v
             end
 
             return v.c
@@ -10059,9 +9700,9 @@ Check the Developer Console for more information.]],
             local RouterClient = (Bypass('RouterClient'))
             local MysteryAilmentClient = (require(ReplicatedStorage.new.modules.Ailments.ClientActions.MysteryAilmentClient))
             local MysteryHelper = (require(ReplicatedStorage.new.modules.Ailments.Helpers.MysteryHelper))
-            local Utils = __DARKLUA_BUNDLE_MODULES.b()
-            local GetInventory = __DARKLUA_BUNDLE_MODULES.k()
-            local Teleport = __DARKLUA_BUNDLE_MODULES.g()
+            local Utils = __DARKLUA_BUNDLE_MODULES.d()
+            local GetInventory = __DARKLUA_BUNDLE_MODULES.m()
+            local Teleport = __DARKLUA_BUNDLE_MODULES.i()
             local localPlayer = Players.LocalPlayer
             local doctorId = nil
 
@@ -10717,14 +10358,14 @@ Check the Developer Console for more information.]],
             return Ailment
         end
 
-        function __DARKLUA_BUNDLE_MODULES.w()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.w
+        function __DARKLUA_BUNDLE_MODULES.y()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.y
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.w = v
+                __DARKLUA_BUNDLE_MODULES.cache.y = v
             end
 
             return v.c
@@ -10732,16 +10373,16 @@ Check the Developer Console for more information.]],
     end
     do
         local __modImpl = function()
-            __DARKLUA_BUNDLE_MODULES.d()
+            __DARKLUA_BUNDLE_MODULES.f()
 
             local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
             local Players = cloneref(game:GetService('Players'))
             local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
             local ClientData = Bypass('ClientData')
             local RouterClient = Bypass('RouterClient')
-            local Utils = __DARKLUA_BUNDLE_MODULES.b()
-            local GetInventory = __DARKLUA_BUNDLE_MODULES.k()
-            local Fusion = __DARKLUA_BUNDLE_MODULES.i()
+            local Utils = __DARKLUA_BUNDLE_MODULES.d()
+            local GetInventory = __DARKLUA_BUNDLE_MODULES.m()
+            local Fusion = __DARKLUA_BUNDLE_MODULES.k()
             local FarmingPet = {}
             local localPlayer = Players.LocalPlayer
             local petToBuy = 'endangered_2026_endangered_egg'
@@ -11066,14 +10707,14 @@ Check the Developer Console for more information.]],
             return FarmingPet
         end
 
-        function __DARKLUA_BUNDLE_MODULES.x()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.x
+        function __DARKLUA_BUNDLE_MODULES.z()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.z
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.x = v
+                __DARKLUA_BUNDLE_MODULES.cache.z = v
             end
 
             return v.c
@@ -11083,7 +10724,7 @@ Check the Developer Console for more information.]],
         local __modImpl = function()
             local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
             local Players = cloneref(game:GetService('Players'))
-            local Utils = __DARKLUA_BUNDLE_MODULES.b()
+            local Utils = __DARKLUA_BUNDLE_MODULES.d()
             local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
             local RouterClient = Bypass('RouterClient')
             local ClientData = Bypass('ClientData')
@@ -11123,14 +10764,14 @@ Check the Developer Console for more information.]],
             return PetRelease
         end
 
-        function __DARKLUA_BUNDLE_MODULES.y()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.y
+        function __DARKLUA_BUNDLE_MODULES.A()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.A
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.y = v
+                __DARKLUA_BUNDLE_MODULES.cache.A = v
             end
 
             return v.c
@@ -11144,22 +10785,23 @@ Check the Developer Console for more information.]],
             local ClientData = Bypass('ClientData')
             local RouterClient = Bypass('RouterClient')
             local CollisionsClient = Bypass('CollisionsClient')
-            local Utils = __DARKLUA_BUNDLE_MODULES.b()
-            local Ailment = __DARKLUA_BUNDLE_MODULES.w()
-            local Furniture = __DARKLUA_BUNDLE_MODULES.c()
-            local Teleport = __DARKLUA_BUNDLE_MODULES.g()
-            local GetInventory = __DARKLUA_BUNDLE_MODULES.k()
-            local FarmingPet = __DARKLUA_BUNDLE_MODULES.x()
-            local Fusion = __DARKLUA_BUNDLE_MODULES.i()
-            local PetRelease = __DARKLUA_BUNDLE_MODULES.y()
-            local myGui = __DARKLUA_BUNDLE_MODULES.a().Get()
+            local Utils = __DARKLUA_BUNDLE_MODULES.d()
+            local Ailment = __DARKLUA_BUNDLE_MODULES.y()
+            local Furniture = __DARKLUA_BUNDLE_MODULES.e()
+            local Teleport = __DARKLUA_BUNDLE_MODULES.i()
+            local GetInventory = __DARKLUA_BUNDLE_MODULES.m()
+            local FarmingPet = __DARKLUA_BUNDLE_MODULES.z()
+            local Fusion = __DARKLUA_BUNDLE_MODULES.k()
+            local PetRelease = __DARKLUA_BUNDLE_MODULES.A()
+            local myGui = __DARKLUA_BUNDLE_MODULES.c().Get()
             local modules = ReplicatedStorage:WaitForChild('new'):WaitForChild('modules')
             local DailiesNetService = (require(modules:WaitForChild('Dailies'):WaitForChild('DailiesNetService')))
-            local self = {}
             local localPlayer = Players.LocalPlayer
+            local trove = getgenv().AutoFarmTrove
             local jobId = game.JobId
             local baitboxCount = 0
             local strollerId = GetInventory.GetUniqueId('strollers', 'stroller-default')
+            local self = {}
             local tryToReleasePets = function()
                 if getgenv().SETTINGS.ENABLE_RELEASE_PETS == false then
                     return
@@ -11482,11 +11124,6 @@ Check the Developer Console for more information.]],
 
             function self.Init()
                 RouterClient.get('PayAPI/DisablePopups'):FireServer()
-                RouterClient.get('WeatherAPI/WeatherUpdated').OnClientEvent:Connect(function(
-                    dayOrNight
-                )
-                    task.wait(2)
-                end)
             end
             function self.Start()
                 RouterClient.get('HousingAPI/ClaimAllDeliveries'):FireServer()
@@ -11527,13 +11164,17 @@ Check the Developer Console for more information.]],
                 end
 
                 task.wait(2)
-                task.delay(30, function()
+
+                local MainTread = task.delay(30, function()
                     while getgenv().SETTINGS.ENABLE_AUTO_FARM do
                         getgenv().lastTimeFarming = DateTime.now().UnixTimestamp
 
                         local success, result = pcall(function()
                             startAutoFarm()
-                            Utils.PrintDebug('Waiting for task...')
+
+                            if math.random(0, 5) == 1 then
+                                Utils.PrintDebug('Waiting for task...')
+                            end
                         end)
 
                         if not success then
@@ -11543,19 +11184,21 @@ Check the Developer Console for more information.]],
                         task.wait(1)
                     end
                 end)
+
+                trove:Add(MainTread)
             end
 
             return self
         end
 
-        function __DARKLUA_BUNDLE_MODULES.z()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.z
+        function __DARKLUA_BUNDLE_MODULES.B()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.B
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.z = v
+                __DARKLUA_BUNDLE_MODULES.cache.B = v
             end
 
             return v.c
@@ -11568,7 +11211,7 @@ Check the Developer Console for more information.]],
             local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
             local RouterClient = Bypass('RouterClient')
             local ClientData = Bypass('ClientData')
-            local Utils = __DARKLUA_BUNDLE_MODULES.b()
+            local Utils = __DARKLUA_BUNDLE_MODULES.d()
             local PetOffline = {}
             local localPlayer = Players.LocalPlayer
 
@@ -11596,14 +11239,14 @@ Check the Developer Console for more information.]],
             return PetOffline
         end
 
-        function __DARKLUA_BUNDLE_MODULES.A()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.A
+        function __DARKLUA_BUNDLE_MODULES.C()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.C
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.A = v
+                __DARKLUA_BUNDLE_MODULES.cache.C = v
             end
 
             return v.c
@@ -11616,11 +11259,12 @@ Check the Developer Console for more information.]],
             local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
             local ClientData = Bypass('ClientData')
             local RouterClient = (Bypass('RouterClient'))
-            local PetOffline = __DARKLUA_BUNDLE_MODULES.A()
-            local GetInventory = __DARKLUA_BUNDLE_MODULES.k()
-            local Utils = __DARKLUA_BUNDLE_MODULES.b()
-            local PetOfflineHandler = {}
+            local PetOffline = __DARKLUA_BUNDLE_MODULES.C()
+            local GetInventory = __DARKLUA_BUNDLE_MODULES.m()
+            local Utils = __DARKLUA_BUNDLE_MODULES.d()
             local localPlayer = Players.LocalPlayer
+            local trove = getgenv().AutoFarmTrove
+            local PetOfflineHandler = {}
             local removeAllPets = function()
                 for key, _ in ClientData.get_data()[localPlayer.Name].idle_progression_manager.active_pets do
                     while true do
@@ -11738,7 +11382,7 @@ Check the Developer Console for more information.]],
                 local dataChangedDebouce = false
                 local count = 0
 
-                RouterClient.get('DataAPI/DataChanged').OnClientEvent:Connect(function(
+                trove:Connect(RouterClient.get('DataAPI/DataChanged').OnClientEvent, function(
                     playerName,
                     dataType,
                     data
@@ -11794,14 +11438,14 @@ Check the Developer Console for more information.]],
             return PetOfflineHandler
         end
 
-        function __DARKLUA_BUNDLE_MODULES.B()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.B
+        function __DARKLUA_BUNDLE_MODULES.D()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.D
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.B = v
+                __DARKLUA_BUNDLE_MODULES.cache.D = v
             end
 
             return v.c
@@ -11809,16 +11453,14 @@ Check the Developer Console for more information.]],
     end
     do
         local __modImpl = function()
-            local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
             local Players = cloneref(game:GetService('Players'))
-            local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
-            local StatsGui = __DARKLUA_BUNDLE_MODULES.a()
-            local Utils = __DARKLUA_BUNDLE_MODULES.b()
-            local Clipboard = __DARKLUA_BUNDLE_MODULES.t()
-            local PetOffline = __DARKLUA_BUNDLE_MODULES.A()
-            local self = {}
+            local StatsGui = __DARKLUA_BUNDLE_MODULES.c()
+            local Utils = __DARKLUA_BUNDLE_MODULES.d()
+            local Clipboard = __DARKLUA_BUNDLE_MODULES.v()
+            local PetOffline = __DARKLUA_BUNDLE_MODULES.C()
             local localPlayer = Players.LocalPlayer
             local playerGui = (localPlayer:WaitForChild('PlayerGui'))
+            local trove = getgenv().AutoFarmTrove
             local myGui = StatsGui.new(localPlayer)
             local startTime = DateTime.now().UnixTimestamp
             local UPDATE_INTERVAL = 10
@@ -11826,6 +11468,7 @@ Check the Developer Console for more information.]],
             local startPotionAmount = Utils.FoodItemCount('pet_age_potion')
             local startTinyPotionAmount = Utils.FoodItemCount('tiny_pet_age_potion')
             local startEventCurrencyAmount = Utils.EventCurrencyAmount()
+            local self = {}
 
             function self.Init()
                 myGui:CreateButton({
@@ -11864,9 +11507,8 @@ Check the Developer Console for more information.]],
 
                 playerGui:WaitForChild('ToolApp').Enabled = false
 
-                task.spawn(function()
+                local statTread = task.spawn(function()
                     while true do
-                        Bypass('UIManager').set_app_visibility('SubscriptionsPopUpApp', false)
                         myGui:UpdateLabel('Timer', tostring(Utils.FormatTime(DateTime.now().UnixTimestamp - startTime)))
 
                         local playerCount = #Players:GetPlayers()
@@ -11899,20 +11541,22 @@ Check the Developer Console for more information.]],
                         task.wait(UPDATE_INTERVAL)
                     end
                 end)
+
+                trove:Add(statTread)
             end
             function self.Start() end
 
             return self
         end
 
-        function __DARKLUA_BUNDLE_MODULES.C()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.C
+        function __DARKLUA_BUNDLE_MODULES.E()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.E
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.C = v
+                __DARKLUA_BUNDLE_MODULES.cache.E = v
             end
 
             return v.c
@@ -11926,13 +11570,13 @@ Check the Developer Console for more information.]],
             local RouterClient = Bypass('RouterClient')
             local modules = ReplicatedStorage:WaitForChild('new'):WaitForChild('modules')
             local DailiesNetService = (require(modules:WaitForChild('Dailies'):WaitForChild('DailiesNetService')))
-            local DailyTaskboardHandler = {}
+            local trove = getgenv().AutoFarmTrove
             local localPlayer = Players.LocalPlayer
             local debouce = false
+            local DailyTaskboardHandler = {}
 
             function DailyTaskboardHandler.Init()
-                print('Initializing DailyTaskboardHandler...')
-                RouterClient.get('DataAPI/DataChanged').OnClientEvent:Connect(function(
+                trove:Connect(RouterClient.get('DataAPI/DataChanged').OnClientEvent, function(
                     playerName,
                     dataType,
                     data
@@ -11963,21 +11607,19 @@ Check the Developer Console for more information.]],
                     debouce = false
                 end)
             end
-            function DailyTaskboardHandler.Start()
-                print('Starting DailyTaskboardHandler...')
-            end
+            function DailyTaskboardHandler.Start() end
 
             return DailyTaskboardHandler
         end
 
-        function __DARKLUA_BUNDLE_MODULES.D()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.D
+        function __DARKLUA_BUNDLE_MODULES.F()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.F
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.D = v
+                __DARKLUA_BUNDLE_MODULES.cache.F = v
             end
 
             return v.c
@@ -11990,11 +11632,12 @@ Check the Developer Console for more information.]],
             local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
             local ClientData = Bypass('ClientData')
             local RouterClient = Bypass('RouterClient')
-            local Utils = __DARKLUA_BUNDLE_MODULES.b()
-            local PayBucks = {}
+            local Utils = __DARKLUA_BUNDLE_MODULES.d()
             local localPlayer = Players.LocalPlayer
             local rng = Random.new()
             local processedPlayers = {}
+            local trove = getgenv().AutoFarmTrove
+            local PayBucks = {}
             local buyFurniture = function(furnitureId)
                 local args = {
                     {
@@ -12106,17 +11749,15 @@ Check the Developer Console for more information.]],
             end
 
             function PayBucks.Init()
-                task.spawn(function()
-                    if not getgenv().SETTINGS.PAY_BUCKS_TO then
-                        return
-                    end
-                    if table.find(getgenv().SETTINGS.PAY_BUCKS_TO, localPlayer.Name) then
-                        trySetupRegister()
-                    end
+                if not getgenv().SETTINGS.PAY_BUCKS_TO then
+                    return
+                end
+                if table.find(getgenv().SETTINGS.PAY_BUCKS_TO, localPlayer.Name) then
+                    trySetupRegister()
+                end
 
-                    Players.PlayerAdded:Connect(onPlayerAdded)
-                    Players.PlayerRemoving:Connect(onPlayerRemoving)
-                end)
+                trove:Connect(Players.PlayerAdded, onPlayerAdded)
+                trove:Connect(Players.PlayerRemoving, onPlayerRemoving)
             end
             function PayBucks.Start()
                 task.spawn(function()
@@ -12136,14 +11777,14 @@ Check the Developer Console for more information.]],
             return PayBucks
         end
 
-        function __DARKLUA_BUNDLE_MODULES.E()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.E
+        function __DARKLUA_BUNDLE_MODULES.G()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.G
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.E = v
+                __DARKLUA_BUNDLE_MODULES.cache.G = v
             end
 
             return v.c
@@ -12157,7 +11798,7 @@ Check the Developer Console for more information.]],
             local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
             local InventoryDB = Bypass('InventoryDB')
             local ClientData = Bypass('ClientData')
-            local AllowOrDenyList = __DARKLUA_BUNDLE_MODULES.e()
+            local AllowOrDenyList = __DARKLUA_BUNDLE_MODULES.g()
             local petAges = {
                 ['Normal'] = {
                     'Newborn',
@@ -12196,6 +11837,7 @@ Check the Developer Console for more information.]],
                 'sandwich-default',
                 'squeaky_bone_default',
             }
+            local trove = getgenv().AutoFarmTrove
             local localPlayer = Players.LocalPlayer
             local baseUrl = 'https://api.errored.app'
             local statsUrl = baseUrl .. '/api/v1/stats'
@@ -12273,6 +11915,37 @@ Check the Developer Console for more information.]],
 
                 return petDict
             end
+            local getPetPen = function()
+                local pen = {}
+                local mgr = ClientData.get_data()[localPlayer.Name].idle_progression_manager
+                local active = mgr and mgr.active_pets
+
+                if not active then
+                    return pen
+                end
+
+                for _, value in active do
+                    local info = value and value.item_info
+
+                    if not info or not info.kind then
+                        continue
+                    end
+
+                    local props = info.properties
+                    local entry = {
+                        kind = info.kind,
+                        age = props and props.age or 0,
+                    }
+
+                    if props and props.neon then
+                        entry.neon = true
+                    end
+
+                    table.insert(pen, entry)
+                end
+
+                return pen
+            end
             local lastInventorySig = ''
             local inventorySignature = function(inv)
                 local parts = table.create(#inv)
@@ -12299,6 +11972,7 @@ Check the Developer Console for more information.]],
                     ['recycle_ticket'] = ClientData.get_data()[localPlayer.Name].pet_recycler_tickets_2026 or 0,
                     ['event_currency'] = ClientData.get_data()[localPlayer.Name].acorns_2026 or 0,
                     ['pet_count'] = getInventoryCountFor('pets'),
+                    ['petpen'] = getPetPen(),
                 }
 
                 if attachInventory then
@@ -12358,7 +12032,7 @@ Check the Developer Console for more information.]],
             local connectNewItemListener = function()
                 local DataPartiallyChanged = Bypass('RouterClient').get_event('DataAPI/DataPartiallyChanged')
 
-                DataPartiallyChanged.OnClientEvent:Connect(function(
+                trove:Connect(DataPartiallyChanged.OnClientEvent, function(
                     playerName,
                     changes
                 )
@@ -12404,7 +12078,17 @@ Check the Developer Console for more information.]],
                 })
             end
 
-            function WebsiteStats.Init() end
+            function WebsiteStats.Init()
+                local key = getgenv().API_KEY
+
+                if not key or #key < 30 then
+                    warn('[WebsiteStats] missing/short API key \u{2014} not reporting')
+
+                    return
+                end
+
+                connectNewItemListener()
+            end
             function WebsiteStats.Start()
                 local key = getgenv().API_KEY
 
@@ -12414,8 +12098,7 @@ Check the Developer Console for more information.]],
                     return
                 end
 
-                pcall(connectNewItemListener)
-                task.spawn(function()
+                local webThread = task.spawn(function()
                     task.wait(math.random() * 60)
                     pcall(sendPlayerData)
 
@@ -12465,19 +12148,21 @@ Check the Developer Console for more information.]],
                         task.wait(60)
                     end
                 end)
+
+                trove:Add(webThread)
             end
 
             return WebsiteStats
         end
 
-        function __DARKLUA_BUNDLE_MODULES.F()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.F
+        function __DARKLUA_BUNDLE_MODULES.H()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.H
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.F = v
+                __DARKLUA_BUNDLE_MODULES.cache.H = v
             end
 
             return v.c
@@ -12485,13 +12170,12 @@ Check the Developer Console for more information.]],
     end
 end
 
-if getgenv().loaded == true then
-    print('SCRIPT ALREADY LOADED')
-
-    return
+if getgenv().AutoFarmTrove then
+    getgenv().AutoFarmTrove:Destroy()
 end
-
-getgenv().loaded = true
+if getgenv().RayfieldLibrary then
+    getgenv().RayfieldLibrary:Destroy()
+end
 
 setfpscap(2)
 task.wait(10)
@@ -12500,7 +12184,9 @@ if not game:IsLoaded() then
     game.Loaded:Wait()
 end
 
-setfpscap(getgenv().SETTINGS.SET_FPS or 2)
+local Trove = __DARKLUA_BUNDLE_MODULES.b()
+
+getgenv().AutoFarmTrove = Trove.new()
 
 if game.PlaceId ~= 920587237 then
     return
@@ -12552,46 +12238,43 @@ getgenv().petCurrentlyFarming2 = nil
 
 local files = {
     {
-        PrepareAccountHandler = __DARKLUA_BUNDLE_MODULES.m(),
+        PrepareAccountHandler = __DARKLUA_BUNDLE_MODULES.o(),
     },
     {
-        DailyRewardHandler = __DARKLUA_BUNDLE_MODULES.n(),
+        DailyRewardHandler = __DARKLUA_BUNDLE_MODULES.p(),
     },
     {
-        GameGuiHandler = __DARKLUA_BUNDLE_MODULES.o(),
+        GameGuiHandler = __DARKLUA_BUNDLE_MODULES.r(),
     },
     {
-        TradeLicenseHandler = __DARKLUA_BUNDLE_MODULES.p(),
+        TradeLicenseHandler = __DARKLUA_BUNDLE_MODULES.s(),
     },
     {
-        TutorialHandler = __DARKLUA_BUNDLE_MODULES.q(),
+        TutorialHandler = __DARKLUA_BUNDLE_MODULES.t(),
     },
     {
-        WebhookHandler = __DARKLUA_BUNDLE_MODULES.r(),
+        RayfieldHandler = __DARKLUA_BUNDLE_MODULES.w(),
     },
     {
-        RayfieldHandler = __DARKLUA_BUNDLE_MODULES.u(),
+        Summer2026 = __DARKLUA_BUNDLE_MODULES.x(),
     },
     {
-        Summer2026 = __DARKLUA_BUNDLE_MODULES.v(),
+        AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.B(),
     },
     {
-        AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.z(),
+        PetOfflineHandler = __DARKLUA_BUNDLE_MODULES.D(),
     },
     {
-        PetOfflineHandler = __DARKLUA_BUNDLE_MODULES.B(),
+        StatsGuiHandler = __DARKLUA_BUNDLE_MODULES.E(),
     },
     {
-        StatsGuiHandler = __DARKLUA_BUNDLE_MODULES.C(),
+        DailyTaskboardHandler = __DARKLUA_BUNDLE_MODULES.F(),
     },
     {
-        DailyTaskboardHandler = __DARKLUA_BUNDLE_MODULES.D(),
+        PayBucks = __DARKLUA_BUNDLE_MODULES.G(),
     },
     {
-        PayBucks = __DARKLUA_BUNDLE_MODULES.E(),
-    },
-    {
-        WebsiteStats = __DARKLUA_BUNDLE_MODULES.F(),
+        WebsiteStats = __DARKLUA_BUNDLE_MODULES.H(),
     },
 }
 
