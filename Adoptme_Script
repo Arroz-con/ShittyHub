@@ -1647,7 +1647,7 @@ do
                     if table.find(AllowOrDenyList.Denylist, pet.id) then
                         continue
                     end
-                    if table.find(getgenv().SETTINGS.PETS_TO_AGE_IN_PEN, pet.id) then
+                    if getgenv().SETTINGS.PETS_TO_AGE_IN_PEN[pet.id] ~= nil then
                         continue
                     end
                     if pet.properties.age == 6 and not (pet.properties.neon or pet.properties.mega_neon) then
@@ -1679,7 +1679,7 @@ do
                     if table.find(AllowOrDenyList.Denylist, pet.id) then
                         continue
                     end
-                    if table.find(getgenv().SETTINGS.PETS_TO_AGE_IN_PEN, pet.id) then
+                    if getgenv().SETTINGS.PETS_TO_AGE_IN_PEN[pet.id] ~= nil then
                         continue
                     end
                     if pet.properties.age <= 5 and not (pet.properties.neon or pet.properties.mega_neon) then
@@ -1818,7 +1818,7 @@ do
                 if getgenv().SETTINGS.TRADE_ONLY_NEON_LUMINOUS_AND_MEGA then
                     for _, v in ClientData.get_data()[localPlayer.Name].inventory do
                         for _, item in v do
-                            if table.find(getgenv().SETTINGS.PETS_TO_AGE_IN_PEN, item.id) then
+                            if getgenv().SETTINGS.PETS_TO_AGE_IN_PEN[item.id] ~= nil then
                                 continue
                             end
                             if table.find(AllowOrDenyList.Denylist, item.id) then
@@ -1832,7 +1832,7 @@ do
                 else
                     for _, v in ClientData.get_data()[localPlayer.Name].inventory do
                         for _, item in v do
-                            if table.find(getgenv().SETTINGS.PETS_TO_AGE_IN_PEN, item.id) then
+                            if getgenv().SETTINGS.PETS_TO_AGE_IN_PEN[item.id] ~= nil then
                                 continue
                             end
                             if table.find(AllowOrDenyList.Denylist, item.id) then
@@ -1883,7 +1883,7 @@ do
 
                             for _, item in v do
                                 if table.find(getgenv().SETTINGS.TRADE_LIST, item.id) or (item.properties.neon and item.properties.age == 6) or item.properties.mega_neon then
-                                    if table.find(getgenv().SETTINGS.PETS_TO_AGE_IN_PEN, item.id) then
+                                    if getgenv().SETTINGS.PETS_TO_AGE_IN_PEN[item.id] ~= nil then
                                         continue
                                     end
                                     if table.find(AllowOrDenyList.Denylist, item.id) then
@@ -1917,7 +1917,7 @@ do
 
                             for _, item in v do
                                 if table.find(getgenv().SETTINGS.TRADE_LIST, item.id) or item.properties.age == 6 or item.properties.neon or item.properties.mega_neon then
-                                    if table.find(getgenv().SETTINGS.PETS_TO_AGE_IN_PEN, item.id) then
+                                    if getgenv().SETTINGS.PETS_TO_AGE_IN_PEN[item.id] ~= nil then
                                         continue
                                     end
                                     if table.find(AllowOrDenyList.Denylist, item.id) then
@@ -2723,7 +2723,7 @@ do
                 local petUniques = {}
 
                 for _, pet in ClientData.get_data()[localPlayer.Name].inventory.pets do
-                    if not table.find(PetsToReleaseList, pet.id) then
+                    if PetsToReleaseList[pet.id] ~= true then
                         continue
                     end
                     if pet.properties.mega_neon then
@@ -10805,10 +10805,6 @@ Check the Developer Console for more information.]],
             local strollerId = GetInventory.GetUniqueId('strollers', 'stroller-default')
             local self = {}
             local tryToReleasePets = function()
-                if getgenv().SETTINGS.ENABLE_RELEASE_PETS == false then
-                    return
-                end
-
                 local success, result = pcall(function()
                     PetRelease.Use(GetInventory.GetPetsToRelease())
                     task.wait(1)
@@ -11351,7 +11347,13 @@ Check the Developer Console for more information.]],
                 return false
             end
             local addAllPetsToidleFarm = function(amountMissing)
-                local petUniques = GetInventory.GetPetUniquesForPetPen(getgenv().SETTINGS.PETS_TO_AGE_IN_PEN, amountMissing)
+                local petIds = {}
+
+                for petId in getgenv().SETTINGS.PETS_TO_AGE_IN_PEN do
+                    table.insert(petIds, petId)
+                end
+
+                local petUniques = GetInventory.GetPetUniquesForPetPen(petIds, amountMissing)
 
                 Utils.PrintDebug(string.format('how many pets ids ther is in table: %s', tostring(#petUniques)))
                 addPet(petUniques)
@@ -12104,13 +12106,13 @@ Check the Developer Console for more information.]],
                     task.wait(math.random() * 60)
                     pcall(sendPlayerData)
 
-                    local statTimer = 0
+                    local POLL_IDLE_WAIT = 5
+                    local STATS_INTERVAL = 180
+                    local lastStatsAt = os.time()
                     local scriptRunning = false
 
                     while true do
                         pcall(function()
-                            statTimer = statTimer + 1
-
                             local ok, res = pcall(request, {
                                 Url = pollUrl,
                                 Method = 'POST',
@@ -12141,13 +12143,13 @@ Check the Developer Console for more information.]],
                                     end
                                 end
                             end
-                            if statTimer >= 3 then
-                                statTimer = 0
+                            if os.time() - lastStatsAt >= STATS_INTERVAL then
+                                lastStatsAt = os.time()
 
                                 sendPlayerData()
                             end
                         end)
-                        task.wait(60)
+                        task.wait(POLL_IDLE_WAIT)
                     end
                 end)
 
