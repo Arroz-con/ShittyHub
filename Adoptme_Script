@@ -12036,7 +12036,7 @@ Check the Developer Console for more information.]],
 
                         local petDatabase = Bypass('InventoryDB').pets[spv.id] or nil
 
-                        if not petDatabase or petDatabase.rarity ~= 'legendary' then
+                        if not petDatabase or petDatabase.rarity ~= 'legendary' or petDatabase.is_egg then
                             continue
                         end
                         if not spv.unique or seenNewItemUniques[spv.unique] then
