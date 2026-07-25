@@ -3820,7 +3820,6 @@ do
             local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
             local InventoryDB = Bypass('InventoryDB')
             local ClientData = Bypass('ClientData')
-            local AllowOrDenyList = __DARKLUA_BUNDLE_MODULES.g()
             local petAges = {
                 ['Normal'] = {
                     'Newborn',
@@ -3865,7 +3864,6 @@ do
             local statsUrl = baseUrl .. '/api/v1/stats'
             local pollUrl = baseUrl .. '/api/v1/poll'
             local scriptDoneUrl = baseUrl .. '/api/v1/script-done'
-            local newItemUrl = baseUrl .. '/api/v1/new-item'
             local canCompress = typeof(lz4compress) == 'function' and typeof(crypt) == 'table' and typeof(crypt.base64encode) == 'function'
             local INVENTORY_MIN_INTERVAL = 900
             local lastInvUploadAt = 0
@@ -4026,73 +4024,6 @@ do
                     warn('[WebsiteStats] failed to send stats')
                 end
             end
-            local seenNewItemUniques = {}
-            local reportNewItem = function(spv)
-                local props = spv.properties
-                local petType = props and props.mega_neon and 'Mega' or (props and props.neon and 'Neon' or 'Normal')
-                local petAge = props and props.age or 0
-                local db = InventoryDB[spv.category]
-                local itemDB = db and db[spv.id]
-
-                pcall(request, {
-                    Url = newItemUrl,
-                    Method = 'POST',
-                    Headers = headers,
-                    Body = HttpService:JSONEncode({
-                        ['username'] = localPlayer.Name,
-                        ['device'] = getgenv().DEVICE_NAME or 'Device 0',
-                        ['unique'] = spv.unique,
-                        ['id'] = spv.id,
-                        ['name'] = itemDB and itemDB.name or spv.id,
-                        ['rarity'] = itemDB and itemDB.rarity or nil,
-                        ['type'] = petType,
-                        ['age'] = string.format('%s | Age %s', tostring((petAges[petType] or {})[petAge] or '?'), tostring(petAge)),
-                        ['category'] = spv.category,
-                    }),
-                })
-            end
-            local connectNewItemListener = function()
-                local DataPartiallyChanged = Bypass('RouterClient').get_event('DataAPI/DataPartiallyChanged')
-
-                trove:Connect(DataPartiallyChanged.OnClientEvent, function(
-                    playerName,
-                    changes
-                )
-                    if playerName ~= localPlayer.Name then
-                        return
-                    end
-                    if typeof(changes) ~= 'table' then
-                        return
-                    end
-
-                    for _, change in changes do
-                        local spv = change and change.serialized_partial_value
-
-                        if typeof(spv) ~= 'table' then
-                            continue
-                        end
-                        if not spv.newness_order or spv.newness_order <= 0 then
-                            continue
-                        end
-                        if table.find(AllowOrDenyList.Denylist, spv.id) or spv.category ~= 'pets' then
-                            continue
-                        end
-
-                        local petDatabase = Bypass('InventoryDB').pets[spv.id] or nil
-
-                        if not petDatabase or petDatabase.rarity ~= 'legendary' or petDatabase.is_egg then
-                            continue
-                        end
-                        if not spv.unique or seenNewItemUniques[spv.unique] then
-                            continue
-                        end
-
-                        seenNewItemUniques[spv.unique] = true
-
-                        reportNewItem(spv)
-                    end
-                end)
-            end
             local reportScriptDone = function(success)
                 pcall(request, {
                     Url = scriptDoneUrl,
@@ -4114,8 +4045,6 @@ do
 
                     return
                 end
-
-                connectNewItemListener()
             end
             function WebsiteStats.Start()
                 local key = getgenv().API_KEY
