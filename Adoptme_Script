@@ -10296,6 +10296,7 @@ Check the Developer Console for more information.]],
             local infLoop = function()
                 while true do
                     startBeeEvent()
+                    RouterClient.get('BattlePassAPI/ClaimReward'):InvokeServer('bees_2026_pass', ClientData.get_data()[localPlayer.Name].battle_pass_manager.bees_2026_pass.rewards_claimed + 1)
                     task.wait(60)
                 end
             end
