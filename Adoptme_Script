@@ -3724,7 +3724,7 @@ do
 
                     count = count + 10
 
-                    if count >= 60 then
+                    if count >= 120 then
                         Utils.PrintDebug(
 [[Failed to subscribe to house after 60 seconds, trying again...]])
                         localPlayer:Kick('Failed to subscribe to house')
