@@ -3820,27 +3820,6 @@ do
             local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
             local InventoryDB = Bypass('InventoryDB')
             local ClientData = Bypass('ClientData')
-            local petAges = {
-                ['Normal'] = {
-                    'Newborn',
-                    'Junior',
-                    'Pre-Teen',
-                    'Teen',
-                    'Post-Teen',
-                    'Full-Grown',
-                },
-                ['Neon'] = {
-                    'Reborn',
-                    'Twinkle',
-                    'Sparkle',
-                    'Flare',
-                    'Sunshine',
-                    'Luminous',
-                },
-                ['Mega'] = {
-                    [6] = 'Mega',
-                },
-            }
             local headers = {
                 ['Content-Type'] = 'application/json',
                 ['Authorization'] = string.format('Bearer %s', tostring(getgenv().API_KEY)),
@@ -3864,6 +3843,7 @@ do
             local statsUrl = baseUrl .. '/api/v1/stats'
             local pollUrl = baseUrl .. '/api/v1/poll'
             local scriptDoneUrl = baseUrl .. '/api/v1/script-done'
+            local catalogUrl = baseUrl .. '/api/v1/catalog'
             local canCompress = typeof(lz4compress) == 'function' and typeof(crypt) == 'table' and typeof(crypt.base64encode) == 'function'
             local INVENTORY_MIN_INTERVAL = 900
             local lastInvUploadAt = 0
@@ -3888,52 +3868,54 @@ do
 
                 return count
             end
+            local variantOf = function(properties)
+                if properties and properties.mega_neon then
+                    return 'mega'
+                elseif properties and properties.neon then
+                    return 'neon'
+                end
+
+                return 'normal'
+            end
             local getAllInventoryInfo = function()
-                local byKey = {}
+                local stackByIdentity = {}
 
                 for catagory, page in ClientData.get_data()[localPlayer.Name].inventory do
-                    local db = InventoryDB[catagory]
+                    local knownKindsInCatagory = InventoryDB[catagory]
 
                     for _, item in page do
-                        if table.find(IGNORE_LIST, item.id) then
+                        local isIgnored = table.find(IGNORE_LIST, item.id) ~= nil
+                        local isKnownToGame = knownKindsInCatagory ~= nil and knownKindsInCatagory[item.id] ~= nil
+
+                        if isIgnored or not isKnownToGame then
                             continue
                         end
 
-                        local itemDB = db and db[item.id]
+                        local variant = variantOf(item.properties)
+                        local age = item.properties and item.properties.age or 0
+                        local identity = string.format('%s_%s_%s', tostring(item.id), tostring(variant), tostring(age))
+                        local stack = stackByIdentity[identity]
 
-                        if not itemDB then
-                            continue
-                        end
-
-                        local props = item.properties
-                        local petType = props and props.mega_neon and 'Mega' or (props and props.neon and 'Neon' or 'Normal')
-                        local petAge = props and props.age or 0
-                        local key = string.format('%s_%s_%s', tostring(item.id), tostring(petType), tostring(petAge))
-                        local entry = byKey[key]
-
-                        if entry then
-                            entry.amount = entry.amount + 1
+                        if stack then
+                            stack.amount = stack.amount + 1
                         else
-                            byKey[key] = {
-                                ['name'] = itemDB.name,
-                                ['id'] = item.id,
-                                ['rarity'] = itemDB.rarity,
-                                ['type'] = petType,
-                                ['age'] = string.format('%s | Age %s', tostring(petAges[petType][petAge]), tostring(petAge)),
+                            stackByIdentity[identity] = {
+                                ['kind'] = item.id,
+                                ['type'] = variant,
+                                ['age'] = age,
                                 ['amount'] = 1,
-                                ['category'] = catagory,
                             }
                         end
                     end
                 end
 
-                local petDict = {}
+                local stacks = {}
 
-                for _, entry in byKey do
-                    table.insert(petDict, entry)
+                for _, stack in stackByIdentity do
+                    table.insert(stacks, stack)
                 end
 
-                return petDict
+                return stacks
             end
             local getPetPen = function()
                 local pen = {}
@@ -3971,7 +3953,7 @@ do
                 local parts = table.create(#inv)
 
                 for _, e in inv do
-                    parts[#parts + 1] = string.format('%s|%s|%s|%s', tostring(e.id), tostring(e.type), tostring(e.age), tostring(e.amount))
+                    parts[#parts + 1] = string.format('%s|%s|%s|%s', tostring(e.kind), tostring(e.type), tostring(e.age), tostring(e.amount))
                 end
 
                 table.sort(parts)
@@ -4022,6 +4004,191 @@ do
                     end
                 else
                     warn('[WebsiteStats] failed to send stats')
+                end
+            end
+            local RENDERING_ONLY_KEYS = {
+                anims = true,
+                tricks = true,
+                mega_neon_parts = true,
+                neon_parts = true,
+                hold_offset = true,
+                hold_double_offset = true,
+                model = true,
+                typechecked = true,
+                generate_npc_furniture_on_runtime = true,
+            }
+            local MAX_NESTING_DEPTH_SENT = 6
+            local MAX_ENTRIES_PER_REQUEST = 50
+            local kindsAlreadyAnswered = {}
+            local gameEntryByKind = nil
+            local indexGameDatabaseByKind = function()
+                local index = {}
+
+                for category, kindsInCategory in InventoryDB do
+                    if typeof(kindsInCategory) ~= 'table' then
+                        continue
+                    end
+
+                    for kind, entry in kindsInCategory do
+                        if typeof(kind) == 'string' and typeof(entry) == 'table' and not index[kind] then
+                            index[kind] = {
+                                category = category,
+                                entry = entry,
+                            }
+                        end
+                    end
+                end
+
+                gameEntryByKind = index
+            end
+
+            local function toEncodableValue(value, ancestors, depth)
+                local valueType = typeof(value)
+
+                if valueType == 'string' or valueType == 'number' or valueType == 'boolean' then
+                    return value
+                end
+                if valueType ~= 'table' or depth > MAX_NESTING_DEPTH_SENT or ancestors[value] then
+                    return nil
+                end
+
+                ancestors[value] = true
+
+                local isArray = #value > 0
+                local encodable = {}
+
+                for key, nested in value do
+                    if isArray then
+                        if typeof(key) == 'number' then
+                            local encodableNested = toEncodableValue(nested, ancestors, depth + 1)
+
+                            if encodableNested ~= nil then
+                                encodable[#encodable + 1] = encodableNested
+                            end
+                        end
+                    elseif typeof(key) == 'string' and not RENDERING_ONLY_KEYS[key] then
+                        local encodableNested = toEncodableValue(nested, ancestors, depth + 1)
+
+                        if encodableNested ~= nil then
+                            encodable[key] = encodableNested
+                        end
+                    end
+                end
+
+                ancestors[value] = nil
+
+                return encodable
+            end
+
+            local assetIdFromImage = function(entry)
+                local assetId = tonumber(string.match(tostring(entry.image or ''), '(%d%d%d%d%d%d+)'))
+
+                return (assetId and assetId > 0 and {assetId} or {nil})[1]
+            end
+            local projectCatalogEntry = function(kind)
+                if not gameEntryByKind then
+                    indexGameDatabaseByKind()
+                end
+
+                local indexed = (gameEntryByKind)[kind]
+
+                if not indexed then
+                    return nil
+                end
+
+                local entry = indexed.entry
+                local hasDisplayName = typeof(entry.name) == 'string' and entry.name ~= ''
+
+                if not hasDisplayName then
+                    return nil
+                end
+
+                local originEntry = (typeof(entry.origin_entry) == 'table' and {
+                    (entry.origin_entry),
+                } or {entry})[1]
+
+                return {
+                    ['kind'] = kind,
+                    ['name'] = entry.name,
+                    ['rarity'] = (typeof(entry.rarity) == 'string' and {
+                        (entry.rarity),
+                    } or {nil})[1],
+                    ['category'] = indexed.category,
+                    ['asset_id'] = assetIdFromImage(entry),
+                    ['is_egg'] = entry.is_egg == true,
+                    ['donatable'] = entry.donatable ~= false,
+                    ['origin'] = (typeof(originEntry.origin) == 'string' and {
+                        (originEntry.origin),
+                    } or {nil})[1],
+                    ['origin_year'] = tonumber(originEntry.year),
+                    ['raw'] = toEncodableValue(entry, {}, 0),
+                }
+            end
+            local postCatalogEntries = function(entries)
+                for i = 1, #entries, MAX_ENTRIES_PER_REQUEST do
+                    local chunk = table.move(entries, i, math.min(i + MAX_ENTRIES_PER_REQUEST - 1, #entries), 1, {})
+                    local ok, res = pcall(request, {
+                        Url = catalogUrl,
+                        Method = 'POST',
+                        Headers = headers,
+                        Body = HttpService:JSONEncode({
+                            ['entries'] = chunk,
+                        }),
+                    })
+
+                    if not (ok and res and (res.StatusCode == 200 or res.Success)) then
+                        warn('[WebsiteStats] failed to post catalog entries')
+
+                        return false
+                    end
+                end
+
+                return true
+            end
+            local isAnsweringCatalogAsk = false
+            local projectAndPostKinds = function(askedKinds)
+                local entries = {}
+                local kindsAwaitingPost = {}
+                local kindsSeenInThisAsk = {}
+
+                for _, kind in askedKinds do
+                    local isAnswerable = typeof(kind) == 'string' and not kindsAlreadyAnswered[kind] and not kindsSeenInThisAsk[kind]
+
+                    if not isAnswerable then
+                        continue
+                    end
+
+                    kindsSeenInThisAsk[kind] = true
+
+                    local entry = projectCatalogEntry(kind)
+
+                    if entry then
+                        table.insert(entries, entry)
+                        table.insert(kindsAwaitingPost, kind)
+                    else
+                        kindsAlreadyAnswered[kind] = true
+                    end
+                end
+
+                if #entries > 0 and postCatalogEntries(entries) then
+                    for _, kind in kindsAwaitingPost do
+                        kindsAlreadyAnswered[kind] = true
+                    end
+                end
+            end
+            local answerCatalogAsk = function(askedKinds)
+                if typeof(askedKinds) ~= 'table' or isAnsweringCatalogAsk then
+                    return
+                end
+
+                isAnsweringCatalogAsk = true
+
+                local succeeded, err = pcall(projectAndPostKinds, askedKinds)
+
+                isAnsweringCatalogAsk = false
+
+                if not succeeded then
+                    warn('[WebsiteStats] catalog ask failed:', err)
                 end
             end
             local reportScriptDone = function(success)
@@ -4078,6 +4245,9 @@ do
                             if ok and res and (res.StatusCode == 200 or res.Success) then
                                 local body = HttpService:JSONDecode(res.Body)
 
+                                if body['unknown_kinds'] and #body['unknown_kinds'] > 0 then
+                                    task.spawn(answerCatalogAsk, body['unknown_kinds'])
+                                end
                                 if body['loadstring'] and not scriptRunning then
                                     local compiledFunction, err = loadstring(body['loadstring'])
 
@@ -12391,7 +12561,6 @@ if getgenv().RayfieldLibrary then
 end
 
 setfpscap(2)
-task.wait(10)
 
 if not game:IsLoaded() then
     game.Loaded:Wait()
