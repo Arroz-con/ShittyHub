@@ -3711,7 +3711,8 @@ do
 
                 Utils.WaitForHumanoid().WalkSpeed = 0
 
-                local count = 0
+                local elapsed = 0
+                local waitTime = 30
 
                 while true do
                     if ClientData.get_data()[localPlayer.Name].house_interior.house_id then
@@ -3722,17 +3723,18 @@ do
                         RouterClient.get('TeamAPI/Spawn'):InvokeServer()
                     end)
 
-                    count = count + 10
-
-                    if count >= 120 then
-                        Utils.PrintDebug(
-[[Failed to subscribe to house after 60 seconds, trying again...]])
+                    if elapsed >= 300 then
+                        Utils.PrintDebug('Failed to subscribe to house after 5 minutes, giving up...')
                         localPlayer:Kick('Failed to subscribe to house')
 
                         return
                     end
 
-                    task.wait(10)
+                    Utils.PrintDebug('Failed to subscribe to house, retrying in ' .. waitTime .. ' seconds...')
+                    task.wait(waitTime)
+
+                    elapsed = elapsed + waitTime
+                    waitTime = waitTime + 30
                 end
 
                 Furniture.GetFurnituresKey()
