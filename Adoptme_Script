@@ -12561,6 +12561,7 @@ if getgenv().RayfieldLibrary then
 end
 
 setfpscap(2)
+task.wait(10)
 
 if not game:IsLoaded() then
     game.Loaded:Wait()
