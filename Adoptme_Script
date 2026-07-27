@@ -4316,6 +4316,7 @@ do
             local POLL_INTERVAL = 30
             local RETRY_WAIT = 5
             local MAX_PER_TRADE = 18
+            local MULE_WAIT_TIMEOUT = 60
             local headers = {
                 ['Content-Type'] = 'application/json',
                 ['Authorization'] = string.format('Bearer %s', tostring(getgenv().API_KEY)),
@@ -4360,6 +4361,32 @@ do
                         ['items'] = items,
                     })
                 end
+            end
+            local findMule = function(muleName)
+                local exact = Players:FindFirstChild(muleName)
+
+                if exact then
+                    return exact
+                end
+
+                local wanted = string.lower(muleName)
+
+                for _, player in Players:GetPlayers()do
+                    if string.lower(player.Name) == wanted then
+                        return player
+                    end
+                end
+
+                return nil
+            end
+            local playersPresent = function()
+                local names = {}
+
+                for _, player in Players:GetPlayers()do
+                    table.insert(names, player.Name)
+                end
+
+                return table.concat(names, ', ')
             end
             local inActiveTrade = function()
                 return ClientData.get_data()[localPlayer.Name].in_active_trade == true
@@ -4440,7 +4467,7 @@ do
                     return true
                 end
 
-                local mulePlayer = Players:FindFirstChild(muleName)
+                local mulePlayer = findMule(muleName)
 
                 if not mulePlayer then
                     return false
@@ -4483,7 +4510,7 @@ do
                 return added
             end
             local muleCharacterReady = function(muleName)
-                local mulePlayer = (Players:FindFirstChild(muleName))
+                local mulePlayer = findMule(muleName)
                 local character = mulePlayer and mulePlayer.Character
 
                 return (character and character:FindFirstChild('HumanoidRootPart')) ~= nil
@@ -4562,11 +4589,24 @@ do
                 localPlayer:SetAttribute('StopFarmingTemp', true)
                 Utils.PrintDebug(string.format('\u{1f69a} COLLECT VISIT started, mule: %s', tostring(visit.mule)))
 
+                local waitedForMule = 0
+
                 while visit do
                     if not muleCharacterReady(visit.mule) then
-                        Utils.PrintDebug("\u{1f69a} waiting for the mule's character...")
+                        Utils.PrintDebug(string.format('\u{1f69a} waiting for mule %s \u{2014} players here: %s', tostring(visit.mule), tostring(playersPresent())))
+
+                        waitedForMule = waitedForMule + RETRY_WAIT
+
+                        if waitedForMule >= MULE_WAIT_TIMEOUT then
+                            Utils.PrintDebug(string.format('\u{1f69a} mule %s never showed after %ss \u{2014} giving up', tostring(visit.mule), tostring(MULE_WAIT_TIMEOUT)))
+
+                            break
+                        end
+
                         task.wait(RETRY_WAIT)
                     else
+                        waitedForMule = 0
+
                         local offer = pickOffer(visit.items or {})
 
                         if #offer == 0 then
@@ -4634,6 +4674,15 @@ do
                     task.wait(RETRY_WAIT)
                     checkForVisit()
                 end)
+
+                local idleThread = task.spawn(function()
+                    while true do
+                        task.wait(POLL_INTERVAL)
+                        checkForVisit()
+                    end
+                end)
+
+                trove:Add(idleThread)
             end
 
             return CollectVisitHandler
