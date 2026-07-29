@@ -4299,410 +4299,6 @@ do
     end
     do
         local __modImpl = function()
-            local ReplicatedStorage = game:GetService('ReplicatedStorage')
-            local HttpService = game:GetService('HttpService')
-            local Players = game:GetService('Players')
-            local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
-            local ClientData = Bypass('ClientData')
-            local RouterClient = Bypass('RouterClient')
-            local AllowOrDenyList = __DARKLUA_BUNDLE_MODULES.g()
-            local Trade = __DARKLUA_BUNDLE_MODULES.h()
-            local Utils = __DARKLUA_BUNDLE_MODULES.d()
-            local trove = getgenv().AutoFarmTrove
-            local localPlayer = Players.LocalPlayer
-            local baseUrl = 'https://bots.errored.app'
-            local taskUrl = baseUrl .. '/api/v1/collect/task'
-            local ackUrl = baseUrl .. '/api/v1/collect/ack'
-            local POLL_INTERVAL = 30
-            local RETRY_WAIT = 5
-            local MAX_PER_TRADE = 18
-            local MULE_WAIT_TIMEOUT = 60
-            local headers = {
-                ['Content-Type'] = 'application/json',
-                ['Authorization'] = string.format('Bearer %s', tostring(getgenv().API_KEY)),
-            }
-            local busy = false
-            local CollectVisitHandler = {}
-            local post = function(url, body)
-                local ok, res = pcall(request, {
-                    Url = url,
-                    Method = 'POST',
-                    Headers = headers,
-                    Body = HttpService:JSONEncode(body),
-                })
-
-                if not ok or not res or not (res.StatusCode == 200 or res.Success) then
-                    return nil
-                end
-
-                local decodeOk, decoded = pcall(function()
-                    return HttpService:JSONDecode(res.Body)
-                end)
-
-                return (decodeOk and {decoded} or {nil})[1]
-            end
-            local fetchVisit = function()
-                local body = post(taskUrl, {
-                    ['username'] = localPlayer.Name,
-                })
-
-                return body and body.visit or nil
-            end
-            local ackTrade = function(items)
-                local body = post(ackUrl, {
-                    ['username'] = localPlayer.Name,
-                    ['items'] = items,
-                })
-
-                if not body or body.ok ~= true then
-                    task.wait(2)
-                    post(ackUrl, {
-                        ['username'] = localPlayer.Name,
-                        ['items'] = items,
-                    })
-                end
-            end
-            local findMule = function(muleName)
-                local exact = Players:FindFirstChild(muleName)
-
-                if exact then
-                    return exact
-                end
-
-                local wanted = string.lower(muleName)
-
-                for _, player in Players:GetPlayers()do
-                    if string.lower(player.Name) == wanted then
-                        return player
-                    end
-                end
-
-                return nil
-            end
-            local playersPresent = function()
-                local names = {}
-
-                for _, player in Players:GetPlayers()do
-                    table.insert(names, player.Name)
-                end
-
-                return table.concat(names, ', ')
-            end
-            local inActiveTrade = function()
-                return ClientData.get_data()[localPlayer.Name].in_active_trade == true
-            end
-            local senderOfferCount = function()
-                local trade = ClientData.get_data()[localPlayer.Name].trade
-
-                if trade and trade.sender_offer and trade.sender_offer.items then
-                    return #trade.sender_offer.items
-                end
-
-                return 0
-            end
-            local waitForActiveTrade = function(timeOut)
-                while not inActiveTrade() do
-                    task.wait(1)
-
-                    timeOut = timeOut - 1
-
-                    if timeOut <= 0 then
-                        return false
-                    end
-                end
-
-                return true
-            end
-            local matchesWireItem = function(item, wanted)
-                local props = item.properties or {}
-
-                return item.id == wanted.id and (props.age or 0) == (wanted.age or 0) and (props.neon == true) == (wanted.neon == true) and (props.mega_neon == true) == (wanted.mega_neon == true)
-            end
-            local pickOffer = function(wireItems)
-                local inventory = ClientData.get_data()[localPlayer.Name].inventory
-                local offer = {}
-
-                for _, wanted in wireItems do
-                    if #offer >= MAX_PER_TRADE then
-                        break
-                    end
-                    if table.find(AllowOrDenyList.Denylist, wanted.id) then
-                        continue
-                    end
-                    if getgenv().SETTINGS.PETS_TO_AGE_IN_PEN[wanted.id] ~= nil then
-                        continue
-                    end
-
-                    local page = inventory[wanted.category or 'pets']
-
-                    if not page then
-                        continue
-                    end
-
-                    local remaining = wanted.count or 0
-
-                    for _, item in page do
-                        if remaining <= 0 or #offer >= MAX_PER_TRADE then
-                            break
-                        end
-                        if matchesWireItem(item, wanted) then
-                            table.insert(offer, {
-                                unique = item.unique,
-                                id = wanted.id,
-                                age = wanted.age or 0,
-                                neon = wanted.neon == true,
-                                mega_neon = wanted.mega_neon == true,
-                                category = wanted.category or 'pets',
-                            })
-
-                            remaining = remaining - 1
-                        end
-                    end
-                end
-
-                return offer
-            end
-            local requestTradeWith = function(muleName)
-                if inActiveTrade() then
-                    return true
-                end
-
-                local mulePlayer = findMule(muleName)
-
-                if not mulePlayer then
-                    return false
-                end
-
-                RouterClient.get('TradeAPI/SendTradeRequest'):FireServer(mulePlayer)
-
-                return waitForActiveTrade(30)
-            end
-            local addOfferToTrade = function(offer)
-                local addRemote = RouterClient.get('TradeAPI/AddItemToOffer')
-                local added = {}
-
-                for _, entry in offer do
-                    if not inActiveTrade() then
-                        break
-                    end
-
-                    local before = senderOfferCount()
-
-                    if before >= MAX_PER_TRADE then
-                        break
-                    end
-
-                    addRemote:FireServer(entry.unique)
-
-                    local waited = 0
-
-                    repeat
-                        task.wait(0.1)
-
-                        waited = waited + 0.1
-                    until not inActiveTrade() or senderOfferCount() > before or waited >= 5
-
-                    if inActiveTrade() and senderOfferCount() > before then
-                        table.insert(added, entry)
-                    end
-                end
-
-                return added
-            end
-            local muleCharacterReady = function(muleName)
-                local mulePlayer = findMule(muleName)
-                local character = mulePlayer and mulePlayer.Character
-
-                return (character and character:FindFirstChild('HumanoidRootPart')) ~= nil
-            end
-            local stillOwned = function(category, unique)
-                local page = ClientData.get_data()[localPlayer.Name].inventory[category]
-
-                if not page then
-                    return false
-                end
-
-                for _, item in page do
-                    if item.unique == unique then
-                        return true
-                    end
-                end
-
-                return false
-            end
-            local tradeOnce = function(muleName, offer)
-                if not requestTradeWith(muleName) then
-                    return
-                end
-
-                local added = addOfferToTrade(offer)
-
-                if #added == 0 then
-                    if inActiveTrade() then
-                        RouterClient.get('TradeAPI/DeclineTrade'):FireServer()
-                    end
-
-                    return
-                end
-
-                Trade.AcceptNegotiationAndConfirm()
-                task.wait(2)
-
-                local counts = {}
-
-                for _, entry in added do
-                    if stillOwned(entry.category, entry.unique) then
-                        continue
-                    end
-
-                    local key = string.format('%s|%s|%s|%s', tostring(entry.id), tostring(entry.age), tostring(entry.neon), tostring(entry.mega_neon))
-
-                    if counts[key] then
-                        do
-                            local __DARKLUA_VAR = counts[key]
-
-                            __DARKLUA_VAR.count = __DARKLUA_VAR.count + 1
-                        end
-                    else
-                        counts[key] = {
-                            ['id'] = entry.id,
-                            ['age'] = entry.age,
-                            ['neon'] = entry.neon,
-                            ['mega_neon'] = entry.mega_neon,
-                            ['count'] = 1,
-                        }
-                    end
-                end
-
-                local ackItems = {}
-
-                for _, item in counts do
-                    table.insert(ackItems, item)
-                end
-
-                if #ackItems > 0 then
-                    ackTrade(ackItems)
-                    Utils.PrintDebug(string.format('\u{1f69a} gifted + acked %s item(s) to %s', tostring(#added), tostring(muleName)))
-                end
-            end
-            local runVisit = function(visit)
-                localPlayer:SetAttribute('StopFarmingTemp', true)
-                Utils.PrintDebug(string.format('\u{1f69a} COLLECT VISIT started, mule: %s', tostring(visit.mule)))
-
-                local waitedForMule = 0
-
-                while visit do
-                    if not muleCharacterReady(visit.mule) then
-                        Utils.PrintDebug(string.format('\u{1f69a} waiting for mule %s \u{2014} players here: %s', tostring(visit.mule), tostring(playersPresent())))
-
-                        waitedForMule = waitedForMule + RETRY_WAIT
-
-                        if waitedForMule >= MULE_WAIT_TIMEOUT then
-                            Utils.PrintDebug(string.format('\u{1f69a} mule %s never showed after %ss \u{2014} giving up', tostring(visit.mule), tostring(MULE_WAIT_TIMEOUT)))
-
-                            break
-                        end
-
-                        task.wait(RETRY_WAIT)
-                    else
-                        waitedForMule = 0
-
-                        local offer = pickOffer(visit.items or {})
-
-                        if #offer == 0 then
-                            Utils.PrintDebug('\u{1f69a} nothing tradeable from the wanted list')
-                            task.wait(POLL_INTERVAL)
-                        else
-                            tradeOnce(visit.mule, offer)
-                            task.wait(2)
-                        end
-                    end
-
-                    visit = fetchVisit()
-                end
-
-                Utils.PrintDebug('\u{1f69a} COLLECT VISIT over')
-                localPlayer:SetAttribute('StopFarmingTemp', false)
-            end
-            local checkForVisit = function()
-                if busy then
-                    return
-                end
-
-                busy = true
-
-                local ok, err = pcall(function()
-                    local visit = fetchVisit()
-
-                    if visit then
-                        print('visit:', visit)
-                        runVisit(visit)
-                    end
-                end)
-
-                if not ok then
-                    warn('[CollectVisit] visit loop error:', err)
-                    localPlayer:SetAttribute('StopFarmingTemp', false)
-                end
-
-                busy = false
-            end
-
-            function CollectVisitHandler.Init() end
-            function CollectVisitHandler.Start()
-                local key = getgenv().API_KEY
-
-                if not key or #key < 30 then
-                    warn('[CollectVisit] missing/short API key \u{2014} collect disabled')
-
-                    return
-                end
-                if getgenv().SETTINGS.IS_MULE == true then
-                    return
-                end
-
-                trove:Connect(Players.PlayerAdded, function(player)
-                    print('player:', player)
-
-                    local character = player.Character or player.CharacterAdded:Wait()
-
-                    character:WaitForChild('HumanoidRootPart', 120)
-                    task.wait(RETRY_WAIT)
-                    checkForVisit()
-                end)
-                task.spawn(function()
-                    task.wait(RETRY_WAIT)
-                    checkForVisit()
-                end)
-
-                local idleThread = task.spawn(function()
-                    while true do
-                        task.wait(POLL_INTERVAL)
-                        checkForVisit()
-                    end
-                end)
-
-                trove:Add(idleThread)
-            end
-
-            return CollectVisitHandler
-        end
-
-        function __DARKLUA_BUNDLE_MODULES.q()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.q
-
-            if not v then
-                v = {
-                    c = __modImpl(),
-                }
-                __DARKLUA_BUNDLE_MODULES.cache.q = v
-            end
-
-            return v.c
-        end
-    end
-    do
-        local __modImpl = function()
             local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
             local Players = cloneref(game:GetService('Players'))
             local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -4841,6 +4437,24 @@ do
             return self
         end
 
+        function __DARKLUA_BUNDLE_MODULES.q()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.q
+
+            if not v then
+                v = {
+                    c = __modImpl(),
+                }
+                __DARKLUA_BUNDLE_MODULES.cache.q = v
+            end
+
+            return v.c
+        end
+    end
+    do
+        local __modImpl = function()
+            return true
+        end
+
         function __DARKLUA_BUNDLE_MODULES.r()
             local v = __DARKLUA_BUNDLE_MODULES.cache.r
 
@@ -4856,25 +4470,7 @@ do
     end
     do
         local __modImpl = function()
-            return true
-        end
-
-        function __DARKLUA_BUNDLE_MODULES.s()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.s
-
-            if not v then
-                v = {
-                    c = __modImpl(),
-                }
-                __DARKLUA_BUNDLE_MODULES.cache.s = v
-            end
-
-            return v.c
-        end
-    end
-    do
-        local __modImpl = function()
-            __DARKLUA_BUNDLE_MODULES.s()
+            __DARKLUA_BUNDLE_MODULES.r()
 
             local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
             local Players = cloneref(game:GetService('Players'))
@@ -4983,14 +4579,14 @@ do
             return self
         end
 
-        function __DARKLUA_BUNDLE_MODULES.t()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.t
+        function __DARKLUA_BUNDLE_MODULES.s()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.s
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.t = v
+                __DARKLUA_BUNDLE_MODULES.cache.s = v
             end
 
             return v.c
@@ -5032,14 +4628,14 @@ do
             return self
         end
 
-        function __DARKLUA_BUNDLE_MODULES.u()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.u
+        function __DARKLUA_BUNDLE_MODULES.t()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.t
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.u = v
+                __DARKLUA_BUNDLE_MODULES.cache.t = v
             end
 
             return v.c
@@ -5077,14 +4673,14 @@ do
             return self
         end
 
-        function __DARKLUA_BUNDLE_MODULES.v()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.v
+        function __DARKLUA_BUNDLE_MODULES.u()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.u
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.v = v
+                __DARKLUA_BUNDLE_MODULES.cache.u = v
             end
 
             return v.c
@@ -9299,14 +8895,14 @@ Check the Developer Console for more information.]],
             return RayfieldLibrary
         end
 
-        function __DARKLUA_BUNDLE_MODULES.w()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.w
+        function __DARKLUA_BUNDLE_MODULES.v()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.v
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.w = v
+                __DARKLUA_BUNDLE_MODULES.cache.v = v
             end
 
             return v.c
@@ -9505,14 +9101,14 @@ Check the Developer Console for more information.]],
             return Clipboard
         end
 
-        function __DARKLUA_BUNDLE_MODULES.x()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.x
+        function __DARKLUA_BUNDLE_MODULES.w()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.w
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.x = v
+                __DARKLUA_BUNDLE_MODULES.cache.w = v
             end
 
             return v.c
@@ -9521,9 +9117,9 @@ Check the Developer Console for more information.]],
     do
         local __modImpl = function()
             local Players = cloneref(game:GetService('Players'))
-            local Rayfield = __DARKLUA_BUNDLE_MODULES.w()
+            local Rayfield = __DARKLUA_BUNDLE_MODULES.v()
             local GetInventory = __DARKLUA_BUNDLE_MODULES.m()
-            local Clipboard = __DARKLUA_BUNDLE_MODULES.x()
+            local Clipboard = __DARKLUA_BUNDLE_MODULES.w()
             local Fusion = __DARKLUA_BUNDLE_MODULES.k()
             local Trade = __DARKLUA_BUNDLE_MODULES.h()
             local Utils = __DARKLUA_BUNDLE_MODULES.d()
@@ -10305,14 +9901,14 @@ Check the Developer Console for more information.]],
             return self
         end
 
-        function __DARKLUA_BUNDLE_MODULES.y()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.y
+        function __DARKLUA_BUNDLE_MODULES.x()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.x
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.y = v
+                __DARKLUA_BUNDLE_MODULES.cache.x = v
             end
 
             return v.c
@@ -10484,14 +10080,14 @@ Check the Developer Console for more information.]],
             return BeePass2026
         end
 
-        function __DARKLUA_BUNDLE_MODULES.z()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.z
+        function __DARKLUA_BUNDLE_MODULES.y()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.y
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.z = v
+                __DARKLUA_BUNDLE_MODULES.cache.y = v
             end
 
             return v.c
@@ -11166,14 +10762,14 @@ Check the Developer Console for more information.]],
             return Ailment
         end
 
-        function __DARKLUA_BUNDLE_MODULES.A()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.A
+        function __DARKLUA_BUNDLE_MODULES.z()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.z
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.A = v
+                __DARKLUA_BUNDLE_MODULES.cache.z = v
             end
 
             return v.c
@@ -11517,14 +11113,14 @@ Check the Developer Console for more information.]],
             return FarmingPet
         end
 
-        function __DARKLUA_BUNDLE_MODULES.B()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.B
+        function __DARKLUA_BUNDLE_MODULES.A()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.A
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.B = v
+                __DARKLUA_BUNDLE_MODULES.cache.A = v
             end
 
             return v.c
@@ -11574,14 +11170,14 @@ Check the Developer Console for more information.]],
             return PetRelease
         end
 
-        function __DARKLUA_BUNDLE_MODULES.C()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.C
+        function __DARKLUA_BUNDLE_MODULES.B()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.B
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.C = v
+                __DARKLUA_BUNDLE_MODULES.cache.B = v
             end
 
             return v.c
@@ -11596,13 +11192,13 @@ Check the Developer Console for more information.]],
             local RouterClient = Bypass('RouterClient')
             local CollisionsClient = Bypass('CollisionsClient')
             local Utils = __DARKLUA_BUNDLE_MODULES.d()
-            local Ailment = __DARKLUA_BUNDLE_MODULES.A()
+            local Ailment = __DARKLUA_BUNDLE_MODULES.z()
             local Furniture = __DARKLUA_BUNDLE_MODULES.e()
             local Teleport = __DARKLUA_BUNDLE_MODULES.i()
             local GetInventory = __DARKLUA_BUNDLE_MODULES.m()
-            local FarmingPet = __DARKLUA_BUNDLE_MODULES.B()
+            local FarmingPet = __DARKLUA_BUNDLE_MODULES.A()
             local Fusion = __DARKLUA_BUNDLE_MODULES.k()
-            local PetRelease = __DARKLUA_BUNDLE_MODULES.C()
+            local PetRelease = __DARKLUA_BUNDLE_MODULES.B()
             local myGui = __DARKLUA_BUNDLE_MODULES.c().Get()
             local modules = ReplicatedStorage:WaitForChild('new'):WaitForChild('modules')
             local DailiesNetService = (require(modules:WaitForChild('Dailies'):WaitForChild('DailiesNetService')))
@@ -11997,14 +11593,14 @@ Check the Developer Console for more information.]],
             return self
         end
 
-        function __DARKLUA_BUNDLE_MODULES.D()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.D
+        function __DARKLUA_BUNDLE_MODULES.C()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.C
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.D = v
+                __DARKLUA_BUNDLE_MODULES.cache.C = v
             end
 
             return v.c
@@ -12045,14 +11641,14 @@ Check the Developer Console for more information.]],
             return PetOffline
         end
 
-        function __DARKLUA_BUNDLE_MODULES.E()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.E
+        function __DARKLUA_BUNDLE_MODULES.D()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.D
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.E = v
+                __DARKLUA_BUNDLE_MODULES.cache.D = v
             end
 
             return v.c
@@ -12065,7 +11661,7 @@ Check the Developer Console for more information.]],
             local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
             local ClientData = Bypass('ClientData')
             local RouterClient = (Bypass('RouterClient'))
-            local PetOffline = __DARKLUA_BUNDLE_MODULES.E()
+            local PetOffline = __DARKLUA_BUNDLE_MODULES.D()
             local GetInventory = __DARKLUA_BUNDLE_MODULES.m()
             local Utils = __DARKLUA_BUNDLE_MODULES.d()
             local localPlayer = Players.LocalPlayer
@@ -12250,14 +11846,14 @@ Check the Developer Console for more information.]],
             return PetOfflineHandler
         end
 
-        function __DARKLUA_BUNDLE_MODULES.F()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.F
+        function __DARKLUA_BUNDLE_MODULES.E()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.E
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.F = v
+                __DARKLUA_BUNDLE_MODULES.cache.E = v
             end
 
             return v.c
@@ -12268,8 +11864,8 @@ Check the Developer Console for more information.]],
             local Players = cloneref(game:GetService('Players'))
             local StatsGui = __DARKLUA_BUNDLE_MODULES.c()
             local Utils = __DARKLUA_BUNDLE_MODULES.d()
-            local Clipboard = __DARKLUA_BUNDLE_MODULES.x()
-            local PetOffline = __DARKLUA_BUNDLE_MODULES.E()
+            local Clipboard = __DARKLUA_BUNDLE_MODULES.w()
+            local PetOffline = __DARKLUA_BUNDLE_MODULES.D()
             local localPlayer = Players.LocalPlayer
             local playerGui = (localPlayer:WaitForChild('PlayerGui'))
             local trove = getgenv().AutoFarmTrove
@@ -12361,14 +11957,14 @@ Check the Developer Console for more information.]],
             return self
         end
 
-        function __DARKLUA_BUNDLE_MODULES.G()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.G
+        function __DARKLUA_BUNDLE_MODULES.F()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.F
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.G = v
+                __DARKLUA_BUNDLE_MODULES.cache.F = v
             end
 
             return v.c
@@ -12424,14 +12020,14 @@ Check the Developer Console for more information.]],
             return DailyTaskboardHandler
         end
 
-        function __DARKLUA_BUNDLE_MODULES.H()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.H
+        function __DARKLUA_BUNDLE_MODULES.G()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.G
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.H = v
+                __DARKLUA_BUNDLE_MODULES.cache.G = v
             end
 
             return v.c
@@ -12589,14 +12185,14 @@ Check the Developer Console for more information.]],
             return PayBucks
         end
 
-        function __DARKLUA_BUNDLE_MODULES.I()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.I
+        function __DARKLUA_BUNDLE_MODULES.H()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.H
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.I = v
+                __DARKLUA_BUNDLE_MODULES.cache.H = v
             end
 
             return v.c
@@ -12678,40 +12274,37 @@ local files = {
         WebsiteStats = __DARKLUA_BUNDLE_MODULES.p(),
     },
     {
-        CollectVisitHandler = __DARKLUA_BUNDLE_MODULES.q(),
+        DailyRewardHandler = __DARKLUA_BUNDLE_MODULES.q(),
     },
     {
-        DailyRewardHandler = __DARKLUA_BUNDLE_MODULES.r(),
+        GameGuiHandler = __DARKLUA_BUNDLE_MODULES.s(),
     },
     {
-        GameGuiHandler = __DARKLUA_BUNDLE_MODULES.t(),
+        TradeLicenseHandler = __DARKLUA_BUNDLE_MODULES.t(),
     },
     {
-        TradeLicenseHandler = __DARKLUA_BUNDLE_MODULES.u(),
+        TutorialHandler = __DARKLUA_BUNDLE_MODULES.u(),
     },
     {
-        TutorialHandler = __DARKLUA_BUNDLE_MODULES.v(),
+        RayfieldHandler = __DARKLUA_BUNDLE_MODULES.x(),
     },
     {
-        RayfieldHandler = __DARKLUA_BUNDLE_MODULES.y(),
+        BeePass2026 = __DARKLUA_BUNDLE_MODULES.y(),
     },
     {
-        BeePass2026 = __DARKLUA_BUNDLE_MODULES.z(),
+        AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.C(),
     },
     {
-        AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.D(),
+        PetOfflineHandler = __DARKLUA_BUNDLE_MODULES.E(),
     },
     {
-        PetOfflineHandler = __DARKLUA_BUNDLE_MODULES.F(),
+        StatsGuiHandler = __DARKLUA_BUNDLE_MODULES.F(),
     },
     {
-        StatsGuiHandler = __DARKLUA_BUNDLE_MODULES.G(),
+        DailyTaskboardHandler = __DARKLUA_BUNDLE_MODULES.G(),
     },
     {
-        DailyTaskboardHandler = __DARKLUA_BUNDLE_MODULES.H(),
-    },
-    {
-        PayBucks = __DARKLUA_BUNDLE_MODULES.I(),
+        PayBucks = __DARKLUA_BUNDLE_MODULES.H(),
     },
 }
 
