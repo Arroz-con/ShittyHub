@@ -3600,6 +3600,27 @@ do
             local self = {}
             local localPlayer = Players.LocalPlayer
             local rng = Random.new()
+            local PlayerGui = localPlayer:WaitForChild('PlayerGui')
+            local DialogApp = (PlayerGui:WaitForChild('DialogApp'))
+            local NewsApp = (PlayerGui:WaitForChild('NewsApp'))
+            local pickColorTutorial = function()
+                local colorButton = (DialogApp.Dialog.ThemeColorDialog:WaitForChild('Info'):WaitForChild('Response'):WaitForChild('ColorTemplate'))
+
+                if not colorButton then
+                    return
+                end
+
+                Utils.FireButton(colorButton)
+
+                local doneButton = (DialogApp.Dialog.ThemeColorDialog:WaitForChild('Buttons'):WaitForChild('ButtonTemplate'))
+
+                if not doneButton then
+                    return
+                end
+
+                Utils.FireButton(doneButton)
+                Utils.PrintDebug('PICKED COLOR')
+            end
             local isPlayersInGame = function(playerList)
                 for _, player in Players:GetPlayers()do
                     if player.Name == localPlayer.Name then
@@ -3629,6 +3650,21 @@ do
                     Furniture.GetFurnituresKey()
                 end
             end
+            local findHomeButtonAndClick = function()
+                local homeFrame = (DialogApp:FindFirstChild('Home', true))
+
+                if not homeFrame or not homeFrame.Visible then
+                    return
+                end
+
+                local button = (homeFrame:WaitForChild('Button', 6))
+
+                if not button then
+                    return
+                end
+
+                Utils.FireButton(button)
+            end
             local processTradeCollector = function()
                 if getgenv().SETTINGS.ENABLE_TRASH_COLLECTOR and isPlayersInGame(getgenv().SETTINGS.TRASH_COLLECTOR_NAMES) then
                     getgenv().SETTINGS.ENABLE_TRADE_COLLECTOR = false
@@ -3644,6 +3680,8 @@ do
                 RouterClient.get('SettingsAPI/SetBooleanFlag'):FireServer('arachnophobia_mode_seen', true)
                 task.wait()
                 RouterClient.get('SettingsAPI/SetSetting'):FireServer('arachnophobia_mode', false)
+                trove:Connect(DialogApp.Dialog.ThemeColorDialog:GetPropertyChangedSignal('Visible'), pickColorTutorial)
+                trove:Connect(DialogApp.Dialog.SpawnChooserDialog:GetPropertyChangedSignal('Visible'), findHomeButtonAndClick)
                 trove:Connect(Players.PlayerAdded, function(player)
                     local playerTrove = Trove.new()
 
@@ -3692,6 +3730,24 @@ do
                 print('Preparing account for farming...')
                 setfpscap(getgenv().SETTINGS.SET_FPS)
                 StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Captures, false)
+                RouterClient.get('SettingsAPI/SetSetting'):FireServer('theme_color', 'pink')
+                task.wait(1)
+                RouterClient.get('TradingServerAPI/ButtonPressed'):FireServer('spawn_dialog', 'Home')
+
+                if DialogApp.Dialog.ThemeColorDialog.Visible then
+                    Utils.PrintDebug('picking color')
+                    pickColorTutorial()
+                end
+                if NewsApp.Enabled then
+                    Utils.PrintDebug('NEWSAPP ENABLED')
+
+                    local AbsPlay = (NewsApp:WaitForChild('EnclosingFrame'):WaitForChild('MainFrame'):WaitForChild('Buttons'):WaitForChild('PlayButton'))
+
+                    Utils.FireButton(AbsPlay)
+                    Utils.PrintDebug('NEWSAPP CLICKED')
+                end
+
+                findHomeButtonAndClick()
 
                 local loadCount = 0
 
@@ -4452,148 +4508,6 @@ do
     end
     do
         local __modImpl = function()
-            return true
-        end
-
-        function __DARKLUA_BUNDLE_MODULES.r()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.r
-
-            if not v then
-                v = {
-                    c = __modImpl(),
-                }
-                __DARKLUA_BUNDLE_MODULES.cache.r = v
-            end
-
-            return v.c
-        end
-    end
-    do
-        local __modImpl = function()
-            __DARKLUA_BUNDLE_MODULES.r()
-
-            local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
-            local Players = cloneref(game:GetService('Players'))
-            local TextChatService = game:GetService('TextChatService')
-            local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
-            local RouterClient = Bypass('RouterClient')
-            local Utils = __DARKLUA_BUNDLE_MODULES.d()
-            local Trade = __DARKLUA_BUNDLE_MODULES.h()
-            local Fusion = __DARKLUA_BUNDLE_MODULES.k()
-            local trove = getgenv().AutoFarmTrove
-            local self = {}
-            local localPlayer = Players.LocalPlayer
-            local PlayerGui = localPlayer:WaitForChild('PlayerGui')
-            local TradeApp = (PlayerGui:WaitForChild('TradeApp'))
-            local excludeAppList = {
-                'TradeApp',
-                'BackpackApp',
-                'BattlePassApp',
-                'IdleProgressionApp',
-            }
-
-            function self.Init()
-                Bypass('UIManager').apps.BucksIndicatorApp.instance.CurrencyIndicator.Visible = false
-                Bypass('UIManager').apps.NavigatorApp.instance.Frame.Visible = false
-
-                RouterClient.get('SettingsAPI/SetSetting'):FireServer('trade_requests', 1)
-                trove:Connect(TextChatService.MessageReceived, function(
-                    message
-                )
-                    if not (message.TextSource and message.TextSource.UserId) then
-                        return
-                    end
-                    if message.TextSource.UserId == localPlayer.UserId then
-                        return
-                    end
-                    if message.Text:match('Server') then
-                        return
-                    end
-
-                    print(string.format('got message from %s: %s', tostring(message.TextSource.Name), tostring(message.Text)))
-                    localPlayer:Kick('IS IN PUBLIC SERVER')
-                end)
-
-                for _, app in Bypass('UIManager').apps do
-                    if not (typeof(app.instance) == 'Instance' and app.instance:IsA('ScreenGui')) then
-                        continue
-                    end
-                    if table.find(excludeAppList, app.instance.Name) then
-                        continue
-                    end
-
-                    trove:Connect(app.instance:GetPropertyChangedSignal('Enabled'), function(
-                    )
-                        if app.instance.Enabled then
-                            Bypass('UIManager').set_app_visibility(app.instance.Name, false)
-                            print(string.format('%s: %s', tostring(app.instance.Name), tostring(app.instance.Enabled)))
-                        end
-                    end)
-                end
-
-                trove:Connect(RouterClient.get_event('TradeAPI/TradeRequestReceived').OnClientEvent, function(
-                    otherPlayer
-                )
-                    if otherPlayer.UserId == localPlayer.UserId then
-                        return
-                    end
-
-                    Utils.PrintDebug(string.format('Trade request received from %s (UserId: %s)', tostring(otherPlayer.Name), tostring(otherPlayer.UserId)))
-                    pcall(function()
-                        RouterClient.get('TradeAPI/AcceptOrDeclineTradeRequest'):InvokeServer(otherPlayer, true)
-                    end)
-                end)
-                trove:Connect(TradeApp.Frame.NegotiationFrame.Body.PartnerOffer.Accepted:GetPropertyChangedSignal('ImageTransparency'), function(
-                )
-                    Trade.AutoAcceptTrade()
-                end)
-                trove:Connect(TradeApp.Frame.ConfirmationFrame.PartnerOffer.Accepted:GetPropertyChangedSignal('ImageTransparency'), function(
-                )
-                    Trade.AutoAcceptTrade()
-                    task.wait(2)
-
-                    if getgenv().SETTINGS.PET_AUTO_FUSION then
-                        Fusion.MakeMega(false)
-                        Fusion.MakeMega(true)
-                    end
-                end)
-
-                for name, app in Bypass('UIManager').apps do
-                    if not (typeof(app.instance) == 'Instance' and app.instance:IsA('ScreenGui')) then
-                        continue
-                    end
-                    if table.find(excludeAppList, app.instance.Name) then
-                        continue
-                    end
-                    if app.instance.Enabled then
-                        app.instance.Enabled = false
-
-                        Bypass('UIManager').set_app_visibility(app.instance.Name, false)
-                    end
-                end
-            end
-            function self.Start()
-                Bypass('UIManager').set_app_visibility('HouseEditorWrapperApp', false)
-            end
-
-            return self
-        end
-
-        function __DARKLUA_BUNDLE_MODULES.s()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.s
-
-            if not v then
-                v = {
-                    c = __modImpl(),
-                }
-                __DARKLUA_BUNDLE_MODULES.cache.s = v
-            end
-
-            return v.c
-        end
-    end
-    do
-        local __modImpl = function()
             local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
             local Players = cloneref(game:GetService('Players'))
             local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
@@ -4628,14 +4542,14 @@ do
             return self
         end
 
-        function __DARKLUA_BUNDLE_MODULES.t()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.t
+        function __DARKLUA_BUNDLE_MODULES.r()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.r
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.t = v
+                __DARKLUA_BUNDLE_MODULES.cache.r = v
             end
 
             return v.c
@@ -4647,6 +4561,7 @@ do
             local Players = cloneref(game:GetService('Players'))
             local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
             local ClientData = Bypass('ClientData')
+            local RouterClient = Bypass('RouterClient')
             local Utils = __DARKLUA_BUNDLE_MODULES.d()
             local self = {}
             local localPlayer = Players.LocalPlayer
@@ -4666,6 +4581,9 @@ do
 
                 if not tutorial3Completed then
                     Utils.PrintDebug('New alt detected. doing tutorial')
+                    RouterClient.get('SettingsAPI/SetSetting'):FireServer('theme_color', 'pink')
+                    task.wait(1)
+                    RouterClient.get('TradingServerAPI/ButtonPressed'):FireServer('spawn_dialog', 'Home')
                     doStarterTutorial()
                 end
             end
@@ -4673,14 +4591,14 @@ do
             return self
         end
 
-        function __DARKLUA_BUNDLE_MODULES.u()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.u
+        function __DARKLUA_BUNDLE_MODULES.s()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.s
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.u = v
+                __DARKLUA_BUNDLE_MODULES.cache.s = v
             end
 
             return v.c
@@ -8895,14 +8813,14 @@ Check the Developer Console for more information.]],
             return RayfieldLibrary
         end
 
-        function __DARKLUA_BUNDLE_MODULES.v()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.v
+        function __DARKLUA_BUNDLE_MODULES.t()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.t
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.v = v
+                __DARKLUA_BUNDLE_MODULES.cache.t = v
             end
 
             return v.c
@@ -9101,14 +9019,14 @@ Check the Developer Console for more information.]],
             return Clipboard
         end
 
-        function __DARKLUA_BUNDLE_MODULES.w()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.w
+        function __DARKLUA_BUNDLE_MODULES.u()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.u
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.w = v
+                __DARKLUA_BUNDLE_MODULES.cache.u = v
             end
 
             return v.c
@@ -9117,9 +9035,9 @@ Check the Developer Console for more information.]],
     do
         local __modImpl = function()
             local Players = cloneref(game:GetService('Players'))
-            local Rayfield = __DARKLUA_BUNDLE_MODULES.v()
+            local Rayfield = __DARKLUA_BUNDLE_MODULES.t()
             local GetInventory = __DARKLUA_BUNDLE_MODULES.m()
-            local Clipboard = __DARKLUA_BUNDLE_MODULES.w()
+            local Clipboard = __DARKLUA_BUNDLE_MODULES.u()
             local Fusion = __DARKLUA_BUNDLE_MODULES.k()
             local Trade = __DARKLUA_BUNDLE_MODULES.h()
             local Utils = __DARKLUA_BUNDLE_MODULES.d()
@@ -9901,14 +9819,14 @@ Check the Developer Console for more information.]],
             return self
         end
 
-        function __DARKLUA_BUNDLE_MODULES.x()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.x
+        function __DARKLUA_BUNDLE_MODULES.v()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.v
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.x = v
+                __DARKLUA_BUNDLE_MODULES.cache.v = v
             end
 
             return v.c
@@ -10080,14 +9998,14 @@ Check the Developer Console for more information.]],
             return BeePass2026
         end
 
-        function __DARKLUA_BUNDLE_MODULES.y()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.y
+        function __DARKLUA_BUNDLE_MODULES.w()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.w
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.y = v
+                __DARKLUA_BUNDLE_MODULES.cache.w = v
             end
 
             return v.c
@@ -10762,14 +10680,14 @@ Check the Developer Console for more information.]],
             return Ailment
         end
 
-        function __DARKLUA_BUNDLE_MODULES.z()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.z
+        function __DARKLUA_BUNDLE_MODULES.x()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.x
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.z = v
+                __DARKLUA_BUNDLE_MODULES.cache.x = v
             end
 
             return v.c
@@ -11113,14 +11031,14 @@ Check the Developer Console for more information.]],
             return FarmingPet
         end
 
-        function __DARKLUA_BUNDLE_MODULES.A()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.A
+        function __DARKLUA_BUNDLE_MODULES.y()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.y
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.A = v
+                __DARKLUA_BUNDLE_MODULES.cache.y = v
             end
 
             return v.c
@@ -11170,14 +11088,14 @@ Check the Developer Console for more information.]],
             return PetRelease
         end
 
-        function __DARKLUA_BUNDLE_MODULES.B()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.B
+        function __DARKLUA_BUNDLE_MODULES.z()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.z
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.B = v
+                __DARKLUA_BUNDLE_MODULES.cache.z = v
             end
 
             return v.c
@@ -11192,13 +11110,13 @@ Check the Developer Console for more information.]],
             local RouterClient = Bypass('RouterClient')
             local CollisionsClient = Bypass('CollisionsClient')
             local Utils = __DARKLUA_BUNDLE_MODULES.d()
-            local Ailment = __DARKLUA_BUNDLE_MODULES.z()
+            local Ailment = __DARKLUA_BUNDLE_MODULES.x()
             local Furniture = __DARKLUA_BUNDLE_MODULES.e()
             local Teleport = __DARKLUA_BUNDLE_MODULES.i()
             local GetInventory = __DARKLUA_BUNDLE_MODULES.m()
-            local FarmingPet = __DARKLUA_BUNDLE_MODULES.A()
+            local FarmingPet = __DARKLUA_BUNDLE_MODULES.y()
             local Fusion = __DARKLUA_BUNDLE_MODULES.k()
-            local PetRelease = __DARKLUA_BUNDLE_MODULES.B()
+            local PetRelease = __DARKLUA_BUNDLE_MODULES.z()
             local myGui = __DARKLUA_BUNDLE_MODULES.c().Get()
             local modules = ReplicatedStorage:WaitForChild('new'):WaitForChild('modules')
             local DailiesNetService = (require(modules:WaitForChild('Dailies'):WaitForChild('DailiesNetService')))
@@ -11593,14 +11511,14 @@ Check the Developer Console for more information.]],
             return self
         end
 
-        function __DARKLUA_BUNDLE_MODULES.C()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.C
+        function __DARKLUA_BUNDLE_MODULES.A()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.A
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.C = v
+                __DARKLUA_BUNDLE_MODULES.cache.A = v
             end
 
             return v.c
@@ -11641,14 +11559,14 @@ Check the Developer Console for more information.]],
             return PetOffline
         end
 
-        function __DARKLUA_BUNDLE_MODULES.D()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.D
+        function __DARKLUA_BUNDLE_MODULES.B()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.B
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.D = v
+                __DARKLUA_BUNDLE_MODULES.cache.B = v
             end
 
             return v.c
@@ -11661,7 +11579,7 @@ Check the Developer Console for more information.]],
             local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
             local ClientData = Bypass('ClientData')
             local RouterClient = (Bypass('RouterClient'))
-            local PetOffline = __DARKLUA_BUNDLE_MODULES.D()
+            local PetOffline = __DARKLUA_BUNDLE_MODULES.B()
             local GetInventory = __DARKLUA_BUNDLE_MODULES.m()
             local Utils = __DARKLUA_BUNDLE_MODULES.d()
             local localPlayer = Players.LocalPlayer
@@ -11846,14 +11764,14 @@ Check the Developer Console for more information.]],
             return PetOfflineHandler
         end
 
-        function __DARKLUA_BUNDLE_MODULES.E()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.E
+        function __DARKLUA_BUNDLE_MODULES.C()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.C
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.E = v
+                __DARKLUA_BUNDLE_MODULES.cache.C = v
             end
 
             return v.c
@@ -11864,8 +11782,8 @@ Check the Developer Console for more information.]],
             local Players = cloneref(game:GetService('Players'))
             local StatsGui = __DARKLUA_BUNDLE_MODULES.c()
             local Utils = __DARKLUA_BUNDLE_MODULES.d()
-            local Clipboard = __DARKLUA_BUNDLE_MODULES.w()
-            local PetOffline = __DARKLUA_BUNDLE_MODULES.D()
+            local Clipboard = __DARKLUA_BUNDLE_MODULES.u()
+            local PetOffline = __DARKLUA_BUNDLE_MODULES.B()
             local localPlayer = Players.LocalPlayer
             local playerGui = (localPlayer:WaitForChild('PlayerGui'))
             local trove = getgenv().AutoFarmTrove
@@ -11957,14 +11875,14 @@ Check the Developer Console for more information.]],
             return self
         end
 
-        function __DARKLUA_BUNDLE_MODULES.F()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.F
+        function __DARKLUA_BUNDLE_MODULES.D()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.D
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.F = v
+                __DARKLUA_BUNDLE_MODULES.cache.D = v
             end
 
             return v.c
@@ -12020,14 +11938,14 @@ Check the Developer Console for more information.]],
             return DailyTaskboardHandler
         end
 
-        function __DARKLUA_BUNDLE_MODULES.G()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.G
+        function __DARKLUA_BUNDLE_MODULES.E()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.E
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.G = v
+                __DARKLUA_BUNDLE_MODULES.cache.E = v
             end
 
             return v.c
@@ -12185,6 +12103,158 @@ Check the Developer Console for more information.]],
             return PayBucks
         end
 
+        function __DARKLUA_BUNDLE_MODULES.F()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.F
+
+            if not v then
+                v = {
+                    c = __modImpl(),
+                }
+                __DARKLUA_BUNDLE_MODULES.cache.F = v
+            end
+
+            return v.c
+        end
+    end
+    do
+        local __modImpl = function()
+            return true
+        end
+
+        function __DARKLUA_BUNDLE_MODULES.G()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.G
+
+            if not v then
+                v = {
+                    c = __modImpl(),
+                }
+                __DARKLUA_BUNDLE_MODULES.cache.G = v
+            end
+
+            return v.c
+        end
+    end
+    do
+        local __modImpl = function()
+            __DARKLUA_BUNDLE_MODULES.G()
+
+            local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
+            local Players = cloneref(game:GetService('Players'))
+            local TextChatService = game:GetService('TextChatService')
+            local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
+            local RouterClient = Bypass('RouterClient')
+            local Utils = __DARKLUA_BUNDLE_MODULES.d()
+            local Trade = __DARKLUA_BUNDLE_MODULES.h()
+            local Fusion = __DARKLUA_BUNDLE_MODULES.k()
+            local DynamicDiscountHelper = require(ReplicatedStorage:WaitForChild('new'):WaitForChild('modules'):WaitForChild('DynamicDiscountHelper'))
+            local trove = getgenv().AutoFarmTrove
+            local self = {}
+            local localPlayer = Players.LocalPlayer
+            local PlayerGui = localPlayer:WaitForChild('PlayerGui')
+            local TradeApp = (PlayerGui:WaitForChild('TradeApp'))
+            local excludeAppList = {
+                'TradeApp',
+                'BackpackApp',
+                'BattlePassApp',
+                'IdleProgressionApp',
+                'ThemeColorDialog',
+                'NewsApp',
+                'FTUEStarterPackApp',
+            }
+
+            function self.Init()
+                Bypass('UIManager').apps.BucksIndicatorApp.instance.CurrencyIndicator.Visible = false
+                Bypass('UIManager').apps.NavigatorApp.instance.Frame.Visible = false
+
+                RouterClient.get('SettingsAPI/SetSetting'):FireServer('trade_requests', 1)
+                trove:Connect(TextChatService.MessageReceived, function(
+                    message
+                )
+                    if not (message.TextSource and message.TextSource.UserId) then
+                        return
+                    end
+                    if message.TextSource.UserId == localPlayer.UserId then
+                        return
+                    end
+                    if message.Text:match('Server') then
+                        return
+                    end
+
+                    print(string.format('got message from %s: %s', tostring(message.TextSource.Name), tostring(message.Text)))
+                    localPlayer:Kick('IS IN PUBLIC SERVER')
+                end)
+
+                for _, app in Bypass('UIManager').apps do
+                    if not (typeof(app.instance) == 'Instance' and app.instance:IsA('ScreenGui')) then
+                        continue
+                    end
+                    if table.find(excludeAppList, app.instance.Name) then
+                        continue
+                    end
+
+                    trove:Connect(app.instance:GetPropertyChangedSignal('Enabled'), function(
+                    )
+                        if app.instance.Enabled then
+                            Bypass('UIManager').set_app_visibility(app.instance.Name, false)
+                            print(string.format('%s: %s', tostring(app.instance.Name), tostring(app.instance.Enabled)))
+                        end
+                    end)
+                end
+
+                trove:Connect(RouterClient.get_event('TradeAPI/TradeRequestReceived').OnClientEvent, function(
+                    otherPlayer
+                )
+                    if otherPlayer.UserId == localPlayer.UserId then
+                        return
+                    end
+
+                    Utils.PrintDebug(string.format('Trade request received from %s (UserId: %s)', tostring(otherPlayer.Name), tostring(otherPlayer.UserId)))
+                    pcall(function()
+                        RouterClient.get('TradeAPI/AcceptOrDeclineTradeRequest'):InvokeServer(otherPlayer, true)
+                    end)
+                end)
+                trove:Connect(TradeApp.Frame.NegotiationFrame.Body.PartnerOffer.Accepted:GetPropertyChangedSignal('ImageTransparency'), function(
+                )
+                    Trade.AutoAcceptTrade()
+                end)
+                trove:Connect(TradeApp.Frame.ConfirmationFrame.PartnerOffer.Accepted:GetPropertyChangedSignal('ImageTransparency'), function(
+                )
+                    Trade.AutoAcceptTrade()
+                    task.wait(2)
+
+                    if getgenv().SETTINGS.PET_AUTO_FUSION then
+                        Fusion.MakeMega(false)
+                        Fusion.MakeMega(true)
+                    end
+                end)
+            end
+            function self.Start()
+                Bypass('UIManager').set_app_visibility('HouseEditorWrapperApp', false)
+
+                for name, app in Bypass('UIManager').apps do
+                    if not (typeof(app.instance) == 'Instance' and app.instance:IsA('ScreenGui')) then
+                        continue
+                    end
+                    if table.find(excludeAppList, app.instance.Name) then
+                        continue
+                    end
+                    if app.instance.Enabled then
+                        app.instance.Enabled = false
+
+                        Bypass('UIManager').set_app_visibility(app.instance.Name, false)
+                    end
+                end
+
+                DynamicDiscountHelper.mark_pressed_prompt_button:fire_server({
+                    prompt_choice = 'exit',
+                    prompt_type = 'prompt_daily',
+                })
+                RouterClient.get('LootBoxAPI/ClaimLoginHandouts'):FireServer()
+            end
+
+            return self
+        end
+
         function __DARKLUA_BUNDLE_MODULES.H()
             local v = __DARKLUA_BUNDLE_MODULES.cache.H
 
@@ -12277,34 +12347,34 @@ local files = {
         DailyRewardHandler = __DARKLUA_BUNDLE_MODULES.q(),
     },
     {
-        GameGuiHandler = __DARKLUA_BUNDLE_MODULES.s(),
+        TradeLicenseHandler = __DARKLUA_BUNDLE_MODULES.r(),
     },
     {
-        TradeLicenseHandler = __DARKLUA_BUNDLE_MODULES.t(),
+        TutorialHandler = __DARKLUA_BUNDLE_MODULES.s(),
     },
     {
-        TutorialHandler = __DARKLUA_BUNDLE_MODULES.u(),
+        RayfieldHandler = __DARKLUA_BUNDLE_MODULES.v(),
     },
     {
-        RayfieldHandler = __DARKLUA_BUNDLE_MODULES.x(),
+        BeePass2026 = __DARKLUA_BUNDLE_MODULES.w(),
     },
     {
-        BeePass2026 = __DARKLUA_BUNDLE_MODULES.y(),
+        AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.A(),
     },
     {
-        AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.C(),
+        PetOfflineHandler = __DARKLUA_BUNDLE_MODULES.C(),
     },
     {
-        PetOfflineHandler = __DARKLUA_BUNDLE_MODULES.E(),
+        StatsGuiHandler = __DARKLUA_BUNDLE_MODULES.D(),
     },
     {
-        StatsGuiHandler = __DARKLUA_BUNDLE_MODULES.F(),
+        DailyTaskboardHandler = __DARKLUA_BUNDLE_MODULES.E(),
     },
     {
-        DailyTaskboardHandler = __DARKLUA_BUNDLE_MODULES.G(),
+        PayBucks = __DARKLUA_BUNDLE_MODULES.F(),
     },
     {
-        PayBucks = __DARKLUA_BUNDLE_MODULES.H(),
+        GameGuiHandler = __DARKLUA_BUNDLE_MODULES.H(),
     },
 }
 
