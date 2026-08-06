@@ -9395,185 +9395,6 @@ Check the Developer Console for more information.]],
     end
     do
         local __modImpl = function()
-            local ReplicatedStorage = (game:GetService('ReplicatedStorage'))
-            local Players = game:GetService('Players')
-            local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
-            local ClientData = Bypass('ClientData')
-            local RouterClient = Bypass('RouterClient')
-            local GetInventory = __DARKLUA_BUNDLE_MODULES.m()
-            local Utils = __DARKLUA_BUNDLE_MODULES.d()
-            local contentPacks = (ReplicatedStorage:WaitForChild('SharedModules'):WaitForChild('ContentPacks'))
-            local BeesWagonFlowerHelper = (Utils.SafeRequire(contentPacks, 5, 'BeesWagon2026', 'Game', 'BeesWagonFlowerHelper'))
-            local BeesWagonWagonNet = (Utils.SafeRequire(contentPacks, 5, 'BeesWagon2026', 'Game', 'BeesWagonWagonNet'))
-            local LiveOpsTime = Utils.SafeRequire(ReplicatedStorage.SharedModules, 5, 'Game', 'LiveOpsTime')
-            local localPlayer = Players.LocalPlayer
-            local trove = getgenv().AutoFarmTrove
-            local MAX_REWARD_CLAIMS = 13
-            local BeePass2026 = {}
-            local pickupFlowers = function()
-                for spot = 1, BeesWagonFlowerHelper.PLANTING_SPOT_COUNT do
-                    local spotString = tostring(spot)
-                    local flower = ClientData.get_data()[localPlayer.Name].bees_wagon_2026_manager.planted_seeds[spotString]
-
-                    if not flower then
-                        continue
-                    end
-                    if BeesWagonFlowerHelper.is_flower_ready(flower, LiveOpsTime.now()) then
-                        print('Picked up the flower from:', spotString)
-                        BeesWagonWagonNet.RequestPickFlower:fire_server(spotString)
-                        task.wait(1)
-                    end
-                end
-            end
-            local placeFlowersInVase = function()
-                for i = 1, BeesWagonFlowerHelper.BOUQUET_COUNT do
-                    BeesWagonWagonNet.RequestAddBouquetFlower:fire_server(tostring(i))
-                    task.wait()
-                end
-            end
-            local countPlantedByKind = function()
-                local counts = {}
-                local plantedSeeds = ClientData.get_data()[localPlayer.Name].bees_wagon_2026_manager.planted_seeds
-
-                for _, seed in plantedSeeds do
-                    counts[seed.flower_kind] = (counts[seed.flower_kind] or 0) + 1
-                end
-
-                return counts
-            end
-            local countHeldFlowers = function()
-                return BeesWagonFlowerHelper.count_owned_flowers(ClientData.get_data()[localPlayer.Name].inventory.toys)
-            end
-            local claimFromPool = function(pool, key, need)
-                local taken = math.min(need, pool[key] or 0)
-
-                if taken > 0 then
-                    pool[key] = pool[key] - taken
-                end
-
-                return taken
-            end
-            local startBeeEvent = function()
-                pickupFlowers()
-                placeFlowersInVase()
-
-                local unclaimedPlanted = countPlantedByKind()
-                local unclaimedFlowers = countHeldFlowers()
-
-                for i = 1, BeesWagonFlowerHelper.BOUQUET_COUNT do
-                    local flowersReq = BeesWagonFlowerHelper.get_bouquet_requirements(tostring(i), localPlayer.UserId)
-                    local placedInBouquet = ClientData.get_data()[localPlayer.Name].bees_wagon_2026_manager.placed_flowers[tostring(i)] or {}
-                    local flowerNeeded = BeesWagonFlowerHelper.compute_remaining_requirements(flowersReq, placedInBouquet)
-
-                    for name, value in flowerNeeded do
-                        local seedKind = BeesWagonFlowerHelper.get_seed_item_kind(name)
-
-                        value = value - claimFromPool(unclaimedFlowers, name, value)
-                        value = value - claimFromPool(unclaimedPlanted, name, value)
-
-                        if value <= 0 then
-                            continue
-                        end
-
-                        local playerSeedAmount = GetInventory.GetAmountOfItems('toys', seedKind)
-                        local buySeedAmount = value - playerSeedAmount
-
-                        if buySeedAmount >= 1 then
-                            local hasMoney = RouterClient.get('ShopAPI/BuyItem'):InvokeServer('toys', seedKind, {buy_count = buySeedAmount})
-
-                            if hasMoney == 'too little money' then
-                                return
-                            end
-                        end
-
-                        local planted = 0
-
-                        for spot = 1, BeesWagonFlowerHelper.PLANTING_SPOT_COUNT do
-                            if planted >= value then
-                                break
-                            end
-
-                            local isAlreadySeeded = ClientData.get_data()[localPlayer.Name].bees_wagon_2026_manager.planted_seeds[tostring(spot)]
-
-                            if isAlreadySeeded then
-                                continue
-                            end
-
-                            local seedUnique = GetInventory.GetUniqueId('toys', seedKind)
-
-                            if not seedUnique then
-                                print('no seedUnique')
-
-                                break
-                            end
-
-                            BeesWagonWagonNet.RequestPlantSeed:fire_server({
-                                spot_index = tostring(spot),
-                                seed_item_unique = seedUnique,
-                            })
-
-                            planted = planted + 1
-
-                            task.wait(1)
-                        end
-                    end
-                end
-            end
-            local claimBattlePassRewards = function()
-                local battlePass = ClientData.get_data()[localPlayer.Name].battle_pass_manager
-                local passData = battlePass and battlePass.bees_2026_pass
-
-                if not passData then
-                    return
-                end
-
-                local nextReward = passData.rewards_claimed
-
-                for _ = 1, MAX_REWARD_CLAIMS do
-                    nextReward = nextReward + 1
-
-                    local claimed = RouterClient.get('BattlePassAPI/ClaimReward'):InvokeServer('bees_2026_pass', nextReward)
-
-                    if not claimed then
-                        return
-                    end
-
-                    task.wait()
-                end
-            end
-            local infLoop = function()
-                while true do
-                    startBeeEvent()
-                    claimBattlePassRewards()
-                    task.wait(60)
-                end
-            end
-
-            function BeePass2026.Init() end
-            function BeePass2026.Start()
-                local tread = task.spawn(infLoop)
-
-                trove:Add(tread)
-            end
-
-            return BeePass2026
-        end
-
-        function __DARKLUA_BUNDLE_MODULES.w()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.w
-
-            if not v then
-                v = {
-                    c = __modImpl(),
-                }
-                __DARKLUA_BUNDLE_MODULES.cache.w = v
-            end
-
-            return v.c
-        end
-    end
-    do
-        local __modImpl = function()
             local ReplicatedStorage = (cloneref(game:GetService('ReplicatedStorage')))
             local Workspace = (cloneref(game:GetService('Workspace')))
             local Players = cloneref(game:GetService('Players'))
@@ -10169,14 +9990,14 @@ Check the Developer Console for more information.]],
             return Ailment
         end
 
-        function __DARKLUA_BUNDLE_MODULES.x()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.x
+        function __DARKLUA_BUNDLE_MODULES.w()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.w
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.x = v
+                __DARKLUA_BUNDLE_MODULES.cache.w = v
             end
 
             return v.c
@@ -10537,14 +10358,14 @@ Check the Developer Console for more information.]],
             return FarmingPet
         end
 
-        function __DARKLUA_BUNDLE_MODULES.y()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.y
+        function __DARKLUA_BUNDLE_MODULES.x()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.x
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.y = v
+                __DARKLUA_BUNDLE_MODULES.cache.x = v
             end
 
             return v.c
@@ -10608,14 +10429,14 @@ Check the Developer Console for more information.]],
             return PetRelease
         end
 
-        function __DARKLUA_BUNDLE_MODULES.z()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.z
+        function __DARKLUA_BUNDLE_MODULES.y()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.y
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.z = v
+                __DARKLUA_BUNDLE_MODULES.cache.y = v
             end
 
             return v.c
@@ -10630,13 +10451,13 @@ Check the Developer Console for more information.]],
             local RouterClient = Bypass('RouterClient')
             local CollisionsClient = Bypass('CollisionsClient')
             local Utils = __DARKLUA_BUNDLE_MODULES.d()
-            local Ailment = __DARKLUA_BUNDLE_MODULES.x()
+            local Ailment = __DARKLUA_BUNDLE_MODULES.w()
             local Furniture = __DARKLUA_BUNDLE_MODULES.e()
             local Teleport = __DARKLUA_BUNDLE_MODULES.i()
             local GetInventory = __DARKLUA_BUNDLE_MODULES.m()
-            local FarmingPet = __DARKLUA_BUNDLE_MODULES.y()
+            local FarmingPet = __DARKLUA_BUNDLE_MODULES.x()
             local Fusion = __DARKLUA_BUNDLE_MODULES.k()
-            local PetRelease = __DARKLUA_BUNDLE_MODULES.z()
+            local PetRelease = __DARKLUA_BUNDLE_MODULES.y()
             local myGui = __DARKLUA_BUNDLE_MODULES.c().Get()
             local modules = ReplicatedStorage:WaitForChild('new'):WaitForChild('modules')
             local DailiesNetService = (require(modules:WaitForChild('Dailies'):WaitForChild('DailiesNetService')))
@@ -11056,14 +10877,14 @@ Check the Developer Console for more information.]],
             return AutoFarmHandler
         end
 
-        function __DARKLUA_BUNDLE_MODULES.A()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.A
+        function __DARKLUA_BUNDLE_MODULES.z()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.z
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.A = v
+                __DARKLUA_BUNDLE_MODULES.cache.z = v
             end
 
             return v.c
@@ -11112,14 +10933,14 @@ Check the Developer Console for more information.]],
             return PetOffline
         end
 
-        function __DARKLUA_BUNDLE_MODULES.B()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.B
+        function __DARKLUA_BUNDLE_MODULES.A()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.A
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.B = v
+                __DARKLUA_BUNDLE_MODULES.cache.A = v
             end
 
             return v.c
@@ -11132,7 +10953,7 @@ Check the Developer Console for more information.]],
             local Bypass = (require(ReplicatedStorage:WaitForChild('Fsys')).load)
             local ClientData = Bypass('ClientData')
             local RouterClient = (Bypass('RouterClient'))
-            local PetOffline = __DARKLUA_BUNDLE_MODULES.B()
+            local PetOffline = __DARKLUA_BUNDLE_MODULES.A()
             local GetInventory = __DARKLUA_BUNDLE_MODULES.m()
             local Utils = __DARKLUA_BUNDLE_MODULES.d()
             local localPlayer = Players.LocalPlayer
@@ -11292,14 +11113,14 @@ Check the Developer Console for more information.]],
             return PetOfflineHandler
         end
 
-        function __DARKLUA_BUNDLE_MODULES.C()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.C
+        function __DARKLUA_BUNDLE_MODULES.B()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.B
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.C = v
+                __DARKLUA_BUNDLE_MODULES.cache.B = v
             end
 
             return v.c
@@ -11312,7 +11133,7 @@ Check the Developer Console for more information.]],
             local StatsGui = __DARKLUA_BUNDLE_MODULES.c()
             local Utils = __DARKLUA_BUNDLE_MODULES.d()
             local Clipboard = __DARKLUA_BUNDLE_MODULES.u()
-            local PetOffline = __DARKLUA_BUNDLE_MODULES.B()
+            local PetOffline = __DARKLUA_BUNDLE_MODULES.A()
             local UPDATE_INTERVAL = 10
             local MAX_PETS_IN_PEN = 4
             local localPlayer = Players.LocalPlayer
@@ -11422,14 +11243,14 @@ Check the Developer Console for more information.]],
             return self
         end
 
-        function __DARKLUA_BUNDLE_MODULES.D()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.D
+        function __DARKLUA_BUNDLE_MODULES.C()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.C
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.D = v
+                __DARKLUA_BUNDLE_MODULES.cache.C = v
             end
 
             return v.c
@@ -11486,14 +11307,14 @@ Check the Developer Console for more information.]],
             return DailyTaskboardHandler
         end
 
-        function __DARKLUA_BUNDLE_MODULES.E()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.E
+        function __DARKLUA_BUNDLE_MODULES.D()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.D
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.E = v
+                __DARKLUA_BUNDLE_MODULES.cache.D = v
             end
 
             return v.c
@@ -11655,6 +11476,24 @@ Check the Developer Console for more information.]],
             return PayBucks
         end
 
+        function __DARKLUA_BUNDLE_MODULES.E()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.E
+
+            if not v then
+                v = {
+                    c = __modImpl(),
+                }
+                __DARKLUA_BUNDLE_MODULES.cache.E = v
+            end
+
+            return v.c
+        end
+    end
+    do
+        local __modImpl = function()
+            return true
+        end
+
         function __DARKLUA_BUNDLE_MODULES.F()
             local v = __DARKLUA_BUNDLE_MODULES.cache.F
 
@@ -11670,25 +11509,7 @@ Check the Developer Console for more information.]],
     end
     do
         local __modImpl = function()
-            return true
-        end
-
-        function __DARKLUA_BUNDLE_MODULES.G()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.G
-
-            if not v then
-                v = {
-                    c = __modImpl(),
-                }
-                __DARKLUA_BUNDLE_MODULES.cache.G = v
-            end
-
-            return v.c
-        end
-    end
-    do
-        local __modImpl = function()
-            __DARKLUA_BUNDLE_MODULES.G()
+            __DARKLUA_BUNDLE_MODULES.F()
 
             local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
             local Players = cloneref(game:GetService('Players'))
@@ -11799,14 +11620,14 @@ Check the Developer Console for more information.]],
             return self
         end
 
-        function __DARKLUA_BUNDLE_MODULES.H()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.H
+        function __DARKLUA_BUNDLE_MODULES.G()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.G
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.H = v
+                __DARKLUA_BUNDLE_MODULES.cache.G = v
             end
 
             return v.c
@@ -11900,25 +11721,22 @@ local files = {
         RayfieldHandler = __DARKLUA_BUNDLE_MODULES.v(),
     },
     {
-        BeePass2026 = __DARKLUA_BUNDLE_MODULES.w(),
+        AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.z(),
     },
     {
-        AutoFarmHandler = __DARKLUA_BUNDLE_MODULES.A(),
+        PetOfflineHandler = __DARKLUA_BUNDLE_MODULES.B(),
     },
     {
-        PetOfflineHandler = __DARKLUA_BUNDLE_MODULES.C(),
+        StatsGuiHandler = __DARKLUA_BUNDLE_MODULES.C(),
     },
     {
-        StatsGuiHandler = __DARKLUA_BUNDLE_MODULES.D(),
+        DailyTaskboardHandler = __DARKLUA_BUNDLE_MODULES.D(),
     },
     {
-        DailyTaskboardHandler = __DARKLUA_BUNDLE_MODULES.E(),
+        PayBucks = __DARKLUA_BUNDLE_MODULES.E(),
     },
     {
-        PayBucks = __DARKLUA_BUNDLE_MODULES.F(),
-    },
-    {
-        GameGuiHandler = __DARKLUA_BUNDLE_MODULES.H(),
+        GameGuiHandler = __DARKLUA_BUNDLE_MODULES.G(),
     },
 }
 
